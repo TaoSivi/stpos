@@ -53,8 +53,8 @@ body{background:var(--bg);color:var(--text);overflow:hidden}button{cursor:pointe
 .products{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;align-content:start}
 .product{background:#fff;border-radius:10px;border:1px solid var(--line);position:relative;transition:.14s;box-shadow:0 1px 5px rgba(10,186,181,.05);padding:8px;display:flex;flex-direction:column;gap:5px;cursor:pointer;min-height:58px}
 .product:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(10,186,181,.16)}
-.product .thumb{height:60px;border-radius:8px;background:linear-gradient(135deg,#d5f6f4,#eafbfa);overflow:hidden;display:flex;align-items:center;justify-content:center}
-.product .thumb img{width:100%;height:100%;object-fit:cover}
+.product .thumb{aspect-ratio:1;width:100%;border-radius:8px;background:linear-gradient(135deg,#d5f6f4,#eafbfa);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.product .thumb img{width:100%;height:100%;object-fit:contain}
 .product .pname{font-size:12px;font-weight:700;line-height:1.25;color:var(--text);flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .product .ptop{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .product .price{background:var(--grad);color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:8px;white-space:nowrap}
