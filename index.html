@@ -175,6 +175,7 @@ const PAYTYPES=["ເງິນສົດ","ໂອນ BCEL","ໂອນ LDB","ໂອ
 const PIECE_ING=['CUP','STRAW','EGG','CROISSANT','CAKE','BEERLAO','HEINEKEN'];
 
 let state=null,view='tables',curFloor="ທັງໝົດ",kfilter='all',dashDate=null;
+let histDate,histView='bill';
 let _kdsCount={},_kdsInit={};let stockCat='ທັງໝົດ';
 const HAS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
 /* ===== GAS DATA API (for GitHub Pages / static hosting) =====
@@ -385,10 +386,25 @@ function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');
  R.innerHTML=`<div class="kds-head"><span style="font-size:22px"> ຈໍພະນັກງານເສີບ</span><span class="stat on">ພ້ອມເສີບ ${ready.length}</span><span class="stat">ເສີບແລ້ວມື້ນີ້ ${state.servedToday||0}</span><span style="margin-left:auto;font-size:12px"> ເຊື່ອມຕໍ່ແລ້ວ</span></div>
   ${ready.length?`<div class="kds-grid">${ready.sort((a,b)=>a.ts-b.ts).map(o=>`<div class="kcard st-ready"><h4>${o.qty}× ${o.name}</h4><div class="meta">ໂຕະ ${o.table} · ${o.k==='food'?' ຄົວ':' ບາ'}</div><button class="kbtn" style="background:var(--green)" onclick="serveOrder('${o.id}')"> ເສີບແລ້ວ</button></div>`).join('')}</div>`:'<div class="empty">ບໍ່ມີລາຍການພ້ອມເສີບ</div>'}`;}
 function serveOrder(id){const i=state.orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;state.orders[i].status='served';state.servedToday=(state.servedToday||0)+1;save();render();}
-function renderHistory(R){const bills=[...state.bills].reverse();
- R.innerHTML=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ປະຫວັດການຂາຍ</span><span style="color:var(--muted)">ທັງໝົດ ${bills.length} ບິນ</span></div>
-  <div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>#</th><th>ເລກບິນ</th><th>ໂຕະ</th><th>ເວລາ</th><th>ຍອດ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th>ສະຖານະ</th></tr></thead><tbody>
-  ${bills.length?bills.map((b,i)=>`<tr><td>${i+1}</td><td>${b.receipt}</td><td>${b.table}</td><td>${new Date(b.ts).toLocaleString('en-GB')}</td><td>${KIP(b.total)}</td><td>${b.pay}</td><td>${b.cashier}</td><td><button class="btn-sm" onclick="previewReceipt('${b.receipt}')"> ພິມບິນ</button></td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>'}</tbody></table></div>`;}
+function histBills(){var all=[...state.bills].reverse();return histDate?all.filter(function(b){return ymd(b.ts)===histDate;}):all;}
+function renderHistory(R){if(histDate===undefined)histDate=ymd(Date.now());
+ var bills=histBills(),total=bills.reduce(function(s,b){return s+b.total;},0);
+ var bar=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ປະຫວັດການຂາຍ</span>
+   <label style="margin:0;font-weight:600">ວັນທີ:</label><input class="in" type="date" value="${histDate||''}" onchange="histDate=this.value;render()">
+   <button class="btn-sm" onclick="histDate='';render()">ທັງໝົດ</button>
+   <button class="btn-sm" onclick="histView='${histView==='bill'?'table':'bill'}';render()">${histView==='bill'?' ສະແດງຕາມໂຕະ':' ສະແດງລາຍບິນ'}</button>
+   <button class="btn-sm" onclick="exportHistory()"> Export Excel</button>
+   <span style="margin-left:auto;color:var(--muted)">${bills.length} ບິນ · ${KIP(total)} ກີບ</span></div>`;
+ if(histView==='table'){
+  var g={};bills.forEach(function(b){var k=b.table||'-';if(!g[k])g[k]={n:0,items:0,total:0};g[k].n++;g[k].total+=b.total;g[k].items+=(b.items||[]).reduce(function(s,i){return s+(i.qty||0);},0);});
+  var keys=Object.keys(g).sort(function(a,b){return g[b].total-g[a].total;});
+  R.innerHTML=bar+`<div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>ໂຕະ</th><th>ຈຳນວນບິນ</th><th>ຈຳນວນລາຍການ</th><th>ຍອດລວມ</th></tr></thead><tbody>${keys.length?keys.map(function(k){return `<tr><td><b>${k}</b></td><td>${g[k].n}</td><td>${g[k].items}</td><td>${KIP(g[k].total)}</td></tr>`;}).join(''):'<tr><td colspan="4" style="text-align:center;padding:30px;color:#94a3b8">ບໍ່ມີຂໍ້ມູນ</td></tr>'}</tbody></table></div>`;
+ }else{
+  R.innerHTML=bar+`<div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>#</th><th>ເລກບິນ</th><th>ໂຕະ</th><th>ເວລາ</th><th>ຍອດ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th></th></tr></thead><tbody>${bills.length?bills.map(function(b,i){return `<tr><td>${i+1}</td><td>${b.receipt}</td><td>${b.table}</td><td>${new Date(b.ts).toLocaleString('en-GB')}</td><td>${KIP(b.total)}</td><td>${b.pay}</td><td>${b.cashier}</td><td><button class="btn-sm" onclick="previewReceipt('${b.receipt}')"> ພິມບິນ</button></td></tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>'}</tbody></table></div>`;
+ }}
+function exportHistory(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var bills=histBills();if(!bills.length){toast('ບໍ່ມີຂໍ້ມູນໃຫ້ export');return;}
+  var rows=bills.map(function(b){return {'ເລກບິນ':b.receipt,'ວັນທີ':new Date(b.ts).toLocaleString('en-GB'),'ໂຕະ':b.table,'ຍอด(ກີບ)':b.total,'ວິທີຈ່າຍ':b.pay,'ແຄຊເຍຍ':b.cashier,'ລາຍການ':(b.items||[]).map(function(i){return i.qty+'x '+i.name;}).join('; ')};});
+  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ປະຫວັດການຂາຍ');XLSX.writeFile(wb,'ປະຫວັດການຂາຍ_'+(histDate||'ທັງໝົດ')+'.xlsx');toast('Export ສຳເລັດ');});}
 function ymd(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
  const bills=state.bills.filter(b=>ymd(b.ts)===dashDate);const sales=bills.reduce((s,b)=>s+b.total,0),n=bills.length;
