@@ -301,9 +301,13 @@ let histDate,histView='item';let adminSec='shop';let reportTab='summary',repDate
 let _kdsCount={},_kdsInit={};let stockCat='ທັງໝົດ';
 const HAS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
 /* ===== GAS DATA API (for GitHub Pages / static hosting) =====
-   ໃໝ່: ໃສ່ link GAS ຂອງເຈົ້າທີ່ Admin ໄດ້ເລີຍ (ບໍ່ຕ້ອງແກ້ໂຄ້ດ). ຄ່າລຸ່ມນີ້ແມ່ນ default. */
-const API_DEFAULT='https://script.google.com/macros/s/AKfycbwbPzXyd0kTH2LfWqJk19JlHM4ocr_B44Ks8vh2mKpeaco0WdOxU6Bt_ab8datFxacg/exec';
-const API_URL=((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_api'))||API_DEFAULT);
+   ⚠ ຢ່າຝັງ URL ໃສ່ໂຄ້ດ (repo ສາທາລະນະ). ໃສ່ຜ່ານ:
+   1) ພະນັກງານ: ໜ້າຕັ້ງຄ່າຄັ້ງທຳອິດ ຫຼື ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່ (ເກັບໃນ localStorage)
+   2) ລູກຄ້າ QR: URL ຕິດມາໃນລິ້ງ QR ເອງ (&api=...) ທີ່ພະນັກງານສ້າງ */
+const API_DEFAULT='';
+const API_QP=(function(){try{var m=/[?&]api=([^&#]+)/.exec(location.search);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}})();
+if(API_QP){try{localStorage.setItem('stpos_api',API_QP);}catch(e){}}
+const API_URL=(API_QP||((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_api'))||API_DEFAULT)).trim();
 const HAS_API=(!HAS_GAS && !!API_URL);
 const TOKEN=(((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_token'))||'')+'').trim();
 let __tokErr=false;
@@ -402,7 +406,22 @@ function localBackup(){try{var b=localStorage.getItem('stpos_backup');if(b){var 
 function restoreOrFresh(){var bk=localBackup();if(bk){state=bk;ensureDefaults();_loaded=true;}render();qrEntry();}
 function _doSave(){if(!_loaded)return;if(_saving){_pending=true;return;}_saving=true;google.script.run.withSuccessHandler(function(ok){_saving=false;if(ok===false)tokenErr_();if(_pending){_pending=false;_doSave();}}).withFailureHandler(()=>{_saving=false;setNet(true);setTimeout(function(){if(navigator.onLine!==false){setNet(false);}},8000);}).saveState(JSON.stringify(state),TOKEN);}
 function _doSaveApi(){if(!_loaded)return;apiSave(JSON.stringify(state));}
-function boot(){if(HAS_GAS||HAS_API){state=freshState();ensureDefaults();}else{initState(localStorage.getItem('stpos')||'');}afterBoot();
+function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.classList.remove('hidden');
+ if(getQ('table')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:15px;max-width:340px;text-align:center;line-height:1.7">QR ນີ້ໝົດອາຍຸ ຫຼື ບໍ່ສົມບູນ<br>ກະລຸນາຂໍລະຫັດ QR ໃໝ່ຈາກພະນັກງານ</div>';return;}
+ b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:360px;text-align:center;line-height:1.7">ຕັ້ງຄ່າຄັ້ງທຳອິດ — ໃສ່ລິ້ງ GAS (/exec) ຂອງຮ້ານ</div>'
+  +'<input id="apiIn" placeholder="https://script.google.com/macros/s/..../exec" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px;margin-top:4px">'
+  +'<input id="tokIn" placeholder="API Token (ຖ້າຕັ້ງໄວ້ໃນ Code.gs)" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'
+  +'<button onclick="apiSetupSave()" style="padding:11px 24px;border-radius:11px;border:none;font-weight:700;font-family:inherit;background:#0ABAB5;color:#fff;margin-top:2px">ບັນທຶກ & ເລີ່ມ</button>'
+  +'<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center;margin-top:4px">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'
+  +'<div onclick="localStorage.setItem(\'stpos_local\',\'1\');location.reload()" style="font-size:12px;color:#0A7E7A;text-decoration:underline;cursor:pointer;margin-top:8px">ໃຊ້ແບບເຄື່ອງດຽວ (ບໍ່ເຊື່ອມ server)</div>';
+ var i=document.getElementById('apiIn');if(i)i.focus();}
+function apiSetupSave(){var u=((document.getElementById('apiIn')||{}).value||'').trim();var t=((document.getElementById('tokIn')||{}).value||'').trim();
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)){alert('ລິ້ງບໍ່ຖືກຮູບແບບ — ຕ້ອງລົງທ້າຍດ້ວຍ /exec');return;}
+ try{localStorage.setItem('stpos_api',u);if(t)localStorage.setItem('stpos_token',t);}catch(e){}
+ location.reload();}
+function boot(){var wantLocal=false;try{wantLocal=localStorage.getItem('stpos_local')==='1';}catch(e){}
+ if(!HAS_GAS&&!API_URL&&!wantLocal){apiSetupScreen();return;}
+ if(HAS_GAS||HAS_API){state=freshState();ensureDefaults();}else{initState(localStorage.getItem('stpos')||'');}afterBoot();
  if(getQ('table')&&(HAS_GAS||HAS_API)){pullCust(0);return;} /* ລູກຄ້າ QR: ດຶງສະເພາະຂໍ້ມູນໂຕະຕົນເອງ */
  if(HAS_GAS)pullState(0);else if(HAS_API)pullStateApi(0);}
 function pullStateApi(a){apiGet(function(s){
@@ -573,7 +592,7 @@ function ensureQR(name){const now=Date.now(),q=state.qr[name];const noexp=(state
  if(!q||(!noexp&&q.expiry<now)){state.qr[name]={pin:String(Math.floor(100000+Math.random()*900000)),expiry:now+ttl,enabled:(q?q.enabled:true)};save();}
  else if(noexp&&q.expiry<now+ttl-86400000){q.expiry=now+ttl;save();}
  return state.qr[name];}
-function openTableQR(name){const q=ensureQR(name),needPin=(state.qrPinRequired!==false),url=QR_BASE+"?table="+encodeURIComponent(name)+(needPin?"&pin="+q.pin:"")+"&v="+APPVER,exp=new Date(q.expiry).toLocaleString('en-GB');
+function openTableQR(name){const q=ensureQR(name),needPin=(state.qrPinRequired!==false),url=QR_BASE+"?table="+encodeURIComponent(name)+(needPin?"&pin="+q.pin:"")+(API_URL?"&api="+encodeURIComponent(API_URL):"")+"&v="+APPVER,exp=new Date(q.expiry).toLocaleString('en-GB');
  openModal(`<div style="text-align:center"><h2> QR ສັ່ງອອນໄລ — ໂຕະ ${name}</h2><div id="qrbox" style="display:inline-block;padding:14px;background:#fff;border:2px solid var(--line);border-radius:14px;margin:6px"></div>
   ${needPin?`<div style="font-size:15px;margin:8px 0">ລະຫັດ PIN: <b style="font-size:22px;color:var(--tiff-deep);letter-spacing:2px">${q.pin}</b></div>`:`<div style="font-size:12px;color:var(--green);margin:8px 0">ບໍ່ຕ້ອງໃສ່ລະຫັດ PIN (ສະແກນແລ້ວສັ່ງໄດ້ເລີຍ)</div>`}
   <div style="font-size:12px;color:var(--muted)">${state.qrExpires===false?' QR ນີ້ບໍ່ໝົດອາຍຸ':'ໝົດອາຍຸ: '+exp}</div>${!state.qrGlobal?'<div style="color:var(--red);font-size:12px;margin-top:6px"> QR ທັງຮ້ານຖືກປິດ (ໄປເປີດທີ່ Admin)</div>':''}
