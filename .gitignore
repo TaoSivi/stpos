@@ -1,0 +1,11 @@
+# Data files (real prices/costs/recipes) — kept out of the public repo, live in Google Sheets in production
+*.xlsx
+*.xls
+~$*
+
+# Office/LibreOffice lock files
+.~lock.*#
+
+# Old/unused
+_ເກົ່າ-ບໍ່ໃຊ້/
+_synctest.txt
