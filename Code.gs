@@ -139,6 +139,17 @@ function mergeStock_(curStr, inc) {
       inc.stockLog.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
       if (inc.stockLog.length > 4000) inc.stockLog = inc.stockLog.slice(-4000);
     }
+    if (Array.isArray(cur.transfers)) {                  /* ລວມໃບໂອນ: ຄົງໃບຂອງເຄື່ອງອື່ນ + ໃຫ້ສະຖານະທີ່ຄືບໜ້າກວ່າຊະນະ */
+      if (!Array.isArray(inc.transfers)) inc.transfers = [];
+      var rank = function (s) { return s === 'received' ? 3 : (s === 'void' ? 2 : 1); };
+      var byId = {}; inc.transfers.forEach(function (t) { byId[t.id] = t; });
+      cur.transfers.forEach(function (t) {
+        var e = byId[t.id];
+        if (!e) { inc.transfers.push(t); byId[t.id] = t; }
+        else if (rank(t.status) > rank(e.status)) { inc.transfers[inc.transfers.indexOf(e)] = t; byId[t.id] = t; }
+      });
+      inc.transfers.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    }
     return inc;
   } catch (e) { return inc; }
 }
@@ -408,6 +419,11 @@ function writeMirrors_(ss, st) {
     });
   });
   putTable_(ss, 'ການຂາຍ', ['Receipt', 'Table', 'Menu', 'Qty', 'UnitPrice', 'Total', 'OrderTime', 'PayTime', 'Pay', 'Cashier', 'Void'], sales);
+  putTable_(ss, 'ໂອນສະຕ໋ອກ', ['No', 'From', 'To', 'Status', 'Items', 'Sent', 'Received', 'By', 'RecvBy'],
+    (st.transfers || []).map(function (t) {
+      return [t.no, locNm_(t.from), locNm_(t.to), t.status, (t.items || []).map(function (i) { return i.qty + ' ' + (i.unit || '') + ' ' + (i.name || i.code); }).join('; '),
+        new Date(t.ts), t.recvTs ? new Date(t.recvTs) : '', t.by || '', t.recvBy || ''];
+    }));
   putTable_(ss, 'Orders', ['Table', 'Item', 'Qty', 'Type', 'Status', 'Time'],
     (st.orders || []).map(function (o) {
       return [o.table, o.name, o.qty, (o.k === 'food' ? 'food' : 'drink'), o.status, new Date(o.ts)];
