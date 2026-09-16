@@ -52,6 +52,14 @@ body{background:var(--bg);color:var(--text);overflow:hidden}button{cursor:pointe
 .s-callbill{border-color:var(--callbill);background:#fff7ed}.s-callbill .tname{color:#c2410c}.s-callbill .tseat{color:var(--callbill)}
 .calltag{position:absolute;top:6px;left:7px;background:var(--callbill);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:8px;z-index:2;animation:callpulse 1.2s infinite}
 @keyframes callpulse{0%,100%{opacity:1}50%{opacity:.45}}
+.layoutbtns{display:inline-flex;gap:4px;background:#eafbfa;border:1px solid var(--line);border-radius:11px;padding:3px}
+.layoutbtns button{border:none;background:transparent;padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--tiff-deep);cursor:pointer;font-family:inherit}
+.layoutbtns button.on{background:var(--grad);color:#fff}
+.floorplan{position:relative;width:100%;height:60vh;min-height:360px;background:#f7fbfb;border:2px dashed var(--line);border-radius:16px;overflow:hidden;touch-action:none;margin-top:4px;background-image:linear-gradient(rgba(10,186,181,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(10,186,181,.06) 1px,transparent 1px);background-size:34px 34px}
+.plantable{position:absolute;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:16px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(10,186,181,.12);cursor:pointer;user-select:none;-webkit-user-select:none;text-align:center;padding:2px}
+.plantable .pn{font-weight:800;font-size:15px;line-height:1.1}.plantable .pa{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.1}
+.plantable.editing{cursor:grabbing;box-shadow:0 0 0 3px rgba(10,186,181,.4),0 6px 16px rgba(0,0,0,.18);z-index:5}
+.planhint{font-size:12px;color:var(--tiff-deep);background:#eafbfa;border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-top:8px;text-align:center;font-weight:600}
 .qrbadge{position:absolute;top:6px;right:7px;background:#dff7f5;border-radius:9px;width:29px;height:29px;display:flex;align-items:center;justify-content:center;z-index:2;transition:.12s}.qrbadge:hover{background:var(--tiff);transform:scale(1.12)}
 #orderWrap{flex:1;display:flex;overflow:hidden}.menupane{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:13px}
 .cats{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}.cat{padding:8px 17px;border-radius:11px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:13px}
@@ -551,15 +559,33 @@ function recalcPromos(list){if(!list)return;
   if(subtotal>=(+p.minSpend||0)){var pct=Math.max(0,Math.min(100,+p.pct||0));list.forEach(function(i){if(pct>(+i.promoPct||0)){i.promoPct=pct;i.promo=(p.name||'Promo');}});}});
  act.filter(function(p){return p.type==='bogo';}).forEach(function(p){applyBogo(p,list);});
 }
+let tableLayout=(function(){try{return localStorage.getItem('stpos_tablelayout')||'grid';}catch(e){return 'grid';}})();
+let planEdit=false,_pdrag=null,_planSkipClick=false;
+function canEditPlan(){var u=curUser();return !!u&&(u.role==='owner'||u.role==='manager');}
+function setTableLayout(m){tableLayout=m;try{localStorage.setItem('stpos_tablelayout',m);}catch(e){}if(m!=='plan')planEdit=false;render();}
+function togglePlanEdit(){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ ແກ້ຜັງໄດ້');return;}planEdit=!planEdit;render();}
+function planClick(name){if(planEdit)return;if(_planSkipClick){_planSkipClick=false;return;}openTable(name);}
+function planDown(ev,name){if(!planEdit)return;ev.preventDefault();var cont=document.getElementById('floorplan');if(!cont)return;var el=ev.currentTarget;_pdrag={name:name,el:el,cont:cont,moved:false,x:null,y:null};try{el.setPointerCapture(ev.pointerId);}catch(e){}el.classList.add('editing');}
+function planMove(ev){if(!_pdrag)return;var r=_pdrag.cont.getBoundingClientRect();if(!r.width)return;var x=(ev.clientX-r.left)/r.width*100,y=(ev.clientY-r.top)/r.height*100;x=Math.max(4,Math.min(96,x));y=Math.max(5,Math.min(95,y));_pdrag.el.style.left=x+'%';_pdrag.el.style.top=y+'%';_pdrag.x=x;_pdrag.y=y;_pdrag.moved=true;}
+function planUp(){if(!_pdrag)return;var d=_pdrag;_pdrag=null;if(d.el)d.el.classList.remove('editing');if(d.moved&&d.x!=null){var t=state.tables[d.name];if(t){t.lx=Math.round(d.x*10)/10;t.ly=Math.round(d.y*10)/10;save();}_planSkipClick=true;setTimeout(function(){_planSkipClick=false;},400);}}
+document.addEventListener('pointermove',planMove);document.addEventListener('pointerup',planUp);document.addEventListener('pointercancel',planUp);
 function renderTables(R){const c={free:0,busy:0,bill:0,new:0,main:0,merged:0};Object.values(state.tables).forEach(t=>c[t.status]=(c[t.status]||0)+1);
  let out=0,cnt=0;Object.values(state.tables).forEach(t=>{if(t.status!=='free'&&t.status!=='merged'){out+=tableTotal(t);cnt++;}});
  const leg=[["ວ່າງ","free"],["ບໍ່ວ່າງ","busy"],["ຂໍເຊັກບິນ","callbill"],["ເຊັກບິນ","bill"],["ສັ່ງໃໝ່","new"],["ໂຕະຫຼັກ","main"],["ໂຕະລວມ","merged"]];
  const list=Object.values(state.tables).filter(t=>curFloor==="ທັງໝົດ"||t.floor===curFloor);
- R.innerHTML=`<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ເລືອກໂຕະ</div><div class="sub">ກົດໂຕະເພື່ອສັ່ງ · ກົດ  ເພື່ອ QR ສັ່ງອອນໄລ</div></div></div>
+ const layoutToggle=`<div class="layoutbtns"><button class="${tableLayout==='grid'?'on':''}" onclick="setTableLayout('grid')">▤ ຕາຕະລາງ</button><button class="${tableLayout==='plan'?'on':''}" onclick="setTableLayout('plan')">🗺 ຜັງຮ້ານ</button></div>${tableLayout==='plan'&&canEditPlan()?`<button class="chip ${planEdit?'active':''}" style="margin-left:8px" onclick="togglePlanEdit()">${planEdit?'✓ ແກ້ຜັງຢູ່ (ກົດເພື່ອຈົບ)':'✎ ແກ້ຜັງ'}</button>`:''}`;
+ const head=`<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ເລືອກໂຕະ</div><div class="sub">ກົດໂຕະເພື່ອສັ່ງ · ກົດ  ເພື່ອ QR ສັ່ງອອນໄລ</div></div></div>
   <div class="floors">${floorsAll().map(f=>`<button class="chip ${f===curFloor?'active':''}" onclick="curFloor='${f.replace(/'/g,"\\'")}';render()">${f}</button>`).join('')}</div>
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0">${layoutToggle}</div>
   <div class="legend">${leg.map(([l,k])=>`<span><span class="dot" style="background:var(--${k})"></span>${l} <b>${c[k]||0}</b></span>`).join('')}</div>
-  <div class="outstanding"> ຍອດຄ້າງຊຳລະ: ${KIP(out)} ກີບ (${cnt} ອໍເດີ)</div>
-  <div class="tablegrid">${list.map(t=>{const occ=t.status!=='free'&&t.status!=='merged';const safe=t.name.replace(/'/g,"\\'");
+  <div class="outstanding"> ຍອດຄ້າງຊຳລະ: ${KIP(out)} ກີບ (${cnt} ອໍເດີ)</div>`;
+ if(tableLayout==='plan'){
+  list.forEach((t,i)=>{if(t.lx==null||t.ly==null){var col=i%6,row=Math.floor(i/6);t.lx=9+col*15;t.ly=13+row*20;if(t.ly>92)t.ly=92;}});
+  const plan=list.map(t=>{const occ=t.status!=='free'&&t.status!=='merged';const safe=t.name.replace(/'/g,"\\'");
+   return `<div class="plantable s-${t.status}" style="left:${t.lx}%;top:${t.ly}%" onpointerdown="planDown(event,'${safe}')" onclick="planClick('${safe}')"><div class="pn">${t.name}</div><div class="pa">${occ?KIP(tableTotal(t))+'₭':(t.status==='merged'?'ລວມ'+t.mergedInto:(t.reserved?'ຈອງ':'ວ່າງ'))}</div>${t.status==='callbill'?'<div style="position:absolute;top:-7px;right:-7px;background:var(--callbill);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px">ເຊັກ</div>':''}${t.reserved?'<div style="position:absolute;top:-7px;left:-7px;background:#8b5cf6;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px">ຈ</div>':''}</div>`;}).join('');
+  R.innerHTML=head+`<div class="floorplan" id="floorplan">${plan||'<div class="empty" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">ຊັ້ນນີ້ຍັງບໍ່ມີໂຕະ</div>'}</div>${planEdit?'<div class="planhint">ລາກໂຕະໄປວາງຕາມຜັງຮ້ານຈິງ — ບັນທຶກອັດຕະໂນມັດ. ກົດ "✓ ແກ້ຜັງຢູ່" ອີກເທື່ອເພື່ອຈົບ ແລ້ວກົດໂຕະເພື່ອສັ່ງໄດ້ຕາມປົກກະຕິ':'<div class="planhint" style="background:#fff;border-style:dashed">ກົດໂຕະເພື່ອສັ່ງ'+(canEditPlan()?' · ກົດ "✎ ແກ້ຜັງ" ເພື່ອຈັດຕຳແໜ່ງໂຕະ':'')+'</div>'}</div>`;
+  return;}
+ R.innerHTML=head+`<div class="tablegrid">${list.map(t=>{const occ=t.status!=='free'&&t.status!=='merged';const safe=t.name.replace(/'/g,"\\'");
    return `<div class="tablecard s-${t.status}" onclick="openTable('${safe}')">${t.status==='callbill'?'<div class="calltag"> ຂໍເຊັກບິນ</div>':''}${t.reserved?'<div class="calltag" style="background:#8b5cf6;animation:none"> ຈອງ '+cesc(t.reserved.time||'')+'</div>':''}${t.status==='free'?`<button class="qrbadge" style="right:auto;left:7px;top:auto;bottom:6px;background:#ede9fe" title="ຈອງໂຕະ" onclick="event.stopPropagation();reserveTable('${safe}')"><span style="font-size:12px;font-weight:800;color:#6d28d9">${t.reserved?'✎':'ຈ'}</span></button>`:''}<button class="qrbadge" title="QR" onclick="event.stopPropagation();openTableQR('${safe}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v4h-4v-2h2v-2z"/></svg></button>
      <div class="tseat"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.4"/></svg></div><div class="tname">${t.name}</div>
      <div class="tamt">${occ?'<b style="color:var(--tiff-deep);font-size:13px">'+KIP(tableTotal(t))+' ກີບ</b>':(t.status==='merged'?'<span class="freepill" style="background:#eef2f7;color:#64748b">ລວມ'+t.mergedInto+'</span>':'<span class="freepill">ວ່າງ</span>')}</div></div>`;}).join('')||'<div class="empty">ຊັ້ນນີ້ຍັງບໍ່ມີໂຕະ</div>'}</div></div>`;}
