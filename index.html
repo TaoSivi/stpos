@@ -306,7 +306,7 @@ function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])retu
 let state=null,view='tables',custView='menu',curFloor="ທັງໝົດ",kfilter='all',dashDate=null,dashRange=7,expDate=null,expCat='ທັງໝົດ';
 const EXP_CATS=["ວັດຖຸດິບ/ສິນຄ້າ","ເງິນເດືອນພະນັກງານ","ຄ່າເຊົ່າ","ໄຟຟ້າ-ນ້ຳ-ເນັດ","ອຸປະກອນ/ສ້ອມແປງ","ການຕະຫຼາດ","ອື່ນໆ"];
 let histDate,histView='item';let adminSec='shop';let reportTab='summary',repDate=null;
-let _kdsCount={},_kdsInit={};let stockCat='ທັງໝົດ';
+let _kdsCount={},_kdsInit={};let stockCat='ທັງໝົດ';let stockViewLoc=null;
 const HAS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
 /* ===== GAS DATA API (for GitHub Pages / static hosting) =====
    ⚠ ຢ່າຝັງ URL ໃສ່ໂຄ້ດ (repo ສາທາລະນະ). ໃສ່ຜ່ານ:
@@ -355,6 +355,10 @@ let _booted=false;function ensureDefaults(){const d={shopName:"ST POS — LaoFe 
  if(!Array.isArray(state.floors)||!state.floors.length)state.floors=[...DEFAULT_FLOORS];
  if(!state.activeShift||state.shifts.indexOf(state.activeShift)<0)state.activeShift=state.shifts[0];
  if(!state.activeStaff||state.staff.indexOf(state.activeStaff)<0)state.activeStaff=state.staff[0];
+ /* --- multi-location: default location + migrate legacy single-pool stock into it --- */
+ if(!Array.isArray(state.locations)||!state.locations.length)state.locations=[{id:DEFLOC,name:'ສາຂາຫຼັກ',type:'branch',active:true}];
+ Object.keys(state.ingredients||{}).forEach(function(k){var it=state.ingredients[k];if(!it.locs){it.locs={};if(typeof it.stock==='number')it.locs[DEFLOC]=it.stock;}});
+ try{if(!localStorage.getItem('stpos_loc'))localStorage.setItem('stpos_loc',state.locations[0].id);}catch(e){}
  ensureUsers();}
 function ensureUsers(){
  if(!Array.isArray(state.users)||!state.users.length){state.users=[{id:'u1',name:'Admin',role:'owner',pin:'1234'}];
@@ -388,9 +392,20 @@ function ensureUsers(){
    {id:'g2',title:'ຄວາມເຜັດ',multi:false,scope:'food',opts:[{n:'ບໍ່ເຜັດ',p:0},{n:'ເຜັດນ້ອຍ',p:0},{n:'ເຜັດ',p:0}]},
    {id:'g3',title:'Topping (ເພີ່ມ)',multi:true,scope:'all',opts:[{n:'ເພີ່ມຊີ້ນ',p:15000},{n:'ໄຂ່ດາວ',p:8000}]}];}
  state.modGroups.forEach(function(g){if(!g.id)g.id='g'+Math.random().toString(36).slice(2,7);if(!g.scope)g.scope='all';if(!Array.isArray(g.opts))g.opts=[];});}
-function logStock(code,delta,reason,ref){if(!delta)return;if(!Array.isArray(state.stockLog))state.stockLog=[];
- var it=state.ingredients[code]||{};
- state.stockLog.push({ts:Date.now(),code:code,name:it.name||code,unit:it.unit||'',delta:Math.round(delta*100)/100,after:it.stock!==undefined?Math.round(it.stock*100)/100:null,reason:reason,ref:ref||'',by:whoBy()});
+/* ===== MULTI-LOCATION STOCK (per-location buckets) =====
+   ingredients[code].locs = {locId: qty}. it.stock = transient mirror of curLoc() bucket (recomputed each render).
+   curLoc() = this terminal's physical location (localStorage 'stpos_loc'); stockViewLoc = location being viewed/edited on Stock page. */
+const DEFLOC='main';
+function curLoc(){try{var l=localStorage.getItem('stpos_loc');if(l)return l;}catch(e){}var L=(state&&state.locations)||[];return L.length?L[0].id:DEFLOC;}
+function locName(id){var L=(state&&state.locations)||[];var f=L.find(function(x){return x.id===id;});return f?f.name:(id||'');}
+function ensLocs(it){if(!it.locs){it.locs={};if(typeof it.stock==='number')it.locs[DEFLOC]=it.stock;}return it.locs;}
+function stockAt(code,loc){var it=state.ingredients[code];if(!it)return 0;ensLocs(it);return +it.locs[loc]||0;}
+function syncStockView(){var l=curLoc();var ig=state.ingredients||{};Object.keys(ig).forEach(function(k){var it=ig[k];ensLocs(it);it.stock=+it.locs[l]||0;});}
+function addStockAt(code,loc,delta,reason,ref){var it=state.ingredients[code];if(!it||!delta)return;ensLocs(it);it.locs[loc]=Math.round(((+it.locs[loc]||0)+delta)*1000)/1000;if(loc===curLoc())it.stock=it.locs[loc];logStock(code,delta,reason,ref,loc);}
+function setStockAt(code,loc,qty,reason,ref){var it=state.ingredients[code];if(!it)return;ensLocs(it);var old=+it.locs[loc]||0;it.locs[loc]=qty;if(loc===curLoc())it.stock=qty;if(qty-old)logStock(code,qty-old,reason,ref,loc);}
+function logStock(code,delta,reason,ref,loc){if(!delta)return;if(!Array.isArray(state.stockLog))state.stockLog=[];
+ var it=state.ingredients[code]||{};loc=loc||curLoc();var after=(it.locs&&it.locs[loc]!==undefined)?it.locs[loc]:it.stock;
+ state.stockLog.push({ts:Date.now(),code:code,name:it.name||code,unit:it.unit||'',delta:Math.round(delta*100)/100,after:after!==undefined&&after!==null?Math.round(after*100)/100:null,reason:reason,ref:ref||'',by:whoBy(),loc:loc,locName:locName(loc)});
  if(state.stockLog.length>4000)state.stockLog=state.stockLog.slice(-4000);}
 function MSRC(){return (typeof state!=='undefined'&&state&&state.catalog&&Object.keys(state.catalog).length)?state.catalog:MENU;}
 function allMenu(){const M=MSRC();let a=[];for(const cat in M)for(const sub in M[cat])a=a.concat(M[cat][sub]);return a;}
@@ -407,7 +422,7 @@ function freshState(){
 }
 let _saveT=null,_saving=false,_pending=false,_loaded=false;
 function save(){if(isCust())return; /* ລູກຄ້າ QR ບໍ່ຂຽນ state ເຕັມ — ສັ່ງຜ່ານ custSend ເທົ່ານັ້ນ */
- state._v=Date.now();
+ state._v=Date.now();state._srcLoc=curLoc();
  try{if(state&&((state.bills&&state.bills.length)||(state.catalog&&Object.keys(state.catalog).length)))localStorage.setItem('stpos_backup',JSON.stringify(state));}catch(e){}
  if(HAS_GAS){if(_saveT)clearTimeout(_saveT);_saveT=setTimeout(_doSave,350);}else if(HAS_API){if(_saveT)clearTimeout(_saveT);_saveT=setTimeout(_doSaveApi,500);}else{try{localStorage.setItem('stpos',JSON.stringify(state));}catch(e){}}}
 function localBackup(){try{var b=localStorage.getItem('stpos_backup');if(b){var o=JSON.parse(b);if(o&&((o.bills&&o.bills.length)||(o.catalog&&Object.keys(o.catalog).length)))return o;}}catch(e){}return null;}
@@ -453,7 +468,7 @@ function pullState(a){google.script.run.withSuccessHandler(function(s){if(s==='D
 function initState(s){try{state=s?JSON.parse(s):null;}catch(e){state=null;}if(!state||!state.ingredients){state=freshState();save();}
  const d={shopName:'ST POS — LaoFe Cafe & Beer',qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{}};
  for(const k in d){if(state[k]===undefined)state[k]=d[k];}
- ensureUsers();}
+ ensureDefaults();}
 /* ===== OFFLINE QUEUE: ເນັດຫຼຸດ ຍັງຂາຍຕໍ່ໄດ້ — ຂໍ້ມູນຄ້າງໃນເຄື່ອງ ແລ້ວ sync ອັດຕະໂນມັດເມື່ອເນັດກັບມາ ===== */
 let _offline=false,_offRetry=null;
 function setNet(off){_offline=off;var d=document.getElementById('netDot');
@@ -508,10 +523,11 @@ function requireOverride(action,label,cb){if(can(action)){cb();return;}
   if(!mgr){toast('PIN ບໍ່ຖືກຕ້ອງ ຫຼື ບໍ່ມີສິດ');return;}
   logOrder('ອະນຸມັດ',label+' — ອະນຸມັດໂດຍ '+mgr.name,'');closeModal();cb(mgr);};}
 function renderUserChip(){var el=document.getElementById('userChip');if(!el)return;var u=curUser();
- el.innerHTML=u?('<div class="userchip" onclick="openUserMenu()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><span>'+cesc(u.name)+' <small>'+(ROLE_LABELS[u.role]||'')+(state.curShift?' · '+cesc(state.curShift.name):'')+'</small></span></div>'):'';}
+ var multiLoc=(state.locations||[]).length>1;
+ el.innerHTML=u?('<div class="userchip" onclick="openUserMenu()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><span>'+cesc(u.name)+' <small>'+(ROLE_LABELS[u.role]||'')+(state.curShift?' · '+cesc(state.curShift.name):'')+(multiLoc?' · 📍'+cesc(locName(curLoc())):'')+'</small></span></div>'):'';}
 function openUserMenu(){var u=curUser();if(!u)return;
  openModal('<h2>'+cesc(u.name)+'</h2><p style="text-align:center;margin-bottom:10px"><span class="rolebadge">'+(ROLE_LABELS[u.role]||u.role)+'</span>'+(state.curShift?'<span class="rolebadge" style="margin-left:6px;background:#fef3c7;color:#92400e">'+cesc(state.curShift.name)+' (ເປີດຢູ່)</span>':'<span class="rolebadge" style="margin-left:6px;background:#fee2e2;color:#991b1b">ຍັງບໍ່ເປີດກະ</span>')+'</p><div class="modal-btns" style="margin-top:4px"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" style="background:var(--orange)" onclick="logout()"> ອອກ / ສະຫຼັບຜູ້ໃຊ້</button></div>');}
-function render(){if(!state)return;document.getElementById('ordNo').textContent=state.orderNo;
+function render(){if(!state)return;if(state.ingredients)syncStockView();document.getElementById('ordNo').textContent=state.orderNo;
  const hb=document.querySelector('.topbar h1');if(hb)hb.textContent=state.shopName||'ST POS';
  const R=document.getElementById('viewRoot');
  if(isCust())return renderCust(R);
@@ -720,7 +736,7 @@ function doDelConfirmedItem(i){var rsn=((document.getElementById('di_rsn')||{}).
  var l=curList();var it=l[i];if(!it||state.draft.length){closeModal();return;}
  var n=Math.max(1,Math.min(it.qty,Math.round(+((document.getElementById('di_qty')||{}).value||it.qty))));
  var unitAmt=lineTotal(it)/it.qty;
- var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(b){if(state.ingredients[b[0]]){state.ingredients[b[0]].stock+=b[1]*n;logStock(b[0],b[1]*n,'ຄືນ-ລຶບລາຍການ',n+'× '+it.name+' (ໂຕະ '+(state.activeTable||'')+') — '+rsn);}});
+ var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(b){if(state.ingredients[b[0]])addStockAt(b[0],curLoc(),b[1]*n,'ຄືນ-ລຶບລາຍການ',n+'× '+it.name+' (ໂຕະ '+(state.activeTable||'')+') — '+rsn);});
  logOrder('ລຶບລາຍການ',n+'× '+it.name+(n<it.qty?' (ຈາກທັງໝົດ '+it.qty+')':'')+' ('+KIP(unitAmt*n)+' ກີບ) — ເຫດຜົນ: '+rsn,state.activeTable);
  logCancel('ລຶບລາຍການ',it.code,it.name,n,unitAmt*n,state.activeTable,rsn);
  if(n>=it.qty){ /* ລຶບໝົດແຖວ — ເອົາອອກຈາກຈໍຄົວ/ບາຣ໌ນຳ */
@@ -741,7 +757,7 @@ function applyItemDisc(i){const v=Math.max(0,Math.min(100,+document.getElementBy
 function itemNote(i){const l=curList();openModal(`<h2>ໝາຍເຫດ</h2><input id="nt" value="${l[i].note||''}" placeholder="ເຊັ່ນ ບໍ່ເຜັດ"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="applyNote(${i})">ບັນທຶກ</button></div>`);}
 function applyNote(i){curList()[i].note=document.getElementById('nt').value;save();closeModal();renderCart();}
 function stockShortageFor(p,qty){const out=[];(p.bom||[]).forEach(([ing,q])=>{const it=state.ingredients[ing];if(it&&it.stock<q*qty)out.push(it.name);});return out;}
-function deductStock(line){const def=findMenu(line.code);if(!def||!def.bom)return;def.bom.forEach(([ing,q])=>{if(state.ingredients[ing]){state.ingredients[ing].stock-=q*line.qty;logStock(ing,-(q*line.qty),'ຂາຍ',line.qty+'× '+line.name+' (ໂຕະ '+(state.activeTable||'')+')');}});}
+function deductStock(line){const def=findMenu(line.code);if(!def||!def.bom)return;def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),-(q*line.qty),'ຂາຍ',line.qty+'× '+line.name+' (ໂຕະ '+(state.activeTable||'')+')');});}
 function findMenu(code){const M=MSRC();for(const cat in M)for(const sub in M[cat]){const f=M[cat][sub].find(x=>x.c===code);if(f)return f;}return null;}
 function menuCost(code){var def=findMenu(code);if(!def||!def.bom)return 0;return def.bom.reduce(function(s,b){var it=state.ingredients[b[0]];return s+(it&&it.cost?b[1]*it.cost:0);},0);}
 function billCOGS(items){return Math.round((items||[]).reduce(function(s,i){return s+menuCost(i.code)*i.qty;},0));}
@@ -858,7 +874,7 @@ function finishPayment(){const t=state.tables[state.activeTable];
  state.receiptSeq++;const rno=String(state.receiptSeq).padStart(10,'0');
  var _sub=billItems.reduce(function(s,i){return s+lineTotal(i);},0);
  var _discAmt=Math.round(_sub*state.billDiscPct/100)+billItems.reduce(function(s,i){return s+Math.round(((i.price+(i.modPrice||0))*i.qty)*((i.disc||0)/100));},0)+redeemVal;
- var bill={receipt:rno,table:t.name,items:JSON.parse(JSON.stringify(billItems)),total:(mixed?payState.grand:goodsNet),pay:payLabel,cashier:whoBy(),by:(curUser()?curUser().name:''),sub:_sub,discAmt:_discAmt,cogs:billCOGS(billItems),shiftId:state.curShift?state.curShift.id:null,ts:Date.now()};
+ var bill={receipt:rno,table:t.name,items:JSON.parse(JSON.stringify(billItems)),total:(mixed?payState.grand:goodsNet),pay:payLabel,cashier:whoBy(),by:(curUser()?curUser().name:''),sub:_sub,discAmt:_discAmt,cogs:billCOGS(billItems),shiftId:state.curShift?state.curShift.id:null,loc:curLoc(),ts:Date.now()};
  if(payParts)bill.payParts=payParts;if(payState.partial)bill.partial=true;if(payState.tip>0)bill.tip=payState.tip;if(fee>0)bill.cardFee=fee;
  if(redeemPts>0){bill.pointsUsed=redeemPts;bill.pointRedeemed=redeemVal;}
  if(credit){bill.credit=true;bill.creditMemberId=mem.id;bill.creditName=mem.name;bill.creditPhone=mem.phone||'';bill.creditOwed=goodsNet+(payState.tip||0)+fee;bill.creditPaid=0;}
@@ -920,7 +936,7 @@ function mergeFrom(name){const main=state.tables[state.activeTable],other=state.
  other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
 function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ) — ສະຕ໋ອກທີ່ຫັກໄປຈະຄືນໃຫ້</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
-function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ');const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing]){state.ingredients[ing].stock+=q*line.qty;logStock(ing,q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');}});});
+function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ');const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
  state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.status='free';t.customer=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name);}
 function openCustomer(){var t=state.tables[state.activeTable];
  openModal('<h2> ເລືອກລູກຄ້າ</h2>'+
@@ -1029,25 +1045,28 @@ function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
     <div class="kpi"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ວິທີການຊຳລະ</div>${Object.keys(pm).length?Object.entries(pm).map(([k,v])=>`<div class="totrow"><span>${k}</span><b>${KIP(v)} ₭ (${(v/sales*100).toFixed(1)}%)</b></div>`).join(''):'<div style="color:#94a3b8">ບໍ່ມີຂໍ້ມູນວັນນີ້</div>'}</div>
     <div class="kpi"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ເມນູຂາຍດີ</div>${top.length?top.map(([k,v],i)=>`<div class="totrow"><span>${i+1}. ${k}</span><b>${v}</b></div>`).join(''):'<div style="color:#94a3b8">ບໍ່ມີຂໍ້ມູນວັນນີ້</div>'}</div></div></div>`;}
 function renderStock(R){let ings=Object.values(state.ingredients);const cats=['ທັງໝົດ','ວັດຖຸດິບ','ສິນຄ້າ','ເຄື່ອງໃຊ້'];if(!stockCat)stockCat='ທັງໝົດ';if(stockCat!=='ທັງໝົດ')ings=ings.filter(i=>(i.cat||'ວັດຖຸດິບ')===stockCat);
- R.innerHTML=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ສະຕ໋ອກ</span><span style="color:var(--muted)">ຫັກອັດຕະໂນມັດເມື່ອຍືນຍັນອໍເດີ</span>
+ var locs=(state.locations||[]);if(!stockViewLoc||!locs.some(function(l){return l.id===stockViewLoc;}))stockViewLoc=curLoc();
+ var locSel=locs.length>1?`<div style="padding:0 18px 6px;display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;font-weight:700;color:var(--muted)">ບ່ອນເກັບ:</span>${locs.map(function(l){return '<button class="chip '+(stockViewLoc===l.id?'active':'')+'" onclick="stockViewLoc=\''+l.id+'\';render()">'+cesc(l.name)+(l.id===curLoc()?' ●':'')+'</button>';}).join('')}</div>`:'';
+ R.innerHTML=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ສະຕ໋ອກ</span><span style="color:var(--muted)">${locs.length>1?'ກຳລັງເບິ່ງ: <b style="color:var(--tiff-deep)">'+cesc(locName(stockViewLoc))+'</b>':'ຫັກອັດຕະໂນມັດເມື່ອຍືນຍັນອໍເດີ'}</span>
    <button class="btn-sm" style="margin-left:auto" onclick="openStockTake()"> ນັບສະຕ໋ອກ</button><button class="btn-sm" onclick="showStockLog()"> ປະຫວັດເຄື່ອນໄຫວ (${(state.stockLog||[]).length})</button><button class="btn-sm" onclick="showBomViewer()"> ເບິ່ງສູດເມນູ</button><button class="btn-sm" onclick="showBomAudit()"> ກວດສູດ</button><button class="btn-sm" onclick="addIngredient()"> ເພີ່ມ</button><button class="btn-sm red" onclick="resetStockAll()"> ຕັ້ງສະຕ໋ອກໃໝ່</button></div>
+  ${locSel}
   <div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap">${cats.map(c=>`<button class="chip ${stockCat===c?'active':''}" onclick="stockCat='${c}';render()">${c}</button>`).join('')}</div>
   <div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຫົວໜ່ວຍ</th><th>ຄົງເຫຼືອ</th><th>ຈຸດສັ່ງຊື້</th><th>ຕົ້ນທຶນ/ໜ່ວຍ</th><th>ສະຖານະ</th><th>ຮັບເຂົ້າ</th></tr></thead><tbody>
-   ${ings.map(i=>`<tr><td>${i.code}</td><td>${i.name}</td><td>${i.cat||'ວັດຖຸດິບ'}</td><td>${i.unit}</td><td style="font-weight:700;color:${i.stock<=i.reorder?'var(--red)':'var(--text)'}">${KIP(i.stock)}</td><td>${KIP(i.reorder)}</td><td>${i.cost?KIP(i.cost):'<span style="color:#94a3b8">-</span>'}${can('stockAdjust')?` <button class="miniic" style="font-size:11px;color:var(--tiff-deep)" onclick="editCost('${i.code}')">ແກ້</button>`:''}</td><td>${i.stock<=i.reorder?'<span class="tag warn"> ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok"> ປົກກະຕິ</span>'}</td><td><button class="btn-sm" onclick="addStock('${i.code}')">+ ຮັບເຂົ້າ</button> <button class="btn-sm" style="background:var(--orange)" onclick="wasteStock('${i.code}')">ເສຍ</button></td></tr>`).join('')}</tbody></table></div>`;}
+   ${ings.map(i=>{var sv=stockAt(i.code,stockViewLoc);return `<tr><td>${i.code}</td><td>${i.name}</td><td>${i.cat||'ວັດຖຸດິບ'}</td><td>${i.unit}</td><td style="font-weight:700;color:${sv<=i.reorder?'var(--red)':'var(--text)'}">${KIP(sv)}</td><td>${KIP(i.reorder)}</td><td>${i.cost?KIP(i.cost):'<span style="color:#94a3b8">-</span>'}${can('stockAdjust')?` <button class="miniic" style="font-size:11px;color:var(--tiff-deep)" onclick="editCost('${i.code}')">ແກ້</button>`:''}</td><td>${sv<=i.reorder?'<span class="tag warn"> ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok"> ປົກກະຕິ</span>'}</td><td><button class="btn-sm" onclick="addStock('${i.code}')">+ ຮັບເຂົ້າ</button> <button class="btn-sm" style="background:var(--orange)" onclick="wasteStock('${i.code}')">ເສຍ</button></td></tr>`;}).join('')}</tbody></table></div>`;}
 /* ===== ບັນທຶກເສຍຫາຍ (waste) ===== */
 function wasteStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];
- openModal('<h2 style="color:var(--orange)"> ບັນທຶກເສຍຫາຍ — '+cesc(it.name)+'</h2><div class="paysummary"><div class="row"><span>ຄົງເຫຼືອ:</span><b>'+KIP(it.stock)+' '+cesc(it.unit)+'</b></div></div>'+
+ openModal('<h2 style="color:var(--orange)"> ບັນທຶກເສຍຫາຍ — '+cesc(it.name)+'</h2><p style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">ບ່ອນເກັບ: <b>'+cesc(locName(stockViewLoc))+'</b></p><div class="paysummary"><div class="row"><span>ຄົງເຫຼືອ:</span><b>'+KIP(stockAt(code,stockViewLoc))+' '+cesc(it.unit)+'</b></div></div>'+
   '<label style="margin-top:8px">ຈຳນວນທີ່ເສຍ ('+cesc(it.unit)+')</label><input id="ws_q" type="number" inputmode="decimal" value="0">'+
   '<label style="margin-top:8px">ເຫດຜົນ (ຈຳເປັນ)</label><input id="ws_rsn" placeholder="ເຊັ່ນ ເນົ່າເສຍ / ຕົກແຕກ / ໝົດອາຍຸ">'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--orange)" onclick="doWasteStock(\''+code+'\')">ບັນທຶກເສຍ</button></div>');}
 function doWasteStock(code){var q=+document.getElementById('ws_q').value||0;var rsn=(document.getElementById('ws_rsn').value||'').trim();
  if(q<=0){toast('ໃສ່ຈຳນວນ > 0');return;}if(!rsn){toast('ໃສ່ເຫດຜົນ');return;}
- var it=state.ingredients[code];it.stock-=q;
- logStock(code,-q,'ເສຍຫາຍ',rsn);logOrder('ບັນທຶກເສຍຫາຍ',it.name+' −'+KIP(q)+' '+it.unit+' — '+rsn,'');
+ var it=state.ingredients[code];addStockAt(code,stockViewLoc,-q,'ເສຍຫາຍ',rsn+' ['+locName(stockViewLoc)+']');
+ logOrder('ບັນທຶກເສຍຫາຍ',it.name+' −'+KIP(q)+' '+it.unit+' ['+locName(stockViewLoc)+'] — '+rsn,'');
  save();closeModal();render();showSuccess('ບັນທຶກເສຍຫາຍແລ້ວ',it.name+' −'+KIP(q)+' '+it.unit);}
 /* ===== ນັບສະຕ໋ອກຈິງ (stock take) ===== */
 function openStockTake(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}
- openModal('<h2> ນັບສະຕ໋ອກຈິງ</h2><p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:6px">ໃສ່ຈຳນວນທີ່ນັບໄດ້ຈິງ ສະເພາະລາຍການທີ່ນັບ (ປະຫວ່າງ = ບໍ່ປັບ)</p>'+
+ openModal('<h2> ນັບສະຕ໋ອກຈິງ</h2><p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:6px">ບ່ອນເກັບ: <b>'+cesc(locName(stockViewLoc))+'</b> · ໃສ່ຈຳນວນທີ່ນັບໄດ້ຈິງ (ປະຫວ່າງ = ບໍ່ປັບ)</p>'+
   '<input id="stq" placeholder=" ຄົ້ນຫາວັດຖຸດິບ..." oninput="renderStockTakeList()" style="margin-bottom:8px">'+
   '<div id="stakelist" style="max-height:44vh;overflow:auto"></div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="applyStockTake()">ປັບຕາມທີ່ນັບ</button></div>');
@@ -1056,12 +1075,12 @@ function renderStockTakeList(){var q=((document.getElementById('stq')||{}).value
  var list=Object.values(state.ingredients).filter(function(i){return !q||i.name.toLowerCase().indexOf(q)>=0||i.code.toLowerCase().indexOf(q)>=0;});
  var el=document.getElementById('stakelist');if(!el)return;
  el.innerHTML='<table class="tbl"><thead><tr><th>ວັດຖຸດິບ</th><th>ໃນລະບົບ</th><th>ນັບໄດ້ຈິງ</th></tr></thead><tbody>'+
-  list.slice(0,60).map(function(i){var v=window.__stCounts[i.code];return '<tr><td>'+cesc(i.name)+'<br><small style="color:var(--muted)">'+cesc(i.code)+'</small></td><td>'+KIP(i.stock)+' '+cesc(i.unit)+'</td><td><input type="number" inputmode="decimal" style="width:100px;padding:6px" value="'+(v===undefined?'':v)+'" placeholder="-" onchange="window.__stCounts[\''+i.code+'\']=this.value===\'\'?undefined:+this.value"></td></tr>';}).join('')+
+  list.slice(0,60).map(function(i){var v=window.__stCounts[i.code];return '<tr><td>'+cesc(i.name)+'<br><small style="color:var(--muted)">'+cesc(i.code)+'</small></td><td>'+KIP(stockAt(i.code,stockViewLoc))+' '+cesc(i.unit)+'</td><td><input type="number" inputmode="decimal" style="width:100px;padding:6px" value="'+(v===undefined?'':v)+'" placeholder="-" onchange="window.__stCounts[\''+i.code+'\']=this.value===\'\'?undefined:+this.value"></td></tr>';}).join('')+
   '</tbody></table>'+(list.length>60?'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px">ສະແດງ 60 ຈາກ '+list.length+' — ພິມຄົ້ນຫາ</p>':'');}
 function applyStockTake(){var c=window.__stCounts||{};var n=0,diffs=[];
  Object.keys(c).forEach(function(code){var v=c[code];if(v===undefined||v===null||isNaN(v))return;var it=state.ingredients[code];if(!it)return;
-  var d=Math.round((v-it.stock)*100)/100;if(d===0)return;
-  it.stock=+v;logStock(code,d,'ນັບປັບສະຕ໋ອກ','ນັບຈິງ '+KIP(v)+' '+it.unit);diffs.push(it.name+' '+(d>0?'+':'')+KIP(d));n++;});
+  var d=Math.round((v-stockAt(code,stockViewLoc))*100)/100;if(d===0)return;
+  setStockAt(code,stockViewLoc,+v,'ນັບປັບສະຕ໋ອກ','ນັບຈິງ '+KIP(v)+' '+it.unit+' ['+locName(stockViewLoc)+']');diffs.push(it.name+' '+(d>0?'+':'')+KIP(d));n++;});
  if(!n){toast('ບໍ່ມີລາຍການປັບ');return;}
  logOrder('ນັບສະຕ໋ອກ','ປັບ '+n+' ລາຍການ: '+diffs.slice(0,8).join(', ')+(diffs.length>8?' …':''),'');
  save();closeModal();render();showSuccess('ນັບສະຕ໋ອກສຳເລັດ','ປັບ '+n+' ລາຍການ — ເບິ່ງລາຍລະອຽດໃນປະຫວັດເຄື່ອນໄຫວ');}
@@ -1071,11 +1090,11 @@ function doEditCost(code){var v=+document.getElementById('cst').value||0;state.i
 /* ===== ປະຫວັດເຄື່ອນໄຫວສະຕ໋ອກ ===== */
 function showStockLog(){var logs=(state.stockLog||[]).slice().reverse();var shown=logs.slice(0,300);
  openModal('<h2> ປະຫວັດເຄື່ອນໄຫວສະຕ໋ອກ</h2><p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px">ທັງໝົດ '+logs.length+' ລາຍການ (ສະແດງ 300 ຫຼ້າສຸດ · export ໄດ້ທັງໝົດ)</p>'+
-  '<div style="max-height:52vh;overflow:auto"><table class="tbl"><thead><tr><th>ເວລາ</th><th>ລາຍການ</th><th>ຈຳນວນ</th><th>ຄົງເຫຼືອ</th><th>ເຫດຜົນ</th><th>ອ້າງອີງ</th><th>ໂດຍ</th></tr></thead><tbody>'+
-  (shown.length?shown.map(function(l){return '<tr><td style="white-space:nowrap">'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.name)+'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small></td><td style="font-weight:800;color:'+(l.delta<0?'var(--red)':'var(--green)')+'">'+(l.delta>0?'+':'')+KIP(l.delta)+' '+cesc(l.unit)+'</td><td>'+(l.after!=null?KIP(l.after):'-')+'</td><td>'+cesc(l.reason)+'</td><td style="font-size:11px">'+cesc(l.ref||'')+'</td><td style="font-size:11px">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8">ຍັງບໍ່ມີ — ຈະບັນທຶກອັດຕະໂນມັດເມື່ອ ຂາຍ/ຄືນ/ຮັບເຂົ້າ</td></tr>')+
+  '<div style="max-height:52vh;overflow:auto"><table class="tbl"><thead><tr><th>ເວລາ</th><th>ບ່ອນເກັບ</th><th>ລາຍການ</th><th>ຈຳນວນ</th><th>ຄົງເຫຼືອ</th><th>ເຫດຜົນ</th><th>ອ້າງອີງ</th><th>ໂດຍ</th></tr></thead><tbody>'+
+  (shown.length?shown.map(function(l){return '<tr><td style="white-space:nowrap">'+new Date(l.ts).toLocaleString('en-GB')+'</td><td style="font-size:11px">'+cesc(l.locName||l.loc||'-')+'</td><td>'+cesc(l.name)+'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small></td><td style="font-weight:800;color:'+(l.delta<0?'var(--red)':'var(--green)')+'">'+(l.delta>0?'+':'')+KIP(l.delta)+' '+cesc(l.unit)+'</td><td>'+(l.after!=null?KIP(l.after):'-')+'</td><td>'+cesc(l.reason)+'</td><td style="font-size:11px">'+cesc(l.ref||'')+'</td><td style="font-size:11px">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="8" style="text-align:center;padding:24px;color:#94a3b8">ຍັງບໍ່ມີ — ຈະບັນທຶກອັດຕະໂນມັດເມື່ອ ຂາຍ/ຄືນ/ຮັບເຂົ້າ</td></tr>')+
   '</tbody></table></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="exportStockLog()"> Export Excel</button></div>');}
 function exportStockLog(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var logs=(state.stockLog||[]);if(!logs.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
- var rows=logs.map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ລະຫັດ':l.code,'ຊື່':l.name,'ຈຳນວນ(+/-)':l.delta,'ຫົວໜ່ວຍ':l.unit,'ຄົງເຫຼືອຫຼັງ':l.after!=null?l.after:'','ເຫດຜົນ':l.reason,'ອ້າງອີງ':l.ref||'','ໂດຍ(ກະ-ຜູ້ໃຊ້)':l.by||''};});
+ var rows=logs.map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ບ່ອນເກັບ':l.locName||l.loc||'','ລະຫັດ':l.code,'ຊື່':l.name,'ຈຳນວນ(+/-)':l.delta,'ຫົວໜ່ວຍ':l.unit,'ຄົງເຫຼືອຫຼັງ':l.after!=null?l.after:'','ເຫດຜົນ':l.reason,'ອ້າງອີງ':l.ref||'','ໂດຍ(ກະ-ຜູ້ໃຊ້)':l.by||''};});
  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ເຄື່ອນໄຫວສະຕ໋ອກ');XLSX.writeFile(wb,'ເຄື່ອນໄຫວສະຕ໋ອກ_'+ymd(Date.now())+'.xlsx');toast('Export ສຳເລັດ');});}
 /* ===== ກວດສູດຕັດສະຕ໋ອກ (BOM audit) ===== */
 function bomAudit(){var noBom=[],badIng=[],badQty=[],numUnit=[];
@@ -1139,16 +1158,38 @@ function showMenuBom(code){var p=findMenu(code);if(!p){toast('ບໍ່ພົບ
   addRow+
   (edit?'':(can('menuEdit')?'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">ແກ້ໄຂໄດ້ຫຼັງນຳເຂົ້າເມນູຈາກ Excel ແລ້ວ</p>':'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">ແກ້ໄຂສູດໄດ້ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ</p>'))+
   '<div class="modal-btns"><button class="btn-cancel" onclick="showBomViewer()">‹ ກັບ</button><button class="btn-ok" onclick="closeModal()">ປິດ</button></div>');}
-function addStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດຮັບສະຕ໋ອກ');return;}const it=state.ingredients[code];openModal(`<h2>ຮັບສະຕ໋ອກເຂົ້າ — ${it.name}</h2><label>ຈຳນວນ (${it.unit})</label><input id="qty" type="number" value="1000"><label style="margin-top:8px">ມູນຄ່າທີ່ຊື້ (ກີບ) — ບັນທຶກເປັນລາຍຈ່າຍ ${EXP_CATS[0]} (0 = ບໍ່ບັນທຶກ)</label><input id="qcost" type="number" value="0"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddStock('${code}')">ຮັບເຂົ້າ</button></div>`);}
-function doAddStock(code){const q=+document.getElementById('qty').value||0;const cost=+(document.getElementById('qcost')||{}).value||0;const it=state.ingredients[code];it.stock+=q;
- logStock(code,q,'ຮັບເຂົ້າ',cost>0?'ມູນຄ່າ '+KIP(cost)+' ກີບ':'');
+function addStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດຮັບສະຕ໋ອກ');return;}const it=state.ingredients[code];openModal(`<h2>ຮັບສະຕ໋ອກເຂົ້າ — ${it.name}</h2><p style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">ເຂົ້າບ່ອນເກັບ: <b>${cesc(locName(stockViewLoc))}</b></p><label>ຈຳນວນ (${it.unit})</label><input id="qty" type="number" value="1000"><label style="margin-top:8px">ມູນຄ່າທີ່ຊື້ (ກີບ) — ບັນທຶກເປັນລາຍຈ່າຍ ${EXP_CATS[0]} (0 = ບໍ່ບັນທຶກ)</label><input id="qcost" type="number" value="0"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddStock('${code}')">ຮັບເຂົ້າ</button></div>`);}
+function doAddStock(code){const q=+document.getElementById('qty').value||0;const cost=+(document.getElementById('qcost')||{}).value||0;const it=state.ingredients[code];addStockAt(code,stockViewLoc,q,'ຮັບເຂົ້າ',(cost>0?'ມູນຄ່າ '+KIP(cost)+' ກີບ ':'')+'['+locName(stockViewLoc)+']');
  if(cost>0&&q>0)it.cost=Math.round((cost/q)*100)/100;
  if(cost>0){if(!Array.isArray(state.expenses))state.expenses=[];state.expenses.push({id:Date.now()+Math.random(),ts:Date.now(),cat:EXP_CATS[0],note:'ຊື້ '+it.name+' '+KIP(q)+' '+it.unit,amount:cost,by:whoBy()});}
  save();closeModal();render();showSuccess('ຮັບສະຕ໋ອກສຳເລັດ!',it.name+' +'+KIP(q)+' '+it.unit+(cost>0?'  ບັນທຶກລາຍຈ່າຍ '+KIP(cost)+' ກີບ':''));}
 function addIngredient(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}openModal(`<h2> ເພີ່ມວັດຖຸດິບໃໝ່</h2><label>ລະຫັດ (ຫ້າມຊ້ຳ)</label><input id="ic" placeholder="ເຊັ່ນ HONEY"><label>ຊື່</label><input id="inm" placeholder="ນ້ຳເຜິ້ງ"><label>ຫົວໜ່ວຍ</label><input id="iu" value="g"><label>ສະຕ໋ອກເລີ່ມຕົ້ນ</label><input id="ist" type="number" value="1000"><label>ຈຸດສັ່ງຊື້</label><input id="ir" type="number" value="200"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddIngredient()">ເພີ່ມ</button></div>`);}
 function doAddIngredient(){const c=(document.getElementById('ic').value||'').trim().toUpperCase();if(!c){toast('ໃສ່ລະຫັດ');return;}if(state.ingredients[c]){toast('ລະຫັດຊ້ຳ');return;}
- state.ingredients[c]={code:c,name:document.getElementById('inm').value||c,unit:document.getElementById('iu').value||'g',stock:+document.getElementById('ist').value||0,reorder:+document.getElementById('ir').value||0};save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c);}
-function resetStockAll(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}Object.values(state.ingredients).forEach(i=>{i.stock=(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000;});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ');}
+ var init=+document.getElementById('ist').value||0;var lc=stockViewLoc||curLoc();
+ state.ingredients[c]={code:c,name:document.getElementById('inm').value||c,unit:document.getElementById('iu').value||'g',reorder:+document.getElementById('ir').value||0,locs:(init?{[lc]:init}:{})};
+ if(init)logStock(c,init,'ເພີ່ມວັດຖຸດິບ','ເລີ່ມຕົ້ນ ['+locName(lc)+']',lc);
+ save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c);}
+function resetStockAll(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}if(!confirm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?'))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
+/* ===== ບ່ອນເກັບ / ສາຂາ (locations) ===== */
+function setTerminalLoc(id){try{localStorage.setItem('stpos_loc',id);}catch(e){}stockViewLoc=id;if(state.ingredients)syncStockView();render();toast('ບ່ອນເກັບເຄື່ອງນີ້: '+locName(id));}
+function addLocation(){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}locFormModal(null);}
+function editLocation(id){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}locFormModal(id);}
+function locFormModal(id){var l=(state.locations||[]).find(function(x){return x.id===id;})||{name:'',type:'branch'};
+ openModal('<h2>'+(id?'ແກ້ບ່ອນເກັບ':'ເພີ່ມບ່ອນເກັບ')+'</h2><label>ຊື່</label><input id="loc_nm" value="'+cesc(l.name)+'" placeholder="ເຊັ່ນ ສາຂາ 2 / ສາງກາງ / ຄົວກາງ"><label style="margin-top:8px">ປະເພດ</label><select id="loc_ty" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);font-family:inherit">'+[['branch','ສາຂາ'],['warehouse','ສາງ'],['kitchen','ຄົວກາງ'],['other','ອື່ນໆ']].map(function(t){return '<option value="'+t[0]+'"'+(l.type===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doSaveLocation('+(id?'\''+id+'\'':'null')+')">ບັນທຶກ</button></div>');}
+function doSaveLocation(id){var nm=(document.getElementById('loc_nm').value||'').trim();if(!nm){toast('ໃສ່ຊື່');return;}var ty=document.getElementById('loc_ty').value||'branch';
+ if(!Array.isArray(state.locations))state.locations=[];
+ if(id){var l=state.locations.find(function(x){return x.id===id;});if(l){l.name=nm;l.type=ty;}}
+ else{state.locations.push({id:'L'+Date.now().toString(36),name:nm,type:ty,active:true});}
+ save();closeModal();render();showSuccess('ບັນທຶກບ່ອນເກັບ!',nm);}
+function delLocation(id){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}if((state.locations||[]).length<=1){toast('ຕ້ອງມີຢ່າງໜ້ອຍ 1 ບ່ອນ');return;}
+ var l=(state.locations||[]).find(function(x){return x.id===id;});if(!l)return;
+ var hasStock=Object.values(state.ingredients||{}).some(function(it){return it.locs&&Math.abs(+it.locs[id]||0)>0.0001;});
+ if(!confirm('ລຶບບ່ອນ "'+l.name+'"?'+(hasStock?' ⚠ ຍັງມີສະຕ໋ອກຄ້າງ — ຈະຫາຍ':'')))return;
+ state.locations=state.locations.filter(function(x){return x.id!==id;});
+ Object.values(state.ingredients||{}).forEach(function(it){if(it.locs)delete it.locs[id];});
+ if(curLoc()===id){try{localStorage.setItem('stpos_loc',state.locations[0].id);}catch(e){}}
+ if(stockViewLoc===id)stockViewLoc=null;
+ save();render();toast('ລຶບບ່ອນ '+l.name);}
 /* ===== ສະມາຊິກ / ສະສົມແຕ້ມ / ກະເປົາເງິນ ===== */
 let memberQ='';
 function renderMembers(R){var q=memberQ.toLowerCase();
@@ -1549,7 +1590,7 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
  var logoBtn=state.shopLogo?'<button class="btn-sm red" style="margin-left:8px" onclick="removeLogo()">ລຶບໂລໂກ້</button>':'';
  R.innerHTML=`<div class="adminbox">
   <div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ການຕັ້ງຄ່າ</div><div class="sub">ເລືອກໝວດທີ່ຕ້ອງການຕັ້ງຄ່າ</div></div></div>
-  <div class="setnav">${[['shop','ຮ້ານ & ການຄິດເງິນ'],['bill','ໃບບິນ / ພິມ'],['table','ໂຕະ & ຊັ້ນ'],['menu','ເມນູ & ຮູບ'],['opts','ຕົວເລືອກ & Topping'],['promo','ໂປຣໂມຊັນ'],['cds','ຈໍລູກຄ້າ'],['staff','ກະ & ພະນັກງານ'],['users','ຜູ້ໃຊ້ & ສິດ'],['conn','ການເຊື່ອມຕໍ່'],['adv','ຂັ້ນສູງ']].filter(function(s){var u=curUser();var owner=u&&u.role==='owner';if(s[0]==='users'||s[0]==='adv')return owner;return true;}).map(function(s){return '<button class="'+(adminSec===s[0]?'on':'')+'" onclick="adminSec=\''+s[0]+'\';render()">'+s[1]+'</button>';}).join('')}</div>
+  <div class="setnav">${[['shop','ຮ້ານ & ການຄິດເງິນ'],['bill','ໃບບິນ / ພິມ'],['table','ໂຕະ & ຊັ້ນ'],['loc','ບ່ອນເກັບ & ສາຂາ'],['menu','ເມນູ & ຮູບ'],['opts','ຕົວເລືອກ & Topping'],['promo','ໂປຣໂມຊັນ'],['cds','ຈໍລູກຄ້າ'],['staff','ກະ & ພະນັກງານ'],['users','ຜູ້ໃຊ້ & ສິດ'],['conn','ການເຊື່ອມຕໍ່'],['adv','ຂັ້ນສູງ']].filter(function(s){var u=curUser();var owner=u&&u.role==='owner';if(s[0]==='users'||s[0]==='adv')return owner;return true;}).map(function(s){return '<button class="'+(adminSec===s[0]?'on':'')+'" onclick="adminSec=\''+s[0]+'\';render()">'+s[1]+'</button>';}).join('')}</div>
   ${(function(){var u=curUser();if(u&&u.role!=='owner'&&(adminSec==='users'||adminSec==='adv'))adminSec='shop';return '';})()}
   <div class="kpi asec ${adminSec==='users'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຜູ້ໃຊ້ ແລະ ສິດເຂົ້າເຖິງ</div>
     <table class="tbl"><thead><tr><th>ຊື່</th><th>ບົດບາດ</th><th>PIN</th><th></th></tr></thead><tbody>
@@ -1593,8 +1634,14 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
     <input type="file" accept="image/*" onchange="cdsAddImg(this)">
     <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><label style="margin:0">ປ່ຽນຮູບທຸກໆ (ວິນາທີ)</label><input id="cd_sec" type="number" value="${state.cds.imgSec||6}" style="width:80px"></div>
     <button class="btn-ok grad" style="display:block;margin-top:12px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveCDS()"> ບັນທຶກ ແລະ ອັບເດດຈໍ</button></div>
+  <div class="kpi asec ${adminSec==='loc'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ບ່ອນເກັບ / ສາຂາ (Locations)</div>
+   <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ສ້າງບ່ອນເກັບໄດ້ອິດສະຫຼະ: ຄົວກາງ, ສາງ, ສາຂາ. ສະຕ໋ອກແຍກຕາມບ່ອນ — ຂາຍທີ່ເຄື່ອງນີ້ຈະຕັດຈາກບ່ອນທີ່ຕັ້ງໄວ້ລຸ່ມນີ້.</p>
+   <div class="totrow" style="background:#eafbfa;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:10px"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້ (ຕັດສະຕ໋ອກເວລາຂາຍ):</span><select onchange="setTerminalLoc(this.value)" style="padding:7px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-weight:700">${(state.locations||[]).map(function(l){return '<option value="'+l.id+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')}</select></div>
+   <table class="tbl"><thead><tr><th>ຊື່</th><th>ປະເພດ</th><th></th></tr></thead><tbody>${(state.locations||[]).map(function(l){var LT={branch:'ສາຂາ',warehouse:'ສາງ',kitchen:'ຄົວກາງ',other:'ອື່ນໆ'};return '<tr><td><b>'+cesc(l.name)+'</b>'+(l.id===curLoc()?' <span class="tag ok">ເຄື່ອງນີ້</span>':'')+'</td><td>'+(LT[l.type]||l.type||'')+'</td><td><button class="btn-sm" onclick="editLocation(\''+l.id+'\')">ແກ້</button> '+((state.locations||[]).length>1?'<button class="btn-sm red" onclick="delLocation(\''+l.id+'\')">ລຶບ</button>':'')+'</td></tr>';}).join('')}</tbody></table>
+   <button class="btn-sm green" style="margin-top:10px" onclick="addLocation()"> ເພີ່ມບ່ອນເກັບ</button></div>
   <div class="kpi asec ${adminSec==='conn'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ການເຊື່ອມຕໍ່ ແລະ ສະຫຼຸບ</div>
     <div class="totrow"><span>ໂມດເກັບຂໍ້ມູນ</span><b style="color:${gas?'var(--green)':'var(--orange)'}">${gas?' ເຊື່ອມ Google Sheet ແລ້ວ':'Local (preview)'}</b></div>
+    <div class="totrow"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້</span><b style="color:var(--tiff-deep)">${cesc(locName(curLoc()))}</b></div>
     ${HAS_GAS?'':`<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600">ລິ້ງ GAS (ຖານຂໍ້ມູນ Google Sheet ຂອງເຈົ້າ)</label><input id="ad_api" value="${API_URL.replace(/"/g,'&quot;')}" style="font-size:11px"><div style="margin-top:6px"><button class="btn-sm" onclick="setApiUrl()"> ບັນທຶກ link ນີ້ ແລະ ໂຫຼດໃໝ່</button> <button class="btn-sm" onclick="resetApiUrl()">ກັບໄປ default</button></div><p style="font-size:11px;color:var(--muted);margin-top:4px">ສຳລັບຮ້ານໃໝ່: ໃສ່ link /exec ຂອງ GAS ຂອງເຈົ້າ ແລ້ວກົດບັນທຶກ</p></div>`}
     <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600"> API Token (ປ້ອງກັນຄົນນອກຂຽນທັບຂໍ້ມູນ)</label>
      <input id="ad_tok" type="password" value="${TOKEN.replace(/"/g,'&quot;')}" placeholder="ໃສ່ token ໃຫ້ກົງກັບ setToken ໃນ Code.gs" style="font-size:12px">
@@ -1974,7 +2021,7 @@ function voidBill(rno){var b=(state.bills||[]).find(function(x){return x.receipt
 function doVoidBill(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b)return;
  var rsn=(document.getElementById('vd_rsn').value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
  var retStk=(document.getElementById('vd_stk')||{}).checked;
- if(retStk)(b.items||[]).forEach(function(line){var def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(function(bm){if(state.ingredients[bm[0]]){state.ingredients[bm[0]].stock+=bm[1]*line.qty;logStock(bm[0],bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);}});});
+ if(retStk)(b.items||[]).forEach(function(line){var def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(function(bm){if(state.ingredients[bm[0]])addStockAt(bm[0],b.loc||curLoc(),bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);});});
  b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();
  (b.items||[]).forEach(function(line){logCancel('Void ບິນ',line.code,line.name,line.qty,lineTotal(line),b.table,rno+' — '+rsn);});
  logOrder('Void ບິນ',rno+' '+KIP(b.total)+' ກີບ — '+rsn+(retStk?' (ຄືນສະຕ໋ອກ)':''),b.table);
@@ -2005,7 +2052,7 @@ function doRefund(rno){var b=(state.bills||[]).find(function(x){return x.receipt
  var retStk=(document.getElementById('rf_stk')||{}).checked;
  var items=[],amt=0;
  (b.items||[]).forEach(function(it){var q=_rfSel[it.id]||0;if(q<=0)return;var unit=lineTotal(it)/it.qty;amt+=unit*q;items.push({id:it.id,code:it.code,name:it.name,qty:q});logCancel('ຄືນເງິນ',it.code,it.name,q,unit*q,b.table,rno+' — '+rsn);
-  if(retStk){var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(bm){if(state.ingredients[bm[0]]){state.ingredients[bm[0]].stock+=bm[1]*q;logStock(bm[0],bm[1]*q,'ຄືນ-Refund',rno+' '+q+'× '+it.name+' — '+rsn);}});}});
+  if(retStk){var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(bm){if(state.ingredients[bm[0]])addStockAt(bm[0],b.loc||curLoc(),bm[1]*q,'ຄືນ-Refund',rno+' '+q+'× '+it.name+' — '+rsn);});}});
  if(!items.length){toast('ຍັງບໍ່ໄດ້ເລືອກຈຳນວນ');return;}
  amt=Math.round(amt);
  if(!Array.isArray(b.refunds))b.refunds=[];b.refunds.push({items:items,amount:amt,reason:rsn,by:(curUser()?curUser().name:''),ts:Date.now()});

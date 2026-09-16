@@ -117,9 +117,34 @@ function mergeBills_(curStr, inc) {
     return inc;
   } catch (e) { return inc; }
 }
+/* ຫຼາຍບ່ອນເກັບ: ຮັກສາ stock ຂອງບ່ອນອື່ນຈາກ server (ຄື 1 ຕັ້ງ/ບ່ອນ) — ບ່ອນທີ່ save (_srcLoc) ເປັນເຈົ້າຂອງ bucket ຕົນເອງ */
+function mergeStock_(curStr, inc) {
+  try {
+    if (!curStr || !inc || typeof inc !== 'object') return inc;
+    var src = inc._srcLoc; if (!src) return inc;
+    var cur = JSON.parse(curStr); if (!cur || !cur.ingredients) return inc;
+    if (!inc.ingredients) inc.ingredients = cur.ingredients;
+    var incIng = inc.ingredients, curIng = cur.ingredients;
+    Object.keys(curIng).forEach(function (code) {
+      var ci = curIng[code], ii = incIng[code];
+      if (!ii) { incIng[code] = ci; return; }          /* ວັດຖຸດິບຫາຍໃນ incoming → ເກັບຂອງ server */
+      if (!ci || !ci.locs) return;
+      if (!ii.locs) ii.locs = {};
+      Object.keys(ci.locs).forEach(function (loc) { if (loc !== src) ii.locs[loc] = ci.locs[loc]; }); /* ບ່ອນອື່ນ = ຂອງ server */
+    });
+    if (Array.isArray(cur.stockLog)) {                   /* ລວມ ledger ຂ້າມບ່ອນ (ກັນເສຍ log) */
+      if (!Array.isArray(inc.stockLog)) inc.stockLog = [];
+      var seen = {}; inc.stockLog.forEach(function (l) { seen[l.ts + '|' + l.code + '|' + l.delta + '|' + (l.loc || '') + '|' + (l.reason || '')] = 1; });
+      cur.stockLog.forEach(function (l) { var k = l.ts + '|' + l.code + '|' + l.delta + '|' + (l.loc || '') + '|' + (l.reason || ''); if (!seen[k]) { inc.stockLog.push(l); seen[k] = 1; } });
+      inc.stockLog.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+      if (inc.stockLog.length > 4000) inc.stockLog = inc.stockLog.slice(-4000);
+    }
+    return inc;
+  } catch (e) { return inc; }
+}
 function saveStateRaw_(json, skipMerge) {
   json = String(json == null ? '' : json);
-  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { inc = mergeBills_(getState_(), inc); json = JSON.stringify(inc); } } catch (e) {} }
+  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
   var ss = getSS_();
   if (!ss) { PROP.setProperty('ST_BLOB', json.substring(0, 9000)); return true; }
   var sh = tab_(ss, 'STATE'); sh.clearContents();
@@ -162,6 +187,8 @@ function custAction_(payload) {
     lock.waitLock(20000);
     var s = getState_(); if (!s) return { ok: false, err: 'ບໍ່ມີຂໍ້ມູນຮ້ານ' };
     var st = JSON.parse(s);
+    var _qloc = (st.locations && st.locations.length) ? ((st.locations.filter(function (l) { return l.type === 'branch'; })[0]) || st.locations[0]) : { id: 'main', name: 'ສາຂາຫຼັກ' };
+    var qrLoc = _qloc.id, qrLocName = _qloc.name;
     var table = String(payload.table || '');
     var t = st.tables && st.tables[table];
     if (!t) return { ok: false, err: 'ບໍ່ພົບໂຕະ ' + table };
@@ -205,10 +232,11 @@ function custAction_(payload) {
       (def.bom || []).forEach(function (b) {
         var ing = st.ingredients && st.ingredients[b[0]];
         if (ing) {
-          ing.stock -= b[1] * qn;
+          if (!ing.locs) { ing.locs = {}; if (typeof ing.stock === 'number') ing.locs['main'] = ing.stock; }
+          ing.locs[qrLoc] = Math.round(((+ing.locs[qrLoc] || 0) - b[1] * qn) * 1000) / 1000;
           if (!st.stockLog) st.stockLog = [];
           st.stockLog.push({ ts: now, code: b[0], name: ing.name, unit: ing.unit, delta: -(b[1] * qn),
-            after: Math.round(ing.stock * 100) / 100, reason: 'ຂາຍ', ref: qn + '× ' + def.n + ' (QR ໂຕະ ' + table + ')', by: 'ລູກຄ້າ QR' });
+            after: ing.locs[qrLoc], reason: 'ຂາຍ', ref: qn + '× ' + def.n + ' (QR ໂຕະ ' + table + ')', by: 'ລູກຄ້າ QR', loc: qrLoc, locName: qrLocName });
           if (st.stockLog.length > 4000) st.stockLog = st.stockLog.slice(-4000);
         }
       });
@@ -287,7 +315,7 @@ function branchSummary_() {
     }
   });
   var tb = st.tables || {}; Object.keys(tb).forEach(function (k) { if (tb[k].status !== 'free' && tb[k].status !== 'merged') out.busy++; });
-  var ing = st.ingredients || {}; Object.keys(ing).forEach(function (k) { if (ing[k].stock <= ing[k].reorder) out.lowStock++; });
+  var ing = st.ingredients || {}; Object.keys(ing).forEach(function (k) { var x = ing[k], tot = x.locs ? Object.keys(x.locs).reduce(function (s, l) { return s + (+x.locs[l] || 0); }, 0) : (+x.stock || 0); if (tot <= x.reorder) out.lowStock++; });
   return out;
 }
 function getBranchSummary(tok) { return tokenOk_(tok) ? JSON.stringify(branchSummary_()) : 'DENIED'; }
@@ -348,16 +376,24 @@ function writeMirrors_(ss, st) {
     }));
   var ing = st.ingredients || {};
   var cat = st.catalog || {};
+  var locs = st.locations || [];
+  function locNm_(id){ for(var i=0;i<locs.length;i++) if(locs[i].id===id) return locs[i].name; return id; }
+  function totStock_(x){ if(x.locs){ var s=0; for(var l in x.locs) s+=(+x.locs[l]||0); return s; } return +x.stock||0; }
   var menuRows = [];
   Object.keys(cat).forEach(function (mn) { var subs = cat[mn]; Object.keys(subs).forEach(function (sb) { (subs[sb] || []).forEach(function (it) { menuRows.push([it.c, it.n, mn, sb, it.k, it.p]); }); }); });
   putTable_(ss, 'Menu', ['Code', 'Name', 'Category', 'Sub', 'Kind', 'Price'], menuRows);
+  putTable_(ss, 'ບ່ອນເກັບ', ['ID', 'Name', 'Type'], locs.map(function(l){ return [l.id, l.name, l.type||'']; }));
+  var perLoc = [];
+  Object.keys(ing).forEach(function (k) { var x = ing[k]; if (x.locs) Object.keys(x.locs).forEach(function(lid){ perLoc.push([x.code, x.name, x.unit, locNm_(lid), +x.locs[lid]||0]); }); });
+  putTable_(ss, 'ສະຕ໋ອກຕາມບ່ອນ', ['Code', 'Name', 'Unit', 'Location', 'Stock'], perLoc);
   var groups = { 'ວັດຖຸດິບ': [], 'ສິນຄ້າ': [], 'ເຄື່ອງໃຊ້': [] };
   Object.keys(ing).forEach(function (k) {
     var x = ing[k]; var c = x.cat || 'ວັດຖຸດິບ'; if (!groups[c]) groups[c] = [];
-    groups[c].push([x.code, x.name, x.unit, x.stock, x.reorder, (x.stock <= x.reorder ? 'LOW' : 'ok')]);
+    var tot = totStock_(x);
+    groups[c].push([x.code, x.name, x.unit, tot, x.reorder, (tot <= x.reorder ? 'LOW' : 'ok')]);
   });
   ['ວັດຖຸດິບ', 'ສິນຄ້າ', 'ເຄື່ອງໃຊ້'].forEach(function (c) {
-    putTable_(ss, c, ['Code', 'Name', 'Unit', 'Stock', 'Reorder', 'Status'], groups[c] || []);
+    putTable_(ss, c, ['Code', 'Name', 'Unit', 'Stock(ລວມທຸກບ່ອນ)', 'Reorder', 'Status'], groups[c] || []);
   });
   putTable_(ss, 'Bills', ['Receipt', 'Time', 'Table', 'Total', 'Pay', 'Cashier', 'Voided', 'Items'],
     (st.bills || []).map(function (b) {
@@ -380,9 +416,9 @@ function writeMirrors_(ss, st) {
     (st.expenses || []).map(function (e) {
       return [new Date(e.ts), e.cat, e.note || '', Math.round(e.amount || 0), e.by || ''];
     }));
-  putTable_(ss, 'ເຄື່ອນໄຫວສະຕ໋ອກ', ['Time', 'Code', 'Name', 'Delta', 'Unit', 'After', 'Reason', 'Ref', 'By'],
+  putTable_(ss, 'ເຄື່ອນໄຫວສະຕ໋ອກ', ['Time', 'Location', 'Code', 'Name', 'Delta', 'Unit', 'After', 'Reason', 'Ref', 'By'],
     (st.stockLog || []).map(function (l) {
-      return [new Date(l.ts), l.code, l.name, l.delta, l.unit, (l.after == null ? '' : l.after), l.reason, l.ref || '', l.by || ''];
+      return [new Date(l.ts), l.locName || l.loc || '', l.code, l.name, l.delta, l.unit, (l.after == null ? '' : l.after), l.reason, l.ref || '', l.by || ''];
     }));
   putTable_(ss, 'ປິດກະ', ['Shift', 'OpenedBy', 'Open', 'ClosedBy', 'Close', 'Sales', 'Bills', 'Float', 'CashIn', 'CashOut', 'Expected', 'Counted', 'Diff', 'Voids'],
     (st.shiftLog || []).map(function (sft) {
