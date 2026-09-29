@@ -153,9 +153,28 @@ function mergeStock_(curStr, inc) {
     return inc;
   } catch (e) { return inc; }
 }
+/* ລວມເອກະສານຈັດຊື້ (PR/PO/GRN/ຜູ້ຂາຍ) ຂ້າມເຄື່ອງ: ຄົງເອກະສານຂອງເຄື່ອງອື່ນ + ສະບັບທີ່ອັບເດດຫຼ້າສຸດ (upd) ຊະນະ */
+function mergeDocs_(curStr, inc) {
+  try {
+    if (!curStr || !inc || typeof inc !== 'object') return inc;
+    var cur = JSON.parse(curStr); if (!cur) return inc;
+    ['prs', 'pos', 'grns', 'vendors'].forEach(function (k) {
+      if (!Array.isArray(cur[k])) return;
+      if (!Array.isArray(inc[k])) inc[k] = [];
+      var byId = {}; inc[k].forEach(function (d, i) { byId[d.id] = i; });
+      cur[k].forEach(function (d) {
+        var i = byId[d.id];
+        if (i === undefined) { inc[k].push(d); byId[d.id] = inc[k].length - 1; }
+        else if ((d.upd || d.ts || 0) > (inc[k][i].upd || inc[k][i].ts || 0)) inc[k][i] = d;
+      });
+      inc[k].sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    });
+    return inc;
+  } catch (e) { return inc; }
+}
 function saveStateRaw_(json, skipMerge) {
   json = String(json == null ? '' : json);
-  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
+  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
   var ss = getSS_();
   if (!ss) { PROP.setProperty('ST_BLOB', json.substring(0, 9000)); return true; }
   var sh = tab_(ss, 'STATE'); sh.clearContents();
