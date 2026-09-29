@@ -47,6 +47,11 @@ function doGet(e) {
       else payload = { ok: false, err: 'bak' };
     } else if (!tokenOk_(p.token)) {                       /* ອ່ານ state ເຕັມ ຕ້ອງມີ token */
       payload = { ok: false, err: 'token' };
+    } else if (p.ver == '1') {                             /* ກວດເລກເວີຊັນຢ່າງດຽວ (ນ້ອຍຫຼາຍ) — ດຶງເຕັມສະເພາະເມື່ອມີການປ່ຽນ */
+      payload = { ok: true, v: +(PROP.getProperty('STATE_V') || 0) };
+    } else if (p.gz == '1') {                              /* state ເຕັມ ແບບບີບອັດ gzip+base64 (ນ້ອຍລົງ ~5 ເທົ່າ) */
+      var raw = getState_();
+      payload = { ok: true, gz: Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(raw, 'application/json')).getBytes()), v: +(PROP.getProperty('STATE_V') || 0) };
     } else {
       payload = { ok: true, state: getState_() };
     }
@@ -62,6 +67,9 @@ function doPost(e) {
   try {
     var json = (e && e.postData && e.postData.contents) || '';
     var p = (e && e.parameter) || {};
+    if (json.indexOf('GZ:') === 0) {                       /* ແອັບສົ່ງແບບບີບອັດ */
+      json = Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(json.substring(3)), 'application/x-gzip')).getDataAsString('UTF-8');
+    }
     var obj = null; try { obj = JSON.parse(json); } catch (e2) {}
     if (obj && (obj.action === 'order' || obj.action === 'callbill')) {
       return ContentService.createTextOutput(JSON.stringify(custAction_(obj)));
@@ -221,7 +229,11 @@ function saveStateRaw_(json, skipMerge) {
   var sh = tab_(ss, 'STATE'); sh.clearContents();
   var rows = []; for (var i = 0; i < json.length; i += CELL) rows.push([json.substr(i, CELL)]);
   if (rows.length) sh.getRange(1, 1, rows.length, 1).setValues(rows);
-  try { writeMirrors_(ss, JSON.parse(json)); } catch (e) {}
+  /* ເລກເວີຊັນ ໄວ້ໃຫ້ແອັບກວດໄວໆ (ບໍ່ຕ້ອງດຶງ state ເຕັມ) */
+  var mv = /"_v":(\d+)/.exec(json); PROP.setProperty('STATE_V', String(mv ? mv[1] : Date.now()));
+  /* ແທັບສຳເນົາໃຫ້ຄົນອ່ານ (Tables/Stock/Bills…) ຂຽນຊ້າ — ສູງສຸດທຸກ 2 ນາທີ (ເດີມຂຽນທຸກການບັນທຶກ ເຮັດໃຫ້ຊ້າ) */
+  var lastM = +(PROP.getProperty('MIRROR_TS') || 0);
+  if (skipMerge || Date.now() - lastM > 120000) { try { writeMirrors_(ss, JSON.parse(json)); PROP.setProperty('MIRROR_TS', String(Date.now())); } catch (e) {} }
   SpreadsheetApp.flush();
   return true;
 }
@@ -395,7 +407,7 @@ function removeDailyReport() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyReport') ScriptApp.deleteTrigger(t); });
   return 'OK - ຍົກເລີກການສົ່ງອັດຕະໂນມັດແລ້ວ';
 }
-function dailyReport() { return sendReport_(buildDailyReport_(new Date())); }
+function dailyReport() { try { var ss = getSS_(); if (ss) { writeMirrors_(ss, JSON.parse(getState_())); PROP.setProperty('MIRROR_TS', String(Date.now())); } } catch (e) {} return sendReport_(buildDailyReport_(new Date())); }
 function testDailyReport() { var t = buildDailyReport_(new Date()); var r = sendReport_('🧪 ທົດສອບ\n' + t); Logger.log(t); Logger.log(JSON.stringify(r)); return r; }
 function reportPreview(tok) { return tokenOk_(tok) ? buildDailyReport_(new Date()) : 'DENIED'; }
 

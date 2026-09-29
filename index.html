@@ -562,10 +562,17 @@ function jsonp_(params,cb){jsonpUrl_(API_URL,params,cb);}
 /* ===== ສາຂາ (ເກັບໃນເຄື່ອງນີ້) ===== */
 function getBranches(){try{return JSON.parse(localStorage.getItem('stpos_branches')||'[]');}catch(e){return [];}}
 function saveBranches(a){try{localStorage.setItem('stpos_branches',JSON.stringify(a||[]));}catch(e){}}
-function apiGet(cb){jsonp_('token='+encodeURIComponent(TOKEN),function(r){if(r&&!r.ok&&r.err==='token'){tokenErr_();cb(null);return;}cb(r&&r.ok?r.state:null);});}
+/* ບີບອັດ gzip (ຂໍ້ມູນນ້ອຍລົງ ~5 ເທົ່າ → ໂຫຼດ/ບັນທຶກໄວຂຶ້ນ). ສົ່ງແບບບີບອັດ ສະເພາະເມື່ອ server ຢືນຢັນວ່າຮອງຮັບແລ້ວ (__srvGz) */
+var GZ_OK=typeof DecompressionStream!=='undefined'&&typeof CompressionStream!=='undefined';
+function b64ToBytes(b){var s=atob(b),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a;}
+function bytesToB64(u){var s='';for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);}
+function gunzipB64(b,cb){try{new Response(new Blob([b64ToBytes(b)]).stream().pipeThrough(new DecompressionStream('gzip'))).text().then(cb,function(){cb(null);});}catch(e){cb(null);}}
+function gzipB64(str,cb){try{new Response(new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer().then(function(ab){cb(bytesToB64(new Uint8Array(ab)));},function(){cb(null);});}catch(e){cb(null);}}
+function apiGet(cb){jsonp_('token='+encodeURIComponent(TOKEN)+(GZ_OK?'&gz=1':''),function(r){if(r&&!r.ok&&r.err==='token'){tokenErr_();cb(null);return;}if(r&&r.ok&&r.gz){window.__srvGz=true;gunzipB64(r.gz,cb);return;}cb(r&&r.ok?r.state:null);});}
 function apiGetCust(table,cb){jsonp_('cust=1&table='+encodeURIComponent(table),function(r){cb(r&&r.ok?r.state:null);});}
 function apiAction(payload,cb){jsonp_('action='+encodeURIComponent(payload.action)+'&payload='+encodeURIComponent(JSON.stringify(payload)),cb);}
-function apiSave(json){try{fetch(API_URL+'?token='+encodeURIComponent(TOKEN),{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:json}).catch(function(){setNet(true);});}catch(e){setNet(true);}}
+function apiSave(json){var send=function(body){try{fetch(API_URL+'?token='+encodeURIComponent(TOKEN),{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body}).catch(function(){setNet(true);});}catch(e){setNet(true);}};
+ if(GZ_OK&&window.__srvGz===true){gzipB64(json,function(b){send(b?'GZ:'+b:json);});}else send(json);}
 /* ສົ່ງຄຳສັ່ງລູກຄ້າ (ສັ່ງອາຫານ/ຂໍເຊັກບິນ) — server ກວດ PIN + ຕັດສະຕ໋ອກເອງ */
 function custSend(payload,cb){
  if(HAS_GAS){google.script.run.withSuccessHandler(function(s){var r=null;try{r=JSON.parse(s);}catch(e){}cb(r);}).withFailureHandler(function(){cb(null);}).submitOrder(JSON.stringify(payload));}
@@ -730,7 +737,14 @@ function startSync(){
  if(HAS_GAS){setInterval(()=>{if(_saving||_pending)return;if(document.getElementById('modalRoot').innerHTML)return;
   if(view==='order'&&state.draft&&state.draft.length)return;
   google.script.run.withSuccessHandler(s=>{if(!s||s==='DENIED')return;let ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}}).getStateTok(TOKEN);},5000);}
- else if(HAS_API){var _polling=false;setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;apiGet(function(s){setTimeout(function(){_polling=false;},8000);if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}});},6000);}
+ else if(HAS_API){var _polling=false;
+  var applyRemote=function(s){if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;state=ns;ensureDefaults();render();}};
+  /* ກວດແຕ່ເລກເວີຊັນທຸກ 4 ວິ (ນ້ອຍຫຼາຍ) → ດຶງເຕັມ (ບີບອັດ) ສະເພາະເມື່ອມີການປ່ຽນ. server ເກົ່າ (ບໍ່ມີ ver) ຈະສົ່ງ state ເຕັມມາແທນ */
+  setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;
+   var done=function(ms){setTimeout(function(){_polling=false;},ms||0);};
+   jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){
+    if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
+    if(r&&r.ok&&r.state){applyRemote(r.state);done(8000);return;}done(8000);},30000);},4000);}
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
 function setView(v){if(v==='cancellog'){reportTab='cancel';repDate=ymd(Date.now());cancelFilter='all';v='reports';}if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
