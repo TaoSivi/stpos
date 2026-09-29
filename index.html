@@ -488,6 +488,7 @@ table.tbl small{font-size:12.5px}
     <button class="navitem" data-v="shift"><span class="ic"></span> ກະ / ລີ້ນຊັກເງິນ</button>
     <button class="navitem" data-v="dash"><span class="ic"></span> Dashboard</button>
     <button class="navitem" data-v="reports"><span class="ic"></span> ລາຍງານການຂາຍ</button>
+    <button class="navitem" data-v="cancellog"><span class="ic"></span> Log ລຶບເມນູ / ຍົກເລີກ <span class="live" id="cancelBadge" style="display:none"></span></button>
     <button class="navitem" data-v="stock"><span class="ic"></span> ສະຕ໋ອກວັດຖຸດິບ</button>
     <button class="navitem" data-v="purchase"><span class="ic"></span> ຈັດຊື້ (PR/PO) <span class="live" id="procBadge" style="display:none"></span></button>
     <button class="navitem" data-v="expense"><span class="ic"></span> ລາຍຈ່າຍ</button>
@@ -530,7 +531,7 @@ function pinHash(p){p='stpos:'+String(p==null?'':p);var h=5381;for(var i=0;i<p.l
 let SESSION={uid:(function(){try{return localStorage.getItem('stpos_uid')||null;}catch(e){return null;}})()};
 function curUser(){if(!state||!Array.isArray(state.users))return null;return state.users.find(function(u){return u.id===SESSION.uid;})||null;}
 function can(a){var u=curUser();if(!u)return false;var p=PERMS[u.role];if(!p)return true;return p.act.indexOf(a)>=0;}
-function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';var p=PERMS[u.role];if(!p)return true;return p.view.indexOf(v)>=0;}
+function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';if(v==='cancellog')v='reports';var p=PERMS[u.role];if(!p)return true;return p.view.indexOf(v)>=0;}
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])return 'tables';return PERMS[u.role].view[0]||'tables';}
 
@@ -586,7 +587,7 @@ function demoIng(c){var d=ING_DEF[c];return {code:c,name:d[0],unit:d[1],stock:0,
 function ensureDemoIng(){if(!state.ingredients)state.ingredients={};if(state.catalog&&Object.keys(state.catalog).length)return;Object.keys(ING_DEF).forEach(function(c){var it=state.ingredients[c];if(!it)state.ingredients[c]=demoIng(c);else{if(!it.cat)it.cat=ING_DEF[c][4];if(!it.cost)it.cost=ING_DEF[c][2];}});}
 /* ຮູບເມນູເດໂມ (ໄຟລ໌ demo-img/ ໃນ GitHub Pages) */
 function demoImg(p){if(!p||!p.img)return '';var h=location.hostname||'';var base=(/github\.io$|^localhost$|^127\.|^$/.test(h))?'demo-img/':'https://taosivi.github.io/stpos/demo-img/';return base+p.img;}
-let _booted=false;function ensureDefaults(){ensureDemoIng();const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
+let _booted=false;function ensureDefaults(){ensureDemoIng();try{migrateCancelLog();}catch(e){}const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
  if(!Array.isArray(state.shifts)||!state.shifts.length)state.shifts=["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"];
  if(!Array.isArray(state.staff)||!state.staff.length)state.staff=["Namfon","Pam","Nit"];
  if(!Array.isArray(state.floors)||!state.floors.length)state.floors=[...DEFAULT_FLOORS];
@@ -731,7 +732,7 @@ function startSync(){
  else if(HAS_API){var _polling=false;setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;apiGet(function(s){setTimeout(function(){_polling=false;},8000);if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}});},6000);}
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
-function setView(v){if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
+function setView(v){if(v==='cancellog'){reportTab='cancel';repDate=ymd(Date.now());cancelFilter='all';v='reports';}if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
  view=v;document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===v));render();
  if(!isCust()&&v!=='order')pushCDS({type:'idle'});}
 /* ===== LOGIN ===== */
@@ -772,7 +773,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title=n+' ລາຍການມື້ນີ້';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
@@ -1616,6 +1617,7 @@ const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 
  shift:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 14h4"/>',
  dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
  reports:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+ cancellog:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>',
  stock:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
  expense:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
  purchase:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/>',
@@ -2303,11 +2305,22 @@ function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂ�
  else if(reportTab==='cancel')renderRepCancel(body);
  else renderRepSummary(body);}
 let cancelFilter='all';
-const CANCEL_FILTERS=[['all','ທັງໝົດ'],['sv_pre','ລຶບກ່ອນເສີບ'],['sv_post','ລຶບຫຼັງເສີບ'],['b_pre','ລຶບກ່ອນເຊັກບິນ'],['b_post','ລຶບຫຼັງເຊັກບິນ'],['move','ຍ້າຍ/ລວມໂຕະ'],['void','Void/ຄືນເງິນ/ຍົກເລີກໂຕະ']];
-function cancelMatch(l,f){var del=(l.type==='ລຶບລາຍການ');
+const CANCEL_FILTERS=[['all','ທັງໝົດ'],['sv_pre','ລຶບກ່ອນເສີບ'],['sv_post','ລຶບຫຼັງເສີບ'],['b_pre','ລຶບກ່ອນເຊັກບິນ'],['b_post','ລຶບຫຼັງເຊັກບິນ'],['tbl','ຍົກເລີກທັງໂຕະ'],['move','ຍ້າຍ/ລວມໂຕະ'],['void','Void/ຄືນເງິນ']];
+function cancelMatch(l,f){var del=(l.type==='ລຶບລາຍການ'||l.type==='ຍົກເລີກໂຕະ');if(f==='tbl')return l.type==='ຍົກເລີກໂຕະ';
  if(f==='all')return true;if(f==='sv_pre')return del&&l.serve==='before';if(f==='sv_post')return del&&l.serve==='after';
  if(f==='b_pre')return del&&l.bill==='before';if(f==='b_post')return del&&l.bill==='after';
- if(f==='move')return l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ';if(f==='void')return l.type==='Void ບິນ'||l.type==='ຄືນເງິນ'||l.type==='ຍົກເລີກໂຕະ';return true;}
+ if(f==='move')return l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ';if(f==='void')return l.type==='Void ບິນ'||l.type==='ຄືນເງິນ';return true;}
+/* ດຶງການລຶບ/ຍົກເລີກ/ຍ້າຍ ທີ່ບັນທຶກໄວ້ແຕ່ໃນ orderLog (ກ່ອນມີ cancelLog) ເຂົ້າລາຍງານ — ເຮັດຄັ້ງດຽວ */
+function migrateCancelLog(){if(!state||state._cancelMigr>=1||!Array.isArray(state.orderLog))return;if(!Array.isArray(state.cancelLog))state.cancelLog=[];
+ var CL=state.cancelLog,add=[];var near=function(ts,tb,type){return CL.some(function(c){return Math.abs(c.ts-ts)<5000&&(c.table||'').indexOf(tb||'')>=0&&(!type||c.type===type);});};
+ state.orderLog.forEach(function(o){var a=o.action||'',d=o.detail||'',tb=o.table||'';
+  if(a==='ລຶບລາຍການ'||a.indexOf('ລຶບເມນູ (')===0){if(near(o.ts,tb,'ລຶບລາຍການ'))return;
+   var m=/^(\d+)×\s*(.+?)\s*(?:\(ຈາກທັງໝົດ \d+\)\s*)?\(([\d,]+) ກີບ\)(?:\s*—\s*ເຫດຜົນ:\s*(.*))?$/.exec(d);var sv='',bl='';
+   if(a.indexOf('ຫຼັງເສີບ')>=0)sv='after';else if(a.indexOf('ກ່ອນເສີບ')>=0)sv='before';if(a.indexOf('ຫຼັງເຊັກບິນ')>=0)bl='after';else if(a.indexOf('ກ່ອນເຊັກບິນ')>=0)bl='before';
+   add.push({ts:o.ts,type:'ລຶບລາຍການ',code:'',name:m?m[2]:d,qty:m?+m[1]:0,amount:m?+m[3].replace(/,/g,''):0,table:tb,reason:m?(m[4]||''):'',by:o.by||'',serve:sv||undefined,bill:bl||undefined,legacy:true});}
+  else if(a==='ຍົກເລີກໂຕະ'){if(near(o.ts,tb,'ຍົກເລີກໂຕະ'))return;var n=/(\d+)/.exec(d);add.push({ts:o.ts,type:'ຍົກເລີກໂຕະ',code:'',name:'ຍົກເລີກທັງໂຕະ ('+d+')',qty:n?+n[1]:0,amount:0,table:tb,reason:'ຍົກເລີກທັງໂຕະ',by:o.by||'',legacy:true});}
+  else if(a==='ຍ້າຍໂຕະ'||a==='ລວມໂຕະ'){if(near(o.ts,'',a))return;add.push({ts:o.ts,type:a,code:'',name:d,qty:0,amount:0,table:d,reason:'',by:o.by||'',legacy:true});}});
+ if(add.length){state.cancelLog=CL.concat(add).sort(function(x,y){return x.ts-y.ts;});}state._cancelMigr=1;return add.length;}
 function cancelLogsFor(){return (state.cancelLog||[]).filter(function(l){return !repDate||ymd(l.ts)===repDate;});}
 function renderRepCancel(b){if(repDate===null)repDate=ymd(Date.now());
  var dayLogs=cancelLogsFor().slice().reverse();
@@ -2317,10 +2330,10 @@ function renderRepCancel(b){if(repDate===null)repDate=ymd(Date.now());
  var tname={'ລຶບລາຍການ':'ລຶບເມນູ'};
  function card(f,lbl,col){var c=cnt(f);return '<div class="kpi" style="cursor:pointer;'+(cancelFilter===f?'outline:3px solid var(--tiff);':'')+'" onclick="cancelFilter=\''+f+'\';render()"><div class="lbl">'+lbl+'</div><div class="val" style="color:'+col+'">'+c.n+' <span style="font-size:15px;color:var(--muted)">ລາຍການ</span></div><div class="sub">ມູນຄ່າ '+KIP(c.amt)+' ₭</div></div>';}
  b.innerHTML=repBar('ລາຍງານ ລຶບເມນູ / ຍ້າຍໂຕະ / ຍົກເລີກ / ຄືນເງິນ')+
-  '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+card('sv_pre','ລຶບເມນູ ກ່ອນເສີບ','#075985')+card('sv_post','ລຶບເມນູ ຫຼັງເສີບ','#b91c1c')+card('b_pre','ລຶບເມນູ ກ່ອນເຊັກບິນ','#047857')+card('b_post','ລຶບເມນູ ຫຼັງເຊັກບິນ','#b45309')+card('move','ຍ້າຍ / ລວມໂຕະ','#6d28d9')+card('void','Void / ຄືນເງິນ / ຍົກເລີກໂຕະ','var(--red)')+'</div>'+
+  '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+card('sv_pre','ລຶບເມນູ ກ່ອນເສີບ','#075985')+card('sv_post','ລຶບເມນູ ຫຼັງເສີບ','#b91c1c')+card('b_pre','ລຶບເມນູ ກ່ອນເຊັກບິນ','#047857')+card('b_post','ລຶບເມນູ ຫຼັງເຊັກບິນ','#b45309')+card('tbl','ຍົກເລີກທັງໂຕະ','var(--red)')+card('move','ຍ້າຍ / ລວມໂຕະ','#6d28d9')+card('void','Void ບິນ / ຄືນເງິນ','var(--pink)')+'</div>'+'<p style="padding:0 18px 8px;color:var(--muted);font-size:14px">ກ່ອງ ລຶບກ່ອນ/ຫຼັງເສີບ ແລະ ກ່ອນ/ຫຼັງເຊັກບິນ ນັບທັງການລຶບເມນູ ແລະ ລາຍການໃນການຍົກເລີກທັງໂຕະ · ລາຍການທີ່ໝາຍ <b>(ບັນທຶກເກົ່າ)</b> ດຶງມາຈາກ log ກ່ອນອັບເດດ</p>'+
   '<div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span style="color:var(--muted);font-weight:600">ສະແດງ:</span>'+CANCEL_FILTERS.map(function(f){return '<button class="chip '+(cancelFilter===f[0]?'active':'')+'" onclick="cancelFilter=\''+f[0]+'\';render()">'+f[1]+'</button>';}).join('')+'</div>'+
   '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th>ວັນ-ເວລາ</th><th>ປະເພດ</th><th>ຂັ້ນຕອນ</th><th>ໂຕະ</th><th>ເມນູ / ລາຍລະອຽດ</th><th style="text-align:right">ຈຳນວນ</th><th style="text-align:right">ມູນຄ່າ (₭)</th><th>ເຫດຜົນ</th><th>ໂດຍ</th></tr></thead><tbody>'+
-  (logs.length?logs.map(function(l,i){var mv=(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ');return '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap">'+new Date(l.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(l.ts).toLocaleTimeString('en-GB')+'</b></td><td style="font-weight:700;color:'+(tcol[l.type]||'var(--muted)')+'">'+cesc(tname[l.type]||l.type)+'</td><td>'+stageChips(l)+'</td><td style="font-weight:700;white-space:nowrap">'+cesc(l.table||'')+'</td><td>'+cesc(l.name||'')+(l.code?'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small>':'')+'</td><td style="text-align:right">'+(l.qty||'')+'</td><td style="text-align:right;font-weight:700;color:'+(mv?'var(--ink)':'var(--red)')+'">'+KIP(l.amount)+'</td><td>'+cesc(l.reason||'')+'</td><td style="color:var(--muted)">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີລາຍການໃນວັນທີ / ປະເພດນີ້</td></tr>')+
+  (logs.length?logs.map(function(l,i){var mv=(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ');return '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap">'+new Date(l.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(l.ts).toLocaleTimeString('en-GB')+'</b></td><td style="font-weight:700;color:'+(tcol[l.type]||'var(--muted)')+'">'+cesc(tname[l.type]||l.type)+(l.legacy?'<br><small style="color:var(--muted);font-weight:400">(ບັນທຶກເກົ່າ)</small>':'')+'</td><td>'+stageChips(l)+'</td><td style="font-weight:700;white-space:nowrap">'+cesc(l.table||'')+'</td><td>'+cesc(l.name||'')+(l.code?'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small>':'')+'</td><td style="text-align:right">'+(l.qty||'')+'</td><td style="text-align:right;font-weight:700;color:'+(mv?'var(--ink)':'var(--red)')+'">'+KIP(l.amount)+'</td><td>'+cesc(l.reason||'')+'</td><td style="color:var(--muted)">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີລາຍການໃນວັນທີ / ປະເພດນີ້</td></tr>')+
   '</tbody></table><div style="margin-top:10px"><button class="btn-sm" onclick="exportCancel()"> Export Excel</button></div></div>';}
 function exportCancel(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var logs=cancelLogsFor().filter(function(l){return cancelMatch(l,cancelFilter);});if(!logs.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
  var rows=logs.slice().reverse().map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ປະເພດ':(l.type==='ລຶບລາຍການ'?'ລຶບເມນູ':l.type),'ເສີບ':(l.serve==='after'?'ຫຼັງເສີບ':l.serve==='before'?'ກ່ອນເສີບ':''),'ເຊັກບິນ':(l.bill==='after'?'ຫຼັງເຊັກບິນ':l.bill==='before'?'ກ່ອນເຊັກບິນ':''),'ໂຕະ':l.table||'','ລະຫັດ':l.code||'','ເມນູ/ລາຍລະອຽດ':l.name||'','ຈຳນວນ':l.qty||0,'ມູນຄ່າ(ກີບ)':Math.round(l.amount||0),'ເຫດຜົນ':l.reason||'','ໂດຍ':l.by||''};});
