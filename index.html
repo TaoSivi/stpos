@@ -10,7 +10,7 @@
 <title>ST POS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--tiff:#0ABAB5;--tiff2:#13C7C1;--tiff-lite:#5FD9D2;--tiff-deep:#0A7E7A;--tiff-ink:#075A57;
  --grad:linear-gradient(135deg,#0ABAB5 0%,#16C6C0 55%,#5FD9D2 100%);--grad-deep:linear-gradient(135deg,#0A7E7A,#0ABAB5);
@@ -473,7 +473,7 @@ table.tbl small{font-size:12.5px}
 /* ===== UI v2: ອ່ານງ່າຍ ບໍ່ຕັດແຖວ (Teal ເດີມ) ===== */
 body{font-variant-numeric:tabular-nums}
 *{font-family:'Noto Sans','Noto Sans Lao','Roboto',system-ui,sans-serif}
-.navitem{white-space:nowrap;min-width:0;overflow:hidden;padding:10px 12px;margin:2px 10px;font-size:14px}
+.navitem{white-space:nowrap;min-width:0;padding:10px 12px;margin:2px 10px;font-size:14px}
 .navsec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar h1,.tv-head .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:none;-webkit-text-fill-color:currentColor;color:var(--tiff-ink);font-weight:800;letter-spacing:-.2px}
 .tv-head .ttl{font-size:22px}.tv-head .sub{font-size:13px}
@@ -498,6 +498,121 @@ table.tbl td.wrap{white-space:normal;min-width:180px}
 .shiftbar{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .setnav button{white-space:nowrap}
 @media (max-width:900px){.setnav{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.setnav button{flex-shrink:0}.kpi .val{font-size:20px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.cards>.kpi{padding:13px 14px}.kpi .lbl{font-size:12px}table.tbl th,table.tbl td{padding:9px 10px}}
+/* ===== UI v2 ລູກຫຼິ້ນ (motion) ===== */
+@keyframes uiUp{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+#viewRoot.ui-enter .kpi,#viewRoot.ui-enter .tablecard,#viewRoot.ui-enter .product,#viewRoot.ui-enter .kcard,#viewRoot.ui-enter table.tbl tbody tr{animation:uiUp .45s cubic-bezier(.2,.75,.2,1) both}
+#viewRoot.ui-enter :nth-child(2){animation-delay:.04s}#viewRoot.ui-enter :nth-child(3){animation-delay:.08s}#viewRoot.ui-enter :nth-child(4){animation-delay:.12s}#viewRoot.ui-enter :nth-child(5){animation-delay:.16s}#viewRoot.ui-enter :nth-child(6){animation-delay:.2s}#viewRoot.ui-enter :nth-child(7){animation-delay:.24s}#viewRoot.ui-enter :nth-child(8){animation-delay:.28s}#viewRoot.ui-enter :nth-child(n+9){animation-delay:.32s}
+.kpi{position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.kpi::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad);opacity:.9}
+.kpi:hover{transform:translateY(-2px)}
+.navitem{position:relative;transition:background .15s,color .15s}
+.navitem .ic,.navitem svg{transition:transform .18s}
+.navitem:hover .ic,.navitem:hover svg{transform:translateX(2px) scale(1.08)}
+.navitem.active::before{content:'';position:absolute;left:-10px;top:9px;bottom:9px;width:4px;border-radius:0 4px 4px 0;background:#7ff0e9;box-shadow:0 0 12px 1px rgba(127,240,233,.9)}
+button{transition:transform .08s,filter .15s,box-shadow .15s}
+button:not(:disabled):active{transform:scale(.96)}
+.tablecard{transition:transform .16s,box-shadow .16s}.tablecard:active{transform:scale(.97)}
+.dashcards .kpi:first-child::before{background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.18) 45%,transparent 60%);height:auto;bottom:0;right:auto;width:60%;left:-70%;opacity:1;animation:uiShine 5s ease-in-out 1.2s infinite}
+@keyframes uiShine{0%{left:-70%}35%,100%{left:130%}}
+.tb-hi{font-weight:700;color:var(--tiff-deep)}
+.confetti-p{position:fixed;top:-12px;width:9px;height:14px;border-radius:2px;z-index:9999;pointer-events:none;will-change:transform}
+@media (prefers-reduced-motion:reduce){#viewRoot.ui-enter *{animation:none!important}.dashcards .kpi:first-child::before{animation:none}}
+/* ===== Teal Bento (ອອກແບບ Claude Design 2026-09-29) ===== */
+:root{--bg:#eaf4f3;--ink:#062f2d;--text:#062f2d;--muted:#4d7471;--line:#e1efed;--r-lg:24px;--r-md:18px;--sh-1:0 1px 2px rgba(6,47,45,.04),0 8px 24px rgba(6,47,45,.05);--sh-2:0 16px 36px rgba(6,47,45,.12);--grad:linear-gradient(0deg,#0A7E7A,#0A7E7A);--grad-deep:linear-gradient(0deg,#062f2d,#062f2d)}
+*{font-family:'Plus Jakarta Sans','Noto Sans Lao','Roboto',system-ui,sans-serif}
+body{background:var(--bg)}
+#viewRoot{background:var(--bg)}
+/* ແຖບເມນູລອຍ */
+#sidebar{background:transparent!important;border-right:none!important;padding:14px 0 14px 14px;width:252px}
+#sidebar>*{position:relative}
+#sidebar::before{content:'';position:absolute;inset:14px 0 14px 14px;background:#062f2d;border-radius:26px;z-index:0}
+@media (min-width:901px){#sidebar{position:relative}}
+#sidebar .brand{background:transparent!important;padding:22px 18px 14px;box-shadow:none}
+#sidebar .brand .logo{background:#0ABAB5!important;color:#062f2d;border-radius:14px!important;border:none!important;box-shadow:none!important;font-family:inherit!important;font-weight:800;width:42px;height:42px;font-size:16px}
+#sidebar .brand b{font-family:inherit;font-weight:800;font-size:17px;letter-spacing:-.2px;color:#fff}
+#sidebar .brand small{color:#7fbdb9;text-transform:none;letter-spacing:0;font-size:11px}
+#sidebar .navsec{color:#6fb3ae!important;padding:14px 26px 4px}
+#sidebar .navitem{color:#cdebe8!important;background:transparent;margin:2px 12px 2px 24px;border-radius:14px;height:44px;padding:0 12px;box-shadow:none}
+#sidebar .navitem:hover{background:rgba(255,255,255,.07)!important}
+#sidebar .navitem.active{background:#5FD9D2!important;color:#062f2d!important;font-weight:700;box-shadow:none!important}
+#sidebar .navitem.active::before{display:none}
+#sidebar .navitem .live{background:#f4b740;color:#3b2600}
+#sidebar .navitem.active .live{background:#062f2d;color:#7ff0e9}
+/* ແຖບເທິງ */
+.topbar{background:transparent!important;border-bottom:none!important;box-shadow:none!important;padding:18px 26px 6px}
+.topbar h1{font-family:inherit!important;font-size:26px!important;font-weight:800!important;letter-spacing:-.6px;color:var(--ink)!important;text-align:left}
+.tb-date{font-size:13px;color:var(--muted)}
+.tb-hi{color:var(--ink)}
+.ordno{background:#062f2d!important;color:#7ff0e9;border-radius:16px!important;box-shadow:none!important}
+#userChip>*{background:#fff;border:none;box-shadow:none}
+/* ບັດ */
+.kpi,.legend,.outstanding,.adminbox .asec,table.tbl,.kcard{border:none!important;border-radius:var(--r-lg)!important;box-shadow:var(--sh-1)}
+.kpi::before{display:none}
+.kpi .val{font-family:inherit!important;font-weight:800;letter-spacing:-1px}
+.dashcards .kpi:first-child{background:#062f2d!important;box-shadow:0 18px 40px rgba(6,47,45,.25)!important}
+.dashcards .kpi:first-child .val{color:#fff;font-size:clamp(28px,2.8vw,44px)!important;letter-spacing:-1.5px}
+.dashcards .kpi:first-child .lbl,.dashcards .kpi:first-child .sub{color:#9fd8d4}
+.dashcards .kpi:first-child::before{display:block}
+.tv-head .ttl{font-family:inherit!important;font-size:26px!important;letter-spacing:-.6px;color:var(--ink)}
+.modal h2{font-family:inherit!important;font-weight:800;letter-spacing:-.3px}
+.modal{border-radius:28px!important}
+table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
+/* ປຸ່ມ */
+.btn-ok,.grad,.btn-sm{background:#0A7E7A;border-radius:14px}
+.btn-sm{border-radius:12px;box-shadow:none}
+.chip,.cat,.subcat{border:none!important;background:#fff;box-shadow:none!important;border-radius:22px}
+.chip.active,.cat.active,.subcat.active,.setnav button.on{background:#062f2d!important;color:#fff!important}
+.layoutbtns{background:#fff;border:none;border-radius:14px}
+.layoutbtns button.on{background:#062f2d;color:#fff}
+/* ໂຕະ */
+.tablegrid{gap:14px!important}
+.tablecard{border-radius:22px!important;border:3px solid transparent!important;background:#fff;box-shadow:var(--sh-1)!important;text-align:left;padding:14px 16px!important;min-height:118px;display:flex;flex-direction:column}
+.tablecard .tseat{display:none!important}
+.tablecard .tname{font-size:24px!important;font-weight:800;letter-spacing:-.5px;margin-top:0;color:inherit}
+.tablecard .tamt{margin-top:auto;font-size:15px}
+.tablecard .tamt b{color:inherit!important;font-size:16px!important;font-weight:800}
+.tablecard.s-free{background:#fff;border:2px dashed #cde3e1!important;box-shadow:none!important}
+.tablecard.s-busy{background:#0ABAB5!important;color:#062f2d}
+.tablecard.s-callbill,.tablecard.s-bill{background:#f4b740!important;color:#3b2600}
+.tablecard.s-new{background:#062f2d!important;color:#fff}
+.tablecard.s-new .tamt b{color:#7ff0e9!important}
+.tablecard.s-main{background:#5FD9D2!important;color:#062f2d}
+.tablecard:hover{transform:translateY(-3px);box-shadow:var(--sh-2)!important}
+.tablecard .qrbadge{background:rgba(255,255,255,.6)!important;border-radius:11px}
+.tablecard.s-new .qrbadge svg{color:#062f2d}
+.tablecard .calltag{border-radius:12px}
+.freepill{background:#eef5f4;color:var(--muted);border-radius:12px;padding:3px 10px;font-weight:700}
+/* ໜ້າສັ່ງ */
+.menupane{padding:10px 18px 16px 22px}
+.products{gap:14px!important;grid-template-columns:repeat(auto-fill,minmax(168px,1fr))!important}
+.product{border:none!important;border-radius:22px!important;padding:8px!important;box-shadow:var(--sh-1)!important;background:#fff}
+.product .thumb{border-radius:16px!important;background:#eef5f4}
+.product .thumb img{object-fit:cover!important}
+.product .pname{font-size:14px!important;font-weight:700;padding:4px 4px 0}
+.product .ptop{padding:0 4px 2px}
+.product .price{background:transparent!important;color:#0A7E7A!important;font-size:14px!important;font-weight:800;padding:0!important}
+.product:hover{transform:translateY(-3px);box-shadow:var(--sh-2)!important}
+.cart{background:#fff;border-left:none!important;border-radius:28px 0 0 28px;box-shadow:-10px 0 30px rgba(6,47,45,.06)!important;overflow:hidden}
+.cart-top{background:#fff!important;padding:18px 18px 8px!important}
+.cart-top button{background:#062f2d!important;color:#fff!important;border-radius:16px!important;height:48px;font-size:15px!important}
+.cart-top button+button{background:#eef5f4!important;color:var(--ink)!important}
+.cart-items{padding:6px 18px!important}
+.citem{border-bottom:1px solid #eef5f4!important;padding:12px 0!important}
+.citem .ci-name{font-size:14.5px!important}
+.qbtn{border-radius:10px!important}
+.cart-foot{border-top:none!important;background:#f5faf9;margin:0 12px 12px;border-radius:22px;padding:14px 16px!important}
+.totrow.grand{font-size:22px!important;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
+.confirm{background:#0A7E7A!important;border-radius:18px!important;height:58px;font-size:17px!important;font-weight:800;font-family:inherit!important;box-shadow:none!important}
+.actions button{border-radius:14px!important}
+.actions .b-pay{background:#0A7E7A!important}
+:root{--serif:'Plus Jakarta Sans','Noto Sans Lao',sans-serif}
+.tablecard .qrbadge[title="ຈອງໂຕະ"]{left:auto!important;right:10px!important;top:auto!important;bottom:10px!important;background:rgba(255,255,255,.6)!important}
+.tablecard .calltag{top:auto!important;bottom:12px!important;left:auto!important;right:12px!important;border-radius:12px!important}
+.actions button{background:#eef5f4!important;color:#062f2d!important;font-weight:700}
+.actions .b-bill{background:#062f2d!important;color:#fff!important}.actions .b-pay{background:#0A7E7A!important;color:#fff!important}
+.actions .b-cancel{background:#fff1ee!important;color:#b4371f!important}
+@media (max-width:900px){#sidebar{padding:10px 0 10px 10px}#sidebar::before{inset:10px 0 10px 10px}.topbar{padding:12px 14px 4px}.topbar h1{font-size:20px!important}.cart{border-radius:26px 26px 0 0}.products{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.tablecard{min-height:100px}}
+@media (max-width:900px){#bnav{left:12px!important;right:12px!important;bottom:12px!important;border-radius:24px;background:#062f2d!important;border-top:none!important;padding:8px 6px!important}#bnav button{color:#9fd8d4!important}#bnav button.on{color:#062f2d!important}#bnav button.on .bi{background:#5FD9D2!important}#bnav button.on{color:#7ff0e9!important}#bnav button.on .bi svg{color:#062f2d}#viewRoot{padding-bottom:96px}}
 </style>
 </head>
 <body>
@@ -776,7 +891,7 @@ function startSync(){
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
 function setView(v){if(v==='cancellog'){reportTab='cancel';repDate=ymd(Date.now());cancelFilter='all';v='reports';}if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
- view=v;document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===v));render();
+ view=v;document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===v));render();try{uiEnter();}catch(e){}
  if(!isCust()&&v!=='order')pushCDS({type:'idle'});}
 /* ===== LOGIN ===== */
 let _loginSel=null,_loginPin='';
@@ -815,7 +930,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if((HAS_GAS||HAS_API)&&!_loaded){R.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;color:var(--muted)"><div class="spin" style="width:44px;height:44px;border:4px solid #d1ecea;border-top-color:var(--tiff);border-radius:50%;animation:spin 1s linear infinite"></div><div style="font-size:18px;font-weight:700;color:var(--tiff-deep)">ກຳລັງໂຫຼດຂໍ້ມູນຈາກ server…</div><div style="font-size:14px">ຂໍ້ມູນຫຼາຍ ອາດໃຊ້ເວລາ 10–30 ວິນາທີ</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';if(window.__loadFail)R.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;text-align:center"><div style="font-size:40px">⚠️</div><div style="font-size:18px;font-weight:700;color:var(--red)">ເຊື່ອມ server ບໍ່ໄດ້</div><div style="font-size:14px;color:var(--muted)">ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່ — ຂໍ້ມູນໃນ server ບໍ່ຖືກແຕະ</div><button class="btn-ok grad" style="padding:11px 22px;border-radius:11px;font-weight:700" onclick="location.reload()">ລອງໃໝ່</button></div>';return;}
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
- renderUserChip();
+ renderUserChip();try{tickClock();}catch(e){}
  document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title=n+' ລາຍການມື້ນີ້';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
@@ -1699,7 +1814,21 @@ function renderBottomNav(){var el=document.getElementById('bnav');if(!el)return;
  var cur=(view==='order')?'tables':(view==='transfer'?'stock':view);if(curUser()&&curUser().role==='purchasing')cand=[['purchase','ຈັດຊື້'],['stock','ສະຕ໋ອກ']];
  el.innerHTML=cand.map(function(x){return '<button class="'+(cur===x[0]?'on':'')+'" onclick="setView(\''+x[0]+'\')"><span class="bi">'+navSvg(x[0])+'</span>'+x[1]+'</button>';}).join('')+'<button onclick="toggleDrawer(true)"><span class="bi">'+navSvg('more')+'</span>ເພີ່ມເຕີມ</button>';}
 function tickClock(){var el=document.getElementById('tbDate');if(!el)return;var d=new Date();var dn=['ວັນອາທິດ','ວັນຈັນ','ວັນອັງຄານ','ວັນພຸດ','ວັນພະຫັດ','ວັນສຸກ','ວັນເສົາ'];
- el.textContent=dn[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+((state&&state.locations&&state.locations.length>1)?' · 📍'+locName(curLoc()):'');}
+ var cu=(typeof curUser==='function'&&state)?curUser():null;el.innerHTML=(cu?'<span class="tb-hi">'+greetHi()+', '+cesc(cu.name||'')+'</span> · ':'')+cesc(dn[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+((state&&state.locations&&state.locations.length>1)?' · 📍'+locName(curLoc()):''));}
+/* ===== UI v2 ລູກຫຼິ້ນ: ເຂົ້າໜ້າ / ນັບເລກ / ເສດເຈ້ຍສີ ===== */
+var UI_CALM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function uiEnter(){var R=document.getElementById('viewRoot');if(!R||UI_CALM)return;R.classList.remove('ui-enter');void R.offsetWidth;R.classList.add('ui-enter');clearTimeout(uiEnter._t);uiEnter._t=setTimeout(function(){R.classList.remove('ui-enter');},1000);
+ R.querySelectorAll('.kpi .val').forEach(countUp);}
+function countUp(el){var tn=null,w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);while(w.nextNode()){if(/\d/.test(w.currentNode.nodeValue)){tn=w.currentNode;break;}}if(!tn)return;
+ var txt=tn.nodeValue;if(/[\/:]/.test(txt))return;var m=/-?\d[\d,]*(\.\d+)?/.exec(txt);if(!m)return;var target=parseFloat(m[0].replace(/,/g,''));if(!isFinite(target)||Math.abs(target)<2)return;
+ var dec=m[1]?m[1].length-1:0,pre=txt.slice(0,m.index),post=txt.slice(m.index+m[0].length),t0=performance.now(),D=Math.min(900,450+Math.log10(Math.abs(target)+1)*70);
+ (function step(now){if(!tn.parentNode)return;var p=Math.min(1,(now-t0)/D),e=1-Math.pow(1-p,3);tn.nodeValue=p<1?pre+(target*e).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})+post:txt;if(p<1)requestAnimationFrame(step);})(t0);}
+function confetti(n){if(UI_CALM)return;n=n||70;var cols=['#0ABAB5','#5FD9D2','#0A7E7A','#f4b740','#f97316','#ec4899','#ffffff'],W=window.innerWidth,H=window.innerHeight;
+ for(var i=0;i<n;i++)(function(i){var d=document.createElement('div');d.className='confetti-p';d.style.left=(W*(.15+Math.random()*.7))+'px';d.style.background=cols[i%cols.length];if(i%3===0){d.style.width='8px';d.style.height='8px';d.style.borderRadius='50%';}
+  document.body.appendChild(d);var dx=(Math.random()-.5)*W*.5,rot=(Math.random()-.5)*900,dur=1400+Math.random()*1200;
+  var a=d.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate('+dx+'px,'+(H*.9)+'px) rotate('+rot+'deg)',opacity:.9},{transform:'translate('+dx*1.1+'px,'+(H+40)+'px) rotate('+rot*1.2+'deg)',opacity:0}],{duration:dur,delay:Math.random()*250,easing:'cubic-bezier(.25,.6,.4,1)',fill:'forwards'});
+  a.onfinish=function(){d.remove();};})(i);}
+function greetHi(){var h=new Date().getHours();return h<11?'ສະບາຍດີຕອນເຊົ້າ':h<13?'ສະບາຍດີຕອນສວາຍ':h<17?'ສະບາຍດີຕອນບ່າຍ':'ສະບາຍດີຕອນແລງ';}
 /* ===== ຮູບວັດຖຸດິບ ===== */
 function ingThumb(code,sz,clickable){var it=state.ingredients[code]||{};sz=sz||36;var ck=clickable&&can('stockAdjust');var js=ck?' onclick="ingImgMenu(this.dataset.c)" data-c="'+cesc(code)+'" title="ກົດເພື່ອໃສ່/ປ່ຽນຮູບ"':'';
  if(it.img)return '<img src="'+it.img+'" class="ingimg" style="width:'+sz+'px;height:'+sz+'px;'+(ck?'cursor:pointer':'')+'"'+js+' alt="">';
@@ -3083,7 +3212,7 @@ function doRefund(rno){var b=(state.bills||[]).find(function(x){return x.receipt
  logOrder('ຄືນເງິນ','ບິນ '+rno+' · '+KIP(amt)+' ກີບ · '+items.map(function(x){return x.qty+'× '+x.name;}).join(', ')+' — '+rsn,b.table);
  save();closeModal();render();showSuccess('ຄືນເງິນແລ້ວ',rno+' · '+KIP(amt)+' ກີບ');}
 function previewReceipt(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b){toast('ບໍ່ພົບບິນ');return;}__rcptHTML=buildReceiptHTML(b);openModal('<h2>ໃບບິນ '+rno+'</h2><div style="text-align:center;max-height:58vh;overflow:auto;background:#f1f5f9;padding:10px;border-radius:10px"><div class="rcpt-prev">'+__rcptHTML+'</div></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="printLast()"> ພິມ</button></div>');renderRcptQRIn(document.getElementById('modalRoot'));}
-function showPaidModal(rno,chg,pay){document.getElementById('modalRoot').innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal success"><div class="checkwrap"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 7 16-17"/></svg></div><h2>ຊຳລະສຳເລັດ!</h2><p class="ssub">ບິນ '+rno+' · '+pay+' · ເງິນທອນ '+KIP(chg)+' ກີບ</p><div class="modal-btns" style="margin-top:14px"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="previewReceipt(\''+rno+'\')"> ພິມໃບບິນ</button></div></div></div>';}
+function showPaidModal(rno,chg,pay){setTimeout(function(){try{confetti();}catch(e){}},120);document.getElementById('modalRoot').innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal success"><div class="checkwrap"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 7 16-17"/></svg></div><h2>ຊຳລະສຳເລັດ!</h2><p class="ssub">ບິນ '+rno+' · '+pay+' · ເງິນທອນ '+KIP(chg)+' ກີບ</p><div class="modal-btns" style="margin-top:14px"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="previewReceipt(\''+rno+'\')"> ພິມໃບບິນ</button></div></div></div>';}
 function loadLogo(inp){var f=inp.files&&inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var img=new Image();img.onload=function(){var mx=260,sc=Math.min(1,mx/img.width);var c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);state.shopLogo=c.toDataURL('image/png');save();render();showSuccess('ປ່ຽນໂລໂກ້ແລ້ວ!');};img.src=e.target.result;};r.readAsDataURL(f);}
 function removeLogo(){state.shopLogo='';save();render();toast('ລຶບໂລໂກ້ແລ້ວ');}
 function saveReceiptSettings(){state.shopAddr=document.getElementById('ad_addr').value||'';state.shopPhone=document.getElementById('ad_phone').value||'';state.rateTHB=+document.getElementById('ad_thb').value||0;state.rateUSD=+document.getElementById('ad_usd').value||0;state.paperW=+document.getElementById('ad_paper').value||80;save();render();showSuccess('ບັນທຶກໃບບິນແລ້ວ!');}
