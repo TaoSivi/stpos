@@ -182,7 +182,7 @@ function mergeQr_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object' || !inc.tables) return inc;
     var cur = JSON.parse(curStr); if (!cur || !cur.tables) return inc;
-    var now = Date.now(), seen = {};
+    var now = Date.now(), seen = {}, added = 0;
     Object.keys(inc.tables).forEach(function (k) { (inc.tables[k].items || []).forEach(function (i) { seen[String(i.id)] = 1; }); });
     (inc.bills || []).forEach(function (b) { (b.items || []).forEach(function (i) { seen[String(i.id)] = 1; }); });
     (inc.cancelLog || []).forEach(function (l) { if (l.id != null) seen[String(l.id)] = 1; });
@@ -193,7 +193,7 @@ function mergeQr_(curStr, inc) {
       (ct.items || []).forEach(function (line) {
         if (!line.qr || seen[String(line.id)] || now - (line.ts || 0) > 6 * 3600000) return;
         if (!Array.isArray(it.items)) it.items = [];
-        it.items.push(line); seen[String(line.id)] = 1;
+        it.items.push(line); seen[String(line.id)] = 1; added++;
         if (it.status === 'free') it.status = 'busy';
         if (!Array.isArray(inc.orders)) inc.orders = [];
         if (!inc.orders.some(function (o) { return String(o.id) === String(line.id); })) {
@@ -206,8 +206,10 @@ function mergeQr_(curStr, inc) {
           ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
         });
       });
-      if (ct.callTs && ct.callTs > (it.callTs || 0) && (it.items || []).length && it.status !== 'bill') { it.status = 'callbill'; it.callTs = ct.callTs; }
+      if (ct.callTs && ct.callTs > (it.callTs || 0) && (it.items || []).length && it.status !== 'bill') { it.status = 'callbill'; it.callTs = ct.callTs; added++; }
     });
+    /* ມີການໃສ່ຄືນ → ເລກເວີຊັນໃໝ່ກວ່າເຄື່ອງທີ່ສົ່ງມາ ເພື່ອໃຫ້ທຸກເຄື່ອງດຶງໄປສະແດງ */
+    if (added) inc._v = Math.max(+inc._v || 0, now) + 1;
     return inc;
   } catch (e) { return inc; }
 }
