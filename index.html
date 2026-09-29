@@ -575,7 +575,7 @@ function locName(id){var L=(state&&state.locations)||[];var f=L.find(function(x)
 function ensLocs(it){if(!it.locs){it.locs={};if(typeof it.stock==='number')it.locs[DEFLOC]=it.stock;}return it.locs;}
 function stockAt(code,loc){var it=state.ingredients[code];if(!it)return 0;ensLocs(it);return +it.locs[loc]||0;}
 function syncStockView(){var l=curLoc();var ig=state.ingredients||{};Object.keys(ig).forEach(function(k){var it=ig[k];ensLocs(it);it.stock=+it.locs[l]||0;});}
-function addStockAt(code,loc,delta,reason,ref){var it=state.ingredients[code];if(!it||!delta)return;ensLocs(it);it.locs[loc]=Math.round(((+it.locs[loc]||0)+delta)*1000)/1000;if(loc===curLoc())it.stock=it.locs[loc];logStock(code,delta,reason,ref,loc);}
+function addStockAt(code,loc,delta,reason,ref){var it=state.ingredients[code];if(!it||!delta)return;if(!loc)loc=curLoc();ensLocs(it);it.locs[loc]=Math.round(((+it.locs[loc]||0)+delta)*1000)/1000;if(loc===curLoc())it.stock=it.locs[loc];logStock(code,delta,reason,ref,loc);}
 function setStockAt(code,loc,qty,reason,ref){var it=state.ingredients[code];if(!it)return;ensLocs(it);var old=+it.locs[loc]||0;it.locs[loc]=qty;if(loc===curLoc())it.stock=qty;if(qty-old)logStock(code,qty-old,reason,ref,loc);}
 function logStock(code,delta,reason,ref,loc){if(!delta)return;if(!Array.isArray(state.stockLog))state.stockLog=[];
  var it=state.ingredients[code]||{};loc=loc||curLoc();var after=(it.locs&&it.locs[loc]!==undefined)?it.locs[loc]:it.stock;
@@ -1530,7 +1530,7 @@ function showMenuBom(code){var p=findMenu(code);if(!p){toast('ບໍ່ພົບ
   (edit?'':(can('menuEdit')?'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">ແກ້ໄຂໄດ້ຫຼັງນຳເຂົ້າເມນູຈາກ Excel ແລ້ວ</p>':'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:8px">ແກ້ໄຂສູດໄດ້ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ</p>'))+
   '<div class="modal-btns"><button class="btn-cancel" onclick="showBomViewer()">‹ ກັບ</button><button class="btn-ok" onclick="closeModal()">ປິດ</button></div>');}
 function addStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດຮັບສະຕ໋ອກ');return;}const it=state.ingredients[code];openModal(`<h2>ຮັບສະຕ໋ອກເຂົ້າ — ${it.name}</h2><p style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">ເຂົ້າບ່ອນເກັບ: <b>${cesc(locName(stockViewLoc))}</b></p><label>ຈຳນວນ (${it.unit})</label><input id="qty" type="number" value="1000"><label style="margin-top:8px">ມູນຄ່າທີ່ຊື້ (ກີບ) — ບັນທຶກເປັນລາຍຈ່າຍ ${EXP_CATS[0]} (0 = ບໍ່ບັນທຶກ)</label><input id="qcost" type="number" value="0"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddStock('${code}')">ຮັບເຂົ້າ</button></div>`);}
-function doAddStock(code){const q=+document.getElementById('qty').value||0;const cost=+(document.getElementById('qcost')||{}).value||0;const it=state.ingredients[code];addStockAt(code,stockViewLoc,q,'ຮັບເຂົ້າ',(cost>0?'ມູນຄ່າ '+KIP(cost)+' ກີບ ':'')+'['+locName(stockViewLoc)+']');
+function doAddStock(code){const q=+document.getElementById('qty').value||0;const cost=+(document.getElementById('qcost')||{}).value||0;const it=state.ingredients[code];if(!stockViewLoc)stockViewLoc=curLoc();addStockAt(code,stockViewLoc,q,'ຮັບເຂົ້າ',(cost>0?'ມູນຄ່າ '+KIP(cost)+' ກີບ ':'')+'['+locName(stockViewLoc)+']');
  if(cost>0&&q>0)it.cost=Math.round((cost/q)*100)/100;
  if(cost>0){if(!Array.isArray(state.expenses))state.expenses=[];state.expenses.push({id:Date.now()+Math.random(),ts:Date.now(),cat:EXP_CATS[0],note:'ຊື້ '+it.name+' '+KIP(q)+' '+it.unit,amount:cost,by:whoBy()});}
  save();closeModal();render();showSuccess('ຮັບສະຕ໋ອກສຳເລັດ!',it.name+' +'+KIP(q)+' '+it.unit+(cost>0?'  ບັນທຶກລາຍຈ່າຍ '+KIP(cost)+' ກີບ':''));}
@@ -2031,7 +2031,11 @@ function parseWB(wb){function rows(n){var ws=wb.Sheets[n];return ws?XLSX.utils.s
  var rec={};var rsr=sht(['ສູດຕັດສະຕ໋ອກ','Recipe','ສູດ']);for(var i=1;i<rsr.length;i++){var r=rsr[i];if(!r)continue;var mc=(r[0]==null?'':String(r[0])).trim();var ic=(r[1]==null?'':String(r[1])).trim();if(!mc||!ic||/ລະຫັດ/.test(mc))continue;var q=Number(r[2])||0;if(q<=0)continue;if(!rec[mc])rec[mc]=[];rec[mc].push([ic,q]);}
  var grouped={},menuCount=0,seen={};var rm=sht(['ເມນູ','Menu']);for(var i=1;i<rm.length;i++){var r=rm[i];if(!r)continue;var code=(r[0]==null?'':String(r[0])).trim();if(!code||seen[code]||/ລະຫັດ/.test(code))continue;var p=Number(r[5]);if(!p||isNaN(p))continue;seen[code]=1;var nm=(r[1]==null?code:String(r[1])).trim()||code;var main=(r[2]==null?'ອື່ນໆ':String(r[2])).trim()||'ອື່ນໆ';var sub=(r[3]==null?main:String(r[3])).trim()||main;var k=(r[4]==null?'food':String(r[4])).trim().toLowerCase()||'food';if(k!=='food'&&k!=='drink')k='food';if(!grouped[main])grouped[main]={};if(!grouped[main][sub])grouped[main][sub]=[];grouped[main][sub].push({c:code,n:nm,p:p,k:k,bom:rec[code]||[]});menuCount++;}
  return {grouped:grouped,ing:ing,menuCount:menuCount,ingCount:Object.keys(ing).length,recipeCount:Object.keys(rec).length};}
-function applyCatalog(res){state.catalog=res.grouped;
+function applyCatalog(res){
+ /* ເມນູທີ່ເພີ່ມເອງໃນແອັບ (man) ແລະ ບໍ່ມີໃນໄຟລ໌ Excel — ເກັບໄວ້ ບໍ່ໃຫ້ຫາຍຕອນນຳເຂົ້າຊ້ຳ */
+ var inFile={};Object.keys(res.grouped).forEach(function(a){Object.keys(res.grouped[a]).forEach(function(b){res.grouped[a][b].forEach(function(m){inFile[m.c]=1;});});});
+ var old=state.catalog||{};Object.keys(old).forEach(function(a){Object.keys(old[a]).forEach(function(b){old[a][b].forEach(function(m){if(m.man&&!inFile[m.c]){if(!res.grouped[a])res.grouped[a]={};if(!res.grouped[a][b])res.grouped[a][b]=[];res.grouped[a][b].push(m);}});});});
+ state.catalog=res.grouped;
  /* ນຳເຂົ້າຂໍ້ມູນຈິງ: ເອົາຂໍ້ມູນຕົວຢ່າງອອກ (ວັດຖຸດິບ TEA/CUP/RICE ທີ່ບໍ່ມີໃນໄຟລ໌ ແລະ ບໍ່ມີສູດໃດໃຊ້, ຕົວເລືອກຕົວຢ່າງ) */
  var used={};Object.keys(res.grouped).forEach(function(a){Object.keys(res.grouped[a]).forEach(function(b){res.grouped[a][b].forEach(function(m){(m.bom||[]).forEach(function(x){used[x[0]]=1;});});});});
  Object.keys(ING_DEF).forEach(function(c){if(state.ingredients[c]&&!res.ing[c]&&!used[c])delete state.ingredients[c];});
@@ -2184,10 +2188,11 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
     <button class="btn-sm" onclick="addTablePrompt()"> ເພີ່ມໂຕະ</button>
     <div style="margin-top:8px;max-height:200px;overflow:auto">${Object.values(state.tables).map(t=>`<span class="pill">${t.name} <small style="color:var(--muted)">(${t.floor})</small><button onclick="removeTable('${t.name.replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div></div>
 
-  <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຮູບເມນູ ແລະ ການລຶບເມນູ</div>
+  <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ເມນູ: ເພີ່ມ / ແກ້ໄຂ / ຮູບ / ລຶບ</div>
     <label style="display:flex;align-items:center;gap:8px;margin:0 0 10px;font-weight:600"><input type="checkbox" style="width:auto" ${state.exampleImg!==false?'checked':''} onchange="toggleExampleImg(this.checked)"> ສະແດງຮູບຕົວຢ່າງອັດຕະໂນມັດ ສຳລັບເມນູທີ່ຍັງບໍ່ມີຮູບ (ບໍ່ເພີ່ມຂະໜາດຂໍ້ມູນ)</label>
-    <div style="max-height:240px;overflow:auto"><table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຮູບ</th><th></th></tr></thead><tbody>
-     ${allMenu().map(p=>`<tr><td>${p.c}</td><td>${p.n}</td><td>${state.menuImg[p.c]?'<span class="tag ok">ມີຮູບ</span>':'<span style="color:#94a3b8">ຮູບຕົວຢ່າງ '+menuEmoji(p)+'</span>'}</td><td><button class="btn-sm" onclick="showMenuBom('${p.c}')">ສູດ</button> <button class="btn-sm" onclick="setMenuImage('${p.c}')">ປ່ຽນຮູບ</button> <button class="btn-sm red" onclick="askDelMenu('${p.c}')">ລຶບ</button></td></tr>`).join('')}</tbody></table></div></div>
+    <button class="btn-ok grad" style="padding:9px 16px;border-radius:11px;font-weight:700;margin-bottom:10px" onclick="menuEditModal()">➕ ເພີ່ມເມນູໃໝ່ (ອາຫານ / ເຄື່ອງດື່ມ)</button>
+    <div style="max-height:240px;overflow:auto"><table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ລາຄາ</th><th>ຮູບ</th><th></th></tr></thead><tbody>
+     ${allMenu().map(p=>`<tr><td>${p.c}</td><td>${p.n}</td><td>${KIP(p.p)}</td><td>${state.menuImg[p.c]?'<span class="tag ok">ມີຮູບ</span>':'<span style="color:#94a3b8">ຮູບຕົວຢ່າງ '+menuEmoji(p)+'</span>'}</td><td style="white-space:nowrap"><button class="btn-sm" onclick="menuEditModal('${p.c}')">ແກ້ໄຂ</button> <button class="btn-sm" onclick="showMenuBom('${p.c}')">ສູດ</button> <button class="btn-sm" onclick="setMenuImage('${p.c}')">ປ່ຽນຮູບ</button> <button class="btn-sm red" onclick="askDelMenu('${p.c}')">ລຶບ</button></td></tr>`).join('')}</tbody></table></div></div>
 
   <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> Log ການລົບເມນູ (${(state.menuLog||[]).length}) <button class="btn-sm" style="margin-left:8px" onclick="exportMenuLog()"> Export Excel</button></div>
     <div style="max-height:220px;overflow:auto"><table class="tbl"><thead><tr><th>ວັນທີ</th><th>ລະຫັດ</th><th>ຊື່ເມນູ</th><th>ເຫດຜົນ</th><th>ໂດຍ (ກະ - ຜູ້ໃຊ້)</th></tr></thead><tbody>${(state.menuLog||[]).slice().reverse().map(function(l){return '<tr><td>'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.code)+'</td><td>'+cesc(l.name)+'</td><td>'+cesc(l.reason)+'</td><td>'+cesc(l.by||'')+'</td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:16px">ຍັງບໍ່ມີການລົບ</td></tr>'}</tbody></table></div></div>
@@ -2400,9 +2405,41 @@ function exportOrderLog(){loadXLSX(function(err){if(err||!window.XLSX){toast('�
 function exportMenuLog(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var logs=(state.menuLog||[]);if(!logs.length){toast('ຍັງບໍ່ມີ log');return;}
  var rows=logs.map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ລະຫັດເມນູ':l.code,'ຊື່ເມນູ':l.name,'ເຫດຜົນ':l.reason||'','ກະ - ຜູ້ລຶບ':l.by||''};});
  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Log ລຶບເມນູ');XLSX.writeFile(wb,'Log ລຶບເມນູ_'+ymd(Date.now())+'.xlsx');toast('Export ສຳເລັດ');});}
+/* ===== ເພີ່ມ / ແກ້ໄຂເມນູ ທີລະລາຍການ (ບໍ່ຕ້ອງຜ່ານ Excel) ===== */
+function _ensureCatalog(){if(!state.catalog||!Object.keys(state.catalog).length)state.catalog=JSON.parse(JSON.stringify(MENU));return state.catalog;}
+function _menuLoc(code){var M=MSRC();for(var a in M)for(var b in M[a]){var i=M[a][b].findIndex(function(x){return x.c===code;});if(i>=0)return {cat:a,sub:b,idx:i};}return null;}
+function _nextMenuCode(k){var pre=k==='drink'?'BEV':'FOOD',mx=0;allMenu().forEach(function(m){var r=m.c.indexOf(pre)===0?/^\d+$/.exec(m.c.slice(pre.length)):null;if(r)mx=Math.max(mx,+r[0]);});return pre+String(mx+1).padStart(3,'0');}
+function menuEditModal(code){if(!can('menuEdit')){toast('ບໍ່ມີສິດແກ້ໄຂເມນູ — ສະເພາະຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}
+ var p=code?findMenu(code):null,L=code?_menuLoc(code):null,M=MSRC(),k=p?p.k:'food';
+ var cats=Object.keys(M),subs={};cats.forEach(function(a){Object.keys(M[a]).forEach(function(b){subs[b]=1;});});
+ var opt=function(v){return '<option value="'+cesc(v)+'">';};
+ openModal('<h2>'+(p?'ແກ້ໄຂເມນູ':'ເພີ່ມເມນູໃໝ່')+'</h2>'+
+  '<label>ປະເພດ</label><div style="display:flex;gap:8px;margin-bottom:6px"><label style="display:flex;gap:6px;align-items:center;font-weight:600"><input type="radio" name="me_k" value="food" style="width:auto" '+(k==='food'?'checked':'')+' onchange="meKind(this.value)"> 🍽️ ອາຫານ</label><label style="display:flex;gap:6px;align-items:center;font-weight:600"><input type="radio" name="me_k" value="drink" style="width:auto" '+(k==='drink'?'checked':'')+' onchange="meKind(this.value)"> 🥤 ເຄື່ອງດື່ມ</label></div>'+
+  '<label>ລະຫັດເມນູ</label><input id="me_c" value="'+cesc(p?p.c:_nextMenuCode(k))+'" '+(p?'readonly style="background:#f1f5f9"':'')+'>'+
+  '<label>ຊື່ເມນູ</label><input id="me_n" value="'+cesc(p?p.n:'')+'" placeholder="ເຊັ່ນ ເຂົ້າຜັດກຸ້ງ / Iced Latte">'+
+  '<label>ລາຄາຂາຍ (ກີບ)</label><input id="me_p" type="number" inputmode="numeric" value="'+(p?p.p:'')+'">'+
+  '<label>ໝວດຫຼັກ</label><input id="me_cat" list="me_catl" value="'+cesc(L?L.cat:(cats[0]||''))+'" placeholder="ພິມໃໝ່ ຫຼື ເລືອກ"><datalist id="me_catl">'+cats.map(opt).join('')+'</datalist>'+
+  '<label>ໝວດຍ່ອຍ</label><input id="me_sub" list="me_subl" value="'+cesc(L?L.sub:'')+'" placeholder="ວ່າງ = ໃຊ້ຊື່ໝວດຫຼັກ"><datalist id="me_subl">'+Object.keys(subs).map(opt).join('')+'</datalist>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="saveMenuItem('+(p?'\''+String(code).replace(/'/g,"\'")+'\'':'null')+')">'+(p?'ບັນທຶກ':'ບັນທຶກ → ໃສ່ສູດຕັດສະຕ໋ອກ')+'</button></div>');}
+function meKind(k){var e=document.getElementById('me_c');if(e&&!e.readOnly&&/^(BEV|FOOD)\d+$/.test(e.value))e.value=_nextMenuCode(k);}
+function saveMenuItem(code){var g=function(id){return (document.getElementById(id).value||'').trim();};
+ var kk=document.querySelector('input[name=me_k]:checked');var k=kk?kk.value:'food';
+ var c=code||g('me_c').toUpperCase(),n=g('me_n'),pr=Number(g('me_p')),cat=g('me_cat')||'ອື່ນໆ',sub=g('me_sub')||cat;
+ if(!c){toast('ໃສ່ລະຫັດເມນູ');return;}if(!n){toast('ໃສ່ຊື່ເມນູ');return;}if(!(pr>0)){toast('ລາຄາຕ້ອງ > 0');return;}
+ if(!code&&findMenu(c)){toast('ລະຫັດ '+c+' ມີແລ້ວ');return;}
+ var M=_ensureCatalog();var L=code?_menuLoc(code):null,item;
+ if(L){item=M[L.cat][L.sub][L.idx];var old={n:item.n,p:item.p,k:item.k,cat:L.cat,sub:L.sub};
+  if(L.cat!==cat||L.sub!==sub){M[L.cat][L.sub].splice(L.idx,1);if(!M[L.cat][L.sub].length)delete M[L.cat][L.sub];if(!Object.keys(M[L.cat]).length)delete M[L.cat];if(!M[cat])M[cat]={};if(!M[cat][sub])M[cat][sub]=[];M[cat][sub].push(item);}
+  item.n=n;item.p=pr;item.k=k;var ch=[];if(old.n!==n)ch.push('ຊື່ '+old.n+' → '+n);if(old.p!==pr)ch.push('ລາຄາ '+KIP(old.p)+' → '+KIP(pr));if(old.k!==k)ch.push('ປະເພດ '+old.k+' → '+k);if(old.cat!==cat||old.sub!==sub)ch.push('ໝວດ '+old.cat+'/'+old.sub+' → '+cat+'/'+sub);
+  logOrder('ແກ້ໄຂເມນູ',c+': '+(ch.join(' · ')||'ບໍ່ມີການປ່ຽນ'),'');}
+ else{item={c:c,n:n,p:pr,k:k,bom:[],man:1};if(!M[cat])M[cat]={};if(!M[cat][sub])M[cat][sub]=[];M[cat][sub].push(item);logOrder('ເພີ່ມເມນູ',c+' '+n+' · '+KIP(pr)+' ກີບ · '+cat+'/'+sub,'');}
+ delete _thumbCache[c];save();closeModal();render();toast(code?'ບັນທຶກແລ້ວ':'ເພີ່ມເມນູແລ້ວ — ໃສ່ສູດຕັດສະຕ໋ອກຕໍ່');if(!code)showMenuBom(c);}
 function askDelMenu(code){if(!can('menuEdit')){toast('ບໍ່ມີສິດລຶບເມນູ — ສະເພາະຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}var m=findMenu(code);var nm=m?m.n:code;openModal('<h2 style="color:var(--red)"> ລຶບເມນູ "'+cesc(nm)+'"</h2><p style="font-size:13px;color:var(--muted)">ການລຶບຈະຖືກບັນທຶກໄວ້ໃນ Log. ກະລຸນາໃສ່ເຫດຜົນ.</p><label>ເຫດຜົນທີ່ລຶບ (ຈຳເປັນ)</label><textarea id="delrsn" rows="2" placeholder="ເຊັ່ນ ເລີກຂາຍ / ຂໍ້ມູນຊ້ຳ" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit"></textarea><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--red)" onclick="doDelMenu(\''+String(code).replace(/'/g,"\\'")+'\')">ລຶບ</button></div>');}
 function doDelMenu(code){var rsn=(document.getElementById('delrsn').value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
  var M=state.catalog;if(!M||!Object.keys(M).length){toast('ເມນູຕົວຢ່າງ ລຶບບໍ່ໄດ້ — ນຳເຂົ້າ Excel ກ່ອນ');return;}
+ /* ກັນລຶບເມນູທີ່ຍັງຄ້າງຢູ່ໂຕະ — ຖ້າລຶບ ຈະຄືນສະຕ໋ອກ/ຄິດ COGS ຂອງລາຍການນັ້ນບໍ່ໄດ້ */
+ var busy=Object.values(state.tables||{}).filter(function(t){return (t.items||[]).some(function(i){return i.code===code;});}).map(function(t){return t.name;});
+ if(busy.length){toast('ເມນູນີ້ຍັງຄ້າງຢູ່ໂຕະ '+busy.join(', ')+' — ຮັບເງິນ ຫຼື ລຶບອອກຈາກໂຕະກ່ອນ');return;}
  var nm=code,found=false;
  for(var cat in M){for(var sub in M[cat]){var arr=M[cat][sub];for(var i=0;i<arr.length;i++){if(arr[i].c===code){nm=arr[i].n;arr.splice(i,1);found=true;break;}}if(found)break;}if(found)break;}
  if(!found){toast('ບໍ່ພົບເມນູ');return;}
