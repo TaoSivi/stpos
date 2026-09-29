@@ -55,21 +55,38 @@ body{background:var(--bg);color:var(--text);overflow:hidden}button{cursor:pointe
 .layoutbtns{display:inline-flex;gap:4px;background:#eafbfa;border:1px solid var(--line);border-radius:11px;padding:3px}
 .layoutbtns button{border:none;background:transparent;padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--tiff-deep);cursor:pointer;font-family:inherit}
 .layoutbtns button.on{background:var(--grad);color:#fff}
-.floorplan{position:relative;width:100%;height:60vh;min-height:360px;background:#f7fbfb;border:2px dashed var(--line);border-radius:16px;overflow:hidden;touch-action:none;margin-top:4px;background-image:linear-gradient(rgba(10,186,181,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(10,186,181,.06) 1px,transparent 1px);background-size:34px 34px}
-.plantable{position:absolute;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:16px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(10,186,181,.12);cursor:pointer;user-select:none;-webkit-user-select:none;text-align:center;padding:2px}
-.plantable .pn{font-weight:800;font-size:15px;line-height:1.1}.plantable .pa{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.1}
-.plantable.editing{cursor:grabbing;box-shadow:0 0 0 3px rgba(10,186,181,.4),0 6px 16px rgba(0,0,0,.18);z-index:5}
 .planhint{font-size:12px;color:var(--tiff-deep);background:#eafbfa;border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-top:8px;text-align:center;font-weight:600}
-.planmodes{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 6px}
-.planmodes button{border:1px solid var(--line);background:#fff;padding:7px 12px;border-radius:10px;font-weight:700;font-size:13px;color:var(--tiff-deep);cursor:pointer;font-family:inherit}
-.planmodes button.on{background:var(--grad);color:#fff;border-color:transparent}
-.floorplan.drawing{cursor:crosshair}
-.planlayer{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-.planlayer.erasing{z-index:6}
-.plantable{z-index:1}
-.presize{position:absolute;right:-6px;bottom:-6px;width:18px;height:18px;border-radius:5px;background:var(--tiff-deep);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:nwse-resize;touch-action:none}
-.planqr,.planrsv{position:absolute;bottom:-8px;right:-8px;width:24px;height:24px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15);color:#0a7e7a;padding:0}
-.planrsv{right:auto;left:-8px;background:#ede9fe;color:#6d28d9;font-weight:800;font-size:12px}
+.pvwrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 28px rgba(10,126,122,.09);overflow:hidden;margin-top:8px}
+.pvsvg{display:block;width:100%;height:auto;aspect-ratio:5/3;user-select:none;-webkit-user-select:none}
+.pvsvg.edit{touch-action:none}
+.pvsvg.edit.tool-pen,.pvsvg.edit.tool-line,.pvsvg.edit.tool-curve,.pvsvg.edit.tool-rect,.pvsvg.edit.tool-ellipse{cursor:crosshair}
+.pvsvg.edit.tool-text{cursor:text}
+.pvsvg.edit.tool-select .ptbl{cursor:grab}
+.pvsvg .ptn{font-weight:800;font-size:20px;fill:#0f172a;pointer-events:none;font-family:inherit}
+.pvsvg .pts{font-size:13px;font-weight:700;pointer-events:none;font-family:inherit}
+.pvsvg:not(.edit) .ptbl{cursor:pointer;transition:opacity .15s}
+.pvsvg:not(.edit) .ptbl:hover{opacity:.82}
+.pvsvg .picon{cursor:pointer}
+.pvsvg .picon:hover circle{stroke:#0ABAB5;stroke-width:3}
+.pvsvg text{font-family:"Phetsarath OT","Noto Sans Lao","Saysettha OT",sans-serif}
+.ppulse{animation:callpulse 1.2s infinite}
+.ptoolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 2px 12px rgba(10,126,122,.06);margin-top:4px}
+.ptoolbar .tb{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:#f1faf9;color:#0f766e;padding:8px 12px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;min-height:40px;transition:.12s}
+.ptoolbar .tb:hover{background:#dff4f2}
+.ptoolbar .tb.on{background:var(--grad);color:#fff;box-shadow:0 3px 10px rgba(10,186,181,.32)}
+.ptoolbar .tb .ti{font-size:16px;line-height:1;min-width:14px;text-align:center}
+.ptoolbar .sep{width:1px;height:28px;background:var(--line);margin:0 4px}
+.pprops{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;padding:8px 12px;background:#f8fdfc;border:1px dashed #b7e4df;border-radius:12px;font-size:13px;min-height:46px}
+.pprops .pl{color:var(--muted)}
+.pprops .sw{width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #cbd5e1;cursor:pointer;display:inline-block}
+.pprops .sw.on{box-shadow:0 0 0 2px #0f766e}
+.pprops .pb{border:1px solid var(--line);background:#fff;padding:6px 11px;border-radius:9px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text);min-height:34px}
+.pprops .pb:hover{border-color:var(--tiff)}
+.pprops .pb.on{background:#0f766e;color:#fff;border-color:#0f766e}
+.pprops .pb.red{color:#dc2626}
+.ingimg{display:inline-flex;align-items:center;justify-content:center;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#fff;vertical-align:middle;position:relative;overflow:hidden}
+.ingimg.ph{background:linear-gradient(135deg,#e6f7f6,#f5fbfb);color:#0A7E7A;font-weight:800}
+.ingimg .cam{position:absolute;right:1px;bottom:0;font-size:11px;line-height:1;color:#0A7E7A;opacity:.8}
 .qrbadge{position:absolute;top:6px;right:7px;background:#dff7f5;border-radius:9px;width:29px;height:29px;display:flex;align-items:center;justify-content:center;z-index:2;transition:.12s}.qrbadge:hover{background:var(--tiff);transform:scale(1.12)}
 #orderWrap{flex:1;display:flex;overflow:hidden}.menupane{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:13px}
 .cats{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}.cat{padding:8px 17px;border-radius:11px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:13px}
@@ -586,60 +603,198 @@ function recalcPromos(list){if(!list)return;
  act.filter(function(p){return p.type==='bogo';}).forEach(function(p){applyBogo(p,list);});
 }
 let tableLayout=(function(){try{return localStorage.getItem('stpos_tablelayout')||'grid';}catch(e){return 'grid';}})();
-let planEdit=false,planMode='move',_pact=null,_planSkipClick=false;
+/* ===== FLOOR PLAN v2 — SVG editor: fixed 1200×720 units, one layout per floor ===== */
+const PLW=1200,PLH=720;
+const PLAN_COLORS=['#334155','#0f766e','#b45309','#16a34a','#2563eb','#dc2626','#9333ea'];
+const PLAN_ST={free:['#ffffff','#10b981'],busy:['#fffbeb','#f59e0b'],callbill:['#fff7ed','#f97316'],bill:['#fef2f2','#ef4444'],new:['#fdf2f8','#ec4899'],main:['#ecfeff','#0e7490'],merged:['#f1f5f9','#94a3b8']};
+const PLAN_QR='M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v4h-4v-2h2v-2z';
+let planEdit=false,planTool='select',planSel=null,planSnap=true,planColor='#334155',planWidth=4,_pv=null,_planUndo=[];
 function canEditPlan(){var u=curUser();return !!u&&(u.role==='owner'||u.role==='manager');}
-function setTableLayout(m){tableLayout=m;try{localStorage.setItem('stpos_tablelayout',m);}catch(e){}if(m!=='plan')planEdit=false;render();}
-function togglePlanEdit(){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ ແກ້ຜັງໄດ້');return;}planEdit=!planEdit;planMode='move';render();}
-function planSetMode(m){planMode=m;render();}
-function planClick(name){if(planEdit)return;if(_planSkipClick){_planSkipClick=false;return;}openTable(name);}
-function _pctOf(ev,cont){var r=cont.getBoundingClientRect();return {x:Math.max(0,Math.min(100,(ev.clientX-r.left)/(r.width||1)*100)),y:Math.max(0,Math.min(100,(ev.clientY-r.top)/(r.height||1)*100)),r:r};}
-/* ---- table move ---- */
-function planDown(ev,name){if(!planEdit||planMode!=='move')return;ev.preventDefault();ev.stopPropagation();var cont=document.getElementById('floorplan');if(!cont)return;var el=ev.currentTarget;_pact={kind:'move',name:name,el:el,cont:cont,moved:false,x:null,y:null};try{el.setPointerCapture(ev.pointerId);}catch(e){}el.classList.add('editing');}
-/* ---- table resize (corner handle) ---- */
-function planResizeDown(ev,name){if(!planEdit)return;ev.preventDefault();ev.stopPropagation();var cont=document.getElementById('floorplan');if(!cont)return;var el=ev.currentTarget.parentNode;_pact={kind:'resize',name:name,el:el,cont:cont};try{ev.currentTarget.setPointerCapture(ev.pointerId);}catch(e){}el.classList.add('editing');}
-/* ---- draw line/curve on canvas ---- */
-function planCanvasDown(ev){if(!planEdit||(planMode!=='line'&&planMode!=='curve'))return;ev.preventDefault();var cont=document.getElementById('floorplan');if(!cont)return;var p=_pctOf(ev,cont);_pact={kind:'draw',mode:planMode,cont:cont,x1:p.x,y1:p.y,x2:p.x,y2:p.y};try{cont.setPointerCapture(ev.pointerId);}catch(e){}}
-function planCurveCtrl(s){var mx=(s.x1+s.x2)/2,my=(s.y1+s.y2)/2,dx=s.x2-s.x1,dy=s.y2-s.y1,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,off=Math.min(22,len*0.35);return {cx:mx+nx*off,cy:my+ny*off};}
-function _shapeD(s){if(s.t==='line')return null;var c=planCurveCtrl(s);return 'M '+s.x1+' '+s.y1+' Q '+c.cx+' '+c.cy+' '+s.x2+' '+s.y2;}
-function planMove(ev){if(!_pact)return;var r=_pact.cont.getBoundingClientRect();if(!r.width)return;
- if(_pact.kind==='move'){var x=Math.max(4,Math.min(96,(ev.clientX-r.left)/r.width*100)),y=Math.max(5,Math.min(95,(ev.clientY-r.top)/r.height*100));_pact.el.style.left=x+'%';_pact.el.style.top=y+'%';_pact.x=x;_pact.y=y;_pact.moved=true;}
- else if(_pact.kind==='resize'){var t=state.tables[_pact.name];if(!t)return;var cx=r.left+(t.lx/100)*r.width,cy=r.top+(t.ly/100)*r.height;var w=Math.max(44,Math.min(300,Math.abs(ev.clientX-cx)*2)),h=Math.max(40,Math.min(300,Math.abs(ev.clientY-cy)*2));_pact.w=Math.round(w);_pact.h=Math.round(h);_pact.el.style.width=_pact.w+'px';_pact.el.style.height=_pact.h+'px';}
- else if(_pact.kind==='draw'){var px=Math.max(0,Math.min(100,(ev.clientX-r.left)/r.width*100)),py=Math.max(0,Math.min(100,(ev.clientY-r.top)/r.height*100));_pact.x2=px;_pact.y2=py;var pv=document.getElementById('planPreview');if(pv){var s={t:_pact.mode==='curve'?'curve':'line',x1:_pact.x1,y1:_pact.y1,x2:px,y2:py};pv.setAttribute('d',_pact.mode==='curve'?_shapeD(s):('M '+s.x1+' '+s.y1+' L '+s.x2+' '+s.y2));}}}
-function planUp(){if(!_pact)return;var d=_pact;_pact=null;
- if(d.el)d.el.classList.remove('editing');
- if(d.kind==='move'){if(d.moved&&d.x!=null){var t=state.tables[d.name];if(t){t.lx=Math.round(d.x*10)/10;t.ly=Math.round(d.y*10)/10;save();}_planSkipClick=true;setTimeout(function(){_planSkipClick=false;},400);}}
- else if(d.kind==='resize'){if(d.w){var t2=state.tables[d.name];if(t2){t2.pw=d.w;t2.ph=d.h;save();}}}
- else if(d.kind==='draw'){var dist=Math.hypot(d.x2-d.x1,d.y2-d.y1);if(dist>1.5){if(!state.planShapes)state.planShapes={};var key=curFloor;if(!Array.isArray(state.planShapes[key]))state.planShapes[key]=[];state.planShapes[key].push({t:d.mode==='curve'?'curve':'line',x1:Math.round(d.x1*10)/10,y1:Math.round(d.y1*10)/10,x2:Math.round(d.x2*10)/10,y2:Math.round(d.y2*10)/10});save();}render();}}
-function planShapeClick(i){if(!(planEdit&&planMode==='erase'))return;var key=curFloor;var arr=state.planShapes&&state.planShapes[key];if(!arr||!arr[i])return;arr.splice(i,1);save();render();}
-function planShapesHTML(){var key=curFloor;var shapes=(state.planShapes&&state.planShapes[key])||[];var erase=planEdit&&planMode==='erase';
- var els=shapes.map(function(s,i){var col=erase?'#ef4444':'#0A7E7A';
-  var vis=(s.t==='line')?'<line x1="'+s.x1+'" y1="'+s.y1+'" x2="'+s.x2+'" y2="'+s.y2+'" stroke="'+col+'" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:none"/>'
-   :'<path d="'+_shapeD(s)+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:none"/>';
-  var hit=erase?((s.t==='line')?'<line x1="'+s.x1+'" y1="'+s.y1+'" x2="'+s.x2+'" y2="'+s.y2+'" stroke="#000" stroke-opacity="0" stroke-width="14" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:stroke;cursor:pointer" onclick="planShapeClick('+i+')"/>'
-   :'<path d="'+_shapeD(s)+'" fill="none" stroke="#000" stroke-opacity="0" stroke-width="14" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:stroke;cursor:pointer" onclick="planShapeClick('+i+')"/>'):'';
-  return vis+hit;}).join('');
- return '<svg class="planlayer'+(erase?' erasing':'')+'" viewBox="0 0 100 100" preserveAspectRatio="none">'+els+'<path id="planPreview" fill="none" stroke="#0A7E7A" stroke-width="3" stroke-dasharray="4 3" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:none"/></svg>';}
-document.addEventListener('pointermove',planMove);document.addEventListener('pointerup',planUp);document.addEventListener('pointercancel',planUp);
-function renderTables(R){const c={free:0,busy:0,bill:0,new:0,main:0,merged:0};Object.values(state.tables).forEach(t=>c[t.status]=(c[t.status]||0)+1);
+function setTableLayout(m){tableLayout=m;try{localStorage.setItem('stpos_tablelayout',m);}catch(e){}if(m!=='plan'){planEdit=false;planSel=null;}render();}
+function togglePlanEdit(){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ ແກ້ຜັງໄດ້');return;}planEdit=!planEdit;planTool='select';planSel=null;_planUndo=[];render();}
+function planTap(id){if(planEdit)return;if(state.tables[id])openTable(id);}
+function snp(v){return planSnap?Math.round(v/10)*10:Math.round(v);}
+function planTablesOnFloor(){return Object.values(state.tables).filter(function(t){return t.floor===curFloor;});}
+function planShapes(){if(!state.planShapes)state.planShapes={};var k=curFloor;if(!Array.isArray(state.planShapes[k]))state.planShapes[k]=[];var a=state.planShapes[k];
+ a.forEach(function(s,i){if(!s.u){['x1','x2','x'].forEach(function(p){if(s[p]!=null)s[p]=Math.round(s[p]*PLW/100);});['y1','y2','y'].forEach(function(p){if(s[p]!=null)s[p]=Math.round(s[p]*PLH/100);});s.u=1;}
+  if(!s.id)s.id='s'+Date.now().toString(36)+i+Math.floor(Math.random()*1e4);if(!s.c)s.c='#0f766e';if(!s.sw)s.sw=4;});return a;}
+function planShapeById(id){return planShapes().find(function(s){return s.id===id;});}
+function newSid(){return 's'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);}
+function tGeo(t,i){if(t.fx==null||t.fy==null){if(t.lx!=null&&t.ly!=null){t.fx=Math.round(t.lx*PLW/100);t.fy=Math.round(t.ly*PLH/100);}else{var col=i%7,row=Math.floor(i/7);t.fx=110+col*160;t.fy=110+(row%4)*150;}}
+ if(!t.shape)t.shape='sq';if(t.seats==null)t.seats=t.shape==='rect'?6:4;
+ if(!t.fw||!t.fh){if(t.shape==='rect'){t.fw=150;t.fh=80;}else{t.fw=88;t.fh=88;}}
+ if(t.rot==null)t.rot=0;return t;}
+function tBox(t){var a=(t.rot||0)*Math.PI/180,c=Math.abs(Math.cos(a)),s=Math.abs(Math.sin(a));return {hw:t.fw/2*c+t.fh/2*s,hh:t.fw/2*s+t.fh/2*c};}
+function svgPt(ev){var sv=document.getElementById('pvsvg');if(!sv)return {x:0,y:0};var p=sv.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;var m=sv.getScreenCTM();if(!m)return {x:0,y:0};var q=p.matrixTransform(m.inverse());return {x:Math.max(0,Math.min(PLW,q.x)),y:Math.max(0,Math.min(PLH,q.y))};}
+/* ---- drawing helpers ---- */
+function planCurveCtrl(s){var mx=(s.x1+s.x2)/2,my=(s.y1+s.y2)/2,dx=s.x2-s.x1,dy=s.y2-s.y1,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len,off=Math.min(220,len*0.35);return {cx:mx+nx*off,cy:my+ny*off};}
+function penD(pts){if(!pts||!pts.length)return '';if(pts.length<3)return 'M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');var d='M'+pts[0][0]+' '+pts[0][1];for(var i=1;i<pts.length-1;i++){var mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2;d+=' Q'+pts[i][0]+' '+pts[i][1]+' '+mx+' '+my;}var l=pts[pts.length-1];return d+' L'+l[0]+' '+l[1];}
+function sBox(s){if(s.t==='pen'){var xs=s.pts.map(function(p){return p[0];}),ys=s.pts.map(function(p){return p[1];});return {x:Math.min.apply(null,xs),y:Math.min.apply(null,ys),w:Math.max.apply(null,xs)-Math.min.apply(null,xs),h:Math.max.apply(null,ys)-Math.min.apply(null,ys)};}
+ if(s.t==='line'||s.t==='curve'){var x=Math.min(s.x1,s.x2),y=Math.min(s.y1,s.y2);return {x:x,y:y,w:Math.abs(s.x2-s.x1),h:Math.abs(s.y2-s.y1)};}
+ if(s.t==='text'){var sz=s.s||28;return {x:s.x,y:s.y,w:Math.max(20,String(s.txt||'').length*sz*0.62),h:sz*1.2};}
+ return {x:s.x,y:s.y,w:s.w,h:s.h};}
+function shapeBody(s){var c=s.c||'#334155',sw=s.sw||4,cap=' stroke-linecap="round" stroke-linejoin="round"';
+ if(s.t==='pen')return '<path d="'+penD(s.pts)+'" fill="none" stroke="'+c+'" stroke-width="'+sw+'"'+cap+'/>';
+ if(s.t==='line')return '<line x1="'+s.x1+'" y1="'+s.y1+'" x2="'+s.x2+'" y2="'+s.y2+'" stroke="'+c+'" stroke-width="'+sw+'"'+cap+'/>';
+ if(s.t==='curve'){var q=planCurveCtrl(s);return '<path d="M'+s.x1+' '+s.y1+' Q'+q.cx+' '+q.cy+' '+s.x2+' '+s.y2+'" fill="none" stroke="'+c+'" stroke-width="'+sw+'"'+cap+'/>';}
+ if(s.t==='rect')return '<rect x="'+s.x+'" y="'+s.y+'" width="'+s.w+'" height="'+s.h+'" rx="8" fill="'+(s.f?c:'none')+'" fill-opacity="'+(s.f?0.13:0)+'" stroke="'+c+'" stroke-width="'+sw+'"'+cap+'/>';
+ if(s.t==='ellipse')return '<ellipse cx="'+(s.x+s.w/2)+'" cy="'+(s.y+s.h/2)+'" rx="'+(s.w/2)+'" ry="'+(s.h/2)+'" fill="'+(s.f?c:'none')+'" fill-opacity="'+(s.f?0.13:0)+'" stroke="'+c+'" stroke-width="'+sw+'"/>';
+ if(s.t==='text'){var sz=s.s||28;return '<text x="'+s.x+'" y="'+(s.y+sz*0.9)+'" font-size="'+sz+'" font-weight="700" fill="'+c+'" style="font-family:inherit">'+cesc(s.txt||'')+'</text>';}
+ return '';}
+function shapeSVG(s){var body=shapeBody(s);if(!planEdit)return body;
+ var hitW=Math.max(18,(s.sw||4)+14),hit='';var da=' data-k="shape" data-id="'+s.id+'"';
+ if(s.t==='pen')hit='<path d="'+penD(s.pts)+'" fill="none" stroke="#000" stroke-opacity="0" stroke-width="'+hitW+'" stroke-linecap="round" pointer-events="stroke"'+da+'/>';
+ else if(s.t==='line')hit='<line x1="'+s.x1+'" y1="'+s.y1+'" x2="'+s.x2+'" y2="'+s.y2+'" stroke="#000" stroke-opacity="0" stroke-width="'+hitW+'" stroke-linecap="round" pointer-events="stroke"'+da+'/>';
+ else if(s.t==='curve'){var q=planCurveCtrl(s);hit='<path d="M'+s.x1+' '+s.y1+' Q'+q.cx+' '+q.cy+' '+s.x2+' '+s.y2+'" fill="none" stroke="#000" stroke-opacity="0" stroke-width="'+hitW+'" pointer-events="stroke"'+da+'/>';}
+ else{var b=sBox(s);hit='<rect x="'+(b.x-4)+'" y="'+(b.y-4)+'" width="'+(b.w+8)+'" height="'+(b.h+8)+'" fill="#000" fill-opacity="0" pointer-events="all"'+da+'/>';}
+ var sel='';if(planSel&&planSel.k==='shape'&&planSel.id===s.id){var bb=sBox(s);sel='<rect x="'+(bb.x-8)+'" y="'+(bb.y-8)+'" width="'+(bb.w+16)+'" height="'+(bb.h+16)+'" fill="none" stroke="#0ABAB5" stroke-width="2" stroke-dasharray="7 5" pointer-events="none"/>';
+  if(s.t==='rect'||s.t==='ellipse')sel+=planHandle(s.x+s.w,s.y+s.h,'sres');
+  if(s.t==='line'||s.t==='curve')sel+=planHandle(s.x1,s.y1,'p1')+planHandle(s.x2,s.y2,'p2');}
+ return body+hit+sel;}
+function planHandle(x,y,h){return '<circle cx="'+x+'" cy="'+y+'" r="11" fill="#fff" stroke="#0A7E7A" stroke-width="3" data-k="handle" data-h="'+h+'" style="cursor:nwse-resize"/>';}
+function chairsSVG(t){var n=Math.max(0,Math.min(20,+t.seats||0)),w=t.fw,h=t.fh,out='',cw=26,ch=13,g=7;
+ function chair(x,y,a){return '<rect x="'+(x-cw/2)+'" y="'+(y-ch/2)+'" width="'+cw+'" height="'+ch+'" rx="6" transform="rotate('+a+' '+x+' '+y+')" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5"/>';}
+ if(!n)return '';
+ if(t.shape==='round'){var rx=w/2+g+ch/2,ry=h/2+g+ch/2;for(var i=0;i<n;i++){var a=2*Math.PI*i/n-Math.PI/2;out+=chair(Math.cos(a)*rx,Math.sin(a)*ry,a*180/Math.PI+90);}return out;}
+ var sd;if(t.shape==='sq'&&n>=4){sd=[0,0,0,0];for(var k=0;k<n;k++)sd[k%4]++;}else if(w>=h)sd=[Math.ceil(n/2),0,Math.floor(n/2),0];else sd=[0,Math.ceil(n/2),0,Math.floor(n/2)];
+ function along(cnt,len){var r=[];for(var i=0;i<cnt;i++)r.push(-len/2+len*(i+0.5)/cnt);return r;}
+ along(sd[0],w).forEach(function(x){out+=chair(x,-h/2-g-ch/2,0);});
+ along(sd[2],w).forEach(function(x){out+=chair(x,h/2+g+ch/2,0);});
+ along(sd[1],h).forEach(function(y){out+=chair(w/2+g+ch/2,y,90);});
+ along(sd[3],h).forEach(function(y){out+=chair(-w/2-g-ch/2,y,90);});
+ return out;}
+function tableSVG(t){var st=PLAN_ST[t.status]||PLAN_ST.free,occ=t.status!=='free'&&t.status!=='merged',w=t.fw,h=t.fh,bx=tBox(t);
+ var body=t.shape==='round'?'<ellipse cx="0" cy="0" rx="'+(w/2)+'" ry="'+(h/2)+'" fill="'+st[0]+'" stroke="'+st[1]+'" stroke-width="3.5"/>'
+  :'<rect x="'+(-w/2)+'" y="'+(-h/2)+'" width="'+w+'" height="'+h+'" rx="16" fill="'+st[0]+'" stroke="'+st[1]+'" stroke-width="3.5"/>';
+ var out='<g transform="translate('+t.fx+' '+t.fy+') rotate('+(t.rot||0)+')" filter="url(#pshadow)">'+chairsSVG(t)+body+'</g>';
+ var sub=occ?KIP(tableTotal(t))+' ₭':(t.status==='merged'?'ລວມ '+cesc(t.mergedInto||''):(t.reserved?'ຈອງ':'ວ່າງ'));
+ out+='<text x="'+t.fx+'" y="'+(t.fy-2)+'" text-anchor="middle" class="ptn">'+cesc(t.name)+'</text><text x="'+t.fx+'" y="'+(t.fy+17)+'" text-anchor="middle" class="pts" fill="'+(occ?st[1]:'#94a3b8')+'">'+sub+'</text>';
+ var tagY=t.fy-bx.hh-26;
+ if(t.status==='callbill')out+='<g class="ppulse" transform="translate('+t.fx+' '+tagY+')" pointer-events="none"><rect x="-48" y="-13" width="96" height="26" rx="13" fill="#f97316"/><text y="5" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">ຂໍເຊັກບິນ</text></g>';
+ else if(t.reserved)out+='<g transform="translate('+t.fx+' '+tagY+')" pointer-events="none"><rect x="-48" y="-13" width="96" height="26" rx="13" fill="#8b5cf6"/><text y="5" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">ຈອງ '+cesc(t.reserved.time||'')+'</text></g>';
+ if(planEdit){if(planSel&&planSel.k==='table'&&planSel.id===t.name){var a=(t.rot||0)*Math.PI/180,hx=t.fx+(w/2*Math.cos(a)-h/2*Math.sin(a)),hy=t.fy+(w/2*Math.sin(a)+h/2*Math.cos(a));
+   out+='<rect x="'+(t.fx-bx.hw-26)+'" y="'+(t.fy-bx.hh-26)+'" width="'+(bx.hw*2+52)+'" height="'+(bx.hh*2+52)+'" rx="14" fill="none" stroke="#0ABAB5" stroke-width="2.5" stroke-dasharray="8 6" pointer-events="none"/>'+planHandle(hx,hy,'tres');}}
+ else{var ix=t.fx+bx.hw+4,iy=t.fy+bx.hh+4;
+  out+='<g class="picon" transform="translate('+ix+' '+iy+')" onclick="event.stopPropagation();openTableQR(this.parentNode.dataset.id)"><circle r="17" fill="#fff" stroke="#99e0da" stroke-width="2"/><g transform="translate(-9 -9) scale(.75)"><path d="'+PLAN_QR+'" fill="#0f766e"/></g></g>';
+  if(t.status==='free')out+='<g class="picon" transform="translate('+(t.fx-bx.hw-4)+' '+iy+')" onclick="event.stopPropagation();reserveTable(this.parentNode.dataset.id)"><circle r="17" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2"/><text y="6" text-anchor="middle" fill="#6d28d9" font-size="16" font-weight="800">ຈ</text></g>';}
+ return '<g class="ptbl" data-k="table" data-id="'+cesc(t.name)+'"'+(planEdit?'':' onclick="planTap(this.dataset.id)"')+'>'+out+'</g>';}
+function planInner(){var tl=planTablesOnFloor();tl.forEach(tGeo);var sh=planShapes();
+ var h=sh.map(shapeSVG).join('')+tl.map(tableSVG).join('');
+ if(!tl.length&&!sh.length)h+='<text x="'+(PLW/2)+'" y="'+(PLH/2)+'" text-anchor="middle" font-size="24" fill="#94a3b8" font-weight="700">ຊັ້ນນີ້ຍັງບໍ່ມີໂຕະ'+(planEdit?' — ກົດ ＋ ໂຕະ':'')+'</text>';
+ return h;}
+function planSVG(){var defs='<defs><pattern id="pgrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#d7ecea" stroke-width="1"/></pattern><filter id="pshadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#0f766e" flood-opacity=".16"/></filter></defs>';
+ return '<svg id="pvsvg" class="pvsvg'+(planEdit?' edit tool-'+planTool:'')+'" viewBox="0 0 '+PLW+' '+PLH+'" preserveAspectRatio="xMidYMid meet"'+(planEdit?' onpointerdown="pvDown(event)"':'')+'>'+defs
+  +'<rect width="'+PLW+'" height="'+PLH+'" fill="#fbfefe"/><rect width="'+PLW+'" height="'+PLH+'" fill="url(#pgrid)" opacity="'+(planEdit?1:0.5)+'"/>'
+  +'<g id="pvinner">'+planInner()+'</g><g id="pvprev" pointer-events="none"></g></svg>';}
+function planRedraw(){var g=document.getElementById('pvinner');if(g)g.innerHTML=planInner();}
+function planPropsRefresh(){var el=document.getElementById('pprops');if(el)el.innerHTML=planPropsHTML();}
+function planPreview(){var g=document.getElementById('pvprev');if(!g||!_pv)return;
+ if(_pv.kind==='pen'){g.innerHTML='<path d="'+penD(_pv.pts)+'" fill="none" stroke="'+planColor+'" stroke-width="'+planWidth+'" stroke-linecap="round" stroke-linejoin="round"/>';return;}
+ g.innerHTML=shapeBody(_pvShape(_pv));}
+function _pvShape(d){var s=(d.t==='line'||d.t==='curve')?{t:d.t,x1:d.x0,y1:d.y0,x2:d.x1,y2:d.y1}:{t:d.t,x:Math.min(d.x0,d.x1),y:Math.min(d.y0,d.y1),w:Math.abs(d.x1-d.x0),h:Math.abs(d.y1-d.y0)};s.c=planColor;s.sw=planWidth;return s;}
+/* ---- undo ---- */
+function planSnapshot(){var tb={};planTablesOnFloor().forEach(function(t){tb[t.name]={fx:t.fx,fy:t.fy,fw:t.fw,fh:t.fh,shape:t.shape,seats:t.seats,rot:t.rot};});return {floor:curFloor,shapes:JSON.stringify(planShapes()),tables:tb};}
+function planPushUndo(){_planUndo.push(planSnapshot());if(_planUndo.length>40)_planUndo.shift();}
+function planUndo(){var s=_planUndo.pop();if(!s){toast('ບໍ່ມີຫຍັງໃຫ້ຍ້ອນກັບ');return;}if(s.floor!==curFloor){curFloor=s.floor;}
+ state.planShapes[s.floor]=JSON.parse(s.shapes);Object.keys(s.tables).forEach(function(n){var t=state.tables[n];if(t)Object.assign(t,s.tables[n]);});planSel=null;save();render();}
+/* ---- pointer ---- */
+function pvDown(ev){if(!planEdit)return;var p=svgPt(ev);var tgt=ev.target&&ev.target.closest?ev.target.closest('[data-k]'):null;var k=tgt?tgt.getAttribute('data-k'):null;
+ ev.preventDefault();var sv=document.getElementById('pvsvg');try{sv.setPointerCapture(ev.pointerId);}catch(e){}
+ if(planTool==='select'){
+  if(k==='handle'){_pv={kind:'handle',h:tgt.getAttribute('data-h')};return;}
+  if(k==='table'){var id=tgt.getAttribute('data-id'),t=state.tables[id];if(!t)return;planSel={k:'table',id:id};_pv={kind:'moveT',id:id,dx:p.x-t.fx,dy:p.y-t.fy};planRedraw();planPropsRefresh();return;}
+  if(k==='shape'){var sid=tgt.getAttribute('data-id'),s=planShapeById(sid);if(!s)return;planSel={k:'shape',id:sid};_pv={kind:'moveS',id:sid,start:p,orig:JSON.parse(JSON.stringify(s))};planRedraw();planPropsRefresh();return;}
+  if(planSel){planSel=null;planRedraw();planPropsRefresh();}return;}
+ if(planTool==='text'){planAddTextAt(p);return;}
+ if(planTool==='pen')_pv={kind:'pen',pts:[[Math.round(p.x),Math.round(p.y)]]};
+ else _pv={kind:'draw',t:planTool,x0:snp(p.x),y0:snp(p.y),x1:snp(p.x),y1:snp(p.y)};
+ planPreview();}
+function pvMove(ev){if(!_pv)return;var p=svgPt(ev);
+ if(_pv.kind==='moveT'){var t=state.tables[_pv.id];if(!t)return;if(!_pv.moved){planPushUndo();_pv.moved=true;}t.fx=snp(p.x-_pv.dx);t.fy=snp(p.y-_pv.dy);planRedraw();}
+ else if(_pv.kind==='moveS'){var s=planShapeById(_pv.id),o=_pv.orig;if(!s)return;if(!_pv.moved){planPushUndo();_pv.moved=true;}var dx=p.x-_pv.start.x,dy=p.y-_pv.start.y;
+  if(s.t==='pen')s.pts=o.pts.map(function(q){return [Math.round(q[0]+dx),Math.round(q[1]+dy)];});
+  else if(s.t==='line'||s.t==='curve'){var mx=snp(o.x1+dx)-o.x1,my=snp(o.y1+dy)-o.y1;s.x1=o.x1+mx;s.y1=o.y1+my;s.x2=o.x2+mx;s.y2=o.y2+my;}
+  else{s.x=snp(o.x+dx);s.y=snp(o.y+dy);}planRedraw();}
+ else if(_pv.kind==='handle'){if(!_pv.moved){planPushUndo();_pv.moved=true;}
+  if(_pv.h==='tres'&&planSel&&planSel.k==='table'){var tt=state.tables[planSel.id];if(!tt)return;var a=(tt.rot||0)*Math.PI/180,ddx=p.x-tt.fx,ddy=p.y-tt.fy,lx=ddx*Math.cos(a)+ddy*Math.sin(a),ly=-ddx*Math.sin(a)+ddy*Math.cos(a);
+   var nw=Math.max(40,Math.min(500,snp(Math.abs(lx)*2))),nh=Math.max(40,Math.min(500,snp(Math.abs(ly)*2)));if(tt.shape==='round'){nw=nh=Math.max(nw,nh);}tt.fw=nw;tt.fh=nh;}
+  else if(planSel&&planSel.k==='shape'){var sh=planShapeById(planSel.id);if(!sh)return;
+   if(_pv.h==='sres'){sh.w=Math.max(10,snp(p.x)-sh.x);sh.h=Math.max(10,snp(p.y)-sh.y);}
+   else if(_pv.h==='p1'){sh.x1=snp(p.x);sh.y1=snp(p.y);}else if(_pv.h==='p2'){sh.x2=snp(p.x);sh.y2=snp(p.y);}}
+  planRedraw();}
+ else if(_pv.kind==='pen'){var l=_pv.pts[_pv.pts.length-1];if(Math.hypot(p.x-l[0],p.y-l[1])>=4&&_pv.pts.length<600){_pv.pts.push([Math.round(p.x),Math.round(p.y)]);planPreview();}}
+ else if(_pv.kind==='draw'){_pv.x1=snp(p.x);_pv.y1=snp(p.y);planPreview();}}
+function pvUp(){if(!_pv)return;var d=_pv;_pv=null;var g=document.getElementById('pvprev');if(g)g.innerHTML='';
+ if(d.kind==='pen'){if(d.pts.length>=2){planPushUndo();planShapes().push({id:newSid(),u:1,t:'pen',pts:d.pts,c:planColor,sw:planWidth});save();}}
+ else if(d.kind==='draw'){if(Math.hypot(d.x1-d.x0,d.y1-d.y0)>=8){planPushUndo();var s=_pvShape(d);s.id=newSid();s.u=1;if(s.t==='rect'||s.t==='ellipse')s.f=false;planShapes().push(s);save();}}
+ else if(d.moved)save();
+ render();}
+document.addEventListener('pointermove',pvMove);document.addEventListener('pointerup',pvUp);document.addEventListener('pointercancel',pvUp);
+document.addEventListener('keydown',function(e){if(view!=='tables'||tableLayout!=='plan'||!planEdit)return;var tg=(e.target&&e.target.tagName)||'';if(/INPUT|TEXTAREA|SELECT/.test(tg))return;
+ if((e.key==='Delete'||e.key==='Backspace')&&planSel){e.preventDefault();planDelSel();}
+ else if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();planUndo();}
+ else if(e.key==='Escape'&&planSel){planSel=null;render();}});
+/* ---- toolbar / properties ---- */
+function planSetTool(t){planTool=t;planSel=null;render();}
+function planToggleSnap(){planSnap=!planSnap;render();}
+function planSetColor(c){planColor=c;planPropsRefresh();}
+function planSetWidth(w){planWidth=w;planPropsRefresh();}
+function _pSwatches(cur,fn){return PLAN_COLORS.map(function(c){return '<span class="sw'+(c===cur?' on':'')+'" style="background:'+c+'" onclick="'+fn+'(\''+c+'\')"></span>';}).join('');}
+function _pWidths(cur,fn){return [[2,'ບາງ'],[4,'ກາງ'],[8,'ໜາ']].map(function(o){return '<button class="pb'+(cur===o[0]?' on':'')+'" onclick="'+fn+'('+o[0]+')">'+o[1]+'</button>';}).join('');}
+function planToolbarHTML(){var T=[['select','↖','ເລືອກ/ຍ້າຍ'],['pen','✎','ປາກກາ'],['line','╱','ເສັ້ນຊື່'],['curve','⌒','ເສັ້ນໂຄງ'],['rect','▭','ກ່ອງ/ຝາ'],['ellipse','◯','ວົງມົນ'],['text','T','ຂໍ້ຄວາມ']];
+ return '<div class="ptoolbar">'+T.map(function(x){return '<button class="tb'+(planTool===x[0]?' on':'')+'" onclick="planSetTool(\''+x[0]+'\')"><b class="ti">'+x[1]+'</b>'+x[2]+'</button>';}).join('')
+  +'<span class="sep"></span><button class="tb" onclick="planAddTableModal()"><b class="ti">＋</b>ໂຕະ</button><button class="tb" onclick="planUndo()"'+(_planUndo.length?'':' style="opacity:.45"')+'><b class="ti">↶</b>ຍ້ອນກັບ</button><button class="tb'+(planSnap?' on':'')+'" onclick="planToggleSnap()"><b class="ti">#</b>ຈັບຕາຂ່າຍ</button><button class="tb" style="color:#dc2626" onclick="planClearDrawings()"><b class="ti">🗑</b>ລ້າງການແຕ້ມ</button></div>';}
+function planPropsHTML(){
+ if(planSel&&planSel.k==='table'){var t=state.tables[planSel.id];if(!t)return '';
+  return '<b>ໂຕະ '+cesc(t.name)+'</b><span class="pl">ຮູບຮ່າງ</span>'+[['sq','□ ສີ່ຫຼ່ຽມ'],['round','○ ກົມ'],['rect','▭ ຍາວ']].map(function(o){return '<button class="pb'+(t.shape===o[0]?' on':'')+'" onclick="planTblShape(\''+o[0]+'\')">'+o[1]+'</button>';}).join('')
+   +'<span class="pl">ຕັ່ງ</span><button class="pb" onclick="planTblSeats(-1)">−</button><b style="min-width:18px;text-align:center">'+(t.seats||0)+'</b><button class="pb" onclick="planTblSeats(1)">+</button><button class="pb" onclick="planTblRot()">⟳ ໝຸນ 45°</button><span class="pl" style="font-size:12px">ລາກຈຸດມຸມ = ປັບຂະໜາດ</span>';}
+ if(planSel&&planSel.k==='shape'){var s=planShapeById(planSel.id);if(!s)return '';
+  var h='<b>'+({pen:'ເສັ້ນປາກກາ',line:'ເສັ້ນຊື່',curve:'ເສັ້ນໂຄງ',rect:'ກ່ອງ/ຝາ',ellipse:'ວົງມົນ',text:'ຂໍ້ຄວາມ'}[s.t]||'')+'</b>'+_pSwatches(s.c,'planShapeColor');
+  if(s.t!=='text')h+=_pWidths(s.sw||4,'planShapeWidth');
+  if(s.t==='rect'||s.t==='ellipse')h+='<button class="pb'+(s.f?' on':'')+'" onclick="planShapeFill()">▦ ຖົມສີ</button>';
+  if(s.t==='text')h+='<button class="pb" onclick="planTextSize(-4)">A−</button><button class="pb" onclick="planTextSize(4)">A+</button><button class="pb" onclick="planTextEdit()">✎ ແກ້ຂໍ້ຄວາມ</button>';
+  return h+'<button class="pb" onclick="planDup()">⧉ ສຳເນົາ</button><button class="pb red" onclick="planDelSel()">🗑 ລຶບ</button>';}
+ if(planTool!=='select')return '<span class="pl">ສີ</span>'+_pSwatches(planColor,'planSetColor')+(planTool!=='text'?'<span class="pl">ເສັ້ນ</span>'+_pWidths(planWidth,'planSetWidth'):'')+'<span class="pl" style="font-size:12px">'+({pen:'ລາກເພື່ອແຕ້ມດ້ວຍມື',line:'ລາກເພື່ອແຕ້ມເສັ້ນຊື່',curve:'ລາກເພື່ອແຕ້ມເສັ້ນໂຄງ',rect:'ລາກເພື່ອແຕ້ມກ່ອງ / ຝາ / ໂຊນ',ellipse:'ລາກເພື່ອແຕ້ມວົງມົນ',text:'ກົດບ່ອນທີ່ຢາກໃສ່ຂໍ້ຄວາມ'}[planTool]||'')+'</span>';
+ return '<span class="pl">ກົດໂຕະ ຫຼື ສິ່ງທີ່ແຕ້ມ ເພື່ອເລືອກ · ລາກ = ຍ້າຍ · Delete = ລຶບ · Ctrl+Z = ຍ້ອນກັບ</span>';}
+function _pMutT(fn){var t=planSel&&planSel.k==='table'?state.tables[planSel.id]:null;if(!t)return;planPushUndo();fn(t);save();render();}
+function _pMutS(fn){var s=planSel&&planSel.k==='shape'?planShapeById(planSel.id):null;if(!s)return;planPushUndo();fn(s);save();render();}
+function planTblShape(v){_pMutT(function(t){t.shape=v;if(v==='rect'){t.fw=Math.max(t.fw,140);t.fh=Math.min(t.fh,86);if((t.seats||0)<6)t.seats=6;}else if(v==='round'){var m=Math.max(t.fw,t.fh);t.fw=t.fh=Math.min(m,120);}else{var q=Math.max(t.fw,t.fh);t.fw=t.fh=Math.min(q,110);}});}
+function planTblSeats(d){_pMutT(function(t){t.seats=Math.max(0,Math.min(20,(t.seats||0)+d));});}
+function planTblRot(){_pMutT(function(t){t.rot=((t.rot||0)+45)%360;});}
+function planShapeColor(c){planColor=c;_pMutS(function(s){s.c=c;});}
+function planShapeWidth(w){planWidth=w;_pMutS(function(s){s.sw=w;});}
+function planShapeFill(){_pMutS(function(s){s.f=!s.f;});}
+function planTextSize(d){_pMutS(function(s){s.s=Math.max(12,Math.min(120,(s.s||28)+d));});}
+function planDup(){var s=planSel&&planSel.k==='shape'?planShapeById(planSel.id):null;if(!s)return;planPushUndo();var c=JSON.parse(JSON.stringify(s));c.id=newSid();
+ if(c.t==='pen')c.pts=c.pts.map(function(q){return [q[0]+30,q[1]+30];});else if(c.t==='line'||c.t==='curve'){c.x1+=30;c.y1+=30;c.x2+=30;c.y2+=30;}else{c.x+=30;c.y+=30;}
+ planShapes().push(c);planSel={k:'shape',id:c.id};save();render();}
+function planDelSel(){if(!planSel)return;if(planSel.k==='table'){toast('ລຶບໂຕະໄດ້ທີ່ ການຕັ້ງຄ່າ → ໂຕະ & ຊັ້ນ');return;}planPushUndo();var a=planShapes(),i=a.findIndex(function(s){return s.id===planSel.id;});if(i>=0)a.splice(i,1);planSel=null;save();render();}
+function planClearDrawings(){var a=planShapes();if(!a.length){toast('ບໍ່ມີການແຕ້ມ');return;}if(!confirm('ລ້າງການແຕ້ມທັງໝົດຂອງ "'+curFloor+'"? (ໂຕະບໍ່ຫາຍ · ຍ້ອນກັບໄດ້)'))return;planPushUndo();state.planShapes[curFloor]=[];planSel=null;save();render();}
+function planAddTextAt(p){window.__ptxt={x:snp(p.x),y:snp(p.y),edit:null};_pTextModal('');}
+function planTextEdit(){var s=planSel&&planSel.k==='shape'?planShapeById(planSel.id):null;if(!s)return;window.__ptxt={edit:s.id};_pTextModal(s.txt||'');}
+function _pTextModal(v){openModal('<h2>ຂໍ້ຄວາມໃນຜັງ</h2><input id="ptxt_in" value="'+cesc(v)+'" placeholder="ເຊັ່ນ ປະຕູເຂົ້າ / ເຄົາເຕີ / ຫ້ອງນ້ຳ / VIP"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="doPlanText()">ຕົກລົງ</button></div>');setTimeout(function(){var i=document.getElementById('ptxt_in');if(i){i.focus();i.onkeydown=function(e){if(e.key==='Enter')doPlanText();};}},50);}
+function doPlanText(){var v=((document.getElementById('ptxt_in')||{}).value||'').trim();var d=window.__ptxt||{};closeModal();if(!v)return;planPushUndo();
+ if(d.edit){var s=planShapeById(d.edit);if(s)s.txt=v;}else{var ns={id:newSid(),u:1,t:'text',x:d.x,y:d.y,txt:v,s:28,c:planColor};planShapes().push(ns);planSel={k:'shape',id:ns.id};planTool='select';}
+ save();render();}
+function planFreeSpot(){var tl=planTablesOnFloor();for(var r=0;r<4;r++)for(var c=0;c<7;c++){var x=110+c*160,y=110+r*150;if(!tl.some(function(t){return Math.hypot((t.fx||0)-x,(t.fy||0)-y)<130;}))return {x:x,y:y};}return {x:PLW/2,y:PLH/2};}
+function planAddTableModal(){openModal('<h2>＋ ເພີ່ມໂຕະໃນ "'+cesc(curFloor)+'"</h2><label>ຊື່ໂຕະ</label><input id="pat_nm" placeholder="ເຊັ່ນ A9 / VIP1"><label style="margin-top:8px">ຮູບຮ່າງ</label><select id="pat_sh" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);font-family:inherit"><option value="sq">□ ສີ່ຫຼ່ຽມ</option><option value="round">○ ກົມ</option><option value="rect">▭ ຍາວ</option></select><label style="margin-top:8px">ຈຳນວນຕັ່ງ</label><input id="pat_st" type="number" inputmode="numeric" value="4" min="0" max="20"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="doPlanAddTable()">ເພີ່ມ</button></div>');}
+function doPlanAddTable(){var nm=(document.getElementById('pat_nm').value||'').trim();if(!nm){toast('ໃສ່ຊື່ໂຕະ');return;}if(state.tables[nm]){toast('ຊື່ໂຕະຊ້ຳ');return;}
+ var sh=document.getElementById('pat_sh').value||'sq',se=Math.max(0,Math.min(20,+document.getElementById('pat_st').value||0)),sp=planFreeSpot();
+ state.tables[nm]={name:nm,floor:curFloor,status:'free',items:[],customer:null,main:false,mergedInto:null,shape:sh,seats:se,fx:sp.x,fy:sp.y,fw:sh==='rect'?150:88,fh:sh==='rect'?80:88,rot:0};
+ planSel={k:'table',id:nm};planTool='select';save();closeModal();render();toast('ເພີ່ມໂຕະ '+nm);}
+function renderTables(R){if(tableLayout==='plan'&&curFloor==='ທັງໝົດ'&&(state.floors||[]).length)curFloor=state.floors[0];const c={free:0,busy:0,bill:0,new:0,main:0,merged:0};Object.values(state.tables).forEach(t=>c[t.status]=(c[t.status]||0)+1);
  let out=0,cnt=0;Object.values(state.tables).forEach(t=>{if(t.status!=='free'&&t.status!=='merged'){out+=tableTotal(t);cnt++;}});
  const leg=[["ວ່າງ","free"],["ບໍ່ວ່າງ","busy"],["ຂໍເຊັກບິນ","callbill"],["ເຊັກບິນ","bill"],["ສັ່ງໃໝ່","new"],["ໂຕະຫຼັກ","main"],["ໂຕະລວມ","merged"]];
  const list=Object.values(state.tables).filter(t=>curFloor==="ທັງໝົດ"||t.floor===curFloor);
  const layoutToggle=`<div class="layoutbtns"><button class="${tableLayout==='grid'?'on':''}" onclick="setTableLayout('grid')">▤ ຕາຕະລາງ</button><button class="${tableLayout==='plan'?'on':''}" onclick="setTableLayout('plan')">🗺 ຜັງຮ້ານ</button></div>${tableLayout==='plan'&&canEditPlan()?`<button class="chip ${planEdit?'active':''}" style="margin-left:8px" onclick="togglePlanEdit()">${planEdit?'✓ ແກ້ຜັງຢູ່ (ກົດເພື່ອຈົບ)':'✎ ແກ້ຜັງ'}</button>`:''}`;
  const head=`<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ເລືອກໂຕະ</div><div class="sub">ກົດໂຕະເພື່ອສັ່ງ · ກົດ  ເພື່ອ QR ສັ່ງອອນໄລ</div></div></div>
-  <div class="floors">${floorsAll().map(f=>`<button class="chip ${f===curFloor?'active':''}" onclick="curFloor='${f.replace(/'/g,"\\'")}';render()">${f}</button>`).join('')}</div>
+  <div class="floors">${(tableLayout==='plan'?(state.floors||[]):floorsAll()).map(f=>`<button class="chip ${f===curFloor?'active':''}" onclick="curFloor='${f.replace(/'/g,"\\'")}';render()">${f}</button>`).join('')}</div>
   <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0">${layoutToggle}</div>
   <div class="legend">${leg.map(([l,k])=>`<span><span class="dot" style="background:var(--${k})"></span>${l} <b>${c[k]||0}</b></span>`).join('')}</div>
   <div class="outstanding"> ຍອດຄ້າງຊຳລະ: ${KIP(out)} ກີບ (${cnt} ອໍເດີ)</div>`;
  if(tableLayout==='plan'){
-  list.forEach((t,i)=>{if(t.lx==null||t.ly==null){var col=i%6,row=Math.floor(i/6);t.lx=9+col*15;t.ly=13+row*20;if(t.ly>92)t.ly=92;}});
-  var QRSVG='<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v4h-4v-2h2v-2z"/></svg>';
-  const plan=list.map(t=>{const occ=t.status!=='free'&&t.status!=='merged';const safe=t.name.replace(/'/g,"\\'");var sz='width:'+(t.pw||82)+'px;height:'+(t.ph||82)+'px';
-   var badges=(t.status==='callbill'?'<div style="position:absolute;top:-7px;right:-7px;background:var(--callbill);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px">ເຊັກ</div>':'')+(t.reserved?'<div style="position:absolute;top:-7px;left:-7px;background:#8b5cf6;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px">ຈອງ</div>':'');
-   var tools=planEdit?(planMode==='move'?'<div class="presize" title="ປັບຂະໜາດ" onpointerdown="planResizeDown(event,\''+safe+'\')"></div>':''):('<button class="planqr" title="QR ສັ່ງອອນໄລ" onpointerdown="event.stopPropagation()" onclick="event.stopPropagation();openTableQR(\''+safe+'\')">'+QRSVG+'</button>'+(t.status==='free'?'<button class="planrsv" title="ຈອງໂຕະ" onpointerdown="event.stopPropagation()" onclick="event.stopPropagation();reserveTable(\''+safe+'\')">ຈ</button>':''));
-   return `<div class="plantable s-${t.status}" style="left:${t.lx}%;top:${t.ly}%;${sz}" onpointerdown="planDown(event,'${safe}')" onclick="planClick('${safe}')"><div class="pn">${t.name}</div><div class="pa">${occ?KIP(tableTotal(t))+'₭':(t.status==='merged'?'ລວມ'+t.mergedInto:(t.reserved?'ຈອງ':'ວ່າງ'))}</div>${badges}${tools}</div>`;}).join('');
-  var modeBar=planEdit?`<div class="planmodes">${[['move','✋ ຍ້າຍ / ຂະໜາດ'],['line','╱ ເສັ້ນຊື່'],['curve','︵ ເສັ້ນໂຄງ'],['erase','🗑 ລຶບເສັ້ນ']].map(function(m){return '<button class="'+(planMode===m[0]?'on':'')+'" onclick="planSetMode(\''+m[0]+'\')">'+m[1]+'</button>';}).join('')}</div>`:'';
-  var hint=planEdit?('<div class="planhint">'+(planMode==='move'?'ລາກໂຕະ = ຍ້າຍ · ລາກມຸມຂວາລຸ່ມ = ປັບຂະໜາດ':planMode==='line'?'ລາກເທິງພື້ນ = ແຕ້ມເສັ້ນຊື່ (ຝາ/ຂອບ)':planMode==='curve'?'ລາກເທິງພື້ນ = ແຕ້ມເສັ້ນໂຄງ':'ກົດເສັ້ນທີ່ຢາກລຶບ')+' · ບັນທຶກເອງ · ກົດ "✓ ແກ້ຜັງຢູ່" ເພື່ອຈົບ</div>'):('<div class="planhint" style="background:#fff;border-style:dashed">ກົດໂຕະເພື່ອສັ່ງ · ກົດ QR ເພື່ອສັ່ງອອນໄລ'+(canEditPlan()?' · ກົດ "✎ ແກ້ຜັງ" ເພື່ອຈັດຜັງ/ແຕ້ມ':'')+'</div>');
-  R.innerHTML=head+modeBar+`<div class="floorplan${planEdit&&planMode!=='move'?' drawing':''}" id="floorplan" onpointerdown="planCanvasDown(event)">${planShapesHTML()}${plan||'<div class="empty" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">ຊັ້ນນີ້ຍັງບໍ່ມີໂຕະ</div>'}</div>${hint}</div>`;
+  var hint=planEdit?'':'<div class="planhint" style="background:#fff;border-style:dashed">ກົດໂຕະເພື່ອສັ່ງ · ກົດ QR ເພື່ອສັ່ງອອນໄລ · ກົດ ຈ ເພື່ອຈອງ'+(canEditPlan()?' · ກົດ "✎ ແກ້ຜັງ" ເພື່ອຈັດຜັງ ແລະ ແຕ້ມ':'')+'</div>';
+  R.innerHTML=head+(planEdit?planToolbarHTML()+'<div class="pprops" id="pprops">'+planPropsHTML()+'</div>':'')+'<div class="pvwrap">'+planSVG()+'</div>'+hint+'</div>';
   return;}
  R.innerHTML=head+`<div class="tablegrid">${list.map(t=>{const occ=t.status!=='free'&&t.status!=='merged';const safe=t.name.replace(/'/g,"\\'");
    return `<div class="tablecard s-${t.status}" onclick="openTable('${safe}')">${t.status==='callbill'?'<div class="calltag"> ຂໍເຊັກບິນ</div>':''}${t.reserved?'<div class="calltag" style="background:#8b5cf6;animation:none"> ຈອງ '+cesc(t.reserved.time||'')+'</div>':''}${t.status==='free'?`<button class="qrbadge" style="right:auto;left:7px;top:auto;bottom:6px;background:#ede9fe" title="ຈອງໂຕະ" onclick="event.stopPropagation();reserveTable('${safe}')"><span style="font-size:12px;font-weight:800;color:#6d28d9">${t.reserved?'✎':'ຈ'}</span></button>`:''}<button class="qrbadge" title="QR" onclick="event.stopPropagation();openTableQR('${safe}')"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v4h-4v-2h2v-2z"/></svg></button>
@@ -1091,8 +1246,8 @@ function renderStock(R){let ings=Object.values(state.ingredients);const cats=['�
    <button class="btn-sm" style="margin-left:auto" onclick="openStockTake()"> ນັບສະຕ໋ອກ</button>${(state.locations||[]).length>1?'<button class="btn-sm grad" onclick="setView(\'transfer\')"> ໂອນສະຕ໋ອກ'+((state.transfers||[]).filter(function(t){return t.status==='sent'&&t.to===curLoc();}).length?' <span style="background:#fff;color:var(--tiff-deep);border-radius:8px;padding:0 5px;font-size:10px;font-weight:800">'+(state.transfers||[]).filter(function(t){return t.status==='sent'&&t.to===curLoc();}).length+' ຮັບ</span>':'')+'</button>':''}<button class="btn-sm" onclick="showStockLog()"> ປະຫວັດເຄື່ອນໄຫວ (${(state.stockLog||[]).length})</button><button class="btn-sm" onclick="showBomViewer()"> ເບິ່ງສູດເມນູ</button><button class="btn-sm" onclick="showBomAudit()"> ກວດສູດ</button><button class="btn-sm" onclick="addIngredient()"> ເພີ່ມ</button><button class="btn-sm red" onclick="resetStockAll()"> ຕັ້ງສະຕ໋ອກໃໝ່</button></div>
   ${locSel}
   <div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap">${cats.map(c=>`<button class="chip ${stockCat===c?'active':''}" onclick="stockCat='${c}';render()">${c}</button>`).join('')}</div>
-  <div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຫົວໜ່ວຍ</th><th>ຄົງເຫຼືອ</th><th>ຈຸດສັ່ງຊື້</th><th>ຕົ້ນທຶນ/ໜ່ວຍ</th><th>ສະຖານະ</th><th>ຮັບເຂົ້າ</th></tr></thead><tbody>
-   ${ings.map(i=>{var sv=stockAt(i.code,stockViewLoc);return `<tr><td>${i.code}</td><td>${i.name}</td><td>${i.cat||'ວັດຖຸດິບ'}</td><td>${i.unit}</td><td style="font-weight:700;color:${sv<=i.reorder?'var(--red)':'var(--text)'}">${KIP(sv)}</td><td>${KIP(i.reorder)}</td><td>${i.cost?KIP(i.cost):'<span style="color:#94a3b8">-</span>'}${can('stockAdjust')?` <button class="miniic" style="font-size:11px;color:var(--tiff-deep)" onclick="editCost('${i.code}')">ແກ້</button>`:''}</td><td>${sv<=i.reorder?'<span class="tag warn"> ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok"> ປົກກະຕິ</span>'}</td><td><button class="btn-sm" onclick="addStock('${i.code}')">+ ຮັບເຂົ້າ</button> <button class="btn-sm" style="background:var(--orange)" onclick="wasteStock('${i.code}')">ເສຍ</button></td></tr>`;}).join('')}</tbody></table></div>`;}
+  <div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th style="width:52px">ຮູບ</th><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຫົວໜ່ວຍ</th><th>ຄົງເຫຼືອ</th><th>ຈຸດສັ່ງຊື້</th><th>ຕົ້ນທຶນ/ໜ່ວຍ</th><th>ສະຖານະ</th><th>ຮັບເຂົ້າ</th></tr></thead><tbody>
+   ${ings.map(i=>{var sv=stockAt(i.code,stockViewLoc);return `<tr><td>${ingThumb(i.code,40,true)}</td><td>${i.code}</td><td>${i.name}</td><td>${i.cat||'ວັດຖຸດິບ'}</td><td>${i.unit}</td><td style="font-weight:700;color:${sv<=i.reorder?'var(--red)':'var(--text)'}">${KIP(sv)}</td><td>${KIP(i.reorder)}</td><td>${i.cost?KIP(i.cost):'<span style="color:#94a3b8">-</span>'}${can('stockAdjust')?` <button class="miniic" style="font-size:11px;color:var(--tiff-deep)" onclick="editCost('${i.code}')">ແກ້</button>`:''}</td><td>${sv<=i.reorder?'<span class="tag warn"> ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok"> ປົກກະຕິ</span>'}</td><td><button class="btn-sm" onclick="addStock('${i.code}')">+ ຮັບເຂົ້າ</button> <button class="btn-sm" style="background:var(--orange)" onclick="wasteStock('${i.code}')">ເສຍ</button></td></tr>`;}).join('')}</tbody></table></div>`;}
 /* ===== ບັນທຶກເສຍຫາຍ (waste) ===== */
 function wasteStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];
  openModal('<h2 style="color:var(--orange)"> ບັນທຶກເສຍຫາຍ — '+cesc(it.name)+'</h2><p style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">ບ່ອນເກັບ: <b>'+cesc(locName(stockViewLoc))+'</b></p><div class="paysummary"><div class="row"><span>ຄົງເຫຼືອ:</span><b>'+KIP(stockAt(code,stockViewLoc))+' '+cesc(it.unit)+'</b></div></div>'+
@@ -1115,7 +1270,7 @@ function renderStockTakeList(){var q=((document.getElementById('stq')||{}).value
  var list=Object.values(state.ingredients).filter(function(i){return !q||i.name.toLowerCase().indexOf(q)>=0||i.code.toLowerCase().indexOf(q)>=0;});
  var el=document.getElementById('stakelist');if(!el)return;
  el.innerHTML='<table class="tbl"><thead><tr><th>ວັດຖຸດິບ</th><th>ໃນລະບົບ</th><th>ນັບໄດ້ຈິງ</th></tr></thead><tbody>'+
-  list.slice(0,60).map(function(i){var v=window.__stCounts[i.code];return '<tr><td>'+cesc(i.name)+'<br><small style="color:var(--muted)">'+cesc(i.code)+'</small></td><td>'+KIP(stockAt(i.code,stockViewLoc))+' '+cesc(i.unit)+'</td><td><input type="number" inputmode="decimal" style="width:100px;padding:6px" value="'+(v===undefined?'':v)+'" placeholder="-" onchange="window.__stCounts[\''+i.code+'\']=this.value===\'\'?undefined:+this.value"></td></tr>';}).join('')+
+  list.slice(0,60).map(function(i){var v=window.__stCounts[i.code];return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+ingThumb(i.code,32)+'<div>'+cesc(i.name)+'<br><small style="color:var(--muted)">'+cesc(i.code)+'</small></div></div></td><td>'+KIP(stockAt(i.code,stockViewLoc))+' '+cesc(i.unit)+'</td><td><input type="number" inputmode="decimal" style="width:100px;padding:6px" value="'+(v===undefined?'':v)+'" placeholder="-" onchange="window.__stCounts[\''+i.code+'\']=this.value===\'\'?undefined:+this.value"></td></tr>';}).join('')+
   '</tbody></table>'+(list.length>60?'<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px">ສະແດງ 60 ຈາກ '+list.length+' — ພິມຄົ້ນຫາ</p>':'');}
 function applyStockTake(){var c=window.__stCounts||{};var n=0,diffs=[];
  Object.keys(c).forEach(function(code){var v=c[code];if(v===undefined||v===null||isNaN(v))return;var it=state.ingredients[code];if(!it)return;
@@ -1185,7 +1340,7 @@ function renderBomViewerList(){var q=((document.getElementById('bomq')||{}).valu
 function showMenuBom(code){var p=findMenu(code);if(!p){toast('ບໍ່ພົບເມນູ');return;}
  var edit=bomEditable_();var tot=0;var safe=String(code).replace(/'/g,"\\'");
  var rows=(p.bom||[]).map(function(b,idx){var ing=state.ingredients[b[0]];var cost=(ing&&ing.cost)?b[1]*ing.cost:0;tot+=cost;
-  return '<tr><td>'+(ing?cesc(ing.name):'<b style="color:var(--red)">'+cesc(b[0])+' (ບໍ່ພົບ!)</b>')+'<br><small style="color:var(--muted)">'+cesc(b[0])+'</small></td>'+
+  return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+(ing?ingThumb(b[0],34):'')+'<div>'+(ing?cesc(ing.name):'<b style="color:var(--red)">'+cesc(b[0])+' (ບໍ່ພົບ!)</b>')+'<br><small style="color:var(--muted)">'+cesc(b[0])+'</small></div></div></td>'+
    '<td style="font-weight:700;white-space:nowrap">'+(edit?('<input type="number" inputmode="decimal" value="'+b[1]+'" style="width:74px;padding:6px;text-align:center" onchange="setBomQty(\''+safe+'\','+idx+',this.value)"> '+(ing?cesc(ing.unit):'')):(KIP(b[1])+' '+(ing?cesc(ing.unit):'')))+'</td>'+
    '<td>'+(ing?KIP(ing.stock)+' '+cesc(ing.unit):'-')+'</td>'+
    '<td>'+(cost?KIP(cost):'<span style="color:#94a3b8">-</span>')+(edit?' <button class="trash" style="margin-left:6px" title="ລຶບແຖວ" onclick="delBomLine(\''+safe+'\','+idx+')">✕</button>':'')+'</td></tr>';}).join('');
@@ -1210,6 +1365,18 @@ function doAddIngredient(){const c=(document.getElementById('ic').value||'').tri
  if(init)logStock(c,init,'ເພີ່ມວັດຖຸດິບ','ເລີ່ມຕົ້ນ ['+locName(lc)+']',lc);
  save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c);}
 function resetStockAll(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}if(!confirm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?'))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
+/* ===== ຮູບວັດຖຸດິບ ===== */
+function ingThumb(code,sz,clickable){var it=state.ingredients[code]||{};sz=sz||36;var ck=clickable&&can('stockAdjust');var js=ck?' onclick="ingImgMenu(this.dataset.c)" data-c="'+cesc(code)+'" title="ກົດເພື່ອໃສ່/ປ່ຽນຮູບ"':'';
+ if(it.img)return '<img src="'+it.img+'" class="ingimg" style="width:'+sz+'px;height:'+sz+'px;'+(ck?'cursor:pointer':'')+'"'+js+' alt="">';
+ var ch=cesc(String(it.name||code).replace(/^[\s\d]+/,'').slice(0,2));return '<div class="ingimg ph" style="width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz*0.36)+'px;'+(ck?'cursor:pointer':'')+'"'+js+'>'+(ck?'<span class="cam">＋</span>':'')+ch+'</div>';}
+function ingImgMenu(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];if(!it)return;window.__ingImgCode=code;
+ if(!it.img){ingImgPick();return;}
+ openModal('<h2>ຮູບ — '+cesc(it.name)+'</h2><div style="text-align:center;margin:6px 0 10px"><img src="'+it.img+'" style="max-width:220px;max-height:220px;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-cancel" style="color:var(--red)" onclick="ingImgDel()">ລຶບຮູບ</button><button class="btn-ok grad" onclick="closeModal();ingImgPick()">ປ່ຽນຮູບ</button></div>');}
+function ingImgPick(){var inp=document.getElementById('ingImgIn');if(!inp){inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.id='ingImgIn';inp.style.display='none';inp.onchange=function(){ingImgLoad(this);};document.body.appendChild(inp);}inp.value='';inp.click();}
+function ingImgLoad(inp){var f=inp.files&&inp.files[0];var code=window.__ingImgCode;if(!f||!code||!state.ingredients[code])return;var r=new FileReader();
+ r.onload=function(e){var img=new Image();img.onload=function(){var mx=160,sc=Math.min(1,mx/Math.max(img.width,img.height));var c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*sc));c.height=Math.max(1,Math.round(img.height*sc));c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  state.ingredients[code].img=c.toDataURL('image/jpeg',0.72);save();render();showSuccess('ບັນທຶກຮູບແລ້ວ!',state.ingredients[code].name);};img.onerror=function(){toast('ໄຟລ໌ຮູບບໍ່ຖືກຕ້ອງ');};img.src=e.target.result;};r.readAsDataURL(f);}
+function ingImgDel(){var code=window.__ingImgCode;var it=state.ingredients[code];if(!it)return;delete it.img;save();closeModal();render();toast('ລຶບຮູບແລ້ວ');}
 /* ===== ບ່ອນເກັບ / ສາຂາ (locations) ===== */
 function setTerminalLoc(id){try{localStorage.setItem('stpos_loc',id);}catch(e){}stockViewLoc=id;if(state.ingredients)syncStockView();render();toast('ບ່ອນເກັບເຄື່ອງນີ້: '+locName(id));}
 function addLocation(){if(!canEditPlan()){toast('ສະເພາະ ຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}locFormModal(null);}
@@ -1259,7 +1426,7 @@ function renderTfModal(){var d=window.__tf;var cl=curLoc();var others=(state.loc
   +'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="doCreateTransfer()">ໂອນອອກ</button></div>');
  renderTfList();var f=document.getElementById('tf_code');if(f)f.focus();}
 function renderTfList(){var d=window.__tf;var el=document.getElementById('tflist');if(!el)return;var cl=curLoc();
- el.innerHTML=d.items.length?('<table class="tbl"><thead><tr><th>ວັດຖຸດິບ</th><th>ຈຳນວນ</th><th>ຄົງເຫຼືອ</th><th></th></tr></thead><tbody>'+d.items.map(function(it,i){var g=state.ingredients[it.code]||{};var avail=stockAt(it.code,cl);return '<tr><td>'+cesc(g.name||it.code)+'</td><td>'+KIP(it.qty)+' '+cesc(g.unit||'')+'</td><td style="font-weight:700;color:'+(avail<it.qty?'var(--red)':'var(--text)')+'">'+KIP(avail)+'</td><td><button class="trash" onclick="tfDelItem('+i+')">✕</button></td></tr>';}).join('')+'</tbody></table>'):'<div style="color:#94a3b8;font-size:12px;text-align:center;padding:10px">ຍັງບໍ່ມີລາຍການ</div>';}
+ el.innerHTML=d.items.length?('<table class="tbl"><thead><tr><th>ວັດຖຸດິບ</th><th>ຈຳນວນ</th><th>ຄົງເຫຼືອ</th><th></th></tr></thead><tbody>'+d.items.map(function(it,i){var g=state.ingredients[it.code]||{};var avail=stockAt(it.code,cl);return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+ingThumb(it.code,30)+cesc(g.name||it.code)+'</div></td><td>'+KIP(it.qty)+' '+cesc(g.unit||'')+'</td><td style="font-weight:700;color:'+(avail<it.qty?'var(--red)':'var(--text)')+'">'+KIP(avail)+'</td><td><button class="trash" onclick="tfDelItem('+i+')">✕</button></td></tr>';}).join('')+'</tbody></table>'):'<div style="color:#94a3b8;font-size:12px;text-align:center;padding:10px">ຍັງບໍ່ມີລາຍການ</div>';}
 function tfAddItem(){var c=(document.getElementById('tf_code').value||'').trim().toUpperCase();var q=+document.getElementById('tf_qty').value||0;
  if(!state.ingredients[c]){toast('ບໍ່ພົບລະຫັດ '+c);return;}if(q<=0){toast('ໃສ່ຈຳນວນ > 0');return;}
  var ex=window.__tf.items.find(function(x){return x.code===c;});if(ex)ex.qty+=q;else window.__tf.items.push({code:c,qty:q});
