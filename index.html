@@ -469,6 +469,7 @@ table.tbl small{font-size:12.5px}
 .wf-edit{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-top:6px}.wf-edit b{background:var(--tiff);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.wf-edit span{flex:1}
 @media (max-width:700px){.pd-back{width:100%}.pd-metas>div{text-align:left!important}.pd-stamp{left:auto;right:12px;top:64px;font-size:20px}.pd-step span{font-size:10.5px}.pd-tabs{min-width:0;grid-template-columns:1fr}.pd-doc{padding:16px}.pd-ttl{font-size:19px}}
 @media print{.pd-doc{border:none}}
+.khead{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}.kimg{width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}.stagechip.stg-kwait{background:#f1f5f9;color:#475569}.stagechip.stg-kcooking{background:#ffedd5;color:#c2410c}.stagechip.stg-kready{background:#dcfce7;color:#15803d}#readyBanner{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:9999;display:none;align-items:center;gap:12px;background:#15803d;color:#fff;padding:12px 18px;border-radius:14px;font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:92vw;animation:rbPulse 1s ease-in-out 3}#readyBanner button{background:#fff;color:#15803d;border:none;border-radius:9px;padding:6px 14px;font-weight:800;cursor:pointer;font-family:inherit}@keyframes rbPulse{50%{transform:translateX(-50%) scale(1.05)}}
 </style>
 </head>
 <body>
@@ -773,7 +774,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title=n+' ລາຍການມື້ນີ້';el.style.display=n?'':'none';})();
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title=n+' ລາຍການມື້ນີ້';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
@@ -1150,9 +1151,11 @@ function logCancel(type,code,name,qty,amount,table,reason,ex){if(!Array.isArray(
  if(state.cancelLog.length>3000)state.cancelLog=state.cancelLog.slice(-3000);}
 /* ຂັ້ນຕອນຂອງລາຍການຕອນຖືກລຶບ: ກ່ອນ/ຫຼັງເສີບ, ກ່ອນ/ຫຼັງເຊັກບິນ */
 function itemStage(it,t){var o=(state.orders||[]).find(function(x){return String(x.id)===String(it.id);});
- var serve=o?(o.status==='served'?'after':'before'):'';var bill=(t&&(t.billTs||t.status==='bill'))?'after':'before';return {serve:serve,bill:bill};}
-function stageLabel(st){return (st.serve==='after'?'ຫຼັງເສີບ':st.serve==='before'?'ກ່ອນເສີບ':'')+(st.serve?' · ':'')+(st.bill==='after'?'ຫຼັງເຊັກບິນ':'ກ່ອນເຊັກບິນ');}
+ var serve=o?(o.status==='served'?'after':'before'):'';var bill=(t&&(t.billTs||t.status==='bill'))?'after':'before';return {serve:serve,bill:bill,kitchen:o?o.status:''};}
+const KSTAGE={wait:'ລໍຖ້າຄົວ',cooking:'ກຳລັງເຮັດ',ready:'ພ້ອມເສີບ'};
+function stageLabel(st){return (st.serve==='after'?'ຫຼັງເສີບ':st.serve==='before'?'ກ່ອນເສີບ'+(KSTAGE[st.kitchen]?' ('+KSTAGE[st.kitchen]+')':''):'')+(st.serve?' · ':'')+(st.bill==='after'?'ຫຼັງເຊັກບິນ':'ກ່ອນເຊັກບິນ');}
 function stageChips(l){var h='';if(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ')h+='<span class="stagechip stg-mv">'+cesc(l.type)+'</span>';
+ if(l.serve==='before'&&KSTAGE[l.kitchen])h+='<span class="stagechip stg-k'+l.kitchen+'">'+KSTAGE[l.kitchen]+'</span>';
  if(l.serve==='before')h+='<span class="stagechip stg-pre">ກ່ອນເສີບ</span>';else if(l.serve==='after')h+='<span class="stagechip stg-post">ຫຼັງເສີບ</span>';
  if(l.bill==='before')h+='<span class="stagechip stg-bpre">ກ່ອນເຊັກບິນ</span>';else if(l.bill==='after')h+='<span class="stagechip stg-bpost">ຫຼັງເຊັກບິນ</span>';return h||'<span style="color:#94a3b8">—</span>';}
 function delItem(i){var l=curList();var it=l[i];if(!it)return;
@@ -1172,7 +1175,7 @@ function doDelConfirmedItem(i){var rsn=((document.getElementById('di_rsn')||{}).
  var unitAmt=lineTotal(it)/it.qty;var stg=itemStage(it,state.tables[state.activeTable]);
  var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(b){if(state.ingredients[b[0]])addStockAt(b[0],curLoc(),b[1]*n,'ຄືນ-ລຶບລາຍການ',n+'× '+it.name+' (ໂຕະ '+(state.activeTable||'')+') — '+rsn);});
  logOrder('ລຶບເມນູ ('+stageLabel(stg)+')',n+'× '+it.name+(n<it.qty?' (ຈາກທັງໝົດ '+it.qty+')':'')+' ('+KIP(unitAmt*n)+' ກີບ) — ເຫດຜົນ: '+rsn,state.activeTable);
- logCancel('ລຶບລາຍການ',it.code,it.name,n,unitAmt*n,state.activeTable,rsn,{serve:stg.serve,bill:stg.bill});
+ logCancel('ລຶບລາຍການ',it.code,it.name,n,unitAmt*n,state.activeTable,rsn,{serve:stg.serve,bill:stg.bill,kitchen:stg.kitchen});
  if(n>=it.qty){ /* ລຶບໝົດແຖວ — ເອົາອອກຈາກຈໍຄົວ/ບາຣ໌ນຳ */
   state.orders=(state.orders||[]).filter(function(o){return String(o.id)!==String(it.id);});
   l.splice(i,1);
@@ -1372,7 +1375,7 @@ function mergeFrom(name){const main=state.tables[state.activeTable],other=state.
  other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
 function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ) — ສະຕ໋ອກທີ່ຫັກໄປຈະຄືນໃຫ້</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
-function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ',{serve:sg.serve,bill:sg.bill});const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
+function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ',{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen});const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
  state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.status='free';t.billTs=null;t.customer=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name);}
 function openCustomer(){var t=state.tables[state.activeTable];
  openModal('<h2> ເລືອກລູກຄ້າ</h2>'+
@@ -1407,14 +1410,29 @@ function renderKDS(R,kind,title){const all=state.orders.filter(o=>o.k===kind);co
  R.innerHTML=`<div class="kds-head"><span style="font-size:22px">${title}</span>${stats.map(([k,l,n])=>`<span class="stat ${kfilter===k?'on':''}" onclick="kfilter='${k}';render()">${l} ${n}</span>`).join('')}
    <span style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="stat" onclick="toggleSound()">${state.soundOn?'':''} ສຽງ</span><span style="font-size:12px"> ເຊື່ອມຕໍ່ແລ້ວ</span></span></div>
   ${shown.length?`<div class="kds-grid">${shown.sort((a,b)=>a.ts-b.ts).map(o=>kcard(o)).join('')}</div>`:'<div class="empty"> ບໍ່ມີລາຍການທີ່ຕ້ອງເຮັດ</div>'}`;}
+/* ===== ແຈ້ງເຕືອນພະນັກງານເສີບ ເມື່ອມີອາຫານ/ເຄື່ອງດື່ມ "ພ້ອມເສີບ" ໃໝ່ ===== */
+let _readyIds=null;
+function playReadyChime(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),t=a.currentTime;[[988,0],[1319,0.18],[1568,0.36]].forEach(function(n){var o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=n[0];o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.0001,t+n[1]);g.gain.exponentialRampToValueAtTime(0.25,t+n[1]+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]+0.5);o.start(t+n[1]);o.stop(t+n[1]+0.55);});setTimeout(function(){a.close();},1500);}catch(e){}
+ try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}}
+function checkReadyAlert(){if(!state||!Array.isArray(state.orders))return;var u=curUser();if(!u)return;if((HAS_GAS||HAS_API)&&!_loaded){_readyIds=null;return;}
+ var ids=state.orders.filter(function(o){return o.status==='ready';}).map(function(o){return String(o.id);});
+ if(_readyIds===null){_readyIds=ids;return;}var fresh=state.orders.filter(function(o){return o.status==='ready'&&_readyIds.indexOf(String(o.id))<0;});_readyIds=ids;
+ if(!fresh.length)return;var mine=(view==='waiter'||u.role==='waiter'||(u.role!=='kitchen'&&canView('waiter')&&(view==='tables'||view==='order')));if(!mine)return;
+ if(state.soundOn!==false)playReadyChime();
+ var msg='🔔 ພ້ອມເສີບ: '+fresh.map(function(o){return 'ໂຕະ '+o.table+' — '+o.qty+'× '+o.name;}).join(' · ');
+ var b=document.getElementById('readyBanner');if(!b){b=document.createElement('div');b.id='readyBanner';document.body.appendChild(b);}
+ b.innerHTML='<span>'+cesc(msg)+'</span><button onclick="this.parentNode.style.display=\'none\';setView(\'waiter\')">ເບິ່ງ</button>';b.style.display='flex';clearTimeout(window.__rbT);window.__rbT=setTimeout(function(){b.style.display='none';},12000);}
 function toggleSound(){state.soundOn=!state.soundOn;save();render();if(state.soundOn)playBeep();}
+/* ຮູບເມນູສຳລັບຈໍຄົວ/ບາຣ໌/ເສີບ: ຮູບຈິງ → ຮູບເດໂມ → ຮູບຕົວຢ່າງອັດຕະໂນມັດ */
+function menuImgFor(code){var p=findMenu(code);if(!p)return '';return (state.menuImg||{})[p.c]||demoImg(p)||(state.exampleImg!==false?menuThumb(p):'');}
+function kImg(o){var u=o.code?menuImgFor(o.code):'';return u?'<img class="kimg" src="'+u+'" alt="" loading="lazy">':'';}
 function kcard(o){const mins=Math.floor((Date.now()-o.ts)/60000);const next={wait:['cooking',' ເລີ່ມເຮັດ','var(--orange)'],cooking:['ready',' ພ້ອມເສີບ','var(--green)'],ready:['ready','ລໍພະນັກງານຍົກ','var(--muted)']}[o.status];
- return `<div class="kcard st-${o.status}"><h4>${o.qty}× ${o.name}</h4><div class="meta">ໂຕະ ${o.table} · ${mins} ນາທີ${mins>=15?' ':''}</div>${o.mods&&o.mods.length?`<div style="font-size:12px;color:var(--pink)">${o.mods.join(', ')}</div>`:''}${o.note?`<div style="font-size:12px;color:var(--blue)"> ${o.note}</div>`:''}
+ return `<div class="kcard st-${o.status}"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${o.name}</h4><div class="meta">ໂຕະ ${o.table} · ${mins} ນາທີ${mins>=15?' ⚠':''}</div></div></div>${o.mods&&o.mods.length?`<div style="font-size:12px;color:var(--pink)">${o.mods.join(', ')}</div>`:''}${o.note?`<div style="font-size:12px;color:var(--blue)"> ${o.note}</div>`:''}
   ${o.status!=='ready'?`<button class="kbtn" style="background:${next[2]}" onclick="advanceOrder('${o.id}')">${next[1]}</button>`:`<div class="kbtn" style="background:${next[2]};text-align:center">${next[1]}</div>`}</div>`;}
 function advanceOrder(id){const o=state.orders.find(x=>String(x.id)===String(id));if(!o)return;o.status=o.status==='wait'?'cooking':'ready';save();render();}
 function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');
- R.innerHTML=`<div class="kds-head"><span style="font-size:22px"> ຈໍພະນັກງານເສີບ</span><span class="stat on">ພ້ອມເສີບ ${ready.length}</span><span class="stat">ເສີບແລ້ວມື້ນີ້ ${state.servedToday||0}</span><span style="margin-left:auto;font-size:12px"> ເຊື່ອມຕໍ່ແລ້ວ</span></div>
-  ${ready.length?`<div class="kds-grid">${ready.sort((a,b)=>a.ts-b.ts).map(o=>`<div class="kcard st-ready"><h4>${o.qty}× ${o.name}</h4><div class="meta">ໂຕະ ${o.table} · ${o.k==='food'?' ຄົວ':' ບາ'}</div><button class="kbtn" style="background:var(--green)" onclick="serveOrder('${o.id}')"> ເສີບແລ້ວ</button></div>`).join('')}</div>`:'<div class="empty">ບໍ່ມີລາຍການພ້ອມເສີບ</div>'}`;}
+ R.innerHTML=`<div class="kds-head"><span style="font-size:22px"> ຈໍພະນັກງານເສີບ</span><span class="stat on">ພ້ອມເສີບ ${ready.length}</span><span class="stat">ເສີບແລ້ວມື້ນີ້ ${state.servedToday||0}</span><span style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="stat ${state.soundOn?'on':''}" onclick="toggleSound()">${state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ'}</span><span class="stat" onclick="playReadyChime()">▶ ລອງສຽງ</span></span></div>
+  ${ready.length?`<div class="kds-grid">${ready.sort((a,b)=>a.ts-b.ts).map(o=>`<div class="kcard st-ready"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${o.name}</h4><div class="meta">ໂຕະ ${o.table} · ${o.k==='food'?' ຄົວ':' ບາ'}</div></div></div>${o.note?`<div style="font-size:13px;color:var(--blue)">✎ ${o.note}</div>`:''}<button class="kbtn" style="background:var(--green)" onclick="serveOrder('${o.id}')"> ເສີບແລ້ວ</button></div>`).join('')}</div>`:'<div class="empty">ບໍ່ມີລາຍການພ້ອມເສີບ</div>'}`;}
 function serveOrder(id){const i=state.orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;state.orders[i].status='served';state.servedToday=(state.servedToday||0)+1;save();render();}
 function histBills(){var all=[...state.bills].reverse();return histDate?all.filter(function(b){return ymd(b.ts)===histDate;}):all;}
 function renderHistory(R){if(histDate===undefined)histDate=ymd(Date.now());
@@ -2291,7 +2309,7 @@ function printReportBody(title){var body=document.getElementById('repbody');if(!
  var pa=document.getElementById('printArea');pa.innerHTML='<style>@media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{display:block!important;position:absolute;left:0;top:0;width:100%}.rpt-print table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px}.rpt-print th,.rpt-print td{border:1px solid #999;padding:3px 5px;text-align:left}.rpt-print .cards{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.rpt-print .kpi{border:1px solid #999;padding:6px 10px;border-radius:6px;box-shadow:none;flex:1;min-width:120px}.rpt-print .kpi .val{font-size:16px;font-weight:800}.rpt-print button,.rpt-print .btn-sm,.rpt-print input{display:none!important}@page{margin:10mm}}</style>'+html;
  setTimeout(function(){window.print();},200);}
 function codeCatMap(){var M=MSRC(),m={};for(var c in M)for(var s in M[c])M[c][s].forEach(function(x){m[x.c]=c;});return m;}
-function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂາຍ'],['profit','ຕົ້ນທຶນ & ກຳໄລ'],['staff','ພະນັກງານ'],['branch','ສາຂາ'],['dash','Dashboard'],['sales','ການຂາຍ'],['product','ສິນຄ້າຂາຍ'],['cancel','ລຶບເມນູ/ຍ້າຍໂຕະ'],['audit','ການປ່ຽນແປງອໍເດີ'],['food','ຕິດຕາມອາຫານ']];
+function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂາຍ'],['profit','ຕົ້ນທຶນ & ກຳໄລ'],['staff','ພະນັກງານ'],['branch','ສາຂາ'],['dash','Dashboard'],['sales','ການຂາຍ'],['product','ສິນຄ້າຂາຍ'],['cancel','ລຶບເມນູ/ຍ້າຍໂຕະ'],['audit','ການປ່ຽນແປງອໍເດີ'],['food','ຕິດຕາມອາຫານ'],['loss','ສູນເສຍ % (ສະຕ໋ອກ)']];
  R.innerHTML='<div class="adminbox"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ລາຍງານການຂາຍ</div><div class="sub">ສະຫຼຸບ ແລະ ວິເຄາະການຂາຍ</div></div></div><div class="setnav">'+tabs.map(function(t){return '<button class="'+(reportTab===t[0]?'on':'')+'" onclick="reportTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div><div id="repbody"></div></div>';
  var body=document.getElementById('repbody');if(!body)return;
  if(reportTab==='dash')renderDash(body);
@@ -2299,14 +2317,15 @@ function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂ�
  else if(reportTab==='product')renderRepProduct(body);
  else if(reportTab==='audit')renderRepAudit(body);
  else if(reportTab==='food')renderRepFood(body);
+ else if(reportTab==='loss')renderRepLoss(body);
  else if(reportTab==='profit')renderRepProfit(body);
  else if(reportTab==='staff')renderRepStaff(body);
  else if(reportTab==='branch')renderRepBranch(body);
  else if(reportTab==='cancel')renderRepCancel(body);
  else renderRepSummary(body);}
 let cancelFilter='all';
-const CANCEL_FILTERS=[['all','ທັງໝົດ'],['sv_pre','ລຶບກ່ອນເສີບ'],['sv_post','ລຶບຫຼັງເສີບ'],['b_pre','ລຶບກ່ອນເຊັກບິນ'],['b_post','ລຶບຫຼັງເຊັກບິນ'],['tbl','ຍົກເລີກທັງໂຕະ'],['move','ຍ້າຍ/ລວມໂຕະ'],['void','Void/ຄືນເງິນ']];
-function cancelMatch(l,f){var del=(l.type==='ລຶບລາຍການ'||l.type==='ຍົກເລີກໂຕະ');if(f==='tbl')return l.type==='ຍົກເລີກໂຕະ';
+const CANCEL_FILTERS=[['all','ທັງໝົດ'],['k_wait','ລໍຖ້າຄົວ'],['k_cooking','ກຳລັງເຮັດ'],['k_ready','ພ້ອມເສີບ'],['sv_pre','ລຶບກ່ອນເສີບ'],['sv_post','ລຶບຫຼັງເສີບ'],['b_pre','ລຶບກ່ອນເຊັກບິນ'],['b_post','ລຶບຫຼັງເຊັກບິນ'],['tbl','ຍົກເລີກທັງໂຕະ'],['move','ຍ້າຍ/ລວມໂຕະ'],['void','Void/ຄືນເງິນ']];
+function cancelMatch(l,f){var del=(l.type==='ລຶບລາຍການ'||l.type==='ຍົກເລີກໂຕະ');if(f==='tbl')return l.type==='ຍົກເລີກໂຕະ';if(f.indexOf('k_')===0)return del&&l.serve==='before'&&l.kitchen===f.slice(2);
  if(f==='all')return true;if(f==='sv_pre')return del&&l.serve==='before';if(f==='sv_post')return del&&l.serve==='after';
  if(f==='b_pre')return del&&l.bill==='before';if(f==='b_post')return del&&l.bill==='after';
  if(f==='move')return l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ';if(f==='void')return l.type==='Void ບິນ'||l.type==='ຄືນເງິນ';return true;}
@@ -2322,6 +2341,31 @@ function migrateCancelLog(){if(!state||state._cancelMigr>=1||!Array.isArray(stat
   else if(a==='ຍ້າຍໂຕະ'||a==='ລວມໂຕະ'){if(near(o.ts,'',a))return;add.push({ts:o.ts,type:a,code:'',name:d,qty:0,amount:0,table:d,reason:'',by:o.by||'',legacy:true});}});
  if(add.length){state.cancelLog=CL.concat(add).sort(function(x,y){return x.ts-y.ts;});}state._cancelMigr=1;return add.length;}
 function cancelLogsFor(){return (state.cancelLog||[]).filter(function(l){return !repDate||ymd(l.ts)===repDate;});}
+/* ===== ລາຍງານສູນເສຍ %: ໃຊ້ຂາຍ (ສຸດທິ) vs ຂອງເສຍທີ່ບັນທຶກ vs ສ່ວນຕ່າງຈາກການນັບ ===== */
+let lossRange='30',lossCat='ທັງໝົດ';
+function lossData(){var now=Date.now(),from=lossRange==='all'?0:(lossRange==='day'?new Date(new Date().setHours(0,0,0,0)).getTime():now-(+lossRange)*86400000);var cl=curLoc();var R={};
+ (state.stockLog||[]).forEach(function(l){if(l.ts<from||(l.loc&&l.loc!==cl))return;var r=R[l.code];if(!r)r=R[l.code]={code:l.code,sold:0,waste:0,count:0};var d=+l.delta||0,rs=l.reason||'';
+  if(rs==='ຂາຍ')r.sold+=-d;else if(/^ຄືນ-(ລຶບລາຍການ|ຍົກເລີກໂຕະ|Void ບິນ|Refund)/.test(rs))r.sold-=d;else if(rs==='ເສຍຫາຍ')r.waste+=-d;else if(rs==='ນັບປັບສະຕ໋ອກ')r.count+=d;});
+ return Object.values(R).map(function(r){var it=state.ingredients[r.code]||{};var short=Math.max(0,-r.count),over=Math.max(0,r.count);var loss=r.waste+short;var base=Math.max(0,r.sold)+loss;var c=+it.cost||0;
+  return {code:r.code,name:it.name||r.code,unit:it.unit||'',cat:it.cat||'ວັດຖຸດິບ',sold:Math.max(0,r.sold),waste:r.waste,short:short,over:over,loss:loss,pct:base>0?loss/base*100:0,val:loss*c,wasteVal:r.waste*c,shortVal:short*c,soldVal:Math.max(0,r.sold)*c};})
+  .filter(function(x){return (x.sold||x.loss||x.over)&&(lossCat==='ທັງໝົດ'||x.cat===lossCat);}).sort(function(a,b){return b.val-a.val||b.pct-a.pct;});}
+function renderRepLoss(b){var rows=lossData();var T=rows.reduce(function(s,x){s.sold+=x.soldVal;s.waste+=x.wasteVal;s.short+=x.shortVal;return s;},{sold:0,waste:0,short:0});var tl=T.waste+T.short,tp=(T.sold+tl)>0?tl/(T.sold+tl)*100:0;
+ var pc=function(v){return '<b style="color:'+(v>=10?'var(--red)':v>=5?'#b45309':'#15803d')+'">'+v.toFixed(1)+'%</b>';};
+ var chip=function(k,l){return '<button class="chip '+(lossRange===k?'active':'')+'" onclick="lossRange=\''+k+'\';render()">'+l+'</button>';};
+ var oldest=(state.stockLog||[]).length?new Date(state.stockLog[0].ts).toLocaleDateString('en-GB'):'-';
+ b.innerHTML='<div class="toolbar"><span style="font-size:17px;font-weight:800">ລາຍງານສູນເສຍ (ສະຕ໋ອກ) — '+cesc(locName(curLoc()))+'</span>'+chip('day','ມື້ນີ້')+chip('7','7 ວັນ')+chip('30','30 ວັນ')+chip('all','ທັງໝົດ')+
+  '<select onchange="lossCat=this.value;render()" style="width:auto">'+['ທັງໝົດ','ວັດຖຸດິບ','ສິນຄ້າ','ເຄື່ອງໃຊ້'].map(function(c){return '<option'+(lossCat===c?' selected':'')+'>'+c+'</option>';}).join('')+'</select>'+
+  '<button class="btn-sm" style="margin-left:auto" onclick="exportLoss()">Export Excel</button><button class="btn-sm" style="background:var(--tiff-deep)" onclick="printReportBody(\'ລາຍງານສູນເສຍ\')">ພິມ</button></div>'+
+  '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"><div class="kpi"><div class="lbl">ສູນເສຍລວມ (ມູນຄ່າ)</div><div class="val" style="color:var(--red)">'+KIP(tl)+' ₭</div><div class="sub">'+pc(tp)+' ຂອງການໃຊ້ທັງໝົດ</div></div>'+
+  '<div class="kpi"><div class="lbl">ຂອງເສຍທີ່ບັນທຶກ</div><div class="val" style="color:#b45309">'+KIP(T.waste)+' ₭</div><div class="sub">ຈາກປຸ່ມ "ເສຍ" ໃນໜ້າສະຕ໋ອກ</div></div>'+
+  '<div class="kpi"><div class="lbl">ຂາດຫາຍ (ນັບສະຕ໋ອກ)</div><div class="val" style="color:var(--red)">'+KIP(T.short)+' ₭</div><div class="sub">ນັບຈິງໜ້ອຍກວ່າໃນລະບົບ — ບໍ່ຮູ້ສາເຫດ</div></div>'+
+  '<div class="kpi"><div class="lbl">ໃຊ້ຕາມສູດ (ຂາຍ)</div><div class="val">'+KIP(T.sold)+' ₭</div><div class="sub">ຫັກລາຍການທີ່ລຶບ/Void/ຄືນ ແລ້ວ</div></div></div>'+
+  '<p style="padding:0 18px 8px;color:var(--muted);font-size:14px">% ສູນເສຍ = (ຂອງເສຍ + ຂາດຫາຍ) ÷ (ໃຊ້ຕາມສູດ + ຂອງເສຍ + ຂາດຫາຍ) · 🟢 &lt; 5% · 🟠 5–10% · 🔴 ≥ 10% · ຂໍ້ມູນຈາກປະຫວັດສະຕ໋ອກ (ເກັບໄວ້ຕັ້ງແຕ່ '+oldest+')</p>'+
+  '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>ວັດຖຸດິບ</th><th style="text-align:right">ໃຊ້ຕາມສູດ</th><th style="text-align:right">ຂອງເສຍ</th><th style="text-align:right">ຂາດຫາຍ</th><th style="text-align:right">ເກີນ</th><th style="text-align:right">% ສູນເສຍ</th><th style="text-align:right">ມູນຄ່າສູນເສຍ (₭)</th></tr></thead><tbody>'+
+  (rows.length?rows.map(function(x){var f=function(v){return v?KIP(Math.round(v*100)/100)+' '+cesc(x.unit):'<span style="color:#cbd5e1">—</span>';};return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+ingThumb(x.code,30)+'<div>'+cesc(x.name)+'<br><small style="color:var(--muted)">'+cesc(x.code)+' · '+cesc(x.cat)+'</small></div></div></td><td style="text-align:right">'+f(x.sold)+'</td><td style="text-align:right;color:#b45309">'+f(x.waste)+'</td><td style="text-align:right;color:var(--red)">'+f(x.short)+'</td><td style="text-align:right;color:#15803d">'+f(x.over)+'</td><td style="text-align:right">'+(x.loss?pc(x.pct):'<span style="color:#cbd5e1">0%</span>')+'</td><td style="text-align:right;font-weight:700">'+(x.val?KIP(Math.round(x.val)):'—')+'</td></tr>';}).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີການເຄື່ອນໄຫວສະຕ໋ອກໃນຊ່ວງນີ້</td></tr>')+'</tbody></table></div>';}
+function exportLoss(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var rows=lossData();if(!rows.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
+ var data=[['ລະຫັດ','ວັດຖຸດິບ','ໝວດ','ຫົວໜ່ວຍ','ໃຊ້ຕາມສູດ','ຂອງເສຍ','ຂາດຫາຍ (ນັບ)','ເກີນ (ນັບ)','% ສູນເສຍ','ມູນຄ່າສູນເສຍ (ກີບ)']].concat(rows.map(function(x){return [x.code,x.name,x.cat,x.unit,x.sold,x.waste,x.short,x.over,Math.round(x.pct*10)/10,Math.round(x.val)];}));
+ var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data),'ສູນເສຍ');XLSX.writeFile(wb,'ST POS - ລາຍງານສູນເສຍ.xlsx');});}
 function renderRepCancel(b){if(repDate===null)repDate=ymd(Date.now());
  var dayLogs=cancelLogsFor().slice().reverse();
  var logs=dayLogs.filter(function(l){return cancelMatch(l,cancelFilter);});
@@ -2330,7 +2374,7 @@ function renderRepCancel(b){if(repDate===null)repDate=ymd(Date.now());
  var tname={'ລຶບລາຍການ':'ລຶບເມນູ'};
  function card(f,lbl,col){var c=cnt(f);return '<div class="kpi" style="cursor:pointer;'+(cancelFilter===f?'outline:3px solid var(--tiff);':'')+'" onclick="cancelFilter=\''+f+'\';render()"><div class="lbl">'+lbl+'</div><div class="val" style="color:'+col+'">'+c.n+' <span style="font-size:15px;color:var(--muted)">ລາຍການ</span></div><div class="sub">ມູນຄ່າ '+KIP(c.amt)+' ₭</div></div>';}
  b.innerHTML=repBar('ລາຍງານ ລຶບເມນູ / ຍ້າຍໂຕະ / ຍົກເລີກ / ຄືນເງິນ')+
-  '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+card('sv_pre','ລຶບເມນູ ກ່ອນເສີບ','#075985')+card('sv_post','ລຶບເມນູ ຫຼັງເສີບ','#b91c1c')+card('b_pre','ລຶບເມນູ ກ່ອນເຊັກບິນ','#047857')+card('b_post','ລຶບເມນູ ຫຼັງເຊັກບິນ','#b45309')+card('tbl','ຍົກເລີກທັງໂຕະ','var(--red)')+card('move','ຍ້າຍ / ລວມໂຕະ','#6d28d9')+card('void','Void ບິນ / ຄືນເງິນ','var(--pink)')+'</div>'+'<p style="padding:0 18px 8px;color:var(--muted);font-size:14px">ກ່ອງ ລຶບກ່ອນ/ຫຼັງເສີບ ແລະ ກ່ອນ/ຫຼັງເຊັກບິນ ນັບທັງການລຶບເມນູ ແລະ ລາຍການໃນການຍົກເລີກທັງໂຕະ · ລາຍການທີ່ໝາຍ <b>(ບັນທຶກເກົ່າ)</b> ດຶງມາຈາກ log ກ່ອນອັບເດດ</p>'+
+  '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+card('k_wait','ລຶບຕອນ ລໍຖ້າຄົວ','#64748b')+card('k_cooking','ລຶບຕອນ ກຳລັງເຮັດ','#c2410c')+card('k_ready','ລຶບຕອນ ພ້ອມເສີບ','#15803d')+card('sv_pre','ລຶບເມນູ ກ່ອນເສີບ','#075985')+card('sv_post','ລຶບເມນູ ຫຼັງເສີບ','#b91c1c')+card('b_pre','ລຶບເມນູ ກ່ອນເຊັກບິນ','#047857')+card('b_post','ລຶບເມນູ ຫຼັງເຊັກບິນ','#b45309')+card('tbl','ຍົກເລີກທັງໂຕະ','var(--red)')+card('move','ຍ້າຍ / ລວມໂຕະ','#6d28d9')+card('void','Void ບິນ / ຄືນເງິນ','var(--pink)')+'</div>'+'<p style="padding:0 18px 8px;color:var(--muted);font-size:14px">ກ່ອງ ລຶບກ່ອນ/ຫຼັງເສີບ ແລະ ກ່ອນ/ຫຼັງເຊັກບິນ ນັບທັງການລຶບເມນູ ແລະ ລາຍການໃນການຍົກເລີກທັງໂຕະ · ລາຍການທີ່ໝາຍ <b>(ບັນທຶກເກົ່າ)</b> ດຶງມາຈາກ log ກ່ອນອັບເດດ</p>'+
   '<div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span style="color:var(--muted);font-weight:600">ສະແດງ:</span>'+CANCEL_FILTERS.map(function(f){return '<button class="chip '+(cancelFilter===f[0]?'active':'')+'" onclick="cancelFilter=\''+f[0]+'\';render()">'+f[1]+'</button>';}).join('')+'</div>'+
   '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th>ວັນ-ເວລາ</th><th>ປະເພດ</th><th>ຂັ້ນຕອນ</th><th>ໂຕະ</th><th>ເມນູ / ລາຍລະອຽດ</th><th style="text-align:right">ຈຳນວນ</th><th style="text-align:right">ມູນຄ່າ (₭)</th><th>ເຫດຜົນ</th><th>ໂດຍ</th></tr></thead><tbody>'+
   (logs.length?logs.map(function(l,i){var mv=(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ');return '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap">'+new Date(l.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(l.ts).toLocaleTimeString('en-GB')+'</b></td><td style="font-weight:700;color:'+(tcol[l.type]||'var(--muted)')+'">'+cesc(tname[l.type]||l.type)+(l.legacy?'<br><small style="color:var(--muted);font-weight:400">(ບັນທຶກເກົ່າ)</small>':'')+'</td><td>'+stageChips(l)+'</td><td style="font-weight:700;white-space:nowrap">'+cesc(l.table||'')+'</td><td>'+cesc(l.name||'')+(l.code?'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small>':'')+'</td><td style="text-align:right">'+(l.qty||'')+'</td><td style="text-align:right;font-weight:700;color:'+(mv?'var(--ink)':'var(--red)')+'">'+KIP(l.amount)+'</td><td>'+cesc(l.reason||'')+'</td><td style="color:var(--muted)">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີລາຍການໃນວັນທີ / ປະເພດນີ້</td></tr>')+
