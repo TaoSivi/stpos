@@ -192,7 +192,15 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 #cds .cds-promo{background:var(--gold);color:#3a2c00;border-radius:16px;padding:14px 24px;font-size:24px;font-weight:800;margin:16px 0}
 #cds .cds-thanks{position:fixed;inset:0;background:var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:16px;z-index:2}
 #cds .cds-thanks .big{font-size:60px;font-weight:900}#cds .cds-thanks .sub{font-size:30px}
-.adminbox{max-width:820px;padding:18px}
+.adminbox{width:100%;max-width:1600px;padding:18px 22px}
+.panelgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;margin-bottom:14px}
+.panelgrid>.kpi{margin-bottom:0!important}
+.adminbox .asec input:not([type=checkbox]):not([type=radio]):not([type=file]),.adminbox .asec select,.adminbox .asec textarea{border:1px solid #d9ebea;border-radius:10px;padding:9px 11px;background:#fbfefe;font-size:14px}
+.adminbox .asec>input:not([type=checkbox]):not([type=file]),.adminbox .asec>select,.adminbox .asec>textarea{width:100%;max-width:560px}
+.adminbox .asec label{font-size:13px;font-weight:600}
+.adminbox .asec input:focus,.adminbox .asec select:focus,.adminbox .asec textarea:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 3px rgba(10,186,181,.15)}.panelgrid>.span-all{grid-column:1/-1}
+@media (min-width:1100px){.adminwide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}.adminwide>*{grid-column:1/-1}.adminwide>.asec.on{grid-column:auto;margin-bottom:0!important}.adminwide>.asec.on.solo{grid-column:1/-1}}
+@media (max-width:900px){.panelgrid{grid-template-columns:1fr}}
 .asec{display:none}.asec.on{display:block}
 .setnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
 .setnav button{padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px;cursor:pointer;color:var(--text)}
@@ -659,7 +667,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  renderUserChip();
  document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
- if(view==='admin')return renderAdmin(R);
+ if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
  else if(view==='kitchen')renderKDS(R,'food',' ຈໍຄົວ');else if(view==='bar')renderKDS(R,'drink',' ຈໍບາຣ໌ນ້ຳ');
  else if(view==='waiter')renderWaiter(R);else if(view==='history')renderHistory(R);else if(view==='dash')renderDash(R);else if(view==='stock')renderStock(R);else if(view==='transfer')renderTransfers(R);else if(view==='expense')renderExpense(R);else if(view==='reports')renderReports(R);else if(view==='shift')renderShift(R);else if(view==='members')renderMembers(R);else if(view==='debt')renderDebt(R);}
@@ -1720,7 +1728,7 @@ function renderShift(R){var sh=state.curShift;
   '<div class="cards" style="padding:0 0 14px">'+
    repKpi('ຍອດຂາຍໃນກະ',KIP(st.sales)+' ₭','var(--green)')+repKpi('ບິນ',st.bills+' ບິນ','')+
    repKpi('ເງິນສົດຄາດວ່າໃນລີ້ນຊັກ',KIP(st.expected)+' ₭','var(--tiff-deep)')+repKpi('Void',st.voids+' ບິນ',st.voids?'var(--red)':'')+'</div>'+
-  '<div class="kpi" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">ເງິນສົດ</div>'+
+  '<div class="panelgrid"><div class="kpi"><div class="lbl" style="font-weight:700;margin-bottom:8px">ເງິນສົດ</div>'+
    '<div class="totrow"><span>ເງິນຕັ້ງລີ້ນຊັກ (float)</span><b>'+KIP(sh.float||0)+'</b></div>'+
    '<div class="totrow"><span>ຂາຍເງິນສົດ</span><b>'+KIP(st.cashSales)+'</b></div>'+
    '<div class="totrow"><span>ເງິນເຂົ້າ (paid-in)</span><b style="color:var(--green)">+'+KIP(st.cin)+'</b></div>'+
@@ -1729,9 +1737,9 @@ function renderShift(R){var sh=state.curShift;
    (can('shiftMng')?'<div style="display:flex;gap:8px;margin-top:10px"><button class="btn-sm green" onclick="cashIO(\'in\')"> ເງິນເຂົ້າ</button><button class="btn-sm red" onclick="cashIO(\'out\')"> ເງິນອອກ</button></div>':'')+'</div>'+
   '<div class="kpi" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">ຍອດຂາຍຕາມປະເພດຈ່າຍ</div>'+
    (Object.keys(st.byPay).length?Object.keys(st.byPay).map(function(k){return '<div class="totrow"><span>'+cesc(k)+'</span><b>'+KIP(st.byPay[k])+'</b></div>';}).join(''):'<div style="color:#94a3b8">ຍັງບໍ່ມີບິນ</div>')+(st.tips?'<div class="totrow" style="border-top:1px dashed var(--line);margin-top:4px;padding-top:4px"><span> ທິບພະນັກງານ (ລວມໃນເງິນສົດ)</span><b style="color:var(--gold)">'+KIP(st.tips)+'</b></div>':'')+'</div>'+
-  '<div class="kpi" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">ເງິນເຂົ້າ-ອອກລີ້ນຊັກ ('+(sh.cashIO||[]).length+')</div>'+
+  '<div class="kpi span-all"><div class="lbl" style="font-weight:700;margin-bottom:8px">ເງິນເຂົ້າ-ອອກລີ້ນຊັກ ('+(sh.cashIO||[]).length+')</div>'+
    ((sh.cashIO||[]).length?'<table class="tbl"><thead><tr><th>ເວລາ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໝາຍເຫດ</th><th>ໂດຍ</th></tr></thead><tbody>'+(sh.cashIO||[]).slice().reverse().map(function(x){return '<tr><td>'+new Date(x.ts).toLocaleTimeString('en-GB')+'</td><td>'+(x.type==='in'?'<span class="tag ok">ເຂົ້າ</span>':'<span class="tag warn">ອອກ</span>')+'</td><td style="font-weight:700">'+KIP(x.amount)+'</td><td>'+cesc(x.note||'')+'</td><td>'+cesc(x.by||'')+'</td></tr>';}).join('')+'</tbody></table>':'<div style="color:#94a3b8">ບໍ່ມີ</div>')+'</div>'+
-  (can('shiftMng')?'<button class="btn-ok" style="background:var(--red);padding:13px 26px;border-radius:12px;font-weight:800;font-size:15px" onclick="closeShiftModal()"> ປິດກະ / ນັບເງິນ (Z Report)</button>':'')+
+  '</div>'+(can('shiftMng')?'<button class="btn-ok" style="background:var(--red);padding:13px 26px;border-radius:12px;font-weight:800;font-size:15px" onclick="closeShiftModal()"> ປິດກະ / ນັບເງິນ (Z Report)</button>':'')+
   shiftHistoryHTML()+'</div>';}
 function shiftHistoryHTML(){var logs=(state.shiftLog||[]).slice().reverse().slice(0,30);
  return '<div class="kpi" style="margin-top:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ປະຫວັດກະ ('+(state.shiftLog||[]).length+')</div>'+
@@ -1817,7 +1825,7 @@ function printReportBody(title){var body=document.getElementById('repbody');if(!
  setTimeout(function(){window.print();},200);}
 function codeCatMap(){var M=MSRC(),m={};for(var c in M)for(var s in M[c])M[c][s].forEach(function(x){m[x.c]=c;});return m;}
 function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂາຍ'],['profit','ຕົ້ນທຶນ & ກຳໄລ'],['staff','ພະນັກງານ'],['branch','ສາຂາ'],['dash','Dashboard'],['sales','ການຂາຍ'],['product','ສິນຄ້າຂາຍ'],['cancel','ລຶບ/ຍົກເລີກ'],['audit','ການປ່ຽນແປງອໍເດີ'],['food','ຕິດຕາມອາຫານ']];
- R.innerHTML='<div class="adminbox" style="max-width:1000px"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ລາຍງານການຂາຍ</div><div class="sub">ສະຫຼຸບ ແລະ ວິເຄາະການຂາຍ</div></div></div><div class="setnav">'+tabs.map(function(t){return '<button class="'+(reportTab===t[0]?'on':'')+'" onclick="reportTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div><div id="repbody"></div></div>';
+ R.innerHTML='<div class="adminbox"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ລາຍງານການຂາຍ</div><div class="sub">ສະຫຼຸບ ແລະ ວິເຄາະການຂາຍ</div></div></div><div class="setnav">'+tabs.map(function(t){return '<button class="'+(reportTab===t[0]?'on':'')+'" onclick="reportTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div><div id="repbody"></div></div>';
  var body=document.getElementById('repbody');if(!body)return;
  if(reportTab==='dash')renderDash(body);
  else if(reportTab==='sales')renderHistory(body);
@@ -1971,7 +1979,7 @@ function doImportBOM(){var f=document.getElementById('bomf').files[0];if(!f){toa
 function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
  var logoPrev=state.shopLogo?('<img src="'+state.shopLogo+'" style="height:48px;border:1px solid #e2e8f0;border-radius:8px;background:#fff">'):'<span style="color:#94a3b8;font-size:13px">ຍັງບໍ່ມີໂລໂກ້ — ໃຊ້ຊື່ຮ້ານແທນ</span>';
  var logoBtn=state.shopLogo?'<button class="btn-sm red" style="margin-left:8px" onclick="removeLogo()">ລຶບໂລໂກ້</button>':'';
- R.innerHTML=`<div class="adminbox">
+ R.innerHTML=`<div class="adminbox adminwide">
   <div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ການຕັ້ງຄ່າ</div><div class="sub">ເລືອກໝວດທີ່ຕ້ອງການຕັ້ງຄ່າ</div></div></div>
   <div class="setnav">${[['shop','ຮ້ານ & ການຄິດເງິນ'],['bill','ໃບບິນ / ພິມ'],['table','ໂຕະ & ຊັ້ນ'],['loc','ບ່ອນເກັບ & ສາຂາ'],['menu','ເມນູ & ຮູບ'],['opts','ຕົວເລືອກ & Topping'],['promo','ໂປຣໂມຊັນ'],['cds','ຈໍລູກຄ້າ'],['staff','ກະ & ພະນັກງານ'],['users','ຜູ້ໃຊ້ & ສິດ'],['conn','ການເຊື່ອມຕໍ່'],['adv','ຂັ້ນສູງ']].filter(function(s){var u=curUser();var owner=u&&u.role==='owner';if(s[0]==='users'||s[0]==='adv')return owner;return true;}).map(function(s){return '<button class="'+(adminSec===s[0]?'on':'')+'" onclick="adminSec=\''+s[0]+'\';render()">'+s[1]+'</button>';}).join('')}</div>
   ${(function(){var u=curUser();if(u&&u.role!=='owner'&&(adminSec==='users'||adminSec==='adv'))adminSec='shop';return '';})()}
@@ -2051,7 +2059,9 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
     <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_rqsh" ${state.requireShift!==false?'checked':''} style="width:auto"> ຕ້ອງເປີດກະກ່ອນຮັບເງິນ (ແນະນຳ)</label>
     <label style="margin-top:12px">ສ່ວນຫຼຸດສູງສຸດ ທີ່ແຄັດເຊຍໃຫ້ເອງໄດ້ (%) — ເກີນນີ້ຕ້ອງໃຫ້ຜູ້ຈັດການອະນຸມັດ</label>
     <div style="display:flex;gap:4px;align-items:center;max-width:200px"><button class="btn-sm" onclick="stepInput('ad_dlim',-5)">−5</button><input id="ad_dlim" type="number" value="${state.discLimit||0}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_dlim',5)">+5</button></div>
-    <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-weight:700">⭐ ລະບົບແຕ້ມສະສົມ (Loyalty)</label>
+    <button class="btn-ok grad" style="display:block;margin-top:14px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveSettings()"> ບັນທຶກ</button></div>
+  <div class="kpi asec ${adminSec==='shop'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ແຕ້ມສະສົມ, ປະເພດການຈ່າຍ &amp; QR ທະນາຄານ</div>
+    <div><label style="font-weight:700">⭐ ລະບົບແຕ້ມສະສົມ (Loyalty)</label>
      <div style="display:flex;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><label>ໄດ້ 1 ແຕ້ມ ຕໍ່ຈ່າຍ (ກີບ)</label><input id="ad_prate" type="number" value="${state.pointRate||10000}"></div><div style="flex:1;min-width:150px"><label>1 ແຕ້ມ = ສ່ວນຫຼຸດ (ກີບ)</label><input id="ad_pval" type="number" value="${state.pointValue||0}"></div></div>
      <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_predeem" ${state.pointRedeem!==false?'checked':''} style="width:auto"> ອະນຸຍາດໃຫ້ໃຊ້ແຕ້ມແລກສ່ວນຫຼຸດ (ຕອນຮັບເງິນ)</label></div>
     <label style="margin-top:12px">ປະເພດການຈ່າຍ — ຄ່າທຳນຽມ% ຕໍ່ວິທີ + ເປີດ/ປິດ</label>
