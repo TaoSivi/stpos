@@ -337,6 +337,20 @@ function installDailyReport() {
   ScriptApp.newTrigger('dailyReport').timeBased().everyDays(1).atHour(h).inTimezone('Asia/Vientiane').create();
   return 'OK - ສົ່ງລາຍງານທຸກມື້ ປະມານ ' + h + ':00 (ເວລາລາວ) · ຜູ້ຮັບ: ' + waTargets_().length + ' ເບີ' + (PROP.getProperty('TG_BOT') ? ' + Telegram' : '');
 }
+/* Telegram: ໃສ່ TG_BOT (token ຈາກ @BotFather) ໃນ Script Properties → ກົດ Start/ສົ່ງຂໍ້ຄວາມຫາ bot 1 ເທື່ອ → Run setupTelegram
+   ຟັງຊັນນີ້ຊອກ chat id ຈາກຂໍ້ຄວາມລ່າສຸດ ແລ້ວບັນທຶກເປັນ TG_CHAT ໃຫ້ເອງ + ສົ່ງຂໍ້ຄວາມຢືນຢັນ */
+function setupTelegram() {
+  var bot = (PROP.getProperty('TG_BOT') || '').trim();
+  if (!bot) return 'ERR - ຍັງບໍ່ໄດ້ໃສ່ TG_BOT ໃນ Script Properties';
+  var r = UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/getUpdates', { muteHttpExceptions: true });
+  if (r.getResponseCode() !== 200) return 'ERR - token ບໍ່ຖືກ (HTTP ' + r.getResponseCode() + ')';
+  var ups = (JSON.parse(r.getContentText()).result || []).slice().reverse(), chat = null;
+  for (var i = 0; i < ups.length && !chat; i++) { var m = ups[i].message || ups[i].my_chat_member || ups[i].channel_post; if (m && m.chat) chat = m.chat; }
+  if (!chat) return 'ERR - ບໍ່ພົບຂໍ້ຄວາມ: ເປີດ bot ໃນ Telegram → ກົດ Start ຫຼື ພິມຫຍັງກໍໄດ້ 1 ຂໍ້ຄວາມ ແລ້ວ Run ໃໝ່';
+  PROP.setProperty('TG_CHAT', String(chat.id));
+  UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat.id, text: '✅ ST POS ເຊື່ອມກັບ Telegram ແລ້ວ — ລາຍງານປະຈຳວັນຈະສົ່ງມາທີ່ນີ້' }), muteHttpExceptions: true });
+  return 'OK - TG_CHAT = ' + chat.id + ' (' + (chat.title || chat.first_name || chat.username || '') + ')';
+}
 function removeDailyReport() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyReport') ScriptApp.deleteTrigger(t); });
   return 'OK - ຍົກເລີກການສົ່ງອັດຕະໂນມັດແລ້ວ';
