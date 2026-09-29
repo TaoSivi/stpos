@@ -551,9 +551,10 @@ const HAS_API=(!HAS_GAS && !!API_URL);
 const TOKEN=(((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_token'))||'')+'').trim();
 let __tokErr=false;
 function tokenErr_(){if(__tokErr)return;__tokErr=true;var b=document.getElementById('boot');if(b&&!b.classList.contains('hidden')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:340px;text-align:center;line-height:1.7"> Token ບໍ່ຖືກຕ້ອງ ຫຼື ຍັງບໍ່ໄດ້ໃສ່<br>ໄປ ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່ ແລ້ວໃສ່ token ໃຫ້ກົງກັບທີ່ຕັ້ງໄວ້ໃນ Code.gs (setToken)</div><button onclick="var t=prompt(\'ໃສ່ API Token:\');if(t){localStorage.setItem(\'stpos_token\',t.trim());location.reload();}" style="padding:11px 22px;border-radius:11px;border:none;font-weight:700;font-family:inherit">ໃສ່ Token</button>';}else{toast(' Token ບໍ່ຖືກຕ້ອງ — ຂໍ້ມູນຈະບໍ່ຖືກບັນທຶກ (ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່)');}}
-function jsonpUrl_(url,params,cb){var fn='__cb'+Date.now()+Math.floor(Math.random()*1e4);var s=document.createElement('script');var done=false;
- window[fn]=function(r){done=true;try{delete window[fn];}catch(e){window[fn]=null;}if(s.parentNode)s.parentNode.removeChild(s);cb(r||null);};
- s.onerror=function(){if(done)return;try{delete window[fn];}catch(e){}if(s.parentNode)s.parentNode.removeChild(s);cb(null);};
+function jsonpUrl_(url,params,cb,tmo){var fn='__cb'+Date.now()+Math.floor(Math.random()*1e4);var s=document.createElement('script');var done=false;
+ var tm=setTimeout(function(){if(done)return;done=true;window[fn]=function(){try{delete window[fn];}catch(e){}};if(s.parentNode)s.parentNode.removeChild(s);cb(null);},tmo||90000);
+ window[fn]=function(r){if(done){try{delete window[fn];}catch(e){}return;}done=true;clearTimeout(tm);try{delete window[fn];}catch(e){window[fn]=null;}if(s.parentNode)s.parentNode.removeChild(s);cb(r||null);};
+ s.onerror=function(){if(done)return;done=true;clearTimeout(tm);try{delete window[fn];}catch(e){}if(s.parentNode)s.parentNode.removeChild(s);cb(null);};
  s.src=url+'?callback='+fn+'&'+params+'&t='+Date.now();document.head.appendChild(s);}
 function jsonp_(params,cb){jsonpUrl_(API_URL,params,cb);}
 /* ===== ສາຂາ (ເກັບໃນເຄື່ອງນີ້) ===== */
@@ -685,7 +686,7 @@ function boot(){var wantLocal=false;try{wantLocal=localStorage.getItem('stpos_lo
 function pullStateApi(a){apiGet(function(s){
   if(s){ // ມີຂໍ້ມູນຈາກ server → ໂຫຼດ (ບໍ່ມີການ wipe)
    try{var ns=JSON.parse(s);state=ns;ensureDefaults();_loaded=true;render();qrEntry();return;}catch(e){}
-   if(a<8){setTimeout(function(){pullStateApi(a+1);},1500);}else{restoreOrFresh();} // parse fail → ລອງໃໝ່, ຫ້າມ save ທັບ
+   if(a<8){setTimeout(function(){pullStateApi(a+1);},3000);}else{restoreOrFresh();} // parse fail → ລອງໃໝ່, ຫ້າມ save ທັບ
    return;
   }
   if(s===''){ // server ຕອບ ແຕ່ວ່າງ → ກວດ backup ໃນເຄື່ອງກ່ອນ (ກູ້ຄືນ), ບໍ່ດັ່ງນັ້ນ seed ຮ້ານໃໝ່
@@ -694,7 +695,7 @@ function pullStateApi(a){apiGet(function(s){
    _loaded=true;render();qrEntry();save();return;
   }
   // s===null → ເນັດລົ້ມ/ຕິດຕໍ່ server ບໍ່ໄດ້ → ລອງໃໝ່ຫຼາຍເທື່ອ; ສຸດທ້າຍໃຊ້ backup ໃນເຄື່ອງ (ບໍ່ wipe server)
-  if(a<8){setTimeout(function(){pullStateApi(a+1);},1500);}else{restoreOrFresh();}
+  if(a<5){setTimeout(function(){pullStateApi(a+1);},4000);}else{restoreOrFresh();}
  });}
 function getQ(k){var m=new RegExp('[?&]'+k+'=([^&#]+)').exec(location.search);return m?decodeURIComponent(m[1].replace(/\+/g,' ')):'';}
 function custMsg(t){document.body.innerHTML='<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0ABAB5,#5FD9D2);color:#fff;font-family:sans-serif;text-align:center;padding:24px"><div><div style="font-size:42px;font-weight:900;margin-bottom:14px">ST POS</div><div style="font-size:17px;line-height:1.5">'+t+'</div></div></div>';}
@@ -727,7 +728,7 @@ function startSync(){
  if(HAS_GAS){setInterval(()=>{if(_saving||_pending)return;if(document.getElementById('modalRoot').innerHTML)return;
   if(view==='order'&&state.draft&&state.draft.length)return;
   google.script.run.withSuccessHandler(s=>{if(!s||s==='DENIED')return;let ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}}).getStateTok(TOKEN);},5000);}
- else if(HAS_API){setInterval(function(){if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;apiGet(function(s){if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}});},6000);}
+ else if(HAS_API){var _polling=false;setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;apiGet(function(s){setTimeout(function(){_polling=false;},8000);if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}});},6000);}
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
 function setView(v){if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
