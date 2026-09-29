@@ -35,6 +35,10 @@ function doGet(e) {
       payload = tokenOk_(p.token) ? archiveNow_(p.arch) : { ok: false, err: 'token' };
     } else if (p.sum == '1') {                             /* ສະຫຼຸບຫຍໍ້ ສຳລັບລວມສາຂາ */
       payload = tokenOk_(p.token) ? { ok: true, sum: branchSummary_() } : { ok: false, err: 'token' };
+    } else if (p.report) {                                 /* ລາຍງານປະຈຳວັນ: preview / test (ສົ່ງ WhatsApp ດຽວນີ້) */
+      if (!tokenOk_(p.token)) payload = { ok: false, err: 'token' };
+      else if (p.report == 'test') { var txt = buildDailyReport_(new Date()); payload = { ok: true, text: txt, sent: sendReport_('🧪 ທົດສອບ' + String.fromCharCode(10) + txt) }; }
+      else payload = { ok: true, text: buildDailyReport_(new Date()), targets: waTargets_().length, tg: !!PROP.getProperty('TG_BOT'), trigger: ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'dailyReport'; }) };
     } else if (p.bak) {                                    /* backup / restore */
       if (!tokenOk_(p.token)) payload = { ok: false, err: 'token' };
       else if (p.bak == 'now') payload = { ok: true, res: backupDaily() };
@@ -318,6 +322,117 @@ function restoreBackup(tag, tok) {
   var lock = LockService.getScriptLock();
   try { lock.waitLock(20000); saveStateRaw_(s, true); } finally { try { lock.releaseLock(); } catch (e2) {} }
   return 'OK';
+}
+/* =====================================================================
+ * ລາຍງານປະຈຳວັນ → WhatsApp ຂອງເຈົ້າຂອງຮ້ານ (ອັດຕະໂນມັດທຸກມື້)
+ * ຕັ້ງຄ່າໃນ Apps Script → Project Settings (⚙) → Script Properties (ບໍ່ຝັງໃນໂຄດ):
+ *   WA_CALLMEBOT = 8562012345678:1234567            (ເບີ:apikey — ຫຼາຍຄົນຂັ້ນດ້ວຍ , )
+ *   REPORT_HOUR  = 22                                (ຊົ່ວໂມງທີ່ສົ່ງ, ຄ່າເລີ່ມຕົ້ນ 22:00)
+ *   (ທາງເລືອກ) TG_BOT = <bot token>  TG_CHAT = <chat id>   → ສົ່ງ Telegram ນຳ
+ * ແລ້ວ Run: installDailyReport  (ຕັ້ງເວລາສົ່ງທຸກມື້)  ·  testDailyReport (ລອງສົ່ງດຽວນີ້)
+ * ===================================================================== */
+function installDailyReport() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyReport') ScriptApp.deleteTrigger(t); });
+  var h = parseInt(PROP.getProperty('REPORT_HOUR') || '22', 10); if (!(h >= 0 && h <= 23)) h = 22;
+  ScriptApp.newTrigger('dailyReport').timeBased().everyDays(1).atHour(h).inTimezone('Asia/Vientiane').create();
+  return 'OK - ສົ່ງລາຍງານທຸກມື້ ປະມານ ' + h + ':00 (ເວລາລາວ) · ຜູ້ຮັບ: ' + waTargets_().length + ' ເບີ' + (PROP.getProperty('TG_BOT') ? ' + Telegram' : '');
+}
+function removeDailyReport() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyReport') ScriptApp.deleteTrigger(t); });
+  return 'OK - ຍົກເລີກການສົ່ງອັດຕະໂນມັດແລ້ວ';
+}
+function dailyReport() { return sendReport_(buildDailyReport_(new Date())); }
+function testDailyReport() { var t = buildDailyReport_(new Date()); var r = sendReport_('🧪 ທົດສອບ\n' + t); Logger.log(t); Logger.log(JSON.stringify(r)); return r; }
+function reportPreview(tok) { return tokenOk_(tok) ? buildDailyReport_(new Date()) : 'DENIED'; }
+
+function waTargets_() {
+  return String(PROP.getProperty('WA_CALLMEBOT') || '').split(',').map(function (x) { var a = x.trim().split(':'); return { phone: (a[0] || '').replace(/[^\d]/g, ''), key: (a[1] || '').trim() }; })
+    .filter(function (x) { return x.phone && x.key; });
+}
+function fmtK_(n) { return Utilities.formatString('%s', Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function buildDailyReport_(when) {
+  var s = getState_(); if (!s) return 'ST POS: ບໍ່ມີຂໍ້ມູນ';
+  var st; try { st = JSON.parse(s); } catch (e) { return 'ST POS: ອ່ານຂໍ້ມູນບໍ່ໄດ້'; }
+  var tz = 'GMT+7', day = Utilities.formatDate(when, tz, 'yyyy-MM-dd');
+  var yday = Utilities.formatDate(new Date(when.getTime() - 86400000), tz, 'yyyy-MM-dd'), month = day.substring(0, 7);
+  var dOf = function (ts) { return Utilities.formatDate(new Date(ts), tz, 'yyyy-MM-dd'); };
+  var net = function (b) { return b.voided ? 0 : (b.total || 0) - (b.refundAmt || 0); };
+  var T = { sales: 0, bills: 0, cogs: 0, voidN: 0, voidAmt: 0, refund: 0, byPay: {}, items: {} }, Y = 0, M = 0;
+  (st.bills || []).forEach(function (b) {
+    var d = dOf(b.ts);
+    if (d === yday) Y += net(b);
+    if (d.substring(0, 7) === month) M += net(b);
+    if (d !== day) return;
+    if (b.voided) { T.voidN++; T.voidAmt += b.total || 0; return; }
+    T.sales += net(b); T.bills++; T.cogs += b.cogs || 0; T.refund += b.refundAmt || 0;
+    T.byPay[b.pay || '-'] = (T.byPay[b.pay || '-'] || 0) + net(b);
+    (b.items || []).forEach(function (i) { var k = i.name || i.code; if (!T.items[k]) T.items[k] = { q: 0, v: 0 }; T.items[k].q += i.qty || 0; T.items[k].v += lineTot_(i); });
+  });
+  var can = (st.cancelLog || []).filter(function (l) { return dOf(l.ts) === day && (l.type === 'ລຶບລາຍການ' || l.type === 'ຍົກເລີກໂຕະ'); });
+  var canAmt = can.reduce(function (a, l) { return a + (l.amount || 0); }, 0);
+  var exp = (st.expenses || []).filter(function (e) { return dOf(e.ts) === day; }).reduce(function (a, e) { return a + (e.amount || 0); }, 0);
+  var ing = st.ingredients || {}, low = [];
+  Object.keys(ing).forEach(function (k) { var x = ing[k]; var tot = x.locs ? Object.keys(x.locs).reduce(function (a, l) { return a + (+x.locs[l] || 0); }, 0) : (+x.stock || 0); if ((+x.reorder || 0) > 0 && tot <= x.reorder) low.push(x.name || k); });
+  var prW = (st.prs || []).filter(function (p) { return p.status === 'PENDING_APPROVAL'; }).length, poW = (st.pos || []).filter(function (p) { return p.status === 'PENDING_APPROVAL'; }).length;
+  var z = (st.shiftLog || []).filter(function (x) { return dOf(x.closeTs || x.ts || 0) === day; });
+  var cashDiff = z.reduce(function (a, x) { return a + ((x.countedCash || 0) - (x.expectedCash || 0)); }, 0);
+  var busy = Object.keys(st.tables || {}).filter(function (k) { var t = st.tables[k]; return t.status !== 'free' && t.status !== 'merged'; }).length;
+  var top = Object.keys(T.items).map(function (k) { return [k, T.items[k]]; }).sort(function (a, b) { return b[1].v - a[1].v; }).slice(0, 5);
+  var gp = T.sales - T.cogs, pct = T.sales ? Math.round(gp / T.sales * 100) : 0;
+  var chg = Y ? Math.round((T.sales - Y) / Y * 100) : null;
+  var L = [];
+  L.push('📊 *ລາຍງານປະຈຳວັນ — ' + (st.shopName || 'ST POS') + '*');
+  L.push('📅 ' + Utilities.formatDate(when, tz, 'dd/MM/yyyy HH:mm'));
+  L.push('');
+  L.push('💰 *ຍອດຂາຍສຸດທິ: ' + fmtK_(T.sales) + ' ກີບ*');
+  L.push('🧾 ' + T.bills + ' ບິນ · ສະເລ່ຍ ' + fmtK_(T.bills ? T.sales / T.bills : 0) + ' ກີບ/ບິນ');
+  if (chg !== null) L.push((chg >= 0 ? '📈' : '📉') + ' ທຽບມື້ວານ ' + (chg >= 0 ? '+' : '') + chg + '% (' + fmtK_(Y) + ')');
+  L.push('🗓 ເດືອນນີ້: ' + fmtK_(M) + ' ກີບ');
+  var pays = Object.keys(T.byPay); if (pays.length) { L.push(''); L.push('💳 *ປະເພດຈ່າຍ*'); pays.sort(function (a, b) { return T.byPay[b] - T.byPay[a]; }).forEach(function (k) { L.push('• ' + k + ': ' + fmtK_(T.byPay[k])); }); }
+  L.push(''); L.push('📦 ຕົ້ນທຶນ ' + fmtK_(T.cogs) + ' · ກຳໄລຂັ້ນຕົ້ນ ' + fmtK_(gp) + ' (' + pct + '%)');
+  L.push('💸 ລາຍຈ່າຍມື້ນີ້: ' + fmtK_(exp) + ' ກີບ');
+  if (top.length) { L.push(''); L.push('🏆 *ຂາຍດີ*'); top.forEach(function (t, i) { L.push((i + 1) + '. ' + t[0] + ' ×' + t[1].q + ' (' + fmtK_(t[1].v) + ')'); }); }
+  L.push('');
+  L.push('❌ ລຶບເມນູ/ຍົກເລີກ: ' + can.length + ' ລາຍການ (' + fmtK_(canAmt) + ')');
+  L.push('↩️ Void ' + T.voidN + ' ບິນ (' + fmtK_(T.voidAmt) + ') · ຄືນເງິນ ' + fmtK_(T.refund));
+  if (z.length) L.push('💵 ປິດກະ ' + z.length + ' ກະ · ເງິນສົດ ' + (cashDiff === 0 ? 'ຕົງ ✅' : (cashDiff > 0 ? 'ເກີນ +' : 'ຂາດ ') + fmtK_(Math.abs(cashDiff)) + ' ⚠️'));
+  else L.push('💵 ຍັງບໍ່ໄດ້ປິດກະ' + (st.curShift ? ' (ກະ "' + st.curShift.name + '" ເປີດຢູ່)' : ''));
+  if (busy) L.push('🍽 ໂຕະຍັງບໍ່ປິດບິນ: ' + busy);
+  if (low.length) L.push('⚠️ ສະຕ໋ອກໃກ້ໝົດ ' + low.length + ': ' + low.slice(0, 5).join(', ') + (low.length > 5 ? ' …' : ''));
+  if (prW || poW) L.push('📋 ລໍອະນຸມັດ: PR ' + prW + ' · PO ' + poW);
+  return L.join('\n');
+}
+
+/* ສົ່ງ: CallMeBot (WhatsApp) ຮັບຜ່ານ URL (GET) → ແບ່ງເປັນຫຼາຍຂໍ້ຄວາມ ຖ້າຍາວ; Telegram (ຖ້າຕັ້ງ) ສົ່ງທັງກ້ອນ */
+function sendReport_(text) {
+  var out = { whatsapp: [], telegram: null };
+  waTargets_().forEach(function (t) {
+    chunks_(text, 1800).forEach(function (part, i, all) {
+      var msg = (all.length > 1 ? '(' + (i + 1) + '/' + all.length + ')\n' : '') + part;
+      var url = 'https://api.callmebot.com/whatsapp.php?phone=' + t.phone + '&apikey=' + encodeURIComponent(t.key) + '&text=' + encodeURIComponent(msg);
+      try { var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true }); out.whatsapp.push(t.phone.slice(-4) + ':' + r.getResponseCode()); }
+      catch (e) { out.whatsapp.push(t.phone.slice(-4) + ':ERR ' + e.message); }
+      if (i < all.length - 1) Utilities.sleep(3000);
+    });
+  });
+  var bot = PROP.getProperty('TG_BOT'), chat = PROP.getProperty('TG_CHAT');
+  if (bot && chat) {
+    try { var r2 = UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat, text: text.replace(/\*/g, '') }), muteHttpExceptions: true }); out.telegram = r2.getResponseCode(); }
+    catch (e) { out.telegram = 'ERR ' + e.message; }
+  }
+  if (!out.whatsapp.length && out.telegram === null) out.err = 'ຍັງບໍ່ໄດ້ຕັ້ງ WA_CALLMEBOT ຫຼື TG_BOT/TG_CHAT ໃນ Script Properties';
+  return out;
+}
+/* ແບ່ງຂໍ້ຄວາມຕາມແຖວ ໃຫ້ຄວາມຍາວຫຼັງ encode ບໍ່ເກີນ max (ອັກສອນລາວ 1 ຕົວ ≈ 9 ຕົວອັກສອນໃນ URL) */
+function chunks_(text, max) {
+  var out = [], cur = '';
+  text.split('\n').forEach(function (line) {
+    var next = cur ? cur + '\n' + line : line;
+    if (encodeURIComponent(next).length > max && cur) { out.push(cur); cur = line; } else cur = next;
+  });
+  if (cur) out.push(cur);
+  return out;
 }
 /* ---- ໂປຣໂມຊັນ (Happy Hour) — ໃຊ້ຮ່ວມ POS ແລະ QR ---- */
 function activePromo_(st) {

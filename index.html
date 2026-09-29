@@ -1095,6 +1095,15 @@ function menuThumb(p){if(_thumbCache[p.c])return _thumbCache[p.c];var g=_menuGro
  x.globalAlpha=.16;x.fillStyle='#fff';x.beginPath();x.arc(200,24,62,0,7);x.fill();x.beginPath();x.arc(26,166,48,0,7);x.fill();x.globalAlpha=1;
  x.font='92px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='rgba(0,0,0,.22)';x.shadowBlur=12;x.shadowOffsetY=6;x.fillText(menuEmoji(p),120,94);
  return (_thumbCache[p.c]=c.toDataURL('image/jpeg',.82));}
+/* ລາຍງານປະຈຳວັນ (server ສ້າງ + ສົ່ງ) — ເບິ່ງຕົວຢ່າງ / ສົ່ງທົດສອບ */
+function waReport(mode){if(!isOwner()&&!can('settings')){toast('ບໍ່ມີສິດ');return;}
+ if(!HAS_API&&!HAS_GAS){toast('ໃຊ້ໄດ້ເມື່ອເຊື່ອມ server (Google Sheet) ເທົ່ານັ້ນ');return;}
+ toast(mode==='test'?'ກຳລັງສົ່ງ… (ອາດໃຊ້ເວລາ 30–60 ວິ)':'ກຳລັງສ້າງລາຍງານ…');
+ var show=function(r){if(!r||!r.ok){toast(r&&r.err==='token'?'token ຜິດ':'ບໍ່ໄດ້ຮັບຄຳຕອບຈາກ server — ອັບເດດ Code.gs ແລ້ວ Deploy ໃໝ່ຫຼືຍັງ?');return;}
+  var info=mode==='test'?('<div class="pd-route" style="margin-bottom:8px">ຜົນການສົ່ງ: '+cesc(JSON.stringify(r.sent||{}))+'</div>'):('<div class="pd-route" style="margin-bottom:8px">ຜູ້ຮັບ WhatsApp: <b>'+(r.targets||0)+'</b> ເບີ'+(r.tg?' · Telegram ✓':'')+' · ສົ່ງອັດຕະໂນມັດ: <b>'+(r.trigger?'ເປີດແລ້ວ ✓':'ຍັງບໍ່ໄດ້ຕັ້ງ (Run installDailyReport)')+'</b></div>');
+  openModal('<h2>📲 ລາຍງານປະຈຳວັນ</h2>'+info+'<pre style="white-space:pre-wrap;font-family:inherit;font-size:15px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px;max-height:55vh;overflow:auto">'+cesc(r.text||'')+'</pre><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');};
+ if(HAS_API)jsonpUrl_(API_URL,'report='+mode+'&token='+encodeURIComponent(TOKEN),show,120000);
+ else google.script.run.withSuccessHandler(function(t){show(t==='DENIED'?{ok:false,err:'token'}:{ok:true,text:t});}).withFailureHandler(function(){show(null);}).reportPreview(TOKEN);}
 function toggleExampleImg(on){state.exampleImg=!!on;save();render();}
 function renderProducts(){const q=(document.getElementById('search')?.value||'').toLowerCase();let items=[];const M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];const subs=M[state.activeCat]||{};
  Object.keys(subs).forEach(s=>{if(!state.activeSub||state.activeSub===s)items=items.concat(subs[s]);});
@@ -2569,6 +2578,9 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
    <div class="totrow" style="background:#eafbfa;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:10px"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້ (ຕັດສະຕ໋ອກເວລາຂາຍ):</span><select onchange="setTerminalLoc(this.value)" style="padding:7px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-weight:700">${(state.locations||[]).map(function(l){return '<option value="'+l.id+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')}</select></div>
    <table class="tbl"><thead><tr><th>ຊື່</th><th>ປະເພດ</th><th></th></tr></thead><tbody>${(state.locations||[]).map(function(l){var LT={branch:'ສາຂາ',warehouse:'ສາງ',kitchen:'ຄົວກາງ',other:'ອື່ນໆ'};return '<tr><td><b>'+cesc(l.name)+'</b>'+(l.id===curLoc()?' <span class="tag ok">ເຄື່ອງນີ້</span>':'')+'</td><td>'+(LT[l.type]||l.type||'')+'</td><td><button class="btn-sm" onclick="editLocation(\''+l.id+'\')">ແກ້</button> '+((state.locations||[]).length>1?'<button class="btn-sm red" onclick="delLocation(\''+l.id+'\')">ລຶບ</button>':'')+'</td></tr>';}).join('')}</tbody></table>
    <button class="btn-sm green" style="margin-top:10px" onclick="addLocation()"> ເພີ່ມບ່ອນເກັບ</button></div>
+  <div class="kpi asec ${adminSec==='conn'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">📲 ລາຍງານປະຈຳວັນ ທາງ WhatsApp</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Server ສົ່ງສະຫຼຸບຍອດຂາຍ, ກຳໄລ, ຂາຍດີ, ລຶບ/ຍົກເລີກ, ເງິນສົດຂາດ-ເກີນ ແລະ ສະຕ໋ອກໃກ້ໝົດ ໃຫ້ເຈົ້າຂອງຮ້ານທຸກມື້. ເບີ ແລະ ລະຫັດຕັ້ງໃນ Apps Script (ເບິ່ງຄູ່ມື "ຄູ່ມື ລາຍງານ WhatsApp ປະຈຳວັນ").</p>
+    <button class="btn-sm" onclick="waReport('preview')">👁 ເບິ່ງຕົວຢ່າງລາຍງານ</button> <button class="btn-sm green" onclick="waReport('test')">📤 ສົ່ງທົດສອບດຽວນີ້</button></div>
   <div class="kpi asec ${adminSec==='conn'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ການເຊື່ອມຕໍ່ ແລະ ສະຫຼຸບ</div>
     <div class="totrow"><span>ໂມດເກັບຂໍ້ມູນ</span><b style="color:${gas?'var(--green)':'var(--orange)'}">${gas?' ເຊື່ອມ Google Sheet ແລ້ວ':'Local (preview)'}</b></div>
     <div class="totrow"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້</span><b style="color:var(--tiff-deep)">${cesc(locName(curLoc()))}</b></div>
