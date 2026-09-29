@@ -331,7 +331,8 @@ function restoreBackup(tag, tok) {
  *   (ທາງເລືອກ) TG_BOT = <bot token>  TG_CHAT = <chat id>   → ສົ່ງ Telegram ນຳ
  * ແລ້ວ Run: installDailyReport  (ຕັ້ງເວລາສົ່ງທຸກມື້)  ·  testDailyReport (ລອງສົ່ງດຽວນີ້)
  * ===================================================================== */
-function installDailyReport() {
+function installDailyReport() { var r = installDailyReport_(); Logger.log(r); return r; }
+function installDailyReport_() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyReport') ScriptApp.deleteTrigger(t); });
   var h = parseInt(PROP.getProperty('REPORT_HOUR') || '22', 10); if (!(h >= 0 && h <= 23)) h = 22;
   ScriptApp.newTrigger('dailyReport').timeBased().everyDays(1).atHour(h).inTimezone('Asia/Vientiane').create();
@@ -339,7 +340,8 @@ function installDailyReport() {
 }
 /* Telegram: ໃສ່ TG_BOT (token ຈາກ @BotFather) ໃນ Script Properties → ກົດ Start/ສົ່ງຂໍ້ຄວາມຫາ bot 1 ເທື່ອ → Run setupTelegram
    ຟັງຊັນນີ້ຊອກ chat id ຈາກຂໍ້ຄວາມລ່າສຸດ ແລ້ວບັນທຶກເປັນ TG_CHAT ໃຫ້ເອງ + ສົ່ງຂໍ້ຄວາມຢືນຢັນ */
-function setupTelegram() {
+function setupTelegram() { var r = setupTelegram_(); Logger.log(r); return r; }
+function setupTelegram_() {
   var bot = (PROP.getProperty('TG_BOT') || '').trim();
   if (!bot) return 'ERR - ຍັງບໍ່ໄດ້ໃສ່ TG_BOT ໃນ Script Properties';
   var r = UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/getUpdates', { muteHttpExceptions: true });
