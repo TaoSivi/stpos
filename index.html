@@ -10,7 +10,7 @@
 <title>ST POS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--tiff:#0ABAB5;--tiff2:#13C7C1;--tiff-lite:#5FD9D2;--tiff-deep:#0A7E7A;--tiff-ink:#075A57;
  --grad:linear-gradient(135deg,#0ABAB5 0%,#16C6C0 55%,#5FD9D2 100%);--grad-deep:linear-gradient(135deg,#0A7E7A,#0ABAB5);
@@ -470,6 +470,34 @@ table.tbl small{font-size:12.5px}
 @media (max-width:700px){.pd-back{width:100%}.pd-metas>div{text-align:left!important}.pd-stamp{left:auto;right:12px;top:64px;font-size:20px}.pd-step span{font-size:10.5px}.pd-tabs{min-width:0;grid-template-columns:1fr}.pd-doc{padding:16px}.pd-ttl{font-size:19px}}
 @media print{.pd-doc{border:none}}
 .khead{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}.kimg{width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12)}.stagechip.stg-kwait{background:#f1f5f9;color:#475569}.stagechip.stg-kcooking{background:#ffedd5;color:#c2410c}.stagechip.stg-kready{background:#dcfce7;color:#15803d}#readyBanner{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:9999;display:none;align-items:center;gap:12px;background:#15803d;color:#fff;padding:12px 18px;border-radius:14px;font-size:17px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:92vw;animation:rbPulse 1s ease-in-out 3}#readyBanner button{background:#fff;color:#15803d;border:none;border-radius:9px;padding:6px 14px;font-weight:800;cursor:pointer;font-family:inherit}@keyframes rbPulse{50%{transform:translateX(-50%) scale(1.05)}}
+/* ===== UI v2: ອ່ານງ່າຍ ບໍ່ຕັດແຖວ (Teal ເດີມ) ===== */
+body{font-variant-numeric:tabular-nums}
+*{font-family:'Noto Sans','Noto Sans Lao','Roboto',system-ui,sans-serif}
+.navitem{white-space:nowrap;min-width:0;overflow:hidden;padding:10px 12px;margin:2px 10px;font-size:14px}
+.navsec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar h1,.tv-head .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:none;-webkit-text-fill-color:currentColor;color:var(--tiff-ink);font-weight:800;letter-spacing:-.2px}
+.tv-head .ttl{font-size:22px}.tv-head .sub{font-size:13px}
+.kpi{min-width:0;padding:16px 18px}
+.kpi:hover{transform:none}
+.kpi .lbl{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .val,.totrow.grand,.paysummary .change{font-family:inherit}
+.kpi .val{white-space:nowrap;font-weight:800;letter-spacing:-.4px;font-size:clamp(20px,1.8vw,28px);line-height:1.25}
+.kpi .val span{font-weight:600}
+.kpi .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.cards{gap:12px}
+.panelgrid>.kpi .lbl{white-space:normal}
+.totrow{gap:14px;align-items:baseline}.totrow>*:last-child{white-space:nowrap;text-align:right}
+table.tbl{font-size:14px}
+table.tbl th{white-space:nowrap;font-size:12px;font-weight:700;letter-spacing:.2px;padding:11px 12px;text-align:left}
+table.tbl td{padding:11px 12px;vertical-align:middle;line-height:1.45;white-space:nowrap}
+table.tbl td small{font-size:12px}
+table.tbl td.wrap{white-space:normal;min-width:180px}
+.chip,.cat,.subcat,.btn-sm,.btn-ok,.tag,.pill,.stagechip,.rolebadge,.layoutbtns button,.modal-btns button,.actions button,.toolbar button{white-space:nowrap}
+.btn-sm{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.tag,.stagechip{display:inline-flex;align-items:center;line-height:1.3}
+.shiftbar{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.setnav button{white-space:nowrap}
+@media (max-width:900px){.setnav{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none}.setnav button{flex-shrink:0}.kpi .val{font-size:20px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.cards>.kpi{padding:13px 14px}.kpi .lbl{font-size:12px}table.tbl th,table.tbl td{padding:9px 10px}}
 </style>
 </head>
 <body>
@@ -2246,7 +2274,7 @@ function renderShift(R){var sh=state.curShift;
   '<div class="kpi" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">ຍອດຂາຍຕາມປະເພດຈ່າຍ</div>'+
    (Object.keys(st.byPay).length?Object.keys(st.byPay).map(function(k){return '<div class="totrow"><span>'+cesc(k)+'</span><b>'+KIP(st.byPay[k])+'</b></div>';}).join(''):'<div style="color:#94a3b8">ຍັງບໍ່ມີບິນ</div>')+(st.tips?'<div class="totrow" style="border-top:1px dashed var(--line);margin-top:4px;padding-top:4px"><span> ທິບພະນັກງານ (ລວມໃນເງິນສົດ)</span><b style="color:var(--gold)">'+KIP(st.tips)+'</b></div>':'')+'</div>'+
   '<div class="kpi span-all"><div class="lbl" style="font-weight:700;margin-bottom:8px">ເງິນເຂົ້າ-ອອກລີ້ນຊັກ ('+(sh.cashIO||[]).length+')</div>'+
-   ((sh.cashIO||[]).length?'<table class="tbl"><thead><tr><th>ເວລາ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໝາຍເຫດ</th><th>ໂດຍ</th></tr></thead><tbody>'+(sh.cashIO||[]).slice().reverse().map(function(x){return '<tr><td>'+new Date(x.ts).toLocaleTimeString('en-GB')+'</td><td>'+(x.type==='in'?'<span class="tag ok">ເຂົ້າ</span>':'<span class="tag warn">ອອກ</span>')+'</td><td style="font-weight:700">'+KIP(x.amount)+'</td><td>'+cesc(x.note||'')+'</td><td>'+cesc(x.by||'')+'</td></tr>';}).join('')+'</tbody></table>':'<div style="color:#94a3b8">ບໍ່ມີ</div>')+'</div>'+
+   ((sh.cashIO||[]).length?'<table class="tbl"><thead><tr><th>ເວລາ</th><th>ປະເພດ</th><th>ຈຳນວນ</th><th>ໝາຍເຫດ</th><th>ໂດຍ</th></tr></thead><tbody>'+(sh.cashIO||[]).slice().reverse().map(function(x){return '<tr><td>'+new Date(x.ts).toLocaleTimeString('en-GB')+'</td><td>'+(x.type==='in'?'<span class="tag ok">ເຂົ້າ</span>':'<span class="tag warn">ອອກ</span>')+'</td><td style="font-weight:700">'+KIP(x.amount)+'</td><td class="wrap">'+cesc(x.note||'')+'</td><td>'+cesc(x.by||'')+'</td></tr>';}).join('')+'</tbody></table>':'<div style="color:#94a3b8">ບໍ່ມີ</div>')+'</div>'+
   '</div>'+(can('shiftMng')?'<button class="btn-ok" style="background:var(--red);padding:13px 26px;border-radius:12px;font-weight:800;font-size:15px" onclick="closeShiftModal()"> ປິດກະ / ນັບເງິນ (Z Report)</button>':'')+
   shiftHistoryHTML()+'</div>';}
 function shiftHistoryHTML(){var logs=(state.shiftLog||[]).slice().reverse().slice(0,30);
@@ -2400,7 +2428,7 @@ function renderRepCancel(b){if(repDate===null)repDate=ymd(Date.now());
   '<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">'+card('k_wait','ລຶບຕອນ ລໍຖ້າຄົວ','#64748b')+card('k_cooking','ລຶບຕອນ ກຳລັງເຮັດ','#c2410c')+card('k_ready','ລຶບຕອນ ພ້ອມເສີບ','#15803d')+card('sv_pre','ລຶບເມນູ ກ່ອນເສີບ','#075985')+card('sv_post','ລຶບເມນູ ຫຼັງເສີບ','#b91c1c')+card('b_pre','ລຶບເມນູ ກ່ອນເຊັກບິນ','#047857')+card('b_post','ລຶບເມນູ ຫຼັງເຊັກບິນ','#b45309')+card('tbl','ຍົກເລີກທັງໂຕະ','var(--red)')+card('move','ຍ້າຍ / ລວມໂຕະ','#6d28d9')+card('void','Void ບິນ / ຄືນເງິນ','var(--pink)')+'</div>'+'<p style="padding:0 18px 8px;color:var(--muted);font-size:14px">ກ່ອງ ລຶບກ່ອນ/ຫຼັງເສີບ ແລະ ກ່ອນ/ຫຼັງເຊັກບິນ ນັບທັງການລຶບເມນູ ແລະ ລາຍການໃນການຍົກເລີກທັງໂຕະ · ລາຍການທີ່ໝາຍ <b>(ບັນທຶກເກົ່າ)</b> ດຶງມາຈາກ log ກ່ອນອັບເດດ</p>'+
   '<div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span style="color:var(--muted);font-weight:600">ສະແດງ:</span>'+CANCEL_FILTERS.map(function(f){return '<button class="chip '+(cancelFilter===f[0]?'active':'')+'" onclick="cancelFilter=\''+f[0]+'\';render()">'+f[1]+'</button>';}).join('')+'</div>'+
   '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th>ວັນ-ເວລາ</th><th>ປະເພດ</th><th>ຂັ້ນຕອນ</th><th>ໂຕະ</th><th>ເມນູ / ລາຍລະອຽດ</th><th style="text-align:right">ຈຳນວນ</th><th style="text-align:right">ມູນຄ່າ (₭)</th><th>ເຫດຜົນ</th><th>ໂດຍ</th></tr></thead><tbody>'+
-  (logs.length?logs.map(function(l,i){var mv=(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ');return '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap">'+new Date(l.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(l.ts).toLocaleTimeString('en-GB')+'</b></td><td style="font-weight:700;color:'+(tcol[l.type]||'var(--muted)')+'">'+cesc(tname[l.type]||l.type)+(l.legacy?'<br><small style="color:var(--muted);font-weight:400">(ບັນທຶກເກົ່າ)</small>':'')+'</td><td>'+stageChips(l)+'</td><td style="font-weight:700;white-space:nowrap">'+cesc(l.table||'')+'</td><td>'+cesc(l.name||'')+(l.code?'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small>':'')+'</td><td style="text-align:right">'+(l.qty||'')+'</td><td style="text-align:right;font-weight:700;color:'+(mv?'var(--ink)':'var(--red)')+'">'+KIP(l.amount)+'</td><td>'+cesc(l.reason||'')+'</td><td style="color:var(--muted)">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີລາຍການໃນວັນທີ / ປະເພດນີ້</td></tr>')+
+  (logs.length?logs.map(function(l,i){var mv=(l.type==='ຍ້າຍໂຕະ'||l.type==='ລວມໂຕະ');return '<tr><td>'+(i+1)+'</td><td style="white-space:nowrap">'+new Date(l.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(l.ts).toLocaleTimeString('en-GB')+'</b></td><td style="font-weight:700;color:'+(tcol[l.type]||'var(--muted)')+'">'+cesc(tname[l.type]||l.type)+(l.legacy?'<br><small style="color:var(--muted);font-weight:400">(ບັນທຶກເກົ່າ)</small>':'')+'</td><td>'+stageChips(l)+'</td><td style="font-weight:700;white-space:nowrap">'+cesc(l.table||'')+'</td><td>'+cesc(l.name||'')+(l.code?'<br><small style="color:var(--muted)">'+cesc(l.code)+'</small>':'')+'</td><td style="text-align:right">'+(l.qty||'')+'</td><td style="text-align:right;font-weight:700;color:'+(mv?'var(--ink)':'var(--red)')+'">'+KIP(l.amount)+'</td><td class="wrap">'+cesc(l.reason||'')+'</td><td style="color:var(--muted)">'+cesc(l.by||'')+'</td></tr>';}).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີລາຍການໃນວັນທີ / ປະເພດນີ້</td></tr>')+
   '</tbody></table><div style="margin-top:10px"><button class="btn-sm" onclick="exportCancel()"> Export Excel</button></div></div>';}
 function exportCancel(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var logs=cancelLogsFor().filter(function(l){return cancelMatch(l,cancelFilter);});if(!logs.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
  var rows=logs.slice().reverse().map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ປະເພດ':(l.type==='ລຶບລາຍການ'?'ລຶບເມນູ':l.type),'ເສີບ':(l.serve==='after'?'ຫຼັງເສີບ':l.serve==='before'?'ກ່ອນເສີບ':''),'ເຊັກບິນ':(l.bill==='after'?'ຫຼັງເຊັກບິນ':l.bill==='before'?'ກ່ອນເຊັກບິນ':''),'ໂຕະ':l.table||'','ລະຫັດ':l.code||'','ເມນູ/ລາຍລະອຽດ':l.name||'','ຈຳນວນ':l.qty||0,'ມູນຄ່າ(ກີບ)':Math.round(l.amount||0),'ເຫດຜົນ':l.reason||'','ໂດຍ':l.by||''};});
