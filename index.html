@@ -1184,7 +1184,7 @@ function doDelConfirmedItem(i){var rsn=((document.getElementById('di_rsn')||{}).
  var unitAmt=lineTotal(it)/it.qty;var stg=itemStage(it,state.tables[state.activeTable]);
  var def=findMenu(it.code);if(def&&def.bom)def.bom.forEach(function(b){if(state.ingredients[b[0]])addStockAt(b[0],curLoc(),b[1]*n,'ຄືນ-ລຶບລາຍການ',n+'× '+it.name+' (ໂຕະ '+(state.activeTable||'')+') — '+rsn);});
  logOrder('ລຶບເມນູ ('+stageLabel(stg)+')',n+'× '+it.name+(n<it.qty?' (ຈາກທັງໝົດ '+it.qty+')':'')+' ('+KIP(unitAmt*n)+' ກີບ) — ເຫດຜົນ: '+rsn,state.activeTable);
- logCancel('ລຶບລາຍການ',it.code,it.name,n,unitAmt*n,state.activeTable,rsn,{serve:stg.serve,bill:stg.bill,kitchen:stg.kitchen});
+ logCancel('ລຶບລາຍການ',it.code,it.name,n,unitAmt*n,state.activeTable,rsn,{serve:stg.serve,bill:stg.bill,kitchen:stg.kitchen,id:it.id});
  if(n>=it.qty){ /* ລຶບໝົດແຖວ — ເອົາອອກຈາກຈໍຄົວ/ບາຣ໌ນຳ */
   state.orders=(state.orders||[]).filter(function(o){return String(o.id)!==String(it.id);});
   l.splice(i,1);
@@ -1384,7 +1384,7 @@ function mergeFrom(name){const main=state.tables[state.activeTable],other=state.
  other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
 function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ) — ສະຕ໋ອກທີ່ຫັກໄປຈະຄືນໃຫ້</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
-function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ',{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen});const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
+function doCancelTable(){const t=state.tables[state.activeTable];logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ',t.name);t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ',{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen,id:line.id});const def=findMenu(line.code);if(def&&def.bom)def.bom.forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
  state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.status='free';t.billTs=null;t.customer=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name);}
 function openCustomer(){var t=state.tables[state.activeTable];
  openModal('<h2> ເລືອກລູກຄ້າ</h2>'+

@@ -176,9 +176,44 @@ function mergeDocs_(curStr, inc) {
     return inc;
   } catch (e) { return inc; }
 }
+/* ອໍເດີ QR ທີ່ລູກຄ້າສັ່ງ ແຕ່ເຄື່ອງພະນັກງານຍັງບໍ່ໄດ້ sync — ຢ່າໃຫ້ການບັນທຶກຂອງເຄື່ອງພະນັກງານຂຽນທັບຫາຍ.
+   ລາຍການ QR (qr:true) ທີ່ມີໃນ server ແຕ່ບໍ່ພົບໃນຂໍ້ມູນທີ່ສົ່ງມາ (ບໍ່ຢູ່ໂຕະໃດ, ບໍ່ຢູ່ໃນບິນ, ບໍ່ຢູ່ໃນ log ລຶບ) = ເຄື່ອງນັ້ນຍັງບໍ່ເຫັນ → ໃສ່ຄືນ */
+function mergeQr_(curStr, inc) {
+  try {
+    if (!curStr || !inc || typeof inc !== 'object' || !inc.tables) return inc;
+    var cur = JSON.parse(curStr); if (!cur || !cur.tables) return inc;
+    var now = Date.now(), seen = {};
+    Object.keys(inc.tables).forEach(function (k) { (inc.tables[k].items || []).forEach(function (i) { seen[String(i.id)] = 1; }); });
+    (inc.bills || []).forEach(function (b) { (b.items || []).forEach(function (i) { seen[String(i.id)] = 1; }); });
+    (inc.cancelLog || []).forEach(function (l) { if (l.id != null) seen[String(l.id)] = 1; });
+    var map = {}; var cat = inc.catalog || cur.catalog || {};
+    for (var c in cat) for (var s in cat[c]) (cat[c][s] || []).forEach(function (p) { map[p.c] = p; });
+    Object.keys(cur.tables).forEach(function (k) {
+      var ct = cur.tables[k], it = inc.tables[k]; if (!it) return;
+      (ct.items || []).forEach(function (line) {
+        if (!line.qr || seen[String(line.id)] || now - (line.ts || 0) > 6 * 3600000) return;
+        if (!Array.isArray(it.items)) it.items = [];
+        it.items.push(line); seen[String(line.id)] = 1;
+        if (it.status === 'free') it.status = 'busy';
+        if (!Array.isArray(inc.orders)) inc.orders = [];
+        if (!inc.orders.some(function (o) { return String(o.id) === String(line.id); })) {
+          var co = (cur.orders || []).filter(function (o) { return String(o.id) === String(line.id); })[0];
+          inc.orders.push(co || { id: line.id, table: k, code: line.code, name: line.name, qty: line.qty, k: line.k, mods: line.mods, note: line.note, status: 'wait', ts: line.ts, qr: true });
+        }
+        var def = map[line.code], loc = line.qrLoc || 'main';
+        if (def && inc._srcLoc === loc && inc.ingredients) (def.bom || []).forEach(function (b) {
+          var ing = inc.ingredients[b[0]]; if (!ing) return; if (!ing.locs) ing.locs = {};
+          ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
+        });
+      });
+      if (ct.callTs && ct.callTs > (it.callTs || 0) && (it.items || []).length && it.status !== 'bill') { it.status = 'callbill'; it.callTs = ct.callTs; }
+    });
+    return inc;
+  } catch (e) { return inc; }
+}
 function saveStateRaw_(json, skipMerge) {
   json = String(json == null ? '' : json);
-  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
+  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); inc = mergeQr_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
   var ss = getSS_();
   if (!ss) { PROP.setProperty('ST_BLOB', json.substring(0, 9000)); return true; }
   var sh = tab_(ss, 'STATE'); sh.clearContents();
@@ -238,6 +273,7 @@ function custAction_(payload) {
     if (payload.action === 'callbill') {
       if (!(t.items && t.items.length)) return { ok: false, err: 'ຍັງບໍ່ມີອໍເດີ' };
       if (t.status !== 'bill') t.status = 'callbill';
+      t.callTs = now;
       if (!st.orderLog) st.orderLog = [];
       st.orderLog.push({ ts: now, table: table, action: 'ຂໍເຊັກບິນ (QR)', detail: '', by: 'ລູກຄ້າ QR ໂຕະ ' + table });
       st._v = Date.now(); saveStateRaw_(JSON.stringify(st));
@@ -259,10 +295,10 @@ function custAction_(payload) {
       var mp = Math.max(0, Math.min(500000, +it.modPrice || 0));
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
         mods: (it.mods || []).slice(0, 12).map(function (m) { return String(m).slice(0, 60); }),
-        modPrice: mp, disc: 0, k: def.k, note: String(it.note || '').slice(0, 120), ts: now };
+        modPrice: mp, disc: 0, k: def.k, note: String(it.note || '').slice(0, 120), ts: now, qr: true, qrLoc: qrLoc };
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
-      st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now });
+      st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true });
       (def.bom || []).forEach(function (b) {
         var ing = st.ingredients && st.ingredients[b[0]];
         if (ing) {
