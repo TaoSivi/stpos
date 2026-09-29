@@ -462,7 +462,7 @@ function rebuild() {
 
 function seedDemo() {
   var demo = {
-    shopName: 'ST POS - LaoFe Cafe', serviceChargePct: 0, vatPct: 0, billDiscPct: 0, qrGlobal: true, soundOn: true,
+    shopName: 'ST POS Demo', serviceChargePct: 0, vatPct: 0, billDiscPct: 0, qrGlobal: true, soundOn: true,
     activeShift: 'A', activeStaff: 'Namfon', floors: ['F1', 'F2'], shifts: ['A', 'B'], staff: ['Namfon', 'Pam'], receiptSeq: 10529,
     tables: { A1: { name: 'A1', floor: 'F1', status: 'busy', customer: null, items: [{ name: 'Ice Latte', price: 55000, qty: 2, disc: 0, modPrice: 0 }] } },
     ingredients: { COFFEE: { code: 'COFFEE', name: 'Coffee', unit: 'g', stock: 4928, reorder: 500 } },
