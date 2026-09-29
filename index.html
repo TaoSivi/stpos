@@ -661,7 +661,7 @@ function save(){if(isCust())return; /* ລູກຄ້າ QR ບໍ່ຂຽນ 
  try{if(state&&((state.bills&&state.bills.length)||(state.catalog&&Object.keys(state.catalog).length)))localStorage.setItem('stpos_backup',JSON.stringify(state));}catch(e){}
  if(HAS_GAS){if(_saveT)clearTimeout(_saveT);_saveT=setTimeout(_doSave,350);}else if(HAS_API){if(_saveT)clearTimeout(_saveT);_saveT=setTimeout(_doSaveApi,500);}else{try{localStorage.setItem('stpos',JSON.stringify(state));}catch(e){}}}
 function localBackup(){try{var b=localStorage.getItem('stpos_backup');if(b){var o=JSON.parse(b);if(o&&((o.bills&&o.bills.length)||(o.catalog&&Object.keys(o.catalog).length)))return o;}}catch(e){}return null;}
-function restoreOrFresh(){var bk=localBackup();if(bk){state=bk;ensureDefaults();_loaded=true;}render();qrEntry();}
+function restoreOrFresh(){var bk=localBackup();if(bk){state=bk;ensureDefaults();_loaded=true;}else window.__loadFail=true;render();qrEntry();}
 function _doSave(){if(!_loaded)return;if(_saving){_pending=true;return;}_saving=true;google.script.run.withSuccessHandler(function(ok){_saving=false;if(ok===false)tokenErr_();if(_pending){_pending=false;_doSave();}}).withFailureHandler(()=>{_saving=false;setNet(true);setTimeout(function(){if(navigator.onLine!==false){setNet(false);}},8000);}).saveState(JSON.stringify(state),TOKEN);}
 function _doSaveApi(){if(!_loaded)return;apiSave(JSON.stringify(state));}
 function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.classList.remove('hidden');
@@ -766,6 +766,8 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  const hb=document.querySelector('.topbar h1');if(hb)hb.textContent=state.shopName||'ST POS';
  const R=document.getElementById('viewRoot');
  if(isCust())return renderCust(R);
+ /* ເຊື່ອມ server ແຕ່ຍັງໂຫຼດຂໍ້ມູນບໍ່ແລ້ວ → ບໍ່ສະແດງຂໍ້ມູນເລີ່ມຕົ້ນ (ກັນຂາຍໃສ່ຂໍ້ມູນທີ່ບໍ່ຖືກບັນທຶກ) */
+ if((HAS_GAS||HAS_API)&&!_loaded){R.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px;color:var(--muted)"><div class="spin" style="width:44px;height:44px;border:4px solid #d1ecea;border-top-color:var(--tiff);border-radius:50%;animation:spin 1s linear infinite"></div><div style="font-size:18px;font-weight:700;color:var(--tiff-deep)">ກຳລັງໂຫຼດຂໍ້ມູນຈາກ server…</div><div style="font-size:14px">ຂໍ້ມູນຫຼາຍ ອາດໃຊ້ເວລາ 10–30 ວິນາທີ</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';if(window.__loadFail)R.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;text-align:center"><div style="font-size:40px">⚠️</div><div style="font-size:18px;font-weight:700;color:var(--red)">ເຊື່ອມ server ບໍ່ໄດ້</div><div style="font-size:14px;color:var(--muted)">ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່ — ຂໍ້ມູນໃນ server ບໍ່ຖືກແຕະ</div><button class="btn-ok grad" style="padding:11px 22px;border-radius:11px;font-weight:700" onclick="location.reload()">ລອງໃໝ່</button></div>';return;}
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();
