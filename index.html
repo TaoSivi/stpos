@@ -10,7 +10,7 @@
 <title>ST POS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--tiff:#0ABAB5;--tiff2:#13C7C1;--tiff-lite:#5FD9D2;--tiff-deep:#0A7E7A;--tiff-ink:#075A57;
  --grad:linear-gradient(135deg,#0ABAB5 0%,#16C6C0 55%,#5FD9D2 100%);--grad-deep:linear-gradient(135deg,#0A7E7A,#0ABAB5);
@@ -270,6 +270,100 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
   .rcpt.w58{width:50mm}
   @page{margin:0}
 }
+
+/* ===== THEME v7 — refined layout & typography (colours unchanged) ===== */
+:root{--serif:'Noto Serif Lao','Noto Serif',Georgia,'Phetsarath OT',serif;--ink:#062f2d;--sb1:#063b39;--sb2:#0a5a56;--r-lg:20px;--r-md:14px;--sh-1:0 1px 2px rgba(6,47,45,.05),0 6px 20px rgba(6,47,45,.06);--sh-2:0 14px 34px rgba(6,47,45,.13);--bg:#f4faf9}
+body{background:var(--bg);-webkit-font-smoothing:antialiased}
+.bootscreen .lg{font-family:var(--serif);letter-spacing:4px}
+#sidebar{width:248px;background:linear-gradient(180deg,var(--sb1) 0%,var(--sb2) 100%);border-right:none;color:#d8f3f1;box-shadow:4px 0 24px rgba(6,47,45,.18)}
+#sidebar::-webkit-scrollbar{width:6px}#sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:6px}
+.brand{background:transparent;padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.brand .logo{width:46px;height:46px;border-radius:50%;background:var(--grad);font-family:var(--serif);font-size:17px;box-shadow:0 4px 14px rgba(10,186,181,.45);border:2px solid rgba(255,255,255,.28)}
+.brand b{font-family:var(--serif);font-size:21px;letter-spacing:3px;color:#fff}.brand small{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:#8fd9d4;opacity:1;margin-top:5px;display:block}
+.navsec{color:#7fbdb9;font-size:10.5px;letter-spacing:1.4px;padding:18px 24px 6px}
+.navitem{color:#d6eeec;margin:2px 12px;padding:10px 14px;border-radius:12px;font-weight:500;gap:12px}
+.navitem:hover{background:rgba(255,255,255,.08);color:#fff}
+.navitem.active{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(10,186,181,.35)}
+.navitem .ic{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;flex-shrink:0}
+.navitem .ic svg{width:19px;height:19px}
+.topbar{padding:12px 26px;gap:16px;box-shadow:none;border-bottom:1px solid #e3efee;background:rgba(255,255,255,.94);backdrop-filter:blur(8px)}
+.tb-title{flex:1;min-width:0}
+.topbar h1{font-family:var(--serif);font-size:21px;font-weight:700;text-align:left;background:none;-webkit-text-fill-color:initial;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-date{font-size:12px;color:var(--muted);margin-top:1px}
+.tb-menu{display:none;width:40px;height:40px;border-radius:12px;background:#eef8f7!important;color:var(--tiff-deep);align-items:center;justify-content:center;flex-shrink:0}
+.userchip{background:#fff;border:1px solid #e3efee;box-shadow:var(--sh-1);padding:5px 14px 5px 5px}
+.ordno{box-shadow:0 4px 12px rgba(10,186,181,.35);font-family:var(--serif)}
+#viewRoot{background:var(--bg)}
+.tv-head .ttl,.toolbar>span:first-child{font-family:var(--serif);background:none;-webkit-text-fill-color:initial;color:var(--ink);font-weight:700}
+.tv-head .ttl{font-size:24px}
+.modal h2{font-family:var(--serif);font-weight:700;color:var(--ink)}
+.kpi .val,.totrow.grand,.paysummary .change{font-family:var(--serif)}
+.kpi{border-radius:var(--r-lg);border:1px solid #e6f1f0;box-shadow:var(--sh-1);padding:20px}
+.kpi:hover{box-shadow:var(--sh-2)}
+.kpi .lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+.kpi .val{font-weight:700;font-size:28px;color:var(--ink)}
+.dashcards .kpi:first-child{background:linear-gradient(135deg,#063b39 0%,#0a6e69 60%,#0ABAB5 135%);border:none;color:#fff;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(6,59,57,.32)}
+.dashcards .kpi:first-child .lbl,.dashcards .kpi:first-child .sub{color:#bdeeea}
+.dashcards .kpi:first-child .val{color:#fff;font-size:34px}
+.dashcards .kpi:first-child::after{content:'';position:absolute;right:-40px;top:-40px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(95,217,210,.35),transparent 70%);pointer-events:none}
+.legend,.outstanding{border-radius:var(--r-md);box-shadow:var(--sh-1);border:1px solid #e6f1f0}
+table.tbl{background:#fff;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--sh-1);border:1px solid #e6f1f0;border-collapse:separate;border-spacing:0}
+table.tbl th{background:#f3faf9;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.3px;padding:11px 10px;border-bottom:1px solid #e3efee}
+table.tbl td{padding:10px;border-bottom:1px solid #eef5f4}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl tbody tr:hover{background:#f7fcfb}
+.btn-sm{border-radius:10px;padding:7px 13px;font-size:12.5px;box-shadow:0 2px 6px rgba(10,186,181,.18);transition:.12s}
+.btn-sm:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.chip{padding:8px 18px;font-weight:600;box-shadow:0 1px 3px rgba(6,47,45,.05)}
+.chip.active,.cat.active{background:var(--tiff-deep);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(10,126,122,.3)}
+.cats .cat{border-radius:22px;padding:8px 18px}
+.modal{border-radius:24px;padding:26px;animation:pop .18s ease}
+.modal input,.modal select,.modal textarea{border-radius:12px;border:1px solid #d9ebea;padding:11px 12px;background:#fbfefe}
+.modal input:focus,.modal select:focus,.modal textarea:focus,.searchbox input:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 3px rgba(10,186,181,.15)}
+.modal-btns button{border-radius:13px;padding:12px}
+.overlay{background:rgba(6,40,38,.5);backdrop-filter:blur(4px)}
+.toast{border-radius:14px;background:var(--ink)}
+.products{gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.product{border-radius:18px;padding:0;overflow:hidden;border:1px solid #e6f1f0;box-shadow:var(--sh-1);gap:0}
+.product:hover{box-shadow:var(--sh-2)}
+.product .thumb{border-radius:0;aspect-ratio:4/3;flex-shrink:0}
+.products{grid-auto-rows:max-content}
+.product .thumb img{object-fit:cover}
+.product .pname{font-size:13px;padding:10px 12px 2px;min-height:40px}
+.product .ptop{padding:4px 10px 10px 12px}
+.product .price{background:none;color:var(--ink);font-family:var(--serif);font-size:15px;font-weight:700;padding:0}
+.product .price::after{content:' ₭';font-size:11px;color:var(--muted)}
+.product .code{margin-left:auto;margin-right:6px}
+.product .ptop::after{content:'+';flex:0 0 30px;height:30px;border-radius:50%;background:var(--tiff-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;box-shadow:0 3px 8px rgba(10,126,122,.35)}
+.product .miniic{top:8px!important;left:8px!important;bottom:auto!important;right:auto!important;background:rgba(255,255,255,.94)!important;border-radius:8px;padding:2px 7px;z-index:2}
+.cart{border-left:1px solid #e3efee;box-shadow:-6px 0 24px rgba(6,47,45,.05)}
+.cart-top,.kds-head{background:linear-gradient(135deg,#063b39,#0a6e69)}
+.confirm{border-radius:16px;font-family:var(--serif)}
+.actions button{border-radius:13px}
+.kcard{border-radius:18px;box-shadow:var(--sh-1)}
+#drawerMask,#bnav{display:none}
+@media (max-width:900px){
+ #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:250;transform:translateX(-105%);transition:transform .22s ease}
+ #app.drawer #sidebar{transform:none}
+ #app.drawer #drawerMask{display:block;position:fixed;inset:0;background:rgba(6,40,38,.45);z-index:240}
+ .tb-menu{display:inline-flex}
+ .topbar{padding:10px 14px;gap:10px}
+ .tb-date{display:none}
+ .userchip span{display:none}
+ #bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid #e3efee;padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;box-shadow:0 -6px 20px rgba(6,47,45,.06)}
+ #bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;color:var(--muted);font-size:10.5px;font-weight:600;padding:3px 2px}
+ #bnav button svg{width:22px;height:22px}
+ #bnav .bi{display:flex;padding:4px 14px;border-radius:14px}
+ #bnav button.on{color:var(--tiff-deep)}
+ #bnav button.on .bi{background:#dff4f2}
+ #viewRoot{padding-bottom:72px}
+ .cards{padding:12px;gap:10px}
+ .kpi .val{font-size:24px}
+ #orderWrap{flex-direction:column}
+ .cart{width:100%;max-height:50vh;border-left:none;border-top:1px solid #e3efee}
+ .products{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+#app.cust #bnav,#app.cust .tb-menu,#app.cust #drawerMask{display:none!important}
 </style>
 </head>
 <body>
@@ -293,11 +387,13 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
     <button class="navitem" data-v="expense"><span class="ic"></span> ລາຍຈ່າຍ</button>
     <button class="navitem" data-v="admin"><span class="ic"></span> ການຕັ້ງຄ່າ</button>
   </aside>
+  <div id="drawerMask" onclick="toggleDrawer(false)"></div>
   <div id="main">
-    <div class="topbar"><button onclick="setView('tables')" style="background:none;font-size:21px"></button>
-      <h1>ST POS</h1><span id="netDot" title="ສະຖານະເນັດ"></span><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
+    <div class="topbar"><button class="tb-menu" onclick="toggleDrawer()" aria-label="ເມນູ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="tb-title"><h1>ST POS</h1><div class="tb-date" id="tbDate"></div></div><span id="netDot" title="ສະຖານະເນັດ"></span><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
     <div id="viewRoot"></div>
   </div>
+  <nav id="bnav"></nav>
 </div>
 <div id="modalRoot"></div><div id="toastRoot"></div><div id="printArea"></div>
 <script>
@@ -503,7 +599,7 @@ function setNet(off){_offline=off;var d=document.getElementById('netDot');
  if(off){if(!_offRetry)_offRetry=setInterval(function(){if(navigator.onLine){setNet(false);}},4000);}
  else{if(_offRetry){clearInterval(_offRetry);_offRetry=null;}if(state&&_loaded!==false&&!isCust()){save();toast(' ເນັດກັບມາແລ້ວ — ກຳລັງ sync ຂໍ້ມູນ');}}}
 function afterBoot(){document.getElementById('boot').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
- document.querySelectorAll('.navitem').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+ document.querySelectorAll('.navitem').forEach(b=>{var ic=b.querySelector('.ic');if(ic&&NAV_IC[b.dataset.v])ic.innerHTML=navSvg(b.dataset.v);b.onclick=()=>{setView(b.dataset.v);toggleDrawer(false);};});tickClock();setInterval(tickClock,30000);
  window.addEventListener('offline',function(){setNet(true);});
  window.addEventListener('online',function(){setNet(false);});
  if(navigator.onLine===false)setNet(true);else setNet(false);
@@ -561,7 +657,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin')return renderAdmin(R);
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
@@ -1227,7 +1323,7 @@ function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
    <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:right"> ຄຳ = ມື້ຂາຍດີສຸດ · <span style="color:var(--pink)">ສີບົວ</span> = ທ້າຍອາທິດ (ເສົາ/ອາທິດ)</div></div></div>`;
  R.innerHTML=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> Dashboard</span><label style="margin:0;font-weight:600">ເລືອກວັນທີ:</label><input class="in" type="date" value="${dashDate}" onchange="dashDate=this.value;render()"><button class="btn-sm" onclick="dashDate=ymd(Date.now());render()">ມື້ນີ້</button></div>
   ${_trendHTML}
-  <div class="cards">
+  <div class="cards dashcards">
    <div class="kpi"><div class="lbl"> ຍອດຂາຍ (${dashDate})</div><div class="val">${KIP(sales)} ₭</div><div class="sub">${n} ບິນ · ສະເລ່ຍ ${KIP(n?sales/n:0)} ₭</div></div>
    <div class="kpi"><div class="lbl"> ຈຳນວນລາຍການຂາຍ</div><div class="val">${itemsSold}</div><div class="sub">ຈານ/ຈອກ ໃນວັນທີເລືອກ</div></div>
    <div class="kpi"><div class="lbl"> ສະຖານະໂຕະ (ປະຈຸບັນ)</div><div class="val">${occ} / ${occ+free}</div><div class="sub">ກຳລັງໃຊ້ ${occ} · ວ່າງ ${free}</div></div>
@@ -1365,6 +1461,29 @@ function doAddIngredient(){const c=(document.getElementById('ic').value||'').tri
  if(init)logStock(c,init,'ເພີ່ມວັດຖຸດິບ','ເລີ່ມຕົ້ນ ['+locName(lc)+']',lc);
  save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c);}
 function resetStockAll(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}if(!confirm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?'))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
+/* ===== THEME v7: icons, drawer, bottom nav, clock ===== */
+const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+ kitchen:'<path d="M6 13.9A4 4 0 0 1 7.4 6a5 5 0 0 1 9.2 0A4 4 0 0 1 18 13.9V21H6z"/><path d="M6 17h12"/>',
+ bar:'<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M6 2v2M10 2v2M14 2v2"/>',
+ waiter:'<path d="M2 18h20M4 18a8 8 0 0 1 16 0M12 6v4M10 6h4"/>',
+ history:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M16 8H8M16 12H8M13 16H8"/>',
+ members:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+ debt:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+ shift:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 14h4"/>',
+ dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+ reports:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+ stock:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
+ expense:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+ admin:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+ more:'<path d="M4 6h16M4 12h16M4 18h16"/>'};
+function navSvg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(NAV_IC[k]||'')+'</svg>';}
+function toggleDrawer(on){var a=document.getElementById('app');if(!a)return;if(on===undefined)on=!a.classList.contains('drawer');a.classList.toggle('drawer',!!on);}
+function renderBottomNav(){var el=document.getElementById('bnav');if(!el)return;if(isCust()||!curUser()){el.innerHTML='';return;}
+ var cand=[['tables','ໂຕະ'],['kitchen','ຄົວ'],['history','ປະຫວັດ'],['dash','ພາບລວມ'],['stock','ສະຕ໋ອກ'],['members','ສະມາຊິກ']].filter(function(x){return canView(x[0]);}).slice(0,4);
+ var cur=(view==='order')?'tables':(view==='transfer'?'stock':view);
+ el.innerHTML=cand.map(function(x){return '<button class="'+(cur===x[0]?'on':'')+'" onclick="setView(\''+x[0]+'\')"><span class="bi">'+navSvg(x[0])+'</span>'+x[1]+'</button>';}).join('')+'<button onclick="toggleDrawer(true)"><span class="bi">'+navSvg('more')+'</span>ເພີ່ມເຕີມ</button>';}
+function tickClock(){var el=document.getElementById('tbDate');if(!el)return;var d=new Date();var dn=['ວັນອາທິດ','ວັນຈັນ','ວັນອັງຄານ','ວັນພຸດ','ວັນພະຫັດ','ວັນສຸກ','ວັນເສົາ'];
+ el.textContent=dn[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear()+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+((state&&state.locations&&state.locations.length>1)?' · 📍'+locName(curLoc()):'');}
 /* ===== ຮູບວັດຖຸດິບ ===== */
 function ingThumb(code,sz,clickable){var it=state.ingredients[code]||{};sz=sz||36;var ck=clickable&&can('stockAdjust');var js=ck?' onclick="ingImgMenu(this.dataset.c)" data-c="'+cesc(code)+'" title="ກົດເພື່ອໃສ່/ປ່ຽນຮູບ"':'';
  if(it.img)return '<img src="'+it.img+'" class="ingimg" style="width:'+sz+'px;height:'+sz+'px;'+(ck?'cursor:pointer':'')+'"'+js+' alt="">';
