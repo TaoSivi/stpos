@@ -1789,7 +1789,7 @@ function renderPurchase(R){procInit();if(procDetail&&findPR(procDetail.id)){rend
     return '<div class="kpi" style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:17px">⚡ '+cesc(w.name)+'</b>'+(w.isDefault?'<span class="tag ok">⭐ ຄ່າເລີ່ມຕົ້ນ</span>':'')+(isOwner()?'<span style="margin-left:auto;display:flex;gap:6px">'+(w.isDefault?'':'<button class="btn-sm" onclick="wfSetDefault(\''+w.id+'\')">ຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ</button>')+'<button class="btn-sm" onclick="wfModal(\''+w.id+'\')">✎ ແກ້ໄຂ</button>'+(state.procWorkflows.length>1?'<button class="btn-sm red" onclick="wfDel(\''+w.id+'\')">ລຶບ</button>':'')+'</span>':'')+'</div>'+
      '<div class="wf-row"><span class="wf-lbl">ອະນຸມັດ PR</span>'+chain(w.pr)+'</div><div class="wf-row"><span class="wf-lbl">ອະນຸມັດ PO</span>'+chain(w.po)+'</div></div>';}).join('');}
  R.innerHTML='<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ຈັດຊື້ວັດຖຸດິບ</div><div class="sub">PR → ອະນຸມັດຕາມ Workflow → PO → ອະນຸມັດ PO → ຮັບເຄື່ອງເຂົ້າສະຕ໋ອກ · ບ່ອນຂອງເຄື່ອງນີ້: <b>'+cesc(locName(cl))+'</b></div></div></div>'+
-  '<div style="padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+(can('prCreate')?'<button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="prModal()">➕ ສ້າງໃບຂໍຊື້ (PR)</button><button class="btn-sm" style="padding:10px 14px" onclick="prFromLow()">⚡ PR ຈາກລາຍການໃກ້ໝົດ</button>':'')+
+  '<div style="padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+(can('prCreate')?'<button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="prModal()">➕ ສ້າງໃບຂໍຊື້ (PR)</button><button class="btn-sm" style="padding:10px 14px" onclick="prFromLow()">⚡ PR ຈາກລາຍການໃກ້ໝົດ</button>':'')+(isOwner()?'<button class="btn-sm" style="padding:10px 14px" onclick="procOpeningModal()">📦 ສະຕ໋ອກເລີ່ມຕົ້ນ (ຜ່ານຈັດຊື້)</button>':'')+
   '<input placeholder="ຄົ້ນຫາ ເລກທີ / ຊື່ / ຜູ້ຂາຍ" value="'+cesc(procQ)+'" oninput="procQ=this.value;clearTimeout(window.__pq);window.__pq=setTimeout(function(){render();var e=document.getElementById(\'procq\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)" id="procq" style="margin-left:auto;min-width:240px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit"></div>'+
   '<div class="dashcards" style="padding:0 18px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">'+kpis.map(function(k){return '<div class="kpi" style="cursor:pointer" onclick="procTab=\''+k[2]+'\';render()"><div class="lbl">'+k[0]+'</div><div class="val">'+k[1]+'</div></div>';}).join('')+'</div>'+
   '<div style="padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap">'+tabs.map(function(t){return '<button class="chip '+(procTab===t[0]?'active':'')+'" onclick="procTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div>'+
@@ -1967,12 +1967,15 @@ function doGRN(poId){var po=findPO(poId);if(!po||['APPROVED','ORDERED','PARTIAL'
  var lines=[],bad='';po.lines.forEach(function(l,i){var q=+((document.getElementById('gr_q'+i)||{}).value||0);var pe=document.getElementById('gr_p'+i);var p=pe?(+pe.value||0):l.price;var rem=l.qty-(+l.recv||0);
   if(q<0)bad='ຈຳນວນຕ້ອງບໍ່ຕິດລົບ';if(q>rem+1e-9)bad=l.name+': ຮັບເກີນທີ່ສັ່ງ ('+KIP(rem)+')';if(q>0)lines.push({i:i,code:l.code,name:l.name,unit:l.unit,qty:q,price:p});});
  if(bad){toast(bad);return;}if(!lines.length){toast('ໃສ່ຈຳນວນທີ່ຮັບຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
- var u=curUser(),note=((document.getElementById('gr_note')||{}).value||'').trim();
+ var note=((document.getElementById('gr_note')||{}).value||'').trim();var r=postGRN(po,lines,note,{});var g=r.g,full=r.full;
+ save();closeModal();procDetail={id:po.prId,doc:'grn'};render();toast('ຮັບເຂົ້າສະຕ໋ອກແລ້ວ · '+g.no+(full?'':' (ຮັບບາງສ່ວນ)'));}
+/* ບັນທຶກ GRN: ເພີ່ມສະຕ໋ອກ + ອັບເດດຕົ້ນທຶນ + ລາຍຈ່າຍ (ຍົກເວັ້ນ opt.noExpense) + ສະຖານະ PO */
+function postGRN(po,lines,note,opt){opt=opt||{};var u=curUser();
  var g={id:procId('gr'),no:procNo('GRN',state.grns),ts:Date.now(),uid:SESSION.uid,byName:u?u.name:'',poId:po.id,poNo:po.no,vendor:po.vendor,loc:po.loc,note:note,status:'POSTED',lines:lines.map(function(x){return {code:x.code,name:x.name,unit:x.unit,qty:x.qty,price:x.price};}),total:Math.round(lines.reduce(function(s,x){return s+x.qty*x.price;},0)),upd:Date.now()};
  lines.forEach(function(x){addStockAt(x.code,po.loc,x.qty,'ຮັບຕາມ PO',g.no+' · '+po.no+' · '+vendorName(po.vendor));var it=state.ingredients[x.code];if(it&&x.price>0)it.cost=Math.round(x.price*100)/100;po.lines[x.i].recv=(+po.lines[x.i].recv||0)+x.qty;});
- if(!Array.isArray(state.expenses))state.expenses=[];if(g.total>0)state.expenses.push({id:Date.now()+Math.random(),ts:g.ts,cat:EXP_CATS[0],note:'ຮັບເຄື່ອງ '+g.no+' ('+po.no+' · '+vendorName(po.vendor)+')',amount:g.total,by:whoBy(),grnId:g.id});
+ if(opt.opening)g.opening=true;if(!Array.isArray(state.expenses))state.expenses=[];if(g.total>0&&!opt.noExpense)state.expenses.push({id:Date.now()+Math.random(),ts:g.ts,cat:EXP_CATS[0],note:'ຮັບເຄື່ອງ '+g.no+' ('+po.no+' · '+vendorName(po.vendor)+')',amount:g.total,by:whoBy(),grnId:g.id});
  var full=po.lines.every(function(l){return (+l.recv||0)>=l.qty-1e-9;});po.status=full?'CLOSED':'PARTIAL';procHist(po,'ຮັບເຄື່ອງ '+g.no,lines.length+' ລາຍການ'+(full?' · ຮັບຄົບ':' · ຮັບບາງສ່ວນ')+(note?' · '+note:''));
- state.grns.push(g);logOrder('ຈັດຊື້',g.no+' ຮັບເຄື່ອງຈາກ '+po.no+' ('+lines.length+' ລາຍການ)','');save();closeModal();procDetail={id:po.prId,doc:'grn'};render();toast('ຮັບເຂົ້າສະຕ໋ອກແລ້ວ · '+g.no+(full?'':' (ຮັບບາງສ່ວນ)'));}
+ state.grns.push(g);logOrder('ຈັດຊື້',g.no+' ຮັບເຄື່ອງຈາກ '+po.no+' ('+lines.length+' ລາຍການ)','');return {g:g,full:full};}
 function voidGRN(id){var g=(state.grns||[]).find(function(x){return x.id===id;});if(!g||g.status==='VOID')return;if(!can('grnVoid')&&!isOwner()){toast('ບໍ່ມີສິດ');return;}
  if(g.loc!==curLoc()){toast('ຕ້ອງ Void ທີ່ເຄື່ອງຂອງ '+locName(g.loc)+' (ຫຼື ສະຫຼັບບ່ອນເກັບຂອງເຄື່ອງນີ້ກ່ອນ)');return;}
  procReason('ເຫດຜົນ Void '+g.no+' (ສະຕ໋ອກຈະຖືກຫັກຄືນ)',function(r){var po=findPO(g.poId);
@@ -1980,6 +1983,36 @@ function voidGRN(id){var g=(state.grns||[]).find(function(x){return x.id===id;})
   state.expenses=(state.expenses||[]).filter(function(e){return e.grnId!==g.id;});g.status='VOID';g.voidReason=r;g.upd=Date.now();
   if(po){po.status=po.lines.some(function(l){return (+l.recv||0)>0;})?'PARTIAL':(po.ordTs?'ORDERED':'APPROVED');procHist(po,'Void '+g.no,r);}
   logOrder('ຈັດຊື້','Void '+g.no+' — '+r,'');save();closeModal();render();toast('Void '+g.no+' · ຫັກສະຕ໋ອກຄືນແລ້ວ');});}
+/* ---------- ສະຕ໋ອກເລີ່ມຕົ້ນ ຜ່ານລະບົບຈັດຊື້ (PR → ອະນຸມັດ → PO → ອະນຸມັດ → GRN) — ແອັດມິນເທົ່ານັ້ນ ---------- */
+function openingQty(it){var u=String(it.unit||'').toLowerCase().trim();var d=/^(g|gram|ກຣາມ|ກຼາມ|ml|ມລ|ມິລ)/.test(u)?5000:(/^(kg|ກິໂລ|l$|ລິດ|lit)/.test(u)?10:50);return Math.max(d,Math.ceil((+it.reorder||0)*3));}
+function procOpeningModal(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ (ແອັດມິນ)');return;}procInit();var cl=curLoc(),cats={};
+ Object.values(state.ingredients).forEach(function(i){var c=i.cat||'ວັດຖຸດິບ';if(!cats[c])cats[c]={n:0,z:0};cats[c].n++;if(stockAt(i.code,cl)<=0)cats[c].z++;});window.__opCats=Object.keys(cats);
+ if(!window.__opCats.length){toast('ຍັງບໍ່ມີວັດຖຸດິບ — ນຳເຂົ້າ Excel ກ່ອນ');return;}
+ openModal('<h2>📦 ສະຕ໋ອກເລີ່ມຕົ້ນ ຜ່ານລະບົບຈັດຊື້</h2><p style="font-size:15px;margin-bottom:8px">ລະບົບຈະສ້າງ <b>PR → ອະນຸມັດ → PO → ອະນຸມັດ → ຮັບເຄື່ອງ (GRN)</b> ໃຫ້ອັດຕະໂນມັດ 1 ຊຸດຕໍ່ໝວດ ແລ້ວຮັບເຂົ້າ <b>'+cesc(locName(cl))+'</b> — ເອກະສານ ແລະ ປະຫວັດຄົບທຸກໃບ (ແອັດມິນອະນຸມັດແທນທຸກຂັ້ນ).</p>'+
+  window.__opCats.map(function(c,i){return '<label style="display:flex;gap:8px;align-items:center;font-weight:600;margin-top:6px"><input type="checkbox" id="op_c'+i+'" style="width:auto" checked> '+cesc(c)+' <small style="color:var(--muted)">('+cats[c].n+' ລາຍການ · ສະຕ໋ອກ 0 ຢູ່ '+cats[c].z+')</small></label>';}).join('')+
+  '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="op_zero" style="width:auto" checked> ສະເພາະລາຍການທີ່ສະຕ໋ອກ ≤ 0 (ບໍ່ເພີ່ມຊ້ຳ)</label>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" id="op_noexp" style="width:auto" checked> ບໍ່ລົງລາຍຈ່າຍ (ເປັນສະຕ໋ອກຍົກມາ / ຕົວຢ່າງ)</label>'+
+  '<div class="pd-route" style="margin-top:10px">ຈຳນວນຕົວຢ່າງ: g / ml = 5,000 · kg / ລິດ = 10 · ອື່ນໆ = 50 (ຫຼື 3 ເທົ່າຂອງຈຸດສັ່ງຊື້ ຖ້າຫຼາຍກວ່າ). ລາຄາ = ຕົ້ນທຶນ/ໜ່ວຍ ທີ່ນຳເຂົ້າ. ແກ້ເປັນຈຳນວນຈິງພາຍຫຼັງດ້ວຍ "ນັບສະຕ໋ອກ".</div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="runOpeningStock()">ສ້າງ ແລະ ຮັບເຂົ້າສະຕ໋ອກ</button></div>');}
+function runOpeningStock(){if(!isOwner())return;procInit();var cl=curLoc(),now=Date.now(),u=curUser();
+ var sel=(window.__opCats||[]).filter(function(c,i){var e=document.getElementById('op_c'+i);return !e||e.checked;});
+ var zero=(document.getElementById('op_zero')||{checked:true}).checked,noExp=(document.getElementById('op_noexp')||{checked:true}).checked;
+ var vn='ຜູ້ຂາຍຕົວຢ່າງ (ສະຕ໋ອກເລີ່ມຕົ້ນ)',v=state.vendors.find(function(x){return x.name===vn;});if(!v){v={id:procId('vd'),name:vn,phone:'',taxId:'',note:'ສ້າງອັດຕະໂນມັດ ສຳລັບສະຕ໋ອກເລີ່ມຕົ້ນ',status:'ACTIVE',upd:now};state.vendors.push(v);}
+ var w=wfSnap(wfDefault().id),made=[],nLines=0;
+ sel.forEach(function(cat){var items=Object.values(state.ingredients).filter(function(i){return (i.cat||'ວັດຖຸດິບ')===cat&&(!zero||stockAt(i.code,cl)<=0);});if(!items.length)return;
+  var lines=items.map(function(i){return {code:i.code,name:i.name,unit:i.unit,qty:openingQty(i),est:+i.cost||0};});
+  var pr={id:procId('pr'),no:procNo('PR',state.prs),ts:now,uid:SESSION.uid,byName:u.name,loc:cl,need:'',note:'ສະຕ໋ອກເລີ່ມຕົ້ນ — '+cat+' ('+lines.length+' ລາຍການ)',lines:lines,status:'PENDING_APPROVAL',wf:w,step:0,round:1,appr:[],hist:[],subTs:now,opening:true};
+  procHist(pr,'ສ້າງໃບຂໍຊື້','ສະຕ໋ອກເລີ່ມຕົ້ນ · '+lines.length+' ລາຍການ · Workflow: '+w.name);procHist(pr,'ສົ່ງຂໍອະນຸມັດ','ຮອບ 1');state.prs.push(pr);
+  prSteps(pr).forEach(function(sp,i){pr.step=i;var bh=procApprRec(pr,'approve','ສະຕ໋ອກເລີ່ມຕົ້ນ',sp);procHist(pr,'ອະນຸມັດ PR ຂັ້ນ '+(i+1),bh?'ເຈົ້າຂອງຮ້ານອະນຸມັດແທນ '+stepName(sp):'');});
+  pr.status='APPROVED';pr.apprTs=now;
+  var po={id:procId('po'),no:procNo('PO',state.pos),ts:now,uid:SESSION.uid,byName:u.name,prId:pr.id,prNo:pr.no,vendor:v.id,loc:cl,eta:'',note:'ສະຕ໋ອກເລີ່ມຕົ້ນ',lines:lines.map(function(l){return {code:l.code,name:l.name,unit:l.unit,qty:l.qty,price:l.est,recv:0};}),steps:w.po.slice(),step:0,round:1,appr:[],status:'PENDING_APPROVAL',hist:[],opening:true};
+  procHist(po,'ອອກ PO','ຜູ້ຂາຍ '+v.name+' · '+KIP(poTotal(po))+' ກີບ');state.pos.push(po);pr.status='CONVERTED';pr.poId=po.id;procHist(pr,'ອອກ PO',po.no);
+  poSteps(po).forEach(function(sp,i){po.step=i;var bh=procApprRec(po,'approve','ສະຕ໋ອກເລີ່ມຕົ້ນ',sp);procHist(po,'ອະນຸມັດ PO ຂັ້ນ '+(i+1),bh?'ເຈົ້າຂອງຮ້ານອະນຸມັດແທນ '+stepName(sp):'');});
+  po.status='APPROVED';po.apprBy=whoBy();po.apprTs=now;po.status='ORDERED';po.ordTs=now;procHist(po,'ສັ່ງຜູ້ຂາຍແລ້ວ','');
+  var r=postGRN(po,po.lines.map(function(l,i){return {i:i,code:l.code,name:l.name,unit:l.unit,qty:l.qty,price:l.price};}),'ສະຕ໋ອກເລີ່ມຕົ້ນ'+(noExp?' (ບໍ່ລົງລາຍຈ່າຍ)':''),{noExpense:noExp,opening:true});
+  made.push(pr.no+' → '+po.no+' → '+r.g.no);nLines+=lines.length;});
+ if(!made.length){closeModal();toast('ບໍ່ມີລາຍການທີ່ຕ້ອງເພີ່ມ');return;}
+ logOrder('ຈັດຊື້','ສະຕ໋ອກເລີ່ມຕົ້ນ '+nLines+' ລາຍການ ('+made.length+' ຊຸດ) ເຂົ້າ '+locName(cl),'');save();closeModal();procDetail=null;procTab='track';render();showSuccess('ຮັບສະຕ໋ອກເລີ່ມຕົ້ນແລ້ວ!',nLines+' ລາຍການ · '+made.length+' ຊຸດ PR/PO/GRN');}
 /* ---------- Workflow (ສະເພາະເຈົ້າຂອງຮ້ານ/ແອັດມິນ) ---------- */
 function wfOptions(){var o=[['r:manager','ຜູ້ຈັດການ (ຄົນໃດກໍໄດ້)'],['r:purchasing','ຈັດຊື້ (ຄົນໃດກໍໄດ້)'],['r:owner','ເຈົ້າຂອງຮ້ານ (ຄົນໃດກໍໄດ້)']];(state.users||[]).forEach(function(u){o.push(['u:'+u.id,u.name+' — '+(ROLE_LABELS[u.role]||u.role)]);});return o;}
 function wfModal(id){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ (ແອັດມິນ)');return;}procInit();var w=id?wfById(id):null;window.__wf=w?{id:w.id,name:w.name,pr:w.pr.slice(),po:w.po.slice(),isDefault:!!w.isDefault}:{id:null,name:'',pr:['r:manager'],po:['r:owner'],isDefault:false};renderWfModal();}
