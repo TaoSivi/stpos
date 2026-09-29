@@ -1010,11 +1010,31 @@ function openPriceItem(){openModal('<h2>＋ ຂາຍລາຄາເປີດ (�
 function doOpenPrice(){var nm=(document.getElementById('op_nm').value||'').trim();var p=+document.getElementById('op_p').value||0;var k=document.getElementById('op_k').value||'food';
  if(!nm){toast('ໃສ່ຊື່');return;}if(p<=0){toast('ໃສ່ລາຄາ > 0');return;}
  pushToDraft({c:'OPEN'+Date.now(),n:nm,p:p,k:k,bom:[]},[state.dineType],0);closeModal();toast('ເພີ່ມ '+nm+' '+KIP(p)+' ກີບ');}
+/* ===== ຮູບຕົວຢ່າງອັດຕະໂນມັດ (ສ້າງຕອນສະແດງ — ບໍ່ບັນທຶກລົງຂໍ້ມູນ) ===== */
+const _thumbCache={};
+const THUMB_RULES=[[/mojito|margarita|cocktail|sour|martini|ຄັອກເທວ/i,'🍸'],[/wine|ວາຍ/i,'🍷'],[/whisk|rum|vodka|gin|tequila|liqueur|ເຫຼົ້າ|ເຫລົ້າ/i,'🥃'],[/beer|ເບຍ|lager|weizen|ipa|ale/i,'🍺'],
+ [/matcha|ມັດຊະ/i,'🍵'],[/choco|cocoa|ໂກໂກ້|ຊັອກໂກ/i,'🍫'],[/frappe|smoothie|ປັ່ນ|shake/i,'🥤'],[/lemon|lime|ໝາກນາວ|ຫມາກນາວ/i,'🍋'],[/mango|ມ່ວງ/i,'🥭'],[/coconut|ພ້າວ/i,'🥥'],
+ [/juice|healthy|ນ້ຳໝາກ|ນ້ຳຫມາກ|orange|ສົ້ມ/i,'🧃'],[/iced.*(coffee|latte|espresso|mocha|capu|americano)|(coffee|latte|espresso|mocha|capu|americano).*(iced|ເຢັນ)|ກາເຟເຢັນ/i,'🧋'],
+ [/coffee|latte|espresso|mocha|capu|americano|ກາເຟ/i,'☕'],[/iced.*tea|ຊາເຢັນ|ຊາໄທ|milk tea|ຊານົມ/i,'🧋'],[/tea|ຊາ/i,'🍵'],[/water|ນ້ຳດື່ມ|ນ້ຳແຂງ/i,'💧'],[/soda|cola|coke|sprite|tonic|pepsi|ໂຊດາ/i,'🥤'],
+ [/cake|ເຄັກ|brownie|ຂະໜົມ|ຂະຫນົມ|dessert|ຂອງຫວານ|ice ?cream|ໄອສະ/i,'🍰'],[/croissant|bread|ເຂົ້າຈີ່|toast|sandwich|ແຊນວິດ/i,'🥪'],[/porridge|ໂຈ໊ກ|ເຂົ້າຕົ້ມ/i,'🥣'],
+ [/oyster|ຫອຍ/i,'🦪'],[/squid|ປາມຶກ/i,'🦑'],[/shrimp|prawn|ກຸ້ງ/i,'🦐'],[/fish|ປາ/i,'🐟'],[/grill|ປີ້ງ|ຈີ່/i,'🍢'],[/noodle|ເຝີ|ໝີ່|ຫມີ່|ເສັ້ນ|pasta|spaghetti|ສະປາ/i,'🍜'],
+ [/soup|ຕົ້ມ|ແກງ|tom yum|ຕົ້ມຍຳ/i,'🍲'],[/salad|ລາບ|ຕຳ|ຍຳ|ສະຫຼັດ|ສະລັດ/i,'🥗'],[/fries|ມັນຝຣັ່ງ|ມັນທອດ/i,'🍟'],[/egg|ໄຂ່/i,'🍳'],[/chicken|ໄກ່|wing/i,'🍗'],
+ [/beef|ງົວ|pork|ໝູ|ຫມູ|steak|ສະເຕັກ/i,'🥩'],[/fried rice|ເຂົ້າຜັດ|rice|ເຂົ້າ/i,'🍛'],[/stir|ຜັດ/i,'🥘'],[/vegetable|ຜັກ/i,'🥬'],[/topping|ເພີ່ມ/i,'➕'],[/service|ບໍລິການ|ເປີດ/i,'🛎️']];
+const THUMB_COLORS=[['#fde68a','#f59e0b'],['#bbf7d0','#16a34a'],['#fecaca','#ef4444'],['#bae6fd','#0ea5e9'],['#fbcfe8','#ec4899'],['#ddd6fe','#8b5cf6'],['#fed7aa','#f97316'],['#a7f3d0','#0d9488'],['#e9d5ff','#a855f7'],['#fef08a','#ca8a04']];
+function _menuGroup(p){var M=MSRC();for(var a in M)for(var b in M[a])if(M[a][b].indexOf(p)>=0)return [a,b];return ['',''];}
+function menuEmoji(p){var g=_menuGroup(p);var lead=/^\s*(\p{Extended_Pictographic}\uFE0F?)/u.exec(g[1]||'')||/^\s*(\p{Extended_Pictographic}\uFE0F?)/u.exec(g[0]||'');if(lead)return lead[1];
+ var txt=(p.n||'')+' '+g[1]+' '+g[0];for(var i=0;i<THUMB_RULES.length;i++)if(THUMB_RULES[i][0].test(txt))return THUMB_RULES[i][1];return p.k==='drink'?'🥤':'🍽️';}
+function menuThumb(p){if(_thumbCache[p.c])return _thumbCache[p.c];var g=_menuGroup(p),h=0,key=g[1]||g[0]||p.k||'';for(var i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;var col=THUMB_COLORS[h%THUMB_COLORS.length];
+ var c=document.createElement('canvas');c.width=240;c.height=180;var x=c.getContext('2d');var gr=x.createRadialGradient(120,78,12,120,92,190);gr.addColorStop(0,col[0]);gr.addColorStop(1,col[1]);x.fillStyle=gr;x.fillRect(0,0,240,180);
+ x.globalAlpha=.16;x.fillStyle='#fff';x.beginPath();x.arc(200,24,62,0,7);x.fill();x.beginPath();x.arc(26,166,48,0,7);x.fill();x.globalAlpha=1;
+ x.font='92px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.shadowColor='rgba(0,0,0,.22)';x.shadowBlur=12;x.shadowOffsetY=6;x.fillText(menuEmoji(p),120,94);
+ return (_thumbCache[p.c]=c.toDataURL('image/jpeg',.82));}
+function toggleExampleImg(on){state.exampleImg=!!on;save();render();}
 function renderProducts(){const q=(document.getElementById('search')?.value||'').toLowerCase();let items=[];const M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];const subs=M[state.activeCat]||{};
  Object.keys(subs).forEach(s=>{if(!state.activeSub||state.activeSub===s)items=items.concat(subs[s]);});
  if(q)items=items.filter(p=>p.n.toLowerCase().includes(q)||p.c.toLowerCase().includes(q));
  const cust=isCust();
- document.getElementById('products').innerHTML=items.map(p=>{const low=!!state.ingredients&&(p.bom||[]).some(function(b){var it=state.ingredients[b[0]];return it&&it.stock<0;});const img=(state.menuImg||{})[p.c];
+ document.getElementById('products').innerHTML=items.map(p=>{const low=!!state.ingredients&&(p.bom||[]).some(function(b){var it=state.ingredients[b[0]];return it&&it.stock<0;});const img=(state.menuImg||{})[p.c]||(state.exampleImg!==false?menuThumb(p):'');
   const dq=cust?(state.draft||[]).filter(x=>x.code===p.c).reduce((s,i)=>s+i.qty,0):0;
   const so=state.soldOut&&state.soldOut[p.c];
   return `<div class="product ${low?'lowstk':''} ${dq>0?'picked':''} ${so?'soldout':''}" onclick='addItem(${JSON.stringify(p).replace(/'/g,"&#39;")})'>${so?'<span class="soldtag">ໝົດ</span>':''}${dq>0?`<span class="qbadge">${dq}</span>`:''}${img?`<div class="thumb"><img src="${img}" alt=""></div>`:''}<div class="pname">${p.n}</div><div class="ptop"><span class="price">${KIP(p.p)}</span><span class="code">${p.c}</span></div>${(!cust&&can('soldout'))?`<button class="miniic" style="position:absolute;bottom:4px;right:4px;font-size:11px;color:${so?'var(--green)':'var(--red)'}" title="${so?'ເປີດຂາຍຄືນ':'ໝົດ/ງົດຂາຍ'}" onclick="event.stopPropagation();toggleSoldOut('${p.c}')">${so?'ເປີດ':'ໝົດ?'}</button>`:''}</div>`;}).join('')||(cust&&!allMenu().length?'<div class="empty" style="padding:40px 16px;line-height:1.7">ກຳລັງໂຫຼດເມນູ...<br><small>ຖ້າດົນ: ລອງໂຫຼດໜ້າຄືນ (refresh) ຫຼືຂໍ QR ໃໝ່ຈາກພະນັກງານ</small></div>':'<div class="empty">ບໍ່ພົບສິນຄ້າ</div>');}
@@ -2165,8 +2185,9 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
     <div style="margin-top:8px;max-height:200px;overflow:auto">${Object.values(state.tables).map(t=>`<span class="pill">${t.name} <small style="color:var(--muted)">(${t.floor})</small><button onclick="removeTable('${t.name.replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div></div>
 
   <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຮູບເມນູ ແລະ ການລຶບເມນູ</div>
+    <label style="display:flex;align-items:center;gap:8px;margin:0 0 10px;font-weight:600"><input type="checkbox" style="width:auto" ${state.exampleImg!==false?'checked':''} onchange="toggleExampleImg(this.checked)"> ສະແດງຮູບຕົວຢ່າງອັດຕະໂນມັດ ສຳລັບເມນູທີ່ຍັງບໍ່ມີຮູບ (ບໍ່ເພີ່ມຂະໜາດຂໍ້ມູນ)</label>
     <div style="max-height:240px;overflow:auto"><table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ຮູບ</th><th></th></tr></thead><tbody>
-     ${allMenu().map(p=>`<tr><td>${p.c}</td><td>${p.n}</td><td>${state.menuImg[p.c]?'<span class="tag ok">ມີຮູບ</span>':'<span style="color:#94a3b8">emoji</span>'}</td><td><button class="btn-sm" onclick="showMenuBom('${p.c}')">ສູດ</button> <button class="btn-sm" onclick="setMenuImage('${p.c}')">ປ່ຽນຮູບ</button> <button class="btn-sm red" onclick="askDelMenu('${p.c}')">ລຶບ</button></td></tr>`).join('')}</tbody></table></div></div>
+     ${allMenu().map(p=>`<tr><td>${p.c}</td><td>${p.n}</td><td>${state.menuImg[p.c]?'<span class="tag ok">ມີຮູບ</span>':'<span style="color:#94a3b8">ຮູບຕົວຢ່າງ '+menuEmoji(p)+'</span>'}</td><td><button class="btn-sm" onclick="showMenuBom('${p.c}')">ສູດ</button> <button class="btn-sm" onclick="setMenuImage('${p.c}')">ປ່ຽນຮູບ</button> <button class="btn-sm red" onclick="askDelMenu('${p.c}')">ລຶບ</button></td></tr>`).join('')}</tbody></table></div></div>
 
   <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> Log ການລົບເມນູ (${(state.menuLog||[]).length}) <button class="btn-sm" style="margin-left:8px" onclick="exportMenuLog()"> Export Excel</button></div>
     <div style="max-height:220px;overflow:auto"><table class="tbl"><thead><tr><th>ວັນທີ</th><th>ລະຫັດ</th><th>ຊື່ເມນູ</th><th>ເຫດຜົນ</th><th>ໂດຍ (ກະ - ຜູ້ໃຊ້)</th></tr></thead><tbody>${(state.menuLog||[]).slice().reverse().map(function(l){return '<tr><td>'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.code)+'</td><td>'+cesc(l.name)+'</td><td>'+cesc(l.reason)+'</td><td>'+cesc(l.by||'')+'</td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:16px">ຍັງບໍ່ມີການລົບ</td></tr>'}</tbody></table></div></div>
