@@ -801,6 +801,16 @@ html,body{height:100%;overscroll-behavior:none}
  .cxsum .cxhero small{white-space:normal}
 }
 @media (max-width:370px){.tablegrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* ບໍ່ໃຫ້ແຖບລຸ່ມບັງເນື້ອຫາ (ໃຊ້ໄດ້ທັງ iOS Safari) */
+@media (max-width:900px){
+ #viewRoot{padding-bottom:0!important}
+ #viewRoot>*{flex-shrink:0}
+ #viewRoot>#orderWrap{flex:1 1 0;min-height:0}
+ #viewRoot::after{content:'';display:block;flex:0 0 calc(112px + env(safe-area-inset-bottom));height:calc(112px + env(safe-area-inset-bottom))}
+ #orderWrap .products{padding-bottom:84px!important}
+ #app.cust #viewRoot::after{flex-basis:calc(96px + env(safe-area-inset-bottom));height:calc(96px + env(safe-area-inset-bottom))}
+}
 </style>
 </head>
 <body>
