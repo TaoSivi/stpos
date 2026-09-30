@@ -144,6 +144,18 @@ function mergeStock_(curStr, inc) {
       if (!ii.locs) ii.locs = {};
       Object.keys(ci.locs).forEach(function (loc) { if (loc !== src) ii.locs[loc] = ci.locs[loc]; }); /* ບ່ອນອື່ນ = ຂອງ server */
     });
+    /* ບ່ອນດຽວກັນ 2 ເຄື່ອງ (ແຄດເຊຍ+ແທັບເລັດ) ຂາຍພ້ອມກັນ: ເອົາຄ່າຂອງ server + ການເຄື່ອນໄຫວໃໝ່ຂອງເຄື່ອງນີ້ (ຈາກ stockLog) ແທນການຂຽນທັບ */
+    if (Array.isArray(cur.stockLog) && cur.stockLog.length && Array.isArray(inc.stockLog)) {
+      var lk = function (l) { return l.ts + '|' + l.code + '|' + l.delta + '|' + (l.loc || '') + '|' + (l.reason || ''); };
+      var have0 = {}, minTs = Infinity; cur.stockLog.forEach(function (l) { have0[lk(l)] = 1; if ((l.ts || 0) < minTs) minTs = l.ts || 0; });
+      var dsum = {}; inc.stockLog.forEach(function (l) { if (!l || have0[lk(l)] || (l.ts || 0) < minTs) return; if ((l.loc || src) !== src) return; dsum[l.code] = (dsum[l.code] || 0) + (+l.delta || 0); });
+      Object.keys(incIng).forEach(function (code) {
+        var ci = curIng[code], ii = incIng[code]; if (!ci || !ci.locs || ci.locs[src] === undefined || !ii) return;
+        if (!ii.locs) ii.locs = {};
+        ii.locs[src] = Math.round(((+ci.locs[src] || 0) + (dsum[code] || 0)) * 1000) / 1000;
+      });
+      inc.__stkDelta = 1;
+    }
     if (Array.isArray(cur.stockLog)) {                   /* ລວມ ledger ຂ້າມບ່ອນ (ກັນເສຍ log) */
       if (!Array.isArray(inc.stockLog)) inc.stockLog = [];
       var seen = {}; inc.stockLog.forEach(function (l) { seen[l.ts + '|' + l.code + '|' + l.delta + '|' + (l.loc || '') + '|' + (l.reason || '')] = 1; });
@@ -198,6 +210,46 @@ function mergeDocs_(curStr, inc) {
     return inc;
   } catch (e) { return inc; }
 }
+/* ຫຼາຍເຄື່ອງພ້ອມກັນ: ລວມລາຍໂຕະ / ລາຍອໍເດີ / ລາຍສະມາຊິກ ຕາມເວລາແກ້ໄຂ (upd) — ອັນໃໝ່ກວ່າຊະນະ.
+   ເດີມຂຽນທັບທັງກ້ອນ → ອໍເດີຂອງແທັບເລັດຫາຍ ເມື່ອແຄດເຊຍບັນທຶກພ້ອມກັນ */
+function mergeTables_(curStr, inc) {
+  try {
+    if (!curStr || !inc || typeof inc !== 'object' || !inc.tables) return inc;
+    var cur = JSON.parse(curStr); if (!cur || !cur.tables) return inc;
+    var U = function (x) { return +(x && x.upd) || 0; };
+    var curOrd = {}; (cur.orders || []).forEach(function (o) { curOrd[String(o.id)] = o; });
+    if (!Array.isArray(inc.orders)) inc.orders = [];
+    var incOrd = {}; inc.orders.forEach(function (o) { incOrd[String(o.id)] = o; });
+    var fromCur = {};
+    Object.keys(cur.tables).forEach(function (k) {
+      var ct = cur.tables[k], it = inc.tables[k];
+      if (!it) return;
+      if (U(ct) > U(it)) { inc.tables[k] = ct; fromCur[k] = 1; }
+    });
+    /* ອໍເດີ: ໂຕະທີ່ເອົາຈາກ server → ຊຸດອໍເດີຂອງໂຕະນັ້ນເອົາຈາກ server; ອັນທີ່ມີທັງສອງຝັ່ງ → upd ໃໝ່ກວ່າຊະນະ (ສະຖານະຄົວ) */
+    var out = [];
+    inc.orders.forEach(function (o) { if (fromCur[o.table]) return; var c = curOrd[String(o.id)]; out.push(c && U(c) > U(o) ? c : o); });
+    (cur.orders || []).forEach(function (o) { if (!fromCur[o.table]) return; var i = incOrd[String(o.id)]; out.push(i && U(i) > U(o) ? i : o); });
+    /* ລາຍການທີ່ຈ່າຍແລ້ວ (ມີໃນບິນ) ບໍ່ໃຫ້ກັບມາຄ້າງໂຕະ/ຈໍຄົວອີກ */
+    var paid = {}; (inc.bills || []).forEach(function (b) { if (b && !b.voided) (b.items || []).forEach(function (i) { paid[String(i.id)] = 1; }); });
+    Object.keys(inc.tables).forEach(function (k) { var t = inc.tables[k]; if (!t || !Array.isArray(t.items)) return;
+      var n0 = t.items.length; t.items = t.items.filter(function (i) { return !paid[String(i.id)]; });
+      if (n0 && !t.items.length && t.status !== 'merged') { t.status = 'free'; t.billTs = null; } });
+    inc.orders = out.filter(function (o) { return !paid[String(o.id)]; }).sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    /* ສະມາຊິກ: ເງິນກະເປົາ/ແຕ້ມ/ໜີ້ ບໍ່ຫາຍເມື່ອ 2 ເຄື່ອງແກ້ຄົນລະຄົນ */
+    if (Array.isArray(cur.customers)) {
+      if (!Array.isArray(inc.customers)) inc.customers = [];
+      var ci = {}; inc.customers.forEach(function (c, i) { ci[String(c.id)] = i; });
+      var del = {}; (inc._custDel || []).concat(cur._custDel || []).forEach(function (x) { del[String(x)] = 1; });
+      cur.customers.forEach(function (c) { var i = ci[String(c.id)];
+        if (i === undefined) { if (!del[String(c.id)]) inc.customers.push(c); }
+        else if (U(c) > U(inc.customers[i])) inc.customers[i] = c; });
+      inc.customers = inc.customers.filter(function (c) { return !del[String(c.id)]; });
+      inc._custDel = Object.keys(del).slice(-300);
+    }
+    return inc;
+  } catch (e) { return inc; }
+}
 /* ອໍເດີ QR ທີ່ລູກຄ້າສັ່ງ ແຕ່ເຄື່ອງພະນັກງານຍັງບໍ່ໄດ້ sync — ຢ່າໃຫ້ການບັນທຶກຂອງເຄື່ອງພະນັກງານຂຽນທັບຫາຍ.
    ລາຍການ QR (qr:true) ທີ່ມີໃນ server ແຕ່ບໍ່ພົບໃນຂໍ້ມູນທີ່ສົ່ງມາ (ບໍ່ຢູ່ໂຕະໃດ, ບໍ່ຢູ່ໃນບິນ, ບໍ່ຢູ່ໃນ log ລຶບ) = ເຄື່ອງນັ້ນຍັງບໍ່ເຫັນ → ໃສ່ຄືນ */
 function mergeQr_(curStr, inc) {
@@ -223,7 +275,7 @@ function mergeQr_(curStr, inc) {
           inc.orders.push(co || { id: line.id, table: k, code: line.code, name: line.name, qty: line.qty, k: line.k, mods: line.mods, note: line.note, status: 'wait', ts: line.ts, qr: true });
         }
         var def = map[line.code], loc = line.qrLoc || 'main';
-        if (def && inc._srcLoc === loc && inc.ingredients) (def.bom || []).forEach(function (b) {
+        if (def && !inc.__stkDelta && inc._srcLoc === loc && inc.ingredients) (def.bom || []).forEach(function (b) {
           var ing = inc.ingredients[b[0]]; if (!ing) return; if (!ing.locs) ing.locs = {};
           ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
         });
@@ -235,9 +287,11 @@ function mergeQr_(curStr, inc) {
     return inc;
   } catch (e) { return inc; }
 }
-function saveStateRaw_(json, skipMerge) {
+function saveStateRaw_(json, skipMerge, quiet) {
   json = String(json == null ? '' : json);
-  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); var curRst = cur ? +((/"_reset":(\d+)/.exec(cur) || [0, 0])[1]) : 0; if (inc._reset && +inc._reset > curRst) { cur = null; } /* ລ້າງຂໍ້ມູນ: ບໍ່ລວມຂອງເກົ່າຄືນ */ inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); inc = mergeQr_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
+  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); var curRst = cur ? +((/"_reset":(\d+)/.exec(cur) || [0, 0])[1]) : 0; if (inc._reset && +inc._reset > curRst) { cur = null; } /* ລ້າງຂໍ້ມູນ: ບໍ່ລວມຂອງເກົ່າຄືນ */ var j0 = json; inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); inc = mergeTables_(cur, inc); inc = mergeQr_(cur, inc); delete inc.__stkDelta; json = JSON.stringify(inc);
+    /* ລວມຂອງເຄື່ອງອື່ນເຂົ້າມາ → ເລກເວີຊັນໃໝ່ ໃຫ້ເຄື່ອງທີ່ບັນທຶກ (ແລະທຸກເຄື່ອງ) ດຶງໄປສະແດງ */
+    if (json !== j0 && cur) { var cv = +((/"_v":(\d+)/.exec(cur) || [0, 0])[1]); inc._v = Math.max(+inc._v || 0, cv, Date.now()) + 1; json = JSON.stringify(inc); } } } catch (e) {} }
   var ss = getSS_();
   if (!ss) { PROP.setProperty('ST_BLOB', json.substring(0, 9000)); return true; }
   var sh = tab_(ss, 'STATE'); sh.clearContents();
@@ -247,7 +301,7 @@ function saveStateRaw_(json, skipMerge) {
   var mv = /"_v":(\d+)/.exec(json); PROP.setProperty('STATE_V', String(mv ? mv[1] : Date.now()));
   /* ແທັບສຳເນົາໃຫ້ຄົນອ່ານ (Tables/Stock/Bills…) ຂຽນຊ້າ — ສູງສຸດທຸກ 2 ນາທີ (ເດີມຂຽນທຸກການບັນທຶກ ເຮັດໃຫ້ຊ້າ) */
   var lastM = +(PROP.getProperty('MIRROR_TS') || 0);
-  if (skipMerge || Date.now() - lastM > 120000) { try { writeMirrors_(ss, JSON.parse(json)); PROP.setProperty('MIRROR_TS', String(Date.now())); } catch (e) {} }
+  if ((skipMerge && !quiet) || Date.now() - lastM > 120000) { try { writeMirrors_(ss, JSON.parse(json)); PROP.setProperty('MIRROR_TS', String(Date.now())); } catch (e) {} }
   SpreadsheetApp.flush();
   return true;
 }
@@ -304,7 +358,7 @@ function custAction_(payload) {
       t.callTs = now;
       if (!st.orderLog) st.orderLog = [];
       st.orderLog.push({ ts: now, table: table, action: 'ຂໍເຊັກບິນ (QR)', detail: '', by: 'ລູກຄ້າ QR ໂຕະ ' + table });
-      st._v = Date.now(); saveStateRaw_(JSON.stringify(st));
+      t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
       return { ok: true, state: custFilter_(st, table) };
     }
     /* action === 'order' */
@@ -321,19 +375,22 @@ function custAction_(payload) {
     for (var c in cat) for (var sub in cat[c]) (cat[c][sub] || []).forEach(function (pp) { map[pp.c] = pp; });
     var promo = activePromo_(st);
     var cnt = 0, skipped = 0;
+    var clean = function (x, n) { return String(x == null ? '' : x).replace(/[<>]/g, '').slice(0, n); };
+    var modP = {}; (st.modGroups || []).forEach(function (g) { (g.opts || []).forEach(function (o) { if (o && o.n != null) modP[String(o.n)] = +o.p || 0; }); });
     items.forEach(function (it) {
       var def = map[String(it.code || '')];
       if (!def) { skipped++; return; }
       if (st.soldOut && st.soldOut[def.c]) { skipped++; return; }
       var qn = Math.max(1, Math.min(99, Math.round(+it.qty || 1)));
-      var mp = Math.max(0, Math.min(500000, +it.modPrice || 0));
+      var mods = (it.mods || []).slice(0, 12).map(function (m) { return clean(m, 60); });
+      var mp = mods.reduce(function (a, m) { return a + (modP.hasOwnProperty(m) ? modP[m] : 0); }, 0);
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
-        mods: (it.mods || []).slice(0, 12).map(function (m) { return String(m).slice(0, 60); }),
-        modPrice: mp, disc: 0, k: def.k, note: String(it.note || '').slice(0, 120), ts: now, qr: true, qrLoc: qrLoc };
+        mods: mods,
+        modPrice: mp, disc: 0, k: def.k, note: clean(it.note, 120), ts: now, qr: true, qrLoc: qrLoc };
       if (rid) line.qrRid = rid;
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
-      st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true });
+      st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true, upd: now });
       (def.bom || []).forEach(function (b) {
         var ing = st.ingredients && st.ingredients[b[0]];
         if (ing) {
@@ -351,7 +408,7 @@ function custAction_(payload) {
     st.orderNo = (st.orderNo || 1) + 1;
     if (!st.orderLog) st.orderLog = [];
     st.orderLog.push({ ts: now, table: table, action: 'ສັ່ງຜ່ານ QR', detail: cnt + ' ລາຍການ' + (skipped ? ' (ຂ້າມ ' + skipped + ')' : ''), by: 'ລູກຄ້າ QR ໂຕະ ' + table });
-    st._v = Date.now(); saveStateRaw_(JSON.stringify(st));
+    t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
     if (rid) { try { CacheService.getScriptCache().put(ridKey, '1', 21600); } catch (e) {} }
     return { ok: true, n: cnt, skipped: skipped, state: custFilter_(st, table) };
   } catch (e) { return { ok: false, err: 'server: ' + (e && e.message || e) }; }
