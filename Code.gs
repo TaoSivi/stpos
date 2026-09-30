@@ -153,12 +153,12 @@ function mergeStock_(curStr, inc) {
     }
     if (Array.isArray(cur.transfers)) {                  /* ລວມໃບໂອນ: ຄົງໃບຂອງເຄື່ອງອື່ນ + ໃຫ້ສະຖານະທີ່ຄືບໜ້າກວ່າຊະນະ */
       if (!Array.isArray(inc.transfers)) inc.transfers = [];
-      var rank = function (s) { return s === 'received' ? 3 : (s === 'void' ? 2 : 1); };
+      var rank = function (t) { var s = t.status; return s === 'received' ? (t.resolution ? 4 : 3) : (s === 'void' ? 2 : 1); };
       var byId = {}; inc.transfers.forEach(function (t) { byId[t.id] = t; });
       cur.transfers.forEach(function (t) {
         var e = byId[t.id];
         if (!e) { inc.transfers.push(t); byId[t.id] = t; }
-        else if (rank(t.status) > rank(e.status)) { inc.transfers[inc.transfers.indexOf(e)] = t; byId[t.id] = t; }
+        else if (rank(t) > rank(e)) { inc.transfers[inc.transfers.indexOf(e)] = t; byId[t.id] = t; }
       });
       inc.transfers.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
     }
@@ -180,6 +180,20 @@ function mergeDocs_(curStr, inc) {
         else if ((d.upd || d.ts || 0) > (inc[k][i].upd || inc[k][i].ts || 0)) inc[k][i] = d;
       });
       inc[k].sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    });
+    /* log ແບບຕໍ່ທ້າຍ (ບໍ່ມີການລຶບ): ລວມທັງສອງຝັ່ງ ກັນ log ຂອງເຄື່ອງອື່ນຫາຍເມື່ອບັນທຶກພ້ອມກັນ */
+    var LOGS = { cancelLog: function (l) { return l.ts + '|' + (l.type || '') + '|' + (l.name || '') + '|' + (l.table || '') + '|' + (l.qty || ''); },
+      orderLog: function (l) { return l.ts + '|' + (l.action || '') + '|' + (l.detail || '') + '|' + (l.table || ''); },
+      menuLog: function (l) { return l.ts + '|' + (l.code || '') + '|' + (l.reason || ''); },
+      shiftLog: function (l) { return (l.id || '') + '|' + (l.openTs || l.ts || '') + '|' + (l.name || ''); } };
+    Object.keys(LOGS).forEach(function (k) {
+      if (!Array.isArray(cur[k]) || !cur[k].length) return;
+      if (!Array.isArray(inc[k])) inc[k] = [];
+      var key = LOGS[k], seen = {};
+      inc[k].forEach(function (l) { if (l) seen[key(l)] = 1; });
+      var added = 0; cur[k].forEach(function (l) { if (!l) return; var kk = key(l); if (!seen[kk]) { inc[k].push(l); seen[kk] = 1; added++; } });
+      if (added) inc[k].sort(function (a, b) { return (a.ts || a.openTs || 0) - (b.ts || b.openTs || 0); });
+      var cap = { cancelLog: 3000, orderLog: 2000, menuLog: 2000, shiftLog: 1000 }[k]; if (inc[k].length > cap) inc[k] = inc[k].slice(-cap);
     });
     return inc;
   } catch (e) { return inc; }
@@ -223,7 +237,7 @@ function mergeQr_(curStr, inc) {
 }
 function saveStateRaw_(json, skipMerge) {
   json = String(json == null ? '' : json);
-  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); inc = mergeQr_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
+  if (!skipMerge) { try { var inc = JSON.parse(json); if (inc && typeof inc === 'object' && !inc.cust) { var cur = getState_(); var curRst = cur ? +((/"_reset":(\d+)/.exec(cur) || [0, 0])[1]) : 0; if (inc._reset && +inc._reset > curRst) { cur = null; } /* ລ້າງຂໍ້ມູນ: ບໍ່ລວມຂອງເກົ່າຄືນ */ inc = mergeBills_(cur, inc); inc = mergeStock_(cur, inc); inc = mergeDocs_(cur, inc); inc = mergeQr_(cur, inc); json = JSON.stringify(inc); } } catch (e) {} }
   var ss = getSS_();
   if (!ss) { PROP.setProperty('ST_BLOB', json.substring(0, 9000)); return true; }
   var sh = tab_(ss, 'STATE'); sh.clearContents();

@@ -8,6 +8,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>ST POS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23062f2d%22/%3E%3Ctext x=%2232%22 y=%2242%22 font-size=%2226%22 font-weight=%22800%22 text-anchor=%22middle%22 fill=%22%237ff0e9%22 font-family=%22Arial%22%3EST%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Noto+Sans+Lao:wght@400;500;600;700;900&family=Noto+Serif+Lao:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -733,6 +734,11 @@ table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
 .tffix-o input{width:18px!important;height:18px;margin-top:2px;accent-color:#0A7E7A;flex-shrink:0}.tffix-o span{display:flex;flex-direction:column;gap:2px}.tffix-o small{font-size:12px;color:var(--muted)}
 .tffix-o:has(input:checked){background:#e0f7f5;outline:2px solid #0A7E7A}.modal:has(.tffix){max-width:720px!important;width:94vw}
 .tffix-alert{margin:14px 0 4px;padding:12px 16px;border-radius:16px;background:#fff7ed;color:#9a3412;font-weight:700}.tffix-alert a{color:#9a3412;text-decoration:underline}
+
+/* ຮອບ 7: ແກ້ບັກໜ້າຕາ */
+.custmenu .cats{flex-wrap:nowrap!important;overflow-x:auto!important}.custmenu .cats .cat{flex-shrink:0;white-space:nowrap}
+.custmenu .subcats{flex-wrap:nowrap!important;overflow-x:auto}
+.modal .modal-btns:has(.btn-ok){position:sticky;bottom:-26px;background:#fff;margin-bottom:-26px;padding:12px 0 22px;z-index:3}
 </style>
 </head>
 <body>
@@ -3405,7 +3411,7 @@ function addStaff(){openModal(`<h2> ເພີ່ມພະນັກງານ</h2>
 function doAddStaff(){const v=(document.getElementById('stf').value||'').trim();if(!v){toast('ໃສ່ຊື່');return;}if(state.staff.includes(v)){toast('ຊື່ຊ້ຳ');return;}state.staff.push(v);save();closeModal();render();showSuccess('ເພີ່ມພະນັກງານສຳເລັດ!',v);}
 function removeStaff(name){if(state.staff.length<=1){toast('ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຄົນ');return;}state.staff=state.staff.filter(s=>s!==name);if(state.activeStaff===name)state.activeStaff=state.staff[0];save();render();toast('ລຶບ '+name);}
 function confirmReset(){openModal(`<h2> ລ້າງຂໍ້ມູນທັງໝົດ?</h2><p style="font-size:14px;text-align:center;color:var(--muted)">ກັບคืนບໍ່ໄດ້</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--red)" onclick="doReset()">ລ້າງເລີຍ</button></div>`);}
-function doReset(){const nm=state.shopName;state=freshState();state.shopName=nm;save();closeModal();setView('tables');showSuccess('ລ້າງຂໍ້ມູນສຳເລັດ!');}
+function doReset(){const nm=state.shopName;state=freshState();state.shopName=nm;state._reset=Date.now();save();closeModal();setView('tables');showSuccess('ລ້າງຂໍ້ມູນສຳເລັດ!');}
 function openModal(h){document.getElementById('modalRoot').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${h}</div></div>`;}
 function closeModal(){document.getElementById('modalRoot').innerHTML='';}
 /* ===== RECEIPT / PRINT ===== */
