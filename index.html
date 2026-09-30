@@ -726,6 +726,8 @@ table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
 .tag.permov{background:#fff5dc;color:#8a5a00}
 .pm-g{background:#f2f9f8!important;font-weight:800;color:#0A7E7A;font-size:12px}
 @media (max-width:700px){.permgrid{grid-template-columns:1fr}.imp-sum{grid-template-columns:repeat(2,1fr)}.mnu-filter input[type=search],.mnu-filter select{min-width:0;flex:1}}
+
+.pd-doc .pd-stamp{top:auto!important;bottom:120px!important;right:36px!important}.tfdoc-wrap{max-height:66vh;overflow:auto;margin:-6px -6px 0}.modal:has(.tfdoc-wrap){max-width:900px!important;width:95vw}
 </style>
 </head>
 <body>
@@ -2022,9 +2024,9 @@ function renderTransfers(R){
  var incoming=trs.filter(function(t){return t.status==='sent'&&t.to===cl;});
  var outgoing=trs.filter(function(t){return t.status==='sent'&&t.from===cl;});
  var done=trs.filter(function(t){return t.status!=='sent';}).slice(0,80);
- var incRows=incoming.map(function(t){return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.ts).toLocaleString('en-GB')+'</small></td><td>'+cesc(locName(t.from))+' → <b style="color:var(--tiff-deep)">'+cesc(locName(t.to))+'</b></td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td><button class="btn-sm green" onclick="receiveTransfer(\''+t.id+'\')">ຮັບເຂົ້າ</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ບໍ່ມີໃບລໍຖ້າຮັບ</td></tr>';
- var outRows=outgoing.map(function(t){return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.ts).toLocaleString('en-GB')+'</small></td><td><b>'+cesc(locName(t.from))+'</b> → '+cesc(locName(t.to))+'</td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td><span class="tag warn">ລໍຖ້າຮັບ</span> <button class="btn-sm red" onclick="voidTransfer(\''+t.id+'\')">ຍົກເລີກ</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ບໍ່ມີໃບສົ່ງອອກຄ້າງ</td></tr>';
- var doneRows=done.map(function(t){var st=t.status==='received'?'<span class="tag ok">ຮັບແລ້ວ</span>':'<span class="tag" style="background:#eef2f7;color:#64748b">ຍົກເລີກ</span>';return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.recvTs||t.voidTs||t.ts).toLocaleString('en-GB')+'</small></td><td>'+cesc(locName(t.from))+' → '+cesc(locName(t.to))+'</td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td>'+st+'</td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ຍັງບໍ່ມີປະຫວັດ</td></tr>';
+ var incRows=incoming.map(function(t){return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.ts).toLocaleString('en-GB')+'</small></td><td>'+cesc(locName(t.from))+' → <b style="color:var(--tiff-deep)">'+cesc(locName(t.to))+'</b></td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td style="white-space:nowrap"><button class="btn-sm" onclick="tfView(\''+t.id+'\',\'tfo\')">ໃບສົ່ງ</button> <button class="btn-sm green" onclick="receiveTransfer(\''+t.id+'\')">ກວດຮັບເຂົ້າ</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ບໍ່ມີໃບລໍຖ້າຮັບ</td></tr>';
+ var outRows=outgoing.map(function(t){return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.ts).toLocaleString('en-GB')+'</small></td><td><b>'+cesc(locName(t.from))+'</b> → '+cesc(locName(t.to))+'</td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td style="white-space:nowrap"><span class="tag warn">ລໍຖ້າຮັບ</span> <button class="btn-sm" onclick="tfView(\''+t.id+'\',\'tfo\')">ໃບສົ່ງ</button> <button class="btn-sm red" onclick="voidTransfer(\''+t.id+'\')">ຍົກເລີກ</button></td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ບໍ່ມີໃບສົ່ງອອກຄ້າງ</td></tr>';
+ var doneRows=done.map(function(t){var st=(t.status==='received'?'<span class="tag '+((t.diff||[]).length?'warn">ຮັບບໍ່ຄົບ':'ok">ຮັບຄົບ')+'</span>':'<span class="tag" style="background:#eef2f7;color:#64748b">ຍົກເລີກ</span>')+' <button class="btn-sm" onclick="tfView(\''+t.id+'\',\'tfo\')">ໃບສົ່ງ</button>'+(t.status==='received'?' <button class="btn-sm" onclick="tfView(\''+t.id+'\',\'tfi\')">ໃບຮັບ</button>':'');return '<tr><td><b>'+cesc(t.no)+'</b><br><small style="color:var(--muted)">'+new Date(t.recvTs||t.voidTs||t.ts).toLocaleString('en-GB')+'</small></td><td>'+cesc(locName(t.from))+' → '+cesc(locName(t.to))+'</td><td style="font-size:12px">'+tfItemsStr(t)+'</td><td>'+st+'</td></tr>';}).join('')||'<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px">ຍັງບໍ່ມີປະຫວັດ</td></tr>';
  R.innerHTML='<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ໂອນສະຕ໋ອກລະຫວ່າງບ່ອນ</div><div class="sub">ບ່ອນຂອງເຄື່ອງນີ້: <b>'+cesc(locName(cl))+'</b> · ໂອນອອກ = ຕັດຈາກນີ້ · ຮັບເຂົ້າ = ເພີ່ມໃສ່ນີ້</div></div></div>'
   +'<div style="padding:0 18px 10px"><button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="openTransferCreate()"> ສ້າງໃບໂອນ (ອອກຈາກ '+cesc(locName(cl))+')</button> <button class="btn-sm" onclick="setView(\'stock\')">‹ ກັບໜ້າສະຕ໋ອກ</button></div>'
   +'<div style="padding:0 18px 18px">'
@@ -2039,6 +2041,7 @@ function renderTfModal(){var d=window.__tf;var cl=curLoc();var others=(state.loc
   +'<label style="margin-top:8px">ເພີ່ມລາຍການ</label><div style="display:flex;gap:6px;flex-wrap:wrap"><input id="tf_code" list="ingdl2" placeholder="ລະຫັດ/ຊື່ວັດຖຸດິບ" style="flex:2;min-width:140px"><input id="tf_qty" type="number" inputmode="decimal" placeholder="ຈຳນວນ" style="flex:1;min-width:80px"><button class="btn-sm green" onclick="tfAddItem()">ເພີ່ມ</button></div>'
   +'<datalist id="ingdl2">'+Object.values(state.ingredients).map(function(i){return '<option value="'+cesc(i.code)+'">'+cesc(i.name)+' ('+cesc(i.unit)+') ຄົງ '+KIP(stockAt(i.code,cl))+'</option>';}).join('')+'</datalist>'
   +'<div id="tflist" style="max-height:34vh;overflow:auto;margin-top:8px"></div>'
+  +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><label>ຜູ້ຂົນສົ່ງ / ລົດ</label><input id="tf_car" value="'+cesc(d.carrier||'')+'" oninput="window.__tf.carrier=this.value" placeholder="ເຊັ່ນ ທ້າວ ກ · ລົດ ກຂ 1234"></div><div style="flex:2;min-width:180px"><label>ໝາຍເຫດ</label><input id="tf_note" value="'+cesc(d.note||'')+'" oninput="window.__tf.note=this.value" placeholder="ເຊັ່ນ ເຕີມສະຕ໋ອກປະຈຳອາທິດ"></div></div>'
   +'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="doCreateTransfer()">ໂອນອອກ</button></div>');
  renderTfList();var f=document.getElementById('tf_code');if(f)f.focus();}
 function renderTfList(){var d=window.__tf;var el=document.getElementById('tflist');if(!el)return;var cl=curLoc();
@@ -2055,15 +2058,39 @@ function doCreateTransfer(){var d=window.__tf;var cl=curLoc();
  if(!Array.isArray(state.transfers))state.transfers=[];
  var no=genTfNo(),id='tf'+Date.now().toString(36)+Math.floor(Math.random()*1000);
  d.items.forEach(function(it){addStockAt(it.code,cl,-it.qty,'ໂອນອອກ','ໃບ '+no+' → '+locName(d.to));});
- state.transfers.push({id:id,no:no,from:cl,to:d.to,items:d.items.map(function(x){var g=state.ingredients[x.code]||{};return {code:x.code,qty:x.qty,name:g.name,unit:g.unit};}),status:'sent',ts:Date.now(),by:whoBy()});
+ var cu0=curUser()||{};state.transfers.push({id:id,no:no,from:cl,to:d.to,items:d.items.map(function(x){var g=state.ingredients[x.code]||{};return {code:x.code,qty:x.qty,name:g.name,unit:g.unit,cost:+g.cost||0};}),status:'sent',ts:Date.now(),by:whoBy(),byName:cu0.name||'',byRole:ROLE_LABELS[cu0.role]||'',carrier:(d.carrier||'').trim(),note:(d.note||'').trim()});
  logOrder('ໂອນສະຕ໋ອກອອກ','ໃບ '+no+' → '+locName(d.to)+' ('+d.items.length+' ລາຍການ)','');
- save();closeModal();render();showSuccess('ສ້າງໃບໂອນແລ້ວ!',no+' → '+locName(d.to)+' · ລໍຖ້າປາຍທາງຮັບເຂົ້າ');}
+ save();closeModal();render();tfView(id,'tfo');toast('ສ້າງໃບໂອນ '+no+' ແລ້ວ — ພິມໃບສົ່ງໃຫ້ຜູ້ຂົນສົ່ງ');}
 function receiveTransfer(id){var t=(state.transfers||[]).find(function(x){return x.id===id;});if(!t||t.status!=='sent')return;
  if(t.to!==curLoc()){toast('ຕ້ອງໄປຮັບທີ່ເຄື່ອງຂອງ '+locName(t.to)+' (ຕັ້ງບ່ອນເກັບເຄື່ອງນີ້ = '+locName(t.to)+')');return;}
- t.items.forEach(function(it){addStockAt(it.code,t.to,it.qty,'ໂອນເຂົ້າ','ໃບ '+t.no+' ← '+locName(t.from));});
- t.status='received';t.recvTs=Date.now();t.recvBy=whoBy();
- logOrder('ຮັບໂອນສະຕ໋ອກ','ໃບ '+t.no+' ← '+locName(t.from),'');
- save();render();showSuccess('ຮັບເຂົ້າສຳເລັດ!',t.no+' · '+t.items.length+' ລາຍການ ເຂົ້າ '+locName(t.to));}
+ openModal('<h2>ກວດຮັບສິນຄ້າ — '+cesc(t.no)+'</h2><p style="text-align:center;font-size:13px;color:var(--muted);margin:-4px 0 10px">'+cesc(locName(t.from))+' → <b>'+cesc(locName(t.to))+'</b> · ສົ່ງ '+new Date(t.ts).toLocaleString('en-GB')+(t.carrier?' · ຂົນສົ່ງ: '+cesc(t.carrier):'')+'</p>'+
+  '<table class="tbl"><thead><tr><th>ລາຍການ</th><th class="num">ສົ່ງມາ</th><th class="num" style="width:130px">ນັບໄດ້ຈິງ</th></tr></thead><tbody>'+t.items.map(function(it,i){return '<tr><td>'+cesc(it.name||it.code)+'<br><small style="color:var(--muted)">'+cesc(it.code)+'</small></td><td class="num">'+KIP(it.qty)+' '+cesc(it.unit||'')+'</td><td class="num"><input id="tr_q'+i+'" type="number" inputmode="decimal" value="'+it.qty+'" style="width:110px;text-align:right"></td></tr>';}).join('')+'</tbody></table>'+
+  '<label style="margin-top:8px">ໝາຍເຫດການຮັບ (ຖ້າຂາດ/ເສຍຫາຍ)</label><input id="tr_note" placeholder="ເຊັ່ນ ແກ້ວແຕກ 2 ໜ່ວຍ">'+
+  '<p style="font-size:12px;color:var(--muted);margin-top:6px">ຈຳນວນທີ່ຂາດ ຈະບັນທຶກເປັນ "ຂາດ/ເສຍລະຫວ່າງໂອນ" ໃນເອກະສານ ແລະ ປະຫວັດ — ບໍ່ຄືນເຂົ້າສາຂາຕົ້ນທາງ</p>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doReceiveTransfer(\''+t.id+'\')">ຢືນຢັນຮັບເຂົ້າ</button></div>');}
+function doReceiveTransfer(id){var t=(state.transfers||[]).find(function(x){return x.id===id;});if(!t||t.status!=='sent')return;if(t.to!==curLoc())return;
+ var short=[];t.items.forEach(function(it,i){var el=document.getElementById('tr_q'+i),q=el?Math.max(0,+el.value||0):it.qty;it.recv=q;
+  if(q>0)addStockAt(it.code,t.to,q,'ໂອນເຂົ້າ','ໃບ '+t.no+' ← '+locName(t.from));
+  if(q!==it.qty)short.push((it.name||it.code)+' '+(q<it.qty?'ຂາດ ':'ເກີນ ')+KIP(Math.abs(it.qty-q))+' '+(it.unit||''));});
+ var cu=curUser()||{};t.status='received';t.recvTs=Date.now();t.recvBy=whoBy();t.recvName=cu.name||'';t.recvRole=ROLE_LABELS[cu.role]||'';t.recvNote=((document.getElementById('tr_note')||{}).value||'').trim();t.diff=short;
+ logOrder('ຮັບໂອນສະຕ໋ອກ','ໃບ '+t.no+' ← '+locName(t.from)+(short.length?' · ຜິດດ່ຽງ: '+short.join(', '):' · ຄົບ'),'');
+ save();closeModal();render();tfView(t.id,'tfi');toast(short.length?('ຮັບແລ້ວ — ມີລາຍການຜິດດ່ຽງ '+short.length):'ຮັບເຂົ້າຄົບ ✓');}
+function tfDocHTML(t,kind){var cost=procSeeCost(),recvd=t.status==='received',isIn=kind==='tfi';
+ var lines=(t.items||[]).map(function(it){var g=state.ingredients[it.code]||{};return {code:it.code,name:it.name||g.name,unit:it.unit||g.unit,qty:it.qty,recv:recvd?(it.recv!=null?it.recv:it.qty):0,price:it.cost!=null?it.cost:(+g.cost||0)};});
+ var tot=0,rows=lines.map(function(l,i){var v=l.price*(isIn&&recvd?l.recv:l.qty);tot+=v;var diff=recvd?(l.recv-l.qty):0;
+  return '<tr><td>'+(i+1)+'</td><td>'+cesc(l.name||l.code)+'<div class="pd-sub">'+cesc(l.code)+'</div></td><td>'+cesc(l.unit||'')+'</td><td class="r">'+KIP(l.qty)+'</td>'+(isIn?'<td class="r"><b>'+(recvd?KIP(l.recv):'')+'</b></td><td class="r" style="color:'+(diff<0?'#b91c1c':diff>0?'#b45309':'#15803d')+'">'+(recvd?(diff?((diff>0?'+':'')+KIP(diff)):'ຄົບ'):'')+'</td>':'<td class="r" style="min-width:90px"></td>')+(cost?'<td class="r">'+KIP(l.price)+'</td><td class="r"><b>'+KIP(v)+'</b></td>':'')+'</tr>';}).join('');
+ var tbl='<table class="pd-tbl"><thead><tr><th style="width:44px">ລຳດັບ</th><th>ລາຍການ</th><th>ຫົວໜ່ວຍ</th><th class="r">ຈຳນວນສົ່ງ</th>'+(isIn?'<th class="r">ຮັບຈິງ</th><th class="r">ຜິດດ່ຽງ</th>':'<th class="r">ກວດຮັບ (ຂຽນ)</th>')+(cost?'<th class="r">ຕົ້ນທຶນ/ໜ່ວຍ</th><th class="r">ມູນຄ່າ</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table>'+
+  (cost?'<div style="display:flex;justify-content:flex-end;margin:12px 0 4px"><div class="pd-tot"><div><span>ມູນຄ່າລວມ'+(isIn?'ທີ່ຮັບ':'ທີ່ສົ່ງ')+'</span><span>'+KIP(tot)+' ກີບ</span></div></div></div>':'');
+ var notes=(t.note?'<div class="pd-note"><span>ໝາຍເຫດການສົ່ງ:</span> '+cesc(t.note)+'</div>':'')+(isIn&&t.recvNote?'<div class="pd-note"><span>ໝາຍເຫດການຮັບ:</span> '+cesc(t.recvNote)+'</div>':'')+(isIn&&(t.diff||[]).length?'<div class="pd-note" style="background:#fff7ed;color:#9a3412"><span>ຜິດດ່ຽງ:</span> '+cesc(t.diff.join(' · '))+'</div>':'')+(t.status==='void'?'<div class="pd-note" style="background:#fee2e2;color:#991b1b"><span>ຍົກເລີກ:</span> ໃບນີ້ຖືກຍົກເລີກ, ສະຕ໋ອກຄືນຕົ້ນທາງແລ້ວ</div>':'');
+ var sigs=[{name:t.byName||String(t.by||'').split(' - ').pop(),role:t.byRole||'',label:'ຜູ້ສົ່ງ ('+locName(t.from)+')',date:procDay(t.ts),ok:true,okText:'ສົ່ງແລ້ວ'},{name:t.carrier||'',role:'',label:'ຜູ້ຂົນສົ່ງ',date:''},{name:recvd?(t.recvName||String(t.recvBy||'').split(' - ').pop()):'',role:recvd?(t.recvRole||''):'',label:'ຜູ້ຮັບ ('+locName(t.to)+')',date:recvd?procDay(t.recvTs):'',ok:recvd,okText:'ຮັບແລ້ວ'}];
+ var stamp=t.status==='void'?'VOID':(isIn&&recvd?((t.diff||[]).length?'ຮັບບໍ່ຄົບ':'ຮັບຄົບ'):'');
+ return docShell(kind,t.no,[['ເລກທີ',cesc(t.no)],['ວັນທີສົ່ງ',procD(t.ts)],['ຈາກ',cesc(locName(t.from))]],[['ໄປ',cesc(locName(t.to))],[isIn?'ວັນທີຮັບ':'ສະຖານະ',isIn?(recvd?procD(t.recvTs):'ລໍຖ້າຮັບ'):(t.status==='sent'?'ກຳລັງສົ່ງ':t.status==='received'?'ຮັບແລ້ວ':'ຍົກເລີກ')],['ຜູ້ຂົນສົ່ງ',cesc(t.carrier||'—')]],notes+tbl+docSigs(sigs),stamp);}
+function tfView(id,kind){var t=(state.transfers||[]).find(function(x){return x.id===id;});if(!t)return;
+ openModal('<div class="tfdoc-wrap">'+tfDocHTML(t,kind)+'</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button>'+(kind==='tfi'?'<button class="btn-sm" onclick="tfView(\''+id+'\',\'tfo\')">ເບິ່ງໃບສົ່ງ</button>':(t.status==='received'?'<button class="btn-sm" onclick="tfView(\''+id+'\',\'tfi\')">ເບິ່ງໃບຮັບ</button>':''))+'<button class="btn-ok green" onclick="tfPrint(\''+id+'\',\''+kind+'\')">ພິມ / PDF</button></div>');}
+function tfPrint(id,kind){var t=(state.transfers||[]).find(function(x){return x.id===id;});if(!t)return;var html=tfDocHTML(t,kind);
+ var css=Array.prototype.map.call(document.querySelectorAll('style'),function(s){return s.textContent;}).join('\n');
+ var w=window.open('','_blank');if(!w){toast('ເປີດໜ້າພິມບໍ່ໄດ້ — ອະນຸຍາດ popup ກ່ອນ');return;}
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+cesc(PDOC[kind].lao+' '+t.no)+'</title><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Lao:wght@400;600;700;800&display=swap" rel="stylesheet"><style>'+css+'\nbody{background:#fff!important;margin:0}.pd-doc{border:none!important;border-radius:0!important;max-width:190mm;margin:0 auto;padding:10mm 0!important}@page{size:A4;margin:12mm}</style></head><body>'+html+'<div class="pd-foot">ອອກໂດຍ ST POS — '+cesc(state.shopName||'')+' · ພິມ '+procD(Date.now())+'</div><script>window.onload=function(){setTimeout(function(){window.print();},400)}<\/script></body></html>');w.document.close();}
 function voidTransfer(id){var t=(state.transfers||[]).find(function(x){return x.id===id;});if(!t||t.status!=='sent')return;
  if(t.from!==curLoc()){toast('ຍົກເລີກໄດ້ສະເພາະເຄື່ອງທີ່ສົ່ງ ('+locName(t.from)+')');return;}
  if(!confirm('ຍົກເລີກໃບໂອນ '+t.no+'? ສະຕ໋ອກຈະຄືນເຂົ້າ '+locName(t.from)))return;
@@ -2074,7 +2101,7 @@ function voidTransfer(id){var t=(state.transfers||[]).find(function(x){return x.
    ໜ້າຕາເອກະສານ + Workflow ຕາມລະບົບຈັດຊື້ (procurement) · ເຈົ້າຂອງຮ້ານ (ແອັດມິນ) ກົດແທນໄດ້ທຸກຂັ້ນ ===== */
 const PR_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ','#b45309','#fef3c7'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍອອກ PO','#047857','#d1fae5'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CONVERTED:['ອອກ PO ແລ້ວ','#1d4ed8','#dbeafe'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
 const PO_ST={PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ PO','#b45309','#fef3c7'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍສັ່ງຜູ້ຂາຍ','#047857','#d1fae5'],ORDERED:['ສັ່ງຜູ້ຂາຍແລ້ວ — ລໍຮັບເຄື່ອງ','#0e7490','#cffafe'],PARTIAL:['ຮັບບາງສ່ວນ','#7c3aed','#ede9fe'],CLOSED:['ຮັບເຄື່ອງແລ້ວ / ປິດ','#1d4ed8','#dbeafe'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
-const PDOC={pr:{bg:'#FBDCC0',fg:'#8A4B12',line:'#0B4D27',lao:'ໃບຂໍຊື້',en:'PURCHASE REQUEST'},po:{bg:'#D3E6C4',fg:'#2E5A20',line:'#2E5A20',lao:'ໃບສັ່ງຊື້',en:'PURCHASE ORDER'},grn:{bg:'#C9DCF0',fg:'#1D3F6E',line:'#1D3F6E',lao:'ໃບຮັບເຄື່ອງ',en:'GOODS RECEIVED NOTE'}};
+const PDOC={pr:{bg:'#FBDCC0',fg:'#8A4B12',line:'#0B4D27',lao:'ໃບຂໍຊື້',en:'PURCHASE REQUEST'},po:{bg:'#D3E6C4',fg:'#2E5A20',line:'#2E5A20',lao:'ໃບສັ່ງຊື້',en:'PURCHASE ORDER'},grn:{bg:'#C9DCF0',fg:'#1D3F6E',line:'#1D3F6E',lao:'ໃບຮັບເຄື່ອງ',en:'GOODS RECEIVED NOTE'},tfo:{bg:'#FFE8C2',fg:'#8A4B12',line:'#9A5B00',lao:'ໃບສົ່ງສິນຄ້າ (ໂອນສາຂາ)',en:'TRANSFER DELIVERY NOTE'},tfi:{bg:'#CFEFEA',fg:'#075A57',line:'#0A7E7A',lao:'ໃບຮັບສິນຄ້າ (ໂອນສາຂາ)',en:'TRANSFER RECEIPT NOTE'}};
 let procTab='track',procQ='',procDetail=null;
 function procInit(){['vendors','prs','pos','grns','procWorkflows'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.procCfg)state.procCfg={};
  if(!state.procWorkflows.length)state.procWorkflows.push({id:'wf_default',name:'ມາດຕະຖານ (ຜູ້ຈັດການອະນຸມັດ)',pr:['r:manager'],po:['r:manager'],isDefault:true,upd:1});}
@@ -3319,6 +3346,7 @@ function doDelMenu(code){var rsn=(document.getElementById('delrsn').value||'').t
  var nm=code,found=false;
  for(var cat in M){for(var sub in M[cat]){var arr=M[cat][sub];for(var i=0;i<arr.length;i++){if(arr[i].c===code){nm=arr[i].n;arr.splice(i,1);found=true;break;}}if(found)break;}if(found)break;}
  if(!found){toast('ບໍ່ພົບເມນູ');return;}
+ if(!M[cat][sub].length)delete M[cat][sub];if(!Object.keys(M[cat]).length){delete M[cat];if(state.activeCat===cat)state.activeCat=Object.keys(M)[0];}
  if(!Array.isArray(state.menuLog))state.menuLog=[];
  state.menuLog.push({code:code,name:nm,reason:rsn,by:whoBy(),ts:Date.now()});
  if(state.menuImg)delete state.menuImg[code];
@@ -3437,7 +3465,7 @@ function renderRefund(rno){var b=(state.bills||[]).find(function(x){return x.rec
   '<label style="margin-top:8px">ເຫດຜົນ (ຈຳເປັນ)</label><input id="rf_rsn" placeholder="ເຊັ່ນ ອາຫານມີບັນຫາ / ລູກຄ້າຄືນ">'+
   '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600"><input type="checkbox" id="rf_stk" checked style="width:auto"> ຄືນວັດຖຸດິບເຂົ້າສະຕ໋ອກ</label>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--orange)" onclick="doRefund(\''+rno+'\')">ຄືນເງິນ</button></div>');}
-function rfChg(rno,id,d){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});var it=(b.items||[]).find(function(x){return x.id===id;});if(!it)return;
+function rfChg(rno,id,d){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});var it=(b.items||[]).find(function(x){return String(x.id)===String(id);});if(it)id=it.id;if(!it)return;
  var left=it.qty-refundedQty(b,it);var v=(_rfSel[id]||0)+d;if(v<0)v=0;if(v>left)v=left;_rfSel[id]=v;renderRefund(rno);}
 function doRefund(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b)return;
  var rsn=(document.getElementById('rf_rsn').value||'').trim();if(!rsn){toast('ໃສ່ເຫດຜົນ');return;}
@@ -3485,10 +3513,11 @@ function renderCustOrders(R){var t=state.tables[state.activeTable]||{items:[],na
  var list=its.length?its.map(function(it){var st=custOrderStatus(it.id);return '<div class="ordcard"><div><div class="oc-nm">'+it.qty+'× '+cesc(it.name)+'</div>'+(it.mods&&it.mods.length?'<div class="oc-md">'+cesc(it.mods.join(' , '))+'</div>':'')+'<span class="stbadge" style="background:'+st[1]+';color:'+st[2]+'">'+st[0]+'</span></div><div class="rv-r">'+KIP(lineTotal(it))+'</div></div>';}).join(''):'<div class="empty2">ຍັງບໍ່ມີອໍເດີ<br>ກົດ "ເມນູອາຫານ" ເພື່ອເລີ່ມສັ່ງ</div>';
  var billed=(t.status==='callbill'||t.status==='bill');
  R.innerHTML=custHeader('orders')+'<div class="custord">'+list+(its.length?'<div class="rvtot" style="margin:10px 12px"><span>ລວມທັງໝົດ</span><span>'+KIP(grandTotal(t))+' ກີບ</span></div>':'')+'<div style="padding:12px"><button class="rvback" style="margin-top:0" onclick="custGo(\'menu\')">+ ສັ່ງເພີ່ມ</button>'+(its.length?(billed?'<div class="custbilled"> ເອີ້ນພະນັກງານແລ້ວ — ກຳລັງເອົາບິນໄປໃຫ້ທີ່ໂຕະ '+cesc(t.name)+'</div>':'<button class="custbill" onclick="custCheckBill()"> ເຊັກບິນ / ເອີ້ນພະນັກງານ — '+KIP(grandTotal(t))+' ກີບ</button>'):'')+'</div></div>';}
-function custConfirmOrder(){if(!state.draft.length)return;
+function custConfirmOrder(){if(!state.draft.length)return;if(window.__custSending){toast('ກຳລັງສົ່ງອໍເດີ... ກະລຸນາລໍຖ້າ');return;}
+ if(!window.__custRid)window.__custRid='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);window.__custSending=true;
  var items=state.draft.map(function(d){return {code:d.code,qty:d.qty,mods:d.mods||[],modPrice:d.modPrice||0,note:d.note||''};});
  toast('ກຳລັງສົ່ງອໍເດີ...');
- custSend({action:'order',table:state.activeTable,pin:getQ('pin')||'',items:items},function(res){
+ custSend({action:'order',table:state.activeTable,pin:getQ('pin')||'',items:items,rid:window.__custRid},function(res){window.__custSending=false;if(res&&res.ok)window.__custRid=null;
   if(res&&res.ok){state.draft=[];if(res.state)applyCustState(res.state);custView='orders';render();
    showSuccess('ສັ່ງອໍເດີສຳເລັດ!','ໂຕະ '+state.activeTable+' · '+res.n+' ລາຍການ ກຳລັງດຳເນີນການ — ກະລຸນາລໍຖ້າ'+(res.skipped?' (ຂ້າມ '+res.skipped+' ລາຍການທີ່ໝົດ)':''));}
   else{toast((res&&res.err)||'ສົ່ງອໍເດີບໍ່ສຳເລັດ — ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່');}});}

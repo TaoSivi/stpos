@@ -294,6 +294,12 @@ function custAction_(payload) {
       return { ok: true, state: custFilter_(st, table) };
     }
     /* action === 'order' */
+    /* ກັນສັ່ງຊ້ຳ: GET ອາດຖືກສົ່ງຊ້ຳ (ເນັດຊ້າ/retry) → ໃຊ້ rid ຈາກເຄື່ອງລູກຄ້າ */
+    var rid = String(payload.rid || '').slice(0, 64), ridKey = rid ? 'qrrid_' + rid : '';
+    if (rid) {
+      var ck0 = CacheService.getScriptCache();
+      if (ck0.get(ridKey) || (t.items || []).some(function (x) { return x.qrRid === rid; })) return { ok: true, n: 0, dup: true, state: custFilter_(st, table) };
+    }
     var items = payload.items || [];
     if (!items.length) return { ok: false, err: 'ບໍ່ມີລາຍການ' };
     if (items.length > 60) return { ok: false, err: 'ລາຍການຫຼາຍເກີນໄປ' };
@@ -310,6 +316,7 @@ function custAction_(payload) {
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
         mods: (it.mods || []).slice(0, 12).map(function (m) { return String(m).slice(0, 60); }),
         modPrice: mp, disc: 0, k: def.k, note: String(it.note || '').slice(0, 120), ts: now, qr: true, qrLoc: qrLoc };
+      if (rid) line.qrRid = rid;
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
       st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true });
@@ -331,6 +338,7 @@ function custAction_(payload) {
     if (!st.orderLog) st.orderLog = [];
     st.orderLog.push({ ts: now, table: table, action: 'ສັ່ງຜ່ານ QR', detail: cnt + ' ລາຍການ' + (skipped ? ' (ຂ້າມ ' + skipped + ')' : ''), by: 'ລູກຄ້າ QR ໂຕະ ' + table });
     st._v = Date.now(); saveStateRaw_(JSON.stringify(st));
+    if (rid) { try { CacheService.getScriptCache().put(ridKey, '1', 21600); } catch (e) {} }
     return { ok: true, n: cnt, skipped: skipped, state: custFilter_(st, table) };
   } catch (e) { return { ok: false, err: 'server: ' + (e && e.message || e) }; }
   finally { try { lock.releaseLock(); } catch (e2) {} }
