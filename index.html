@@ -739,6 +739,68 @@ table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
 .custmenu .cats{flex-wrap:nowrap!important;overflow-x:auto!important}.custmenu .cats .cat{flex-shrink:0;white-space:nowrap}
 .custmenu .subcats{flex-wrap:nowrap!important;overflow-x:auto}
 .modal .modal-btns:has(.btn-ok){position:sticky;bottom:-26px;background:#fff;margin-bottom:-26px;padding:12px 0 22px;z-index:3}
+
+/* ===== ຮອບ 8: ມືຖື ===== */
+html,body{height:100%;overscroll-behavior:none}
+#app{height:100vh;height:100dvh}
+#main,#viewRoot{min-width:0}
+#app.cust #viewRoot{width:100%;max-width:560px;box-sizing:border-box}
+#viewRoot{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.modal{max-height:88vh;max-height:88dvh}
+.cartbar,.cartmask,.cart-x,.cart-grab{display:none}
+.custmenu .product .code{display:none}
+.custmenu .product .thumb img{object-fit:cover}
+.cxcard,.cx-t{min-width:0}
+@media (max-width:900px){
+ #orderWrap{flex-direction:column!important}
+ #orderWrap .menupane{padding:8px 12px 0!important;min-height:0}
+ #orderWrap .products{padding-bottom:190px!important}
+ #orderWrap .cart{position:fixed!important;left:0;right:0;bottom:0;top:auto;width:100%!important;max-height:86dvh!important;height:auto;z-index:320;transform:translateY(105%);transition:transform .26s ease;border-radius:26px 26px 0 0!important;box-shadow:0 -18px 50px rgba(6,47,45,.25)!important;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+ #orderWrap.cart-open .cart{transform:none}
+ #orderWrap .cart-items{flex:1;min-height:80px;overflow:auto}
+ #orderWrap .cartmask{display:block;position:fixed;inset:0;background:rgba(6,40,38,.45);z-index:310;opacity:0;pointer-events:none;transition:opacity .2s}
+ #orderWrap.cart-open .cartmask{opacity:1;pointer-events:auto}
+ .cart-grab{display:block;width:44px;height:5px;border-radius:3px;background:#cfe0de;margin:10px auto 0;cursor:pointer}
+ .cart-x{display:flex!important;flex:0 0 48px!important;align-items:center;justify-content:center;background:#eef5f4!important;color:#062f2d!important;font-size:18px!important}
+ .cartbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:230;height:56px;border-radius:18px;background:#062f2d;color:#fff;align-items:center;justify-content:space-between;padding:0 18px;font-family:inherit;font-size:15px;box-shadow:0 12px 30px rgba(6,47,45,.3)}
+ .cartbar.draft{background:#0A7E7A}
+ .cartbar .cb-l b{display:inline-flex;min-width:26px;height:26px;border-radius:13px;background:#7ff0e9;color:#062f2d;align-items:center;justify-content:center;margin-right:6px;padding:0 6px}
+ .cartbar .cb-r{font-weight:800;white-space:nowrap}
+ .ordbar{gap:8px;margin-bottom:8px}
+ .ordbar .cats{width:100%}
+ .ordbar .cat{height:44px!important;padding:0 12px 0 5px!important}
+ .ordbar .cat .ci{width:32px!important;height:32px!important}
+ .ct small{display:none}
+ .ordtools .dttoggle button{height:38px;padding:0 10px}
+ .ordtools .subcat{height:46px}
+ .subcats{margin-bottom:8px!important}
+ .product .miniic{transform:scale(.85)}
+ #bnav{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+ .custbar{bottom:calc(16px + env(safe-area-inset-bottom))}
+}
+
+.product .miniic{left:auto!important;right:8px!important}
+.products{align-items:start}
+.product .thumb img{background:#eef5f4}
+.product:not(:has(.thumb img)) .pname{padding-right:52px}
+
+@media (max-width:900px){
+ .product .code{display:none!important}
+ .product .ptop{gap:6px}
+ .product .price{font-size:13.5px!important}
+ .toolbar>span:first-child{white-space:normal!important;font-size:19px!important;flex-basis:100%}
+ .tv-head .ttl{font-size:21px!important}
+ .floors{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.floors::-webkit-scrollbar{display:none}.floors .chip{flex-shrink:0}
+ .legend{gap:6px 12px!important;padding:10px 12px!important;font-size:12.5px}
+ .outstanding{padding:10px 14px!important;font-size:13px}
+ .tablegrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+ .tablecard{min-height:92px!important;padding:10px 11px!important;border-radius:18px!important}
+ .tablecard .tname{font-size:19px!important}
+ .tablecard .tamt,.tablecard .tamt b{font-size:12.5px!important}
+ .tablecard .qrbadge{width:26px;height:26px;top:4px;right:4px}
+ .cxsum .cxhero small{white-space:normal}
+}
+@media (max-width:370px){.tablegrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 </head>
 <body>
@@ -1344,7 +1406,7 @@ function regenQR(name){delete state.qr[name];ensureQR(name);openTableQR(name);}
 function renderOrder(R){const t=state.tables[state.activeTable];
  R.innerHTML=`<div id="orderWrap"><div class="menupane"><div class="ordbar"><div class="cats">${Object.keys(MSRC()).map(cat=>`<button class="cat ${cat===state.activeCat?'active':''}" data-cat="${cat.replace(/"/g,'&quot;')}" onclick="setCat(this.getAttribute('data-cat'))"><span class="ci">${catIcon(cat,22)}</span><span class="ct"><b>${cat}</b><small>${catCount(cat)} ເມນູ</small></span></button>`).join('')}</div><div class="ordtools" id="ordTools"></div></div>
   <div class="subcats" id="subcats"></div><div class="products" id="products"></div></div>
-  <div class="cart"><div class="cart-top"><button onclick="openMoveTable()"> ${state.activeTable}</button><button onclick="openCustomer()">${t.customer||'ເລືອກລູກຄ້າ'}</button></div>
+  <button class="cartbar" id="cartBar" onclick="toggleCartSheet(true)"></button><div class="cartmask" onclick="toggleCartSheet(false)"></div><div class="cart"><div class="cart-grab" onclick="toggleCartSheet(false)"></div><div class="cart-top"><button onclick="openMoveTable()"> ${state.activeTable}</button><button onclick="openCustomer()">${t.customer||'ເລືອກລູກຄ້າ'}</button><button class="cart-x" aria-label="ປິດກະຕ່າ" onclick="toggleCartSheet(false)">✕</button></div>
    <div class="cart-items" id="cartItems"></div><div class="cart-foot" id="cartFoot"></div></div></div>`;renderSubcats();renderProducts();renderCart();}
 function setCat(cat){state.activeCat=cat;state.activeSub=null;var bs=document.querySelectorAll('.cats .cat');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('active',bs[i].getAttribute('data-cat')===cat);renderSubcats();renderProducts();}
 function renderSubcats(){const M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];const subs=Object.keys(M[state.activeCat]||{});
@@ -1356,9 +1418,9 @@ function renderSubcats(){const M=MSRC();if(!M[state.activeCat])state.activeCat=O
    <div class="searchbox"><input id="search" placeholder="${isCust()?' ຄົ້ນຫາເມນູ...':' ຄົ້ນຫາ / ສະແກນ barcode...'}" oninput="renderProducts()" onkeydown="if(event.key==='Enter'&&!isCust())scanAdd()" value="${(document.getElementById('search')||{}).value||''}"></div>
    ${isCust()?'':'<button class="subcat" style="background:var(--gold);color:#3a2c00;border-color:transparent;font-weight:800" onclick="openPriceItem()">＋ ຂາຍລາຄາເປີດ</button>'}`;
  var ot=document.getElementById('ordTools');if(ot){ot.innerHTML=tools;document.getElementById('subcats').innerHTML=subHTML;}else document.getElementById('subcats').innerHTML=subHTML+tools;}
-var CAT_IC={grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',cup:'M7 4h10l-1 16H8zM6 8h12M12 4V2',coffee:'M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 11h2a2 2 0 0 1 0 4h-2M8 3v3M12 3v3',tea:'M5 8h12v6a6 6 0 0 1-12 0zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M9 3c0 1.5 1 1.5 1 3',fruit:'M12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM12 7c0-2 1-4 3-4M5 14h14',beer:'M6 6h10v14H6zM16 9h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 10h10',bowl:'M3 12h18a9 9 0 0 1-18 0zM8 8c0-2 1-3 2-4M13 8c0-2 1-3 2-4',leaf:'M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19l7-7',fries:'M6 10h12l-2 11H8zM8 10V4M11 10V3M14 10V4M17 10V6',cake:'M4 20h16v-7H4zM4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1.5 4 0M12 13V9M12 6v.01',plate:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'};
+var CAT_IC={grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',cup:'M7 4h10l-1 16H8zM6 8h12M12 4V2',coffee:'M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 11h2a2 2 0 0 1 0 4h-2M8 3v3M12 3v3',tea:'M5 8h12v6a6 6 0 0 1-12 0zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M9 3c0 1.5 1 1.5 1 3',fruit:'M12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM12 7c0-2 1-4 3-4M5 14h14',beer:'M6 6h10v14H6zM16 9h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 10h10',bowl:'M3 12h18a9 9 0 0 1-18 0zM8 8c0-2 1-3 2-4M13 8c0-2 1-3 2-4',leaf:'M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19l7-7',fries:'M6 10h12l-2 11H8zM8 10V4M11 10V3M14 10V4M17 10V6',cake:'M4 20h16v-7H4zM4 15c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1.5 4 0M12 13V9M12 6v.01',plate:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',star:'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z',ice:'M7 4h10l-1 16H8zM6 8h12M10 12h2v2h-2zM13 15h2v2h-2z',hot:'M5 10h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM17 12h1.5a2.5 2.5 0 0 1 0 5H17M9 3c0 2 2 2 2 4M13 3c0 2 2 2 2 4',plus:'M12 5v14M5 12h14M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',bell:'M5 17h14l-1.5-2V11a5.5 5.5 0 0 0-11 0v4zM10 20a2 2 0 0 0 4 0M12 3v2',egg:'M12 21c4 0 7-3 7-7.5C19 8 15.5 3 12 3S5 8 5 13.5C5 18 8 21 12 21z',wine:'M8 3h8v5a4 4 0 0 1-8 0zM12 12v8M8 21h8'};
 function catIcon(name,sz){var n=String(name||'').toLowerCase(),k='plate';
- if(/ທັງໝົດ|all/.test(n))k='grid';else if(/ກາເຟ|coffee|espresso|latte|ລາເຕ້/.test(n))k='coffee';else if(/ຊາ|ນົມ|tea|milk|ໂກໂກ້|cocoa|matcha|ມັດຊະ/.test(n))k='tea';
+ if(/ທັງໝົດ|all/.test(n))k='grid';else if(/ຊິກ|signature|ແນະນຳ|ພິເສດ/.test(n))k='star';else if(/topping|ທັອບ/.test(n))k='plus';else if(/service|ບໍລິການ/.test(n))k='bell';else if(/ວາຍ|wine|ເຫລົ້າ|ເຫຼົ້າ|liquor/.test(n))k='wine';else if(/ໄຂ່|egg|sandwich|ແຊນ/.test(n))k='egg';else if(/ໂຈ໊ກ|ໂຈກ|ເຂົ້າຕົ້ມ|porridge|ເຝີ|ແກງ|soup/.test(n))k='bowl';else if(/ແກ້ມ|appetizer|ຂອງກິນຫຼິ້ນ|ກິນຫລິ້ນ/.test(n))k='fries';else if(/ຂະຫນົມ|ຂະໜົມ|bakery|dessert|ເຄັກ/.test(n))k='cake';else if(/ເຢັນ|iced|cold|ice/.test(n))k='ice';else if(/ຮ້ອນ|hot/.test(n))k='hot';else if(/ກາເຟ|coffee|espresso|latte|ລາເຕ້/.test(n))k='coffee';else if(/ຊາ|ນົມ|tea|milk|ໂກໂກ້|cocoa|matcha|ມັດຊະ/.test(n))k='tea';
  else if(/ເບຍ|beer|ເຫຼົ້າ|wine|ເຫຼົ້າ|cocktail|ຄັອກເທວ/.test(n))k='beer';else if(/ໝາກໄມ້|ໂຊດາ|juice|smoothie|ປັ່ນ|soda|fruit/.test(n))k='fruit';
  else if(/ເຄື່ອງດື່ມ|drink|ນ້ຳ|beverage/.test(n))k='cup';else if(/ຫວານ|ເຄັກ|cake|dessert|ເຂົ້າໜົມ|bakery|ເບເກີ/.test(n))k='cake';
  else if(/ກິນຫຼິ້ນ|snack|ທອດ|fries|ຂອງຫວ່າງ/.test(n))k='fries';else if(/ລາວ|ລາບ|ຕຳ|ຍຳ|ປີ້ງ|salad|grill/.test(n))k='leaf';else if(/ຈານດຽວ|ເຂົ້າ|rice|noodle|ເຝີ|ເສັ້ນ|ອາຫານ|food/.test(n))k='bowl';
@@ -1413,7 +1475,7 @@ function renderProducts(){const q=(document.getElementById('search')?.value||'')
  document.getElementById('products').innerHTML=items.map(p=>{const low=!!state.ingredients&&(p.bom||[]).some(function(b){var it=state.ingredients[b[0]];return it&&it.stock<0;});const img=(state.menuImg||{})[p.c]||demoImg(p)||(state.exampleImg!==false?menuThumb(p):'');
   const dq=cust?(state.draft||[]).filter(x=>x.code===p.c).reduce((s,i)=>s+i.qty,0):0;
   const so=state.soldOut&&state.soldOut[p.c];
-  return `<div class="product ${low?'lowstk':''} ${dq>0?'picked':''} ${so?'soldout':''}" onclick='addItem(${JSON.stringify(p).replace(/'/g,"&#39;")})'>${so?'<span class="soldtag">ໝົດ</span>':''}${dq>0?`<span class="qbadge">${dq}</span>`:''}${img?`<div class="thumb"><img src="${img}" alt=""></div>`:''}<div class="pname">${p.n}</div><div class="ptop"><span class="price">${KIP(p.p)}</span><span class="code">${p.c}</span></div>${(!cust&&can('soldout'))?`<button class="miniic" style="position:absolute;bottom:4px;right:4px;font-size:11px;color:${so?'var(--green)':'var(--red)'}" title="${so?'ເປີດຂາຍຄືນ':'ໝົດ/ງົດຂາຍ'}" onclick="event.stopPropagation();toggleSoldOut('${p.c}')">${so?'ເປີດ':'ໝົດ?'}</button>`:''}</div>`;}).join('')||(cust&&!allMenu().length?'<div class="empty" style="padding:40px 16px;line-height:1.7">ກຳລັງໂຫຼດເມນູ...<br><small>ຖ້າດົນ: ລອງໂຫຼດໜ້າຄືນ (refresh) ຫຼືຂໍ QR ໃໝ່ຈາກພະນັກງານ</small></div>':'<div class="empty">ບໍ່ພົບສິນຄ້າ</div>');}
+  return `<div class="product ${low?'lowstk':''} ${dq>0?'picked':''} ${so?'soldout':''}" onclick='addItem(${JSON.stringify(p).replace(/'/g,"&#39;")})'>${so?'<span class="soldtag">ໝົດ</span>':''}${dq>0?`<span class="qbadge">${dq}</span>`:''}${img?`<div class="thumb"><img src="${img}" alt="" loading="lazy" onerror="var t=this.closest('.thumb');if(t)t.remove()"></div>`:''}<div class="pname">${p.n}</div><div class="ptop"><span class="price">${KIP(p.p)}</span><span class="code">${p.c}</span></div>${(!cust&&can('soldout'))?`<button class="miniic" style="position:absolute;bottom:4px;right:4px;font-size:11px;color:${so?'var(--green)':'var(--red)'}" title="${so?'ເປີດຂາຍຄືນ':'ໝົດ/ງົດຂາຍ'}" onclick="event.stopPropagation();toggleSoldOut('${p.c}')">${so?'ເປີດ':'ໝົດ?'}</button>`:''}</div>`;}).join('')||(cust&&!allMenu().length?'<div class="empty" style="padding:40px 16px;line-height:1.7">ກຳລັງໂຫຼດເມນູ...<br><small>ຖ້າດົນ: ລອງໂຫຼດໜ້າຄືນ (refresh) ຫຼືຂໍ QR ໃໝ່ຈາກພະນັກງານ</small></div>':'<div class="empty">ບໍ່ພົບສິນຄ້າ</div>');}
 function emojiFor(p){var s=(p.n||p.c||'').replace(/^[\s\d]+/,'').slice(0,2);return '<span style="font-size:26px;font-weight:800;color:#0A7E7A;opacity:.5">'+s+'</span>';}
 function modGroupsFor(p){return (state.modGroups||[]).filter(function(g){if(!g.opts||!g.opts.length)return false;
  if(g.scope==='items')return (g.codes||[]).indexOf(p.c)>=0; /* ສະເພາະເມນູທີ່ເລືອກ */
@@ -1452,7 +1514,9 @@ function renderCart(){if(isCust()){var Rv=document.getElementById('viewRoot');if
    <div class="totrow grand"><span>ສຸດທິ:</span><span>${KIP(grand)}</span></div>
    <div class="actions"><button class="b-bill" onclick="checkBill()"> ເຊັກບິນ</button><button class="b-pay" onclick="receivePayment()"> ຮັບເງິນ</button><button class="b-split" onclick="splitPayment()"> ແບ່ງຈ່າຍ</button>
    <button class="b-move" onclick="openMoveTable()"> ຍ້າຍໂຕະ</button><button class="b-merge" onclick="mergeTable()"> ລວມໂຕະ</button><button class="b-cancel" onclick="cancelTable()"> ຍົກເລີກ</button></div>`;}
+ var cb=document.getElementById('cartBar');if(cb){var cn=items.reduce(function(a,i){return a+(+i.qty||0);},0),ct=items.reduce(function(a,i){return a+lineTotal(i);},0);cb.innerHTML='<span class="cb-l"><b>'+cn+'</b> '+(inDraft?'ລາຍການໃໝ່ · ກົດເພື່ອຢືນຢັນ':'ລາຍການໃນໂຕະ')+'</span><span class="cb-r">'+KIP(ct)+' ₭ ›</span>';cb.classList.toggle('draft',inDraft);cb.style.visibility=cn?'visible':'hidden';}
  cdsFromCart();}
+function toggleCartSheet(on){var w=document.getElementById('orderWrap');if(w)w.classList.toggle('cart-open',!!on);}
 function chgQty(i,d){const l=curList();l[i].qty+=d;if(l[i].qty<=0)l.splice(i,1);save();renderCart();}
 function logOrder(action,detail,table){if(!Array.isArray(state.orderLog))state.orderLog=[];state.orderLog.push({ts:Date.now(),table:table||state.activeTable||'',action:action,detail:detail||'',by:whoBy()});if(state.orderLog.length>2000)state.orderLog=state.orderLog.slice(-2000);}
 /* ບັນທຶກລາຍການ ລຶບ/ຍົກເລີກ/void/refund ແບບມີໂຄງສ້າງ (ໄວ້ອອກລາຍງານ) */
