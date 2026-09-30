@@ -220,18 +220,32 @@ function mergeTables_(curStr, inc) {
     var curOrd = {}; (cur.orders || []).forEach(function (o) { curOrd[String(o.id)] = o; });
     if (!Array.isArray(inc.orders)) inc.orders = [];
     var incOrd = {}; inc.orders.forEach(function (o) { incOrd[String(o.id)] = o; });
-    var fromCur = {};
+    var paid = {}; (inc.bills || []).forEach(function (b) { if (b && !b.voided) (b.items || []).forEach(function (i) { paid[String(i.id)] = 1; }); });
+    var fromCur = {}, itemLvl = false;
     Object.keys(cur.tables).forEach(function (k) {
       var ct = cur.tables[k], it = inc.tables[k];
       if (!it) return;
-      if (U(ct) > U(it)) { inc.tables[k] = ct; fromCur[k] = 1; }
+      var win = U(ct) > U(it) ? ct : it, lose = win === ct ? it : ct;
+      if (win === ct) { inc.tables[k] = ct; fromCur[k] = 1; }
+      /* ທັງສອງເຄື່ອງເປັນເວີຊັນໃໝ່ (dv) → ລວມລາຍການ: ຂອງຝັ່ງທີ່ໃໝ່ກວ່າ + ລາຍການຂອງອີກຝັ່ງທີ່ບໍ່ໄດ້ຖືກລຶບ/ຈ່າຍ/ຍ້າຍ */
+      if (ct.dv && it.dv && U(ct) !== U(it)) {
+        var del = {}; (ct.del || []).concat(it.del || []).forEach(function (x) { del[String(x)] = 1; });
+        var have = {}, items = [];
+        (win.items || []).forEach(function (i) { var id = String(i.id); if (del[id] || have[id]) return; have[id] = 1; items.push(i); });
+        (lose.items || []).forEach(function (i) { var id = String(i.id); if (del[id] || have[id] || paid[id]) return; have[id] = 1; items.push(i); itemLvl = true; });
+        var t = inc.tables[k] = JSON.parse(JSON.stringify(win)); t.items = items; t.del = Object.keys(del).slice(-150);
+        if (items.length && t.status === 'free') t.status = 'busy';
+      }
     });
-    /* ອໍເດີ: ໂຕະທີ່ເອົາຈາກ server → ຊຸດອໍເດີຂອງໂຕະນັ້ນເອົາຈາກ server; ອັນທີ່ມີທັງສອງຝັ່ງ → upd ໃໝ່ກວ່າຊະນະ (ສະຖານະຄົວ) */
-    var out = [];
-    inc.orders.forEach(function (o) { if (fromCur[o.table]) return; var c = curOrd[String(o.id)]; out.push(c && U(c) > U(o) ? c : o); });
-    (cur.orders || []).forEach(function (o) { if (!fromCur[o.table]) return; var i = incOrd[String(o.id)]; out.push(i && U(i) > U(o) ? i : o); });
+    /* ອໍເດີຄົວ: ລວມທັງສອງຝັ່ງຕາມ id (upd ໃໝ່ກວ່າຊະນະ = ສະຖານະຄົວລ່າສຸດ) ແລ້ວເກັບສະເພາະອັນທີ່ຍັງມີລາຍການຢູ່ໂຕະ */
+    var live = {}; Object.keys(inc.tables).forEach(function (k) { (inc.tables[k].items || []).forEach(function (i) { if (!paid[String(i.id)]) live[String(i.id)] = k; }); });
+    var out = [], seenO = {};
+    inc.orders.concat(cur.orders || []).forEach(function (o) { var id = String(o.id); if (seenO[id]) return; seenO[id] = 1;
+      var a = incOrd[id], c = curOrd[id], o2 = (a && c) ? (U(c) > U(a) ? c : a) : (a || c);
+      if (!live[id]) return;
+      if (live[id] && o2.table !== live[id]) { o2 = JSON.parse(JSON.stringify(o2)); o2.table = live[id]; }
+      out.push(o2); });
     /* ລາຍການທີ່ຈ່າຍແລ້ວ (ມີໃນບິນ) ບໍ່ໃຫ້ກັບມາຄ້າງໂຕະ/ຈໍຄົວອີກ */
-    var paid = {}; (inc.bills || []).forEach(function (b) { if (b && !b.voided) (b.items || []).forEach(function (i) { paid[String(i.id)] = 1; }); });
     Object.keys(inc.tables).forEach(function (k) { var t = inc.tables[k]; if (!t || !Array.isArray(t.items)) return;
       var n0 = t.items.length; t.items = t.items.filter(function (i) { return !paid[String(i.id)]; });
       if (n0 && !t.items.length && t.status !== 'merged') { t.status = 'free'; t.billTs = null; } });
@@ -312,10 +326,22 @@ function saveState(json, tok) {
   catch (e) { return false; } finally { try { lock.releaseLock(); } catch (e2) {} }
 }
 
+/* ບ່ອນເກັບທີ່ QR ຕັດສະຕ໋ອກ (ສາຂາທຳອິດ ຫຼື ບ່ອນທຳອິດ) */
+function qrLoc_(st) { var L = st.locations || []; if (!L.length) return 'main'; var b = L.filter(function (l) { return l.type === 'branch'; })[0] || L[0]; return b.id; }
+function stockHave_(st, code, loc) { var it = st.ingredients && st.ingredients[code]; if (!it) return Infinity; if (it.locs && it.locs[loc] !== undefined) return +it.locs[loc] || 0; return loc === 'main' && typeof it.stock === 'number' ? it.stock : 0; }
+/* ເມນູທີ່ໝົດ + (ຖ້າເປີດ "ກັນຂາຍເມື່ອສະຕ໋ອກບໍ່ພໍ") ເມນູທີ່ວັດຖຸດິບບໍ່ພໍເຮັດ 1 ຈານ */
+function qrSoldOut_(st) {
+  var out = {}; var so = st.soldOut || {}; for (var k in so) out[k] = so[k];
+  if (st.stockBlock === false) return out;
+  var loc = qrLoc_(st), cat = st.catalog || {};
+  for (var c in cat) for (var sub in cat[c]) (cat[c][sub] || []).forEach(function (m) {
+    if ((m.bom || []).some(function (b) { return stockHave_(st, b[0], loc) < (+b[1] || 0) - 1e-9; })) out[m.c] = true; });
+  return out;
+}
 /* ---- ລູກຄ້າ QR: ຂໍ້ມູນສະເພາະໂຕະຕົນເອງ (ບໍ່ມີ ບິນ/ລາຍຈ່າຍ/ຜູ້ໃຊ້/ສະຕ໋ອກ/ກະ) ---- */
 function custFilter_(st, table) {
   var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
-    soldOut: st.soldOut || {}, modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
+    soldOut: qrSoldOut_(st), modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
     billDiscPct: st.billDiscPct || 0, qrGlobal: st.qrGlobal, qrPinRequired: st.qrPinRequired,
     qrExpires: st.qrExpires, activeTable: table, orderNo: st.orderNo || 1, tables: {}, qr: {}, orders: [], _v: st._v || 0 };
   var t = (st.tables || {})[table];
@@ -381,6 +407,7 @@ function custAction_(payload) {
       var def = map[String(it.code || '')];
       if (!def) { skipped++; return; }
       if (st.soldOut && st.soldOut[def.c]) { skipped++; return; }
+      if (st.stockBlock !== false && (def.bom || []).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * Math.max(1, Math.min(99, Math.round(+it.qty || 1))) - 1e-9; })) { skipped++; return; }
       var qn = Math.max(1, Math.min(99, Math.round(+it.qty || 1)));
       var mods = (it.mods || []).slice(0, 12).map(function (m) { return clean(m, 60); });
       var mp = mods.reduce(function (a, m) { return a + (modP.hasOwnProperty(m) ? modP[m] : 0); }, 0);

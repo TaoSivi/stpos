@@ -947,12 +947,16 @@ function ensureDemoIng(){if(!state.ingredients)state.ingredients={};if(state.cat
 /* ຮູບເມນູເດໂມ (ໄຟລ໌ demo-img/ ໃນ GitHub Pages) */
 function demoImg(p){if(!p||!p.img)return '';var h=location.hostname||'';var base=(/github\.io$|^localhost$|^127\.|^$/.test(h))?'demo-img/':'https://taosivi.github.io/stpos/demo-img/';return base+p.img;}
 /* ===== ຫຼາຍເຄື່ອງພ້ອມກັນ: ໝາຍເວລາແກ້ໄຂ (upd) ລາຍໂຕະ/ອໍເດີ/ສະມາຊິກ — server ລວມລາຍອັນ (ອັນໃໝ່ກວ່າຊະນະ) ແທນການຂຽນທັບທັງກ້ອນ ===== */
-var _updSnap={t:{},o:{},c:{}};
+var _updSnap={t:{},o:{},c:{},ti:{}};
 function _updKey(x){var u=x.upd;x.upd=0;var s=JSON.stringify(x);x.upd=u;return s;}
-function snapUpd(){_updSnap={t:{},o:{},c:{}};if(!state)return;var T=state.tables||{};Object.keys(T).forEach(function(k){_updSnap.t[k]=_updKey(T[k]);});
+function _itemIds(t){return (t.items||[]).map(function(i){return String(i.id);});}
+function snapUpd(){_updSnap={t:{},o:{},c:{},ti:{}};if(!state)return;var T=state.tables||{};Object.keys(T).forEach(function(k){T[k].dv=1;_updSnap.t[k]=_updKey(T[k]);_updSnap.ti[k]=_itemIds(T[k]);});
  (state.orders||[]).forEach(function(o){_updSnap.o[String(o.id)]=_updKey(o);});(state.customers||[]).forEach(function(c){_updSnap.c[String(c.id)]=_updKey(c);});}
-function stampUpd(){if(!state)return;var now=Date.now(),T=state.tables||{},S={t:{},o:{},c:{}};
- Object.keys(T).forEach(function(k){var s=_updKey(T[k]);if(_updSnap.t[k]!==s)T[k].upd=now;S.t[k]=s;});
+/* ໂຕະ: ຈື່ id ລາຍການທີ່ເອົາອອກ (ລຶບ/ຈ່າຍ/ຍ້າຍ) ໄວ້ໃນ t.del → server ລວມລາຍການຂອງ 2 ເຄື່ອງທີ່ແກ້ໂຕະດຽວກັນພ້ອມກັນໄດ້ ໂດຍບໍ່ເອົາອັນທີ່ລຶບແລ້ວກັບມາ */
+function stampUpd(){if(!state)return;var now=Date.now(),T=state.tables||{},S={t:{},o:{},c:{},ti:{}};
+ Object.keys(T).forEach(function(k){var t=T[k];var ids=_itemIds(t);var prev=_updSnap.ti[k]||[];var gone=prev.filter(function(id){return ids.indexOf(id)<0;});
+  if(gone.length){if(!Array.isArray(t.del))t.del=[];gone.forEach(function(id){if(t.del.indexOf(id)<0)t.del.push(id);});if(t.del.length>150)t.del=t.del.slice(-150);}
+  t.dv=1;var s=_updKey(t);if(_updSnap.t[k]!==s)t.upd=now;S.t[k]=s;S.ti[k]=ids;});
  (state.orders||[]).forEach(function(o){var id=String(o.id),s=_updKey(o);if(_updSnap.o[id]!==s)o.upd=now;S.o[id]=s;});
  (state.customers||[]).forEach(function(c){var id=String(c.id),s=_updKey(c);if(_updSnap.c[id]!==s)c.upd=now;S.c[id]=s;});_updSnap=S;}
 let _booted=false;function ensureDefaults(){ensureDemoIng();try{migrateCancelLog();}catch(e){}const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
@@ -1035,7 +1039,16 @@ function save(){if(isCust())return; /* ລູກຄ້າ QR ບໍ່ຂຽນ 
 function localBackup(){try{var b=localStorage.getItem('stpos_backup');if(b){var o=JSON.parse(b);if(o&&((o.bills&&o.bills.length)||(o.catalog&&Object.keys(o.catalog).length)))return o;}}catch(e){}return null;}
 function restoreOrFresh(){var bk=localBackup();if(bk){state=bk;ensureDefaults();_loaded=true;}else window.__loadFail=true;render();qrEntry();}
 function _doSave(){if(!_loaded)return;if(_saving){_pending=true;return;}_saving=true;google.script.run.withSuccessHandler(function(ok){_saving=false;if(ok===false)tokenErr_();if(_pending){_pending=false;_doSave();}}).withFailureHandler(()=>{_saving=false;setNet(true);setTimeout(function(){if(navigator.onLine!==false){setNet(false);}},8000);}).saveState(JSON.stringify(state),TOKEN);}
-function _doSaveApi(){if(!_loaded)return;apiSave(JSON.stringify(state));}
+function _doSaveApi(){if(!_loaded)return;window.__sentV=+state._v||0;window.__sentTs=Date.now();apiSave(JSON.stringify(state));}
+/* ຢືນຢັນການບັນທຶກ: POST ແບບ no-cors ອ່ານຜົນບໍ່ໄດ້ → ກວດເລກເວີຊັນຂອງ server; ຍັງບໍ່ຮອດ = ບັນທຶກບໍ່ສຳເລັດ → ສົ່ງຄືນ + ແຈ້ງເຕືອນ */
+var _svChk=false,_svFail=0;
+function saveConfirmed(v){if(window.__sentV&&v>=window.__sentV){window.__sentV=0;if(_svFail){_svFail=0;setSaveWarn(false);toast('✓ ບັນທຶກຂໍ້ມູນຄົບແລ້ວ');}}}
+function setSaveWarn(on){var d=document.getElementById('netDot');if(!d||_offline)return;
+ d.innerHTML=on?'<span onclick="_doSaveApi()" title="ກົດເພື່ອລອງບັນທຶກໃໝ່" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:800;padding:4px 10px;border-radius:12px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>ຍັງບໍ່ໄດ້ບັນທຶກ — ກຳລັງລອງໃໝ່ ('+_svFail+')</span>':'<span title="ອອນລາຍ" style="width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block"></span>';}
+function saveWatch(){if(!HAS_API||_svChk||!window.__sentV||_offline)return;if(Date.now()-(window.__sentTs||0)<9000)return;_svChk=true;
+ jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){_svChk=false;if(!(r&&r.ok&&typeof r.v==='number'))return;
+  if(r.v>=window.__sentV){saveConfirmed(r.v);return;}
+  _svFail++;setSaveWarn(true);_doSaveApi();},20000);}
 function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.classList.remove('hidden');
  if(getQ('table')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:15px;max-width:340px;text-align:center;line-height:1.7">QR ນີ້ໝົດອາຍຸ ຫຼື ບໍ່ສົມບູນ<br>ກະລຸນາຂໍລະຫັດ QR ໃໝ່ຈາກພະນັກງານ</div>';return;}
  b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:360px;text-align:center;line-height:1.7">ຕັ້ງຄ່າຄັ້ງທຳອິດ — ໃສ່ລິ້ງ GAS (/exec) ຂອງຮ້ານ</div>'
@@ -1099,13 +1112,13 @@ function startSync(){
  if(HAS_GAS){setInterval(()=>{if(_saving||_pending)return;if(document.getElementById('modalRoot').innerHTML)return;
   if(view==='order'&&state.draft&&state.draft.length)return;
   google.script.run.withSuccessHandler(s=>{if(!s||s==='DENIED')return;let ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}}).getStateTok(TOKEN);},5000);}
- else if(HAS_API){var _polling=false;
+ else if(HAS_API){var _polling=false;setInterval(saveWatch,5000);
   var applyRemote=function(s){if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;state=ns;ensureDefaults();render();}};
   /* ກວດແຕ່ເລກເວີຊັນທຸກ 4 ວິ (ນ້ອຍຫຼາຍ) → ດຶງເຕັມ (ບີບອັດ) ສະເພາະເມື່ອມີການປ່ຽນ. server ເກົ່າ (ບໍ່ມີ ver) ຈະສົ່ງ state ເຕັມມາແທນ */
   setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;
    var done=function(ms){setTimeout(function(){_polling=false;},ms||0);};
    jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){
-    if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
+    if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;saveConfirmed(r.v);if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
     if(r&&r.ok&&r.state){applyRemote(r.state);done(8000);return;}done(8000);},30000);},4000);}
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
@@ -1596,8 +1609,17 @@ function deductStock(line){const def=findMenu(line.code);if(!def||!def.bom)retur
 function findMenu(code){const M=MSRC();for(const cat in M)for(const sub in M[cat]){const f=M[cat][sub].find(x=>x.c===code);if(f)return f;}return null;}
 function menuCost(code){var def=findMenu(code);if(!def||!def.bom)return 0;return def.bom.reduce(function(s,b){var it=state.ingredients[b[0]];return s+(it&&it.cost?b[1]*it.cost:0);},0);}
 function billCOGS(items){return Math.round((items||[]).reduce(function(s,i){return s+menuCost(i.code)*i.qty;},0));}
-function confirmOrder(){if(!state.draft.length)return;
+/* ວັດຖຸດິບທີ່ບໍ່ພໍສຳລັບ draft ທັງໝົດ (ລວມທຸກລາຍການທີ່ໃຊ້ວັດຖຸດິບດຽວກັນ) ທີ່ບ່ອນເກັບຂອງເຄື່ອງນີ້ */
+function draftShortage(draft){var need={};(draft||[]).forEach(function(d){var def=findMenu(d.code);if(def&&def.bom)def.bom.forEach(function(b){need[b[0]]=(need[b[0]]||0)+(+b[1]||0)*(+d.qty||0);});});
+ var out=[];Object.keys(need).forEach(function(k){var it=state.ingredients[k];if(!it)return;var have=stockAt(k,curLoc());if(have<need[k]-1e-9)out.push({code:k,name:it.name,unit:it.unit||'',need:Math.round(need[k]*100)/100,have:Math.round(have*100)/100});});return out;}
+function stockOverride(){var sh=draftShortage(state.draft);closeModal();requireOverride('stockAdjust','ຂາຍເກີນສະຕ໋ອກ',function(){logOrder('ຂາຍເກີນສະຕ໋ອກ',sh.map(function(x){return x.name+' (ມີ '+x.have+', ໃຊ້ '+x.need+')';}).join(', '),state.activeTable);confirmOrder(true);});}
+function confirmOrder(force){if(!state.draft.length)return;
  if(isCust()){custConfirmOrder();return;} /* ລູກຄ້າ QR: ສົ່ງໃຫ້ server ກວດ+ຕັດສະຕ໋ອກ */
+ if(state.stockBlock!==false&&force!==true){var sh=draftShortage(state.draft);if(sh.length){
+  openModal('<h2 style="color:var(--red)">⚠ ວັດຖຸດິບບໍ່ພໍ</h2><p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:8px">ສະຕ໋ອກທີ່ '+cesc(locName(curLoc()))+' ບໍ່ພໍສຳລັບອໍເດີນີ້</p>'+
+   '<div style="max-height:40vh;overflow:auto">'+sh.map(function(x){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #fecaca;background:#fef2f2;border-radius:10px;margin-bottom:6px;font-size:13px"><b>'+cesc(x.name)+'</b><span>ຕ້ອງໃຊ້ '+x.need+' · ມີ <b style="color:var(--red)">'+x.have+'</b> '+cesc(x.unit)+'</span></div>';}).join('')+'</div>'+
+   '<p style="font-size:12px;color:var(--muted);margin-top:6px">ແກ້: ຫຼຸດຈຳນວນ/ປ່ຽນເມນູ · ຮັບສະຕ໋ອກເຂົ້າ · ຫຼື ຖ້າຂອງມີແທ້ (ສະຕ໋ອກໃນລະບົບບໍ່ກົງ) ໃຫ້ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່</p>'+
+   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ກັບໄປແກ້</button><button class="btn-ok" style="background:var(--orange)" onclick="stockOverride()">ຂາຍຕໍ່ (ຜູ້ຈັດການ)</button></div>');return;}}
  let short=[];state.draft.forEach(d=>{const def=findMenu(d.code);if(def)stockShortageFor(def,d.qty).forEach(n=>short.push(n));});
  const t=state.tables[state.activeTable];let cntItems=0;const newItems=state.draft.slice();
  state.draft.forEach(d=>{d.ts=Date.now();t.items.push(d);deductStock(d);cntItems+=d.qty;state.orders.push({id:d.id,table:state.activeTable,code:d.code,name:d.name,qty:d.qty,k:d.k,mods:d.mods,note:d.note||'',status:'wait',ts:d.ts});});
@@ -1900,12 +1922,20 @@ function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     <div class="kpi"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ວິທີການຊຳລະ</div>${Object.keys(pm).length?Object.entries(pm).map(([k,v])=>`<div class="totrow"><span>${k}</span><b>${KIP(v)} ₭ (${(v/sales*100).toFixed(1)}%)</b></div>`).join(''):'<div style="color:#94a3b8">ບໍ່ມີຂໍ້ມູນວັນນີ້</div>'}</div>
     <div class="kpi"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ເມນູຂາຍດີ</div>${top.length?top.map(([k,v],i)=>`<div class="totrow"><span>${i+1}. ${k}</span><b>${v}</b></div>`).join(''):'<div style="color:#94a3b8">ບໍ່ມີຂໍ້ມູນວັນນີ້</div>'}</div></div></div>`;}
+/* ວັດຖຸດິບ/ສິນຄ້າທີ່ບໍ່ມີຕົ້ນທຶນ → ກຳໄລໃນລາຍງານຈະບໍ່ຄົບ: ແຈ້ງ + ໃສ່ໄດ້ທັນທີ */
+function stockCostAlert(){if(!can('stockAdjust'))return '';var used={};allMenu().forEach(function(m){(m.bom||[]).forEach(function(b){used[b[0]]=1;});});
+ var miss=Object.values(state.ingredients||{}).filter(function(i){return !(+i.cost>0);});if(!miss.length)return '';
+ miss.sort(function(a,b){return (used[b.code]?1:0)-(used[a.code]?1:0);});
+ return '<div style="margin:0 18px 10px;padding:12px 14px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412"><div style="font-weight:800;margin-bottom:6px">⚠ '+miss.length+' ລາຍການຍັງບໍ່ມີຕົ້ນທຶນ — ໃສ່ເພື່ອໃຫ້ກຳໄລ/ມູນຄ່າສະຕ໋ອກຖືກ</div>'+
+  miss.slice(0,20).map(function(i){return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;font-size:13px"><b style="min-width:80px">'+cesc(i.code)+'</b><span style="flex:1;min-width:120px">'+cesc(i.name)+(used[i.code]?' <span style="color:var(--red);font-weight:700">(ໃຊ້ໃນສູດເມນູ)</span>':' <span style="color:#b45309">(ບໍ່ຢູ່ໃນສູດ)</span>')+'</span><input id="qc_'+cesc(i.code)+'" type="number" inputmode="decimal" placeholder="ກີບ/'+cesc(i.unit||'ໜ່ວຍ')+'" style="width:130px;padding:6px 8px"><button class="btn-sm" data-c="'+cesc(i.code)+'" onclick="setCostQuick(this.dataset.c)">ບັນທຶກ</button></div>';}).join('')+(miss.length>20?'<div style="font-size:12px">… ອີກ '+(miss.length-20)+' ລາຍການ</div>':'')+'</div>';}
+function setCostQuick(code){var el=document.getElementById('qc_'+code);var v=+(el&&el.value)||0;if(v<=0){toast('ໃສ່ຕົ້ນທຶນ > 0');return;}var it=state.ingredients[code];if(!it)return;
+ it.cost=v;logOrder('ຕັ້ງຕົ້ນທຶນ',code+' '+it.name+' = '+KIP(v)+' ກີບ/'+(it.unit||''),'');save();render();toast('ບັນທຶກຕົ້ນທຶນ '+it.name);}
 function renderStock(R){let ings=Object.values(state.ingredients);const cats=['ທັງໝົດ','ວັດຖຸດິບ','ສິນຄ້າ','ເຄື່ອງໃຊ້'];if(!stockCat)stockCat='ທັງໝົດ';if(stockCat!=='ທັງໝົດ')ings=ings.filter(i=>(i.cat||'ວັດຖຸດິບ')===stockCat);
  var locs=(state.locations||[]);if(!stockViewLoc||!locs.some(function(l){return l.id===stockViewLoc;}))stockViewLoc=curLoc();
  var locSel=locs.length>1?`<div style="padding:0 18px 6px;display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;font-weight:700;color:var(--muted)">ບ່ອນເກັບ:</span>${locs.map(function(l){return '<button class="chip '+(stockViewLoc===l.id?'active':'')+'" onclick="stockViewLoc=\''+l.id+'\';render()">'+cesc(l.name)+(l.id===curLoc()?' ●':'')+'</button>';}).join('')}</div>`:'';
  R.innerHTML=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ສະຕ໋ອກ</span><span style="color:var(--muted)">${locs.length>1?'ກຳລັງເບິ່ງ: <b style="color:var(--tiff-deep)">'+cesc(locName(stockViewLoc))+'</b>':'ຫັກອັດຕະໂນມັດເມື່ອຍືນຍັນອໍເດີ'}</span>
    <button class="btn-sm btn-exp" style="margin-left:auto" onclick="exportStockAll()"><svg class="dl" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export Excel</button><button class="btn-sm" onclick="openStockTake()"> ນັບສະຕ໋ອກ</button>${can('prCreate')?'<button class="btn-sm" onclick="setView(\'purchase\');prFromLow()">⚡ PR ຈາກລາຍການໃກ້ໝົດ</button>':''}${(state.locations||[]).length>1?'<button class="btn-sm grad" onclick="setView(\'transfer\')"> ໂອນສະຕ໋ອກ'+((state.transfers||[]).filter(function(t){return t.status==='sent'&&t.to===curLoc();}).length?' <span style="background:#fff;color:var(--tiff-deep);border-radius:8px;padding:0 5px;font-size:10px;font-weight:800">'+(state.transfers||[]).filter(function(t){return t.status==='sent'&&t.to===curLoc();}).length+' ຮັບ</span>':'')+'</button>':''}<button class="btn-sm" onclick="showStockLog()"> ປະຫວັດເຄື່ອນໄຫວ (${(state.stockLog||[]).length})</button><button class="btn-sm" onclick="showBomViewer()"> ເບິ່ງສູດເມນູ</button><button class="btn-sm" onclick="showBomAudit()"> ກວດສູດ</button><button class="btn-sm" onclick="addIngredient()"> ເພີ່ມ</button><button class="btn-sm red" onclick="resetStockAll()"> ຕັ້ງສະຕ໋ອກໃໝ່</button></div>
-  ${locSel}
+  ${locSel}${stockCostAlert()}
   <div style="padding:0 18px 10px;display:flex;gap:7px;flex-wrap:wrap">${cats.map(c=>`<button class="chip ${stockCat===c?'active':''}" onclick="stockCat='${c}';render()">${c}</button>`).join('')}</div>
   <div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th style="width:52px">ຮູບ</th><th>ລະຫັດ</th><th>ຊື່</th><th>ປະເພດ</th><th>ຫົວໜ່ວຍ</th><th>ຄົງເຫຼືອ</th><th>ຈຸດສັ່ງຊື້</th><th>ຕົ້ນທຶນ/ໜ່ວຍ</th><th>ສະຖານະ</th><th>ຮັບເຂົ້າ</th></tr></thead><tbody>
    ${ings.map(i=>{var sv=stockAt(i.code,stockViewLoc);return `<tr><td>${ingThumb(i.code,40,true)}</td><td>${i.code}</td><td>${i.name}</td><td>${i.cat||'ວັດຖຸດິບ'}</td><td>${i.unit}</td><td style="font-weight:700;color:${sv<=i.reorder?'var(--red)':'var(--text)'}">${KIP(sv)}</td><td>${KIP(i.reorder)}</td><td>${i.cost?KIP(i.cost):'<span style="color:#94a3b8">-</span>'}${can('stockAdjust')?` <button class="miniic" style="font-size:11px;color:var(--tiff-deep)" onclick="editCost('${i.code}')">ແກ້</button>`:''}</td><td>${sv<=i.reorder?'<span class="tag warn"> ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok"> ປົກກະຕິ</span>'}</td><td><button class="btn-sm" onclick="addStock('${i.code}')">+ ຮັບເຂົ້າ</button> <button class="btn-sm" style="background:var(--orange)" onclick="wasteStock('${i.code}')">ເສຍ</button></td></tr>`;}).join('')}</tbody></table></div>`;}
@@ -3103,6 +3133,7 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
     <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_snd" ${state.soundOn?'checked':''} style="width:auto"> ເປີດສຽງເຕືອນອໍເດີໃໝ່</label>
     <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_pk" ${state.printKitchen?'checked':''} style="width:auto"> ພິມສະລິບເຂົ້າຄົວ/ບາຣ໌ ອັດຕະໂນມັດ ເມື່ອຢືນຢັນອໍເດີ</label>
     <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_rqsh" ${state.requireShift!==false?'checked':''} style="width:auto"> ຕ້ອງເປີດກະກ່ອນຮັບເງິນ (ແນະນຳ)</label>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_stkb" ${state.stockBlock!==false?'checked':''} style="width:auto"> ກັນຂາຍເມື່ອວັດຖຸດິບໃນສະຕ໋ອກບໍ່ພໍ (ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ")</label>
     <label style="margin-top:12px">ສ່ວນຫຼຸດສູງສຸດ ທີ່ແຄັດເຊຍໃຫ້ເອງໄດ້ (%) — ເກີນນີ້ຕ້ອງໃຫ້ຜູ້ຈັດການອະນຸມັດ</label>
     <div style="display:flex;gap:4px;align-items:center;max-width:200px"><button class="btn-sm" onclick="stepInput('ad_dlim',-5)">−5</button><input id="ad_dlim" type="number" value="${state.discLimit||0}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_dlim',5)">+5</button></div>
     <button class="btn-ok grad" style="display:block;margin-top:14px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveSettings()"> ບັນທຶກ</button></div>
@@ -3220,6 +3251,7 @@ function doSwitchBranch(i){var b=getBranches()[i];if(!b)return;
 function saveSettings(){state.shopName=document.getElementById('ad_name').value||'ST POS';state.serviceChargePct=+document.getElementById('ad_svc').value||0;state.vatPct=+document.getElementById('ad_vat').value||0;state.billDiscPct=+document.getElementById('ad_disc').value||0;state.qrGlobal=document.getElementById('ad_qr').checked;state.qrPinRequired=document.getElementById('ad_qrpin').checked;state.qrExpires=document.getElementById('ad_qrexp').checked;state.soundOn=document.getElementById('ad_snd').checked;
  var pk=document.getElementById('ad_pk');if(pk)state.printKitchen=pk.checked;
  var rq=document.getElementById('ad_rqsh');if(rq)state.requireShift=rq.checked;
+ var sb=document.getElementById('ad_stkb');if(sb)state.stockBlock=!!sb.checked;
  var dl=document.getElementById('ad_dlim');if(dl)state.discLimit=Math.max(0,Math.min(100,+dl.value||0));
  var pr=document.getElementById('ad_prate');if(pr)state.pointRate=Math.max(1,+pr.value||10000);
  var pv=document.getElementById('ad_pval');if(pv)state.pointValue=Math.max(0,+pv.value||0);
