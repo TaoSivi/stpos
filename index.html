@@ -1283,6 +1283,11 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
  .sitem{flex-wrap:wrap}.sitem-a{width:100%;justify-content:flex-start;padding-left:0}
 }
 
+.repmain{max-width:none}.reppage{max-width:1600px}
+.reppage #repbody>.toolbar:first-child{padding-top:0}
+.setrail .rbadge{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:800;background:#fde68a;color:#78350f;border-radius:999px;padding:1px 8px}
+.setrail button.on .rbadge{background:#7ff0e9;color:#062f2d}
+@media (max-width:900px){.setrail .rbadge{margin-left:6px}}
 </style>
 </head>
 <body>
@@ -1290,22 +1295,24 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 <div id="app" class="hidden">
   <aside id="sidebar">
     <div class="brand"><div class="logo">ST</div><div><b>ST POS</b><small>Smart Restaurant POS</small></div></div>
-    <div class="navsec">POS / ຂາຍ</div>
+    <div class="navsec">ຂາຍໜ້າຮ້ານ</div>
     <button class="navitem" data-v="tables"><span class="ic"></span> ສັ່ງອາຫານ <span class="live">LIVE</span></button>
     <button class="navitem" data-v="kitchen"><span class="ic"></span> ຈໍຄົວ</button>
     <button class="navitem" data-v="bar"><span class="ic"></span> ຈໍບາຣ໌ນ້ຳ</button>
     <button class="navitem" data-v="waiter"><span class="ic"></span> ຈໍພະນັກງານເສີບ</button>
-    <button class="navitem" data-v="history"><span class="ic"></span> ປະຫວັດການຂາຍ</button>
-    <div class="navsec">ຈັດການ</div>
-    <button class="navitem" data-v="members"><span class="ic"></span> ສະມາຊິກ</button>
-    <button class="navitem" data-v="debt"><span class="ic"></span> ໜີ້ຄ້າງ</button>
+    <div class="navsec">ເງິນ & ລູກຄ້າ</div>
     <button class="navitem" data-v="shift"><span class="ic"></span> ກະ / ລີ້ນຊັກເງິນ</button>
+    <button class="navitem" data-v="debt"><span class="ic"></span> ໜີ້ຄ້າງ</button>
+    <button class="navitem" data-v="members"><span class="ic"></span> ສະມາຊິກ</button>
+    <button class="navitem" data-v="expense"><span class="ic"></span> ລາຍຈ່າຍ</button>
+    <div class="navsec">ລາຍງານ</div>
     <button class="navitem" data-v="dash"><span class="ic"></span> Dashboard</button>
-    <button class="navitem" data-v="reports"><span class="ic"></span> ລາຍງານການຂາຍ</button>
-    <button class="navitem" data-v="cancellog"><span class="ic"></span> Log ລຶບເມນູ / ຍົກເລີກ <span class="live" id="cancelBadge" style="display:none"></span></button>
+    <button class="navitem" data-v="history"><span class="ic"></span> ປະຫວັດການຂາຍ</button>
+    <button class="navitem" data-v="reports"><span class="ic"></span> ລາຍງານ <span class="live" id="cancelBadge" style="display:none"></span></button>
+    <div class="navsec">ສາງ & ຈັດຊື້</div>
     <button class="navitem" data-v="stock"><span class="ic"></span> ສະຕ໋ອກວັດຖຸດິບ <span class="live" id="stockBadge" style="display:none;background:#e03131"></span></button>
     <button class="navitem" data-v="purchase"><span class="ic"></span> ຈັດຊື້ (PR/PO) <span class="live" id="procBadge" style="display:none"></span></button>
-    <button class="navitem" data-v="expense"><span class="ic"></span> ລາຍຈ່າຍ</button>
+    <div class="navsec">ລະບົບ</div>
     <button class="navitem" data-v="admin"><span class="ic"></span> ການຕັ້ງຄ່າ</button>
   </aside>
   <div id="drawerMask" onclick="toggleDrawer(false)"></div>
@@ -1632,7 +1639,7 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();try{tickClock();}catch(e){}
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});renderBottomNav();procBadge();try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title=n+' ລາຍການມື້ນີ້';el.style.display=n?'':'none';})();
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});renderBottomNav();procBadge();try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
@@ -2673,7 +2680,7 @@ function exportReport(){if(reportTab==='cancel')return exportCancel();if(reportT
   if(kp.length){XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(kp),'ສະຫຼຸບ');n++;}
   [].slice.call(body.querySelectorAll('table')).forEach(function(t,i){var c=t.cloneNode(true);[].slice.call(c.querySelectorAll('button,svg')).forEach(function(b){b.remove();});XLSX.utils.book_append_sheet(wb,XLSX.utils.table_to_sheet(c),'ຕາຕະລາງ '+(i+1));n++;});
   if(!n){toast('ໜ້ານີ້ບໍ່ມີຕາຕະລາງໃຫ້ export');return;}
-  var on=document.querySelector('.setnav button.on'),tl=(on?on.textContent:reportTab).replace(/[\\\/?*\[\]:]/g,'').trim();
+  var on=document.querySelector('.setrail button.on span')||document.querySelector('.setnav button.on'),tl=(on?on.textContent:reportTab).replace(/[\\\/?*\[\]:]/g,'').trim();
   XLSX.writeFile(wb,'ລາຍງານ_'+tl+'_'+(repDate||'ທັງໝົດ')+'.xlsx');toast('Export ສຳເລັດ');});}
 function bomEditable_(){return can('menuEdit')&&state.catalog&&Object.keys(state.catalog).length>0;}
 function setBomQty(code,idx,val){if(!bomEditable_())return;var p=findMenu(code);if(!p||!p.bom||!p.bom[idx])return;
@@ -3586,12 +3593,16 @@ function printReportBody(title){var body=document.getElementById('repbody');if(!
  var pa=document.getElementById('printArea');pa.innerHTML='<style>@media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{display:block!important;position:absolute;left:0;top:0;width:100%}.rpt-print table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px}.rpt-print th,.rpt-print td{border:1px solid #999;padding:3px 5px;text-align:left}.rpt-print .cards{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.rpt-print .kpi{border:1px solid #999;padding:6px 10px;border-radius:6px;box-shadow:none;flex:1;min-width:120px}.rpt-print .kpi .val{font-size:16px;font-weight:800}.rpt-print button,.rpt-print .btn-sm,.rpt-print input{display:none!important}@page{margin:10mm}}</style>'+html;
  setTimeout(function(){window.print();},200);}
 function codeCatMap(){var M=MSRC(),m={};for(var c in M)for(var s in M[c])M[c][s].forEach(function(x){m[x.c]=c;});return m;}
-function renderReports(R){var tabs=[['summary','ສະຫຼຸບການຂາຍ'],['profit','ຕົ້ນທຶນ & ກຳໄລ'],['staff','ພະນັກງານ'],['branch','ສາຂາ'],['dash','Dashboard'],['sales','ການຂາຍ'],['product','ສິນຄ້າຂາຍ'],['cancel','ລຶບເມນູ/ຍ້າຍໂຕະ'],['sdisc','ສ່ວນລົດພະນັກງານ'],['audit','ການປ່ຽນແປງອໍເດີ'],['food','ຕິດຕາມອາຫານ'],['loss','ສູນເສຍ % (ສະຕ໋ອກ)']];
- R.innerHTML='<div class="adminbox"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ລາຍງານການຂາຍ</div><div class="sub">ສະຫຼຸບ ແລະ ວິເຄາະການຂາຍ</div></div></div><div class="setnav">'+tabs.map(function(t){return '<button class="'+(reportTab===t[0]?'on':'')+'" onclick="reportTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div><div id="repbody"></div></div>';
+var REP_NAV=[['ພາບລວມ',[['summary','ສະຫຼຸບການຂາຍ','chart'],['profit','ຕົ້ນທຶນ & ກຳໄລ','pay'],['branch','ລວມທຸກສາຂາ','store']]],
+ ['ສິນຄ້າ & ສະຕ໋ອກ',[['product','ສິນຄ້າຂາຍດີ','menu'],['food','ຕິດຕາມອາຫານ','order'],['loss','ສູນເສຍ % (ສະຕ໋ອກ)','box']]],
+ ['ພະນັກງານ',[['staff','ຜົນງານພະນັກງານ','users'],['sdisc','ສ່ວນລົດພະນັກງານ','promo']]],
+ ['ກວດສອບ',[['cancel','ລຶບເມນູ / ຍ້າຍໂຕະ','trash'],['audit','ການປ່ຽນແປງອໍເດີ','edit']]]];
+function renderReports(R){if(reportTab==='dash'||reportTab==='sales'||!REP_NAV.some(function(g){return g[1].some(function(x){return x[0]===reportTab;});}))reportTab='summary';
+ var td=ymd(Date.now()),nc=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===td;}).length;
+ var rail='<h2>ລາຍງານ</h2>'+REP_NAV.map(function(g){return '<div class="sg">'+g[0]+'</div>'+g[1].map(function(x){return '<button type="button" class="'+(reportTab===x[0]?'on':'')+'" onclick="reportTab=\''+x[0]+'\';render()">'+sIco(x[2])+'<span>'+x[1]+'</span>'+(x[0]==='cancel'&&nc?'<em class="rbadge">'+nc+'</em>':'')+'</button>';}).join('');}).join('');
+ R.innerHTML='<div class="adminbox setpage reppage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain repmain"><div id="repbody"></div></div></div></div>';
  var body=document.getElementById('repbody');if(!body)return;
- if(reportTab==='dash')renderDash(body);
- else if(reportTab==='sales')renderHistory(body);
- else if(reportTab==='product')renderRepProduct(body);
+ if(reportTab==='product')renderRepProduct(body);
  else if(reportTab==='audit')renderRepAudit(body);
  else if(reportTab==='food')renderRepFood(body);
  else if(reportTab==='loss')renderRepLoss(body);
@@ -4033,7 +4044,7 @@ var SET_NAV=[
  ['ການຂາຍ',[['order','ການສັ່ງ & QR ລູກຄ້າ','order','ສຽງເຕືອນ ການພິມເຂົ້າຄົວ ແລະ QR ສັ່ງເອງ'],['table','ໂຕະ & ຊັ້ນ','table','ເພີ່ມ / ລຶບ ຊັ້ນ ແລະ ໂຕະ'],['menu','ເມນູ & ຮູບ','menu','ເມນູ ລາຄາ ຮູບ ແລະ ສູດຕັດສະຕ໋ອກ'],['opts','ຕົວເລືອກ & Topping','opts','ກຸ່ມຕົວເລືອກ ທີ່ຂຶ້ນມາຕອນກົດເມນູ'],['promo','ໂປຣໂມຊັນ','promo','ຫຼຸດລາຄາອັດຕະໂນມັດ ຕາມຊ່ວງເວລາ'],['cds','ຈໍລູກຄ້າ','screen','ໜ້າຈໍທີ 2 ທີ່ຫັນໃສ່ລູກຄ້າ']]],
  ['ພະນັກງານ',[['users','ຜູ້ໃຊ້ & ສິດ','users','ໃຜເຂົ້າລະບົບໄດ້ ແລະ ເຮັດຫຍັງໄດ້',1],['staff','ກະ & ສ່ວນລົດພະນັກງານ','staff','ກະເຮັດວຽກ ແລະ ສ່ວນລົດພະນັກງານ']]],
  ['ລະບົບ',[['loc','ບ່ອນເກັບ & ສາຂາ','box','ບ່ອນຕັດສະຕ໋ອກ ແລະ ສາຂາ'],['conn','ການເຊື່ອມຕໍ່ & ລາຍງານ','link','ສະຖານະ server ແລະ ລາຍງານປະຈຳວັນ'],['adv','ສຳຮອງ & ຂັ້ນສູງ','shield','ສຳຮອງ ກູ້ຄືນ ແລະ ລ້າງຂໍ້ມູນ',1]]]];
-var SIC={store:'M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18M9 20v-6h6v6',pay:'M3 7h18v10H3zM3 11h18M7 15h3',order:'M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 2-2 6 0 8v10',table:'M3 9h18M5 9v10M19 9v10M8 5h8',menu:'M4 6h16M4 12h16M4 18h10',opts:'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',promo:'M3 12V3h9l9 9-9 9zM8 8h.01',screen:'M3 4h18v12H3zM8 20h8M12 16v4',users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-5-6',staff:'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1',box:'M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'};
+var SIC={store:'M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18M9 20v-6h6v6',pay:'M3 7h18v10H3zM3 11h18M7 15h3',order:'M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 2-2 6 0 8v10',table:'M3 9h18M5 9v10M19 9v10M8 5h8',menu:'M4 6h16M4 12h16M4 18h10',opts:'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',promo:'M3 12V3h9l9 9-9 9zM8 8h.01',screen:'M3 4h18v12H3zM8 20h8M12 16v4',users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-5-6',staff:'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1',box:'M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',chart:'M4 20V10M10 20V4M16 20v-7M22 20H2',trash:'M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6',edit:'M4 20h4L19 9l-4-4L4 16zM13 7l4 4'};
 function sIco(k){return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+SIC[k]+'"/></svg>';}
 function aesc(s){return cesc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 /* ---- ບັນທຶກທັນທີ: data-k = ທີ່ຢູ່ໃນ state (ໃຊ້ຈຸດໄດ້ ເຊັ່ນ cds.welcome), data-t = bool | num | str ---- */
