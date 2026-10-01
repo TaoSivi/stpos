@@ -1171,6 +1171,118 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .keyed-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;font-size:13.5px;border-top:1px dashed #e3efee}
 .keyed-i{flex:1;min-width:160px;color:#1f3d3a}.keyed-a{color:#075e5b}
 .rsn-q{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.rsn-q button{padding:7px 12px;border-radius:10px;background:#fff;border:1.5px solid #dcecea;font-weight:700;font-size:13.5px;color:#12302d}.rsn-q button.on{background:#062f2d;color:#fff;border-color:#062f2d}
+/* ===== ການຕັ້ງຄ່າ (ອອກແບບໃໝ່) ===== */
+.setpage{max-width:1280px}
+.setwrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:24px;align-items:start}
+.setrail{position:sticky;top:8px;background:#fff;border-radius:22px;padding:14px 10px 12px;box-shadow:var(--sh-1);z-index:6}
+.setrail h2{font-size:21px;font-weight:800;color:var(--ink);padding:4px 12px 6px;margin:0}
+.setrail .sg{font-size:12px;font-weight:700;color:#6d8f8b;letter-spacing:.2px;padding:14px 12px 4px}
+.setrail button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;margin:1px 0;border:0;border-radius:12px;background:none;font:inherit;font-size:14.5px;font-weight:600;color:#24504c;cursor:pointer;text-align:left;line-height:1.3}
+.setrail button svg{width:19px;height:19px;flex-shrink:0;stroke:currentColor;opacity:.75}
+.setrail button:hover{background:#f0f8f7}
+.setrail button.on{background:#062f2d;color:#fff}.setrail button.on svg{opacity:1}
+.setmain{min-width:0;max-width:960px}
+.sethead{display:flex;align-items:flex-end;gap:12px;margin:2px 0 16px;scroll-margin-top:90px}
+.sethead h2{font-size:25px;font-weight:800;color:var(--ink);margin:0;line-height:1.3}
+.sethead p{color:#4b6f6c;font-size:14.5px;margin:3px 0 0}
+.ssaved{margin-left:auto;flex-shrink:0;font-size:13.5px;font-weight:700;color:#0A5E5B;background:#d9f2ef;padding:7px 14px;border-radius:999px;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.ssaved.on{opacity:1;transform:none}
+.scard{background:#fff;border-radius:22px;box-shadow:var(--sh-1);padding:4px 22px 8px;margin-bottom:16px}
+.scard>header{display:flex;align-items:flex-start;gap:14px;padding:16px 0 12px;border-bottom:1px solid #edf4f3}
+.scard>header h3{font-size:17px;font-weight:800;color:var(--ink);margin:0;line-height:1.35}
+.scard>header p{font-size:13.5px;color:#557673;margin:4px 0 0;line-height:1.55}
+.scard>header>div:first-child{flex:1;min-width:0}
+.scard-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center;flex-shrink:0;max-width:60%}
+.scard.danger{box-shadow:0 0 0 1.5px #fecaca,var(--sh-1)}.scard.danger>header h3{color:#b91c1c}
+.srow{display:flex;align-items:center;gap:18px;padding:14px 0;border-bottom:1px solid #f0f6f5}
+.srow:last-child{border-bottom:0}
+.srow-t{flex:1;min-width:0}.srow-t b{display:block;font-size:15px;font-weight:700;color:var(--ink);line-height:1.4}
+.srow-t small{display:block;font-size:13px;color:#638380;margin-top:2px;line-height:1.5}
+.srow-c{flex-shrink:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:62%}
+.srow.stack{align-items:flex-start}.srow.stack .srow-c{flex-direction:column;align-items:flex-end;flex-shrink:1;min-width:0}
+.srow.stack .srow-c>.stxt{width:360px}
+.setmain .stxt,.setmain .ssel{width:340px;max-width:100%;height:42px;padding:0 13px;border:1px solid #d6e9e7;border-radius:12px;background:#fbfefe;font:inherit;font-size:14.5px;color:var(--ink);box-sizing:border-box}
+.setmain textarea.stxt{height:auto;padding:10px 13px;width:100%;margin:0 0 12px;font-size:12.5px}
+.setmain .stxt:focus,.setmain .ssel:focus,.snum:focus-within{outline:none;border-color:var(--tiff);box-shadow:0 0 0 3px rgba(10,186,181,.16)}
+.sw{position:relative;display:inline-block;width:52px;height:30px;flex-shrink:0;cursor:pointer;margin:0}
+.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border-radius:999px;background:#cddcda;transition:background .2s}
+.sw i:after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked+i{background:#0A7E7A}.sw input:checked+i:after{transform:translateX(22px)}
+.sw input:focus-visible+i{box-shadow:0 0 0 3px rgba(10,186,181,.35)}
+.snum{display:inline-flex;align-items:center;height:42px;border:1px solid #d6e9e7;border-radius:12px;background:#fbfefe;overflow:hidden}
+.snum button{width:40px;height:100%;border:0;background:#eef7f6;font-size:19px;font-weight:700;color:#0A5E5B;cursor:pointer;flex-shrink:0}
+.snum button:hover{background:#dff1ef}
+.setmain .snum input{width:76px;height:100%;border:0;margin:0;padding:0 4px;text-align:center;font:inherit;font-size:15px;font-weight:700;color:var(--ink);background:transparent;box-shadow:none;outline:none}
+.setmain .snum input.money,.setmain .snum input.money-in{width:130px;text-align:right;padding-right:6px}
+.snum span{display:flex;align-items:center;align-self:stretch;padding:0 13px 0 4px;color:#638380;font-size:13.5px;font-weight:600;white-space:nowrap;line-height:1}
+.sitem-a .sb.sm.ghost-danger{min-width:56px}.sb-ph{width:56px}
+.snum.sm{height:34px}.setmain .snum.sm input{width:48px;font-size:14px}.snum.sm span{padding:0 10px 0 0}
+.snum input::-webkit-inner-spin-button,.snum input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.snum input[type=number]{-moz-appearance:textfield}
+.sb{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:12px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;margin:0;box-sizing:border-box;line-height:1}
+.sb:hover{background:#f0f8f7}
+.sb.pri{background:#0A7E7A;border-color:#0A7E7A;color:#fff}.sb.pri:hover{background:#086a67}
+.sb.danger{background:#dc2626;border-color:#dc2626;color:#fff}.sb.danger:hover{background:#b91c1c}
+.sb.ghost-danger{color:#b91c1c;border-color:#f8cccc;background:#fff}.sb.ghost-danger:hover{background:#fef2f2}
+.sb.sm{height:34px;padding:0 12px;font-size:13px;border-radius:10px}
+.sb-ph{display:inline-block;width:52px}
+.sitem{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f0f6f5}
+.sitem:last-child{border-bottom:0}
+.sitem-m{flex:1;min-width:0}.sitem-m>b{font-size:15px;font-weight:700;color:var(--ink);line-height:1.45}
+.sitem-m small{display:block;font-size:13px;color:#638380;margin-top:2px;line-height:1.5}
+.sitem-a{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.sav{width:40px;height:40px;border-radius:50%;background:#dff3f1;color:#0A5E5B;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sbadge{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#eef6f5;color:#335f5b;margin-left:8px;vertical-align:middle;white-space:nowrap;line-height:1.4}
+.scard-act>.sbadge{margin-left:0}
+.sbadge.ok{background:#dcfce7;color:#166534}.sbadge.warn{background:#fef3c7;color:#92400e}.sbadge.off{background:#f1f5f9;color:#64748b}.sbadge.role{background:#e0f2fe;color:#075985}
+.suse{font-size:12.5px;color:#638380;margin-right:4px}
+.sempty{padding:22px;text-align:center;color:#7c9895;background:#f7fbfb;border-radius:14px;margin:14px 0}
+.sscroll{max-height:420px;overflow:auto;margin:6px 0}
+.schips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 12px}
+.schip{display:inline-flex;align-items:center;gap:6px;padding:5px 5px 5px 13px;border-radius:999px;background:#eef7f6;font-size:14px;font-weight:600;color:#24504c;line-height:1.3}
+.schip em{font-style:normal;color:#0A7E7A;font-weight:700}
+.schip button{width:24px;height:24px;border-radius:50%;border:0;background:#fff;color:#b91c1c;font-weight:800;font-size:15px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+.schip button:hover{background:#fee2e2}
+.schip.add{background:#fff;border:1.5px dashed #9fd6cf;color:#0A7E7A;padding:5px 14px;cursor:pointer;font:inherit;font-size:14px;font-weight:700}
+.sfloor{border:1px solid #e8f2f1;border-radius:16px;padding:4px 14px;margin:12px 0}
+.sfloor-h{display:flex;align-items:center;gap:10px;padding:10px 0 4px}.sfloor-h b{font-size:15.5px;color:var(--ink)}.sfloor-h small{color:#638380;font-size:13px;flex:1}
+.sfloor-e{color:#8aa5a2;font-size:13.5px;padding:6px 0 12px}
+.sseg{display:inline-flex;background:#eef7f6;border-radius:12px;padding:3px;gap:2px}
+.sseg button{border:0;background:none;height:36px;padding:0 16px;border-radius:10px;font:inherit;font-size:14px;font-weight:700;color:#3f6662;cursor:pointer}
+.sseg button.on{background:#fff;color:#0A5E5B;box-shadow:0 1px 4px rgba(6,47,45,.12)}
+.slogo{width:58px;height:58px;border-radius:14px;border:1px solid #e2eceb;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;color:#94a3b8;font-size:12px}.slogo img{max-width:100%;max-height:100%}
+.sadv{border-top:1px solid #f0f6f5;margin-top:2px}
+.sadv summary{cursor:pointer;color:#0A7E7A;font-weight:700;font-size:13.5px;padding:12px 0;list-style:none}.sadv summary::-webkit-details-marker{display:none}.sadv summary:before{content:'▸ ';}.sadv[open] summary:before{content:'▾ ';}
+.sroles{margin:0 0 12px;padding-left:18px;font-size:13.5px;color:#3f6662;line-height:1.8}
+.sstat{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.sstat span{background:#f0f8f7;border-radius:12px;padding:7px 14px;font-size:12.5px;color:#557673;text-align:center;min-width:64px}.sstat b{display:block;font-size:18px;color:var(--ink)}
+.sswatch{display:flex;gap:8px}.sswatch button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #d6e9e7;cursor:pointer;padding:0}.sswatch button.on{box-shadow:0 0 0 2.5px #062f2d}
+.scolor{width:42px;height:38px;padding:0;border:1px solid #d6e9e7;border-radius:10px;background:#fff;cursor:pointer}
+.sthumbs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.sthumbs span{position:relative}.sthumbs img{width:92px;height:62px;object-fit:cover;border-radius:10px;border:1px solid #e2eceb;display:block}
+.sthumbs button{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;border:0;background:#dc2626;color:#fff;font-weight:800;cursor:pointer;line-height:1}
+.stogs{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.stog{border:1px solid #cfe4e2;background:#fff;color:#24504c;border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.stog.on{background:#062f2d;border-color:#062f2d;color:#fff}
+.sfoot{padding:4px 0 12px}
+.spink{color:#be185d}.sgreen{color:#15803d}.sorange{color:#b45309}
+.smenu{padding-top:16px}.smenu .mnu-t{display:none}
+@media (max-width:900px){
+ .setwrap{grid-template-columns:1fr;gap:12px}
+ .setrail{position:sticky;top:0;display:flex;overflow-x:auto;gap:4px;padding:6px;border-radius:16px;scrollbar-width:none}
+ .setrail::-webkit-scrollbar{display:none}
+ .setrail h2,.setrail .sg{display:none}
+ .setrail button{width:auto;white-space:nowrap;flex-shrink:0;padding:9px 13px;font-size:14px}
+ .setrail button svg{display:none}
+ .sethead h2{font-size:21px}
+ .scard{padding:2px 16px 6px;border-radius:18px}
+ .scard>header{flex-wrap:wrap}.scard>header>div:first-child{flex-basis:100%}.scard-act{max-width:100%;justify-content:flex-start}
+ .sfloor-h{flex-wrap:wrap}.sfloor-h small{white-space:nowrap}
+ .srow{gap:12px}.srow-c{max-width:100%}
+ .srow.stack{flex-direction:column;align-items:stretch}.srow.stack .srow-c{align-items:stretch}.srow.stack .srow-c>.stxt{width:100%}
+ .stogs,.sthumbs,.sstat{justify-content:flex-start}
+ .setmain .stxt{width:100%}
+ .sitem{flex-wrap:wrap}.sitem-a{width:100%;justify-content:flex-start;padding-left:0}
+}
+
 </style>
 </head>
 <body>
@@ -3620,7 +3732,7 @@ function brRow_(id,nm,s,err){var el=document.getElementById(id);if(!el)return;
 let _brTot={sales:0,month:0};
 function brAddTot_(s){_brTot.sales+=s.today.sales;_brTot.month+=s.month.sales;var el=document.getElementById('brTot');if(el)el.innerHTML='<td style="font-weight:900">ລວມທຸກສາຂາ</td><td style="font-weight:900;color:var(--green)">'+KIP(_brTot.sales)+'</td><td colspan="4"></td><td style="font-weight:900;color:var(--tiff-deep)">'+KIP(_brTot.month)+'</td>';}
 function renderRepBranch(b){var brs=getBranches();_brTot={sales:0,month:0};
- b.innerHTML='<div class="toolbar"><span style="font-size:17px;font-weight:800"> ລວມທຸກສາຂາ (ມື້ນີ້ / ເດືອນນີ້)</span><button class="btn-sm" style="margin-left:auto" onclick="adminSec=\'conn\';setView(\'admin\')"> ຈັດການສາຂາ</button><button class="btn-sm" onclick="render()"> ໂຫຼດຄືນ</button></div>'+
+ b.innerHTML='<div class="toolbar"><span style="font-size:17px;font-weight:800"> ລວມທຸກສາຂາ (ມື້ນີ້ / ເດືອນນີ້)</span><button class="btn-sm" style="margin-left:auto" onclick="adminSec=\'loc\';setView(\'admin\')"> ຈັດການສາຂາ</button><button class="btn-sm" onclick="render()"> ໂຫຼດຄືນ</button></div>'+
   '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>ສາຂາ</th><th>ຍອດຂາຍມື້ນີ້</th><th>ບິນ</th><th>Void</th><th>ໂຕະບໍ່ວ່າງ</th><th>ສະຕ໋ອກໃກ້ໝົດ</th><th>ຍອດເດືອນນີ້</th></tr></thead><tbody>'+
   '<tr id="br_local"></tr>'+brs.map(function(x,i){return '<tr id="br_'+i+'"><td><b>'+cesc(x.name)+'</b></td><td colspan="6" style="color:var(--muted)">ກຳລັງໂຫຼດ...</td></tr>';}).join('')+
   '<tr id="brTot" style="background:#eafbfa"></tr></tbody></table>'+
@@ -3831,32 +3943,30 @@ function sdSet(k,v){if(!can('settings')){toast('ບໍ່ມີສິດ');retur
  else if(k==='qAmt')c.qAmt=Math.max(0,+String(v).replace(/[^\d]/g,'')||0);
  else if(k==='cat'){var i=c.noCats.indexOf(v);if(i>=0)c.noCats.splice(i,1);else c.noCats.push(v);}
  else if(k==='user'){var j=c.users.indexOf(v);if(j>=0)c.users.splice(j,1);else c.users.push(v);}
- save();render();}
+ save();render();sSaved();}
+function sdNum(k,v,step,unit,ph,id){return '<div class="snum"><button type="button" aria-label="ລົດ" onclick="sdStepK(\''+k+'\','+(-step)+')">−</button><input id="'+id+'" type="number" min="0" value="'+(v||'')+'" placeholder="'+(ph||'')+'" onchange="sdSet(\''+k+'\',this.value)"><button type="button" aria-label="ເພີ່ມ" onclick="sdStepK(\''+k+'\','+step+')">+</button>'+(unit?'<span>'+unit+'</span>':'')+'</div>';}
+function sdStepK(k,d){var c=sdCfg();sdSet(k,Math.max(0,(+c[k]||0)+d));}
 function sdSettingsHTML(){var c=sdCfg(),cats=Object.keys(MSRC());
- return '<div class="lbl" style="font-weight:700;margin-bottom:8px">ສ່ວນລົດພະນັກງານ '+(c.on?'<span class="tag ok">ເປີດໃຊ້</span>':'<span class="tag">ປິດ</span>')+'</div>'+
-  '<p style="font-size:13px;color:var(--muted);margin-bottom:10px">ພະນັກງານທີ່ກິນ ຕ້ອງໃສ່ PIN ຂອງຕົນເອງ + ຖ່າຍຮູບຢືນຢັນ · ຄົນເກັບເງິນກິນເອງ ຕ້ອງໃຫ້ຄົນອື່ນຢືນຢັນ · ທຸກຄັ້ງບັນທຶກໃສ່ບິນ ແລະ ລາຍງານ "ສ່ວນລົດພະນັກງານ"</p>'+
-  '<label style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input type="checkbox" '+(c.on?'checked':'')+' onchange="sdSet(\'on\',this.checked)"> ເປີດໃຊ້ສ່ວນລົດພະນັກງານ</label>'+
-  '<div class="sd-grid"><div class="sd-f"><label>ສ່ວນລົດ (%)</label><input id="sd_pct" type="number" min="0" max="100" value="'+(+c.pct||0)+'" onchange="sdSet(\'pct\',this.value)"></div>'+
-  '<div class="sd-f"><label>ໂຄຕ້າ (ຄັ້ງ / ເດືອນ)</label><input id="sd_qn" type="number" min="0" value="'+(c.qN||'')+'" placeholder="ບໍ່ຈຳກັດ" onchange="sdSet(\'qN\',this.value)"></div>'+
-  '<div class="sd-f"><label>ໂຄຕ້າ (₭ / ເດືອນ)</label><input id="sd_qamt" class="money" value="'+(c.qAmt?fmtMoney(c.qAmt):'')+'" placeholder="ບໍ່ຈຳກັດ" onchange="sdSet(\'qAmt\',this.value)"></div></div>'+
-  '<div style="font-size:12px;color:var(--muted);margin:4px 0 12px">ໂຄຕ້າ ນັບຕໍ່ຄົນ · ປ່ອຍວ່າງ = ບໍ່ຈຳກັດ</div>'+
-  '<label>ໝວດທີ່ບໍ່ລົດ <small style="color:var(--muted);font-weight:400">(ກົດເພື່ອເລືອກ ເຊັ່ນ ເບຍ/ເຫຼົ້າ)</small></label><div class="sd-chips">'+cats.map(function(k){var on=c.noCats.indexOf(k)>=0;return '<button type="button" class="chip'+(on?' active':'')+'" data-k="'+cesc(k)+'" onclick="sdSet(\'cat\',this.dataset.k)">'+(on?'✕ ':'')+cesc(k)+'</button>';}).join('')+'</div>'+
-  '<label>ພະນັກງານທີ່ມີສິດ <small style="color:var(--muted);font-weight:400">(ບໍ່ເລືອກ = ທຸກຄົນ)</small></label><div class="sd-chips">'+(state.users||[]).map(function(u){var on=c.users.indexOf(u.id)>=0;return '<button type="button" class="chip'+(on?' active':'')+'" data-k="'+cesc(u.id)+'" onclick="sdSet(\'user\',this.dataset.k)">'+(on?'✓ ':'')+cesc(u.name)+'</button>';}).join('')+'</div>'+
-  '<label style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" '+(c.photo!==false?'checked':'')+' onchange="sdSet(\'photo\',this.checked)"> ບັງຄັບຖ່າຍຮູບຢືນຢັນຕົວຕົນທຸກຄັ້ງ</label>'+
-  sdGroupHTML()+
-  '<div style="font-size:12px;color:var(--muted);margin-top:8px">📲 ແຈ້ງເຕືອນ Telegram ທຸກຄັ້ງທີ່ໃຊ້ (ພ້ອມຮູບ) — ໃຊ້ໄດ້ຫຼັງ deploy server ເວີຊັນໃໝ່</div>';}
+ return sCard('ສ່ວນລົດພະນັກງານ','ຄົນກິນໃສ່ PIN ຂອງຕົນເອງ + ຖ່າຍຮູບ · ຄົນເກັບເງິນກິນເອງ ຕ້ອງມີຄົນອື່ນຢືນຢັນ · ເບິ່ງຜົນ: ລາຍງານ → ສ່ວນລົດພະນັກງານ',c.on?sBadge('ເປີດໃຊ້','ok'):sBadge('ປິດຢູ່','off'),
+  sRow('ເປີດໃຊ້ສ່ວນລົດພະນັກງານ','ປຸ່ມຈະຂຶ້ນໃນກະຕ່າ ກ່ອນຮັບເງິນ','<label class="sw"><input type="checkbox"'+(c.on?' checked':'')+' onchange="sdSet(\'on\',this.checked)"><i></i></label>')+
+  sRow('ສ່ວນລົດ','',sdNum('pct',+c.pct||0,5,'%','','sd_pct'))+
+  sRow('ໂຄຕ້າ ຈຳນວນຄັ້ງ','ຕໍ່ຄົນ ຕໍ່ເດືອນ · ວ່າງ = ບໍ່ຈຳກັດ',sdNum('qN',c.qN||'',1,'ຄັ້ງ','ບໍ່ຈຳກັດ','sd_qn'))+
+  sRow('ໂຄຕ້າ ມູນຄ່າສ່ວນລົດ','ຕໍ່ຄົນ ຕໍ່ເດືອນ · ວ່າງ = ບໍ່ຈຳກັດ','<div class="snum"><input id="sd_qamt" class="money" inputmode="numeric" value="'+(c.qAmt?fmtMoney(c.qAmt):'')+'" placeholder="ບໍ່ຈຳກັດ" onchange="sdSet(\'qAmt\',this.value)"><span>ກີບ</span></div>')+
+  sRow('ບັງຄັບຖ່າຍຮູບຢືນຢັນ','ແນະນຳ — ກັນເອົາ PIN ຄົນອື່ນມາໃຊ້','<label class="sw"><input type="checkbox"'+(c.photo!==false?' checked':'')+' onchange="sdSet(\'photo\',this.checked)"><i></i></label>')+
+  sRow('ໝວດທີ່ບໍ່ລົດ','ກົດເລືອກ ເຊັ່ນ ເບຍ / ເຫຼົ້າ','<div class="stogs">'+cats.map(function(k){var on=c.noCats.indexOf(k)>=0;return '<button type="button" class="stog'+(on?' on':'')+'"'+sKX(k)+' onclick="sdSet(\'cat\',this.dataset.k)">'+(on?'✕ ':'')+cesc(k)+'</button>';}).join('')+'</div>','stack')+
+  sRow('ພະນັກງານຮ້ານ ທີ່ມີສິດ','ບໍ່ເລືອກ = ທຸກຄົນ','<div class="stogs">'+(state.users||[]).map(function(u){var on=c.users.indexOf(u.id)>=0;return '<button type="button" class="stog'+(on?' on':'')+'"'+sKX(u.id)+' onclick="sdSet(\'user\',this.dataset.k)">'+(on?'✓ ':'')+cesc(u.name)+'</button>';}).join('')+'</div>','stack'))+
+  sdGroupHTML();}
 function sdGroupHTML(){var G=sdGroup(),act=G.filter(function(g){return g.active!==false;}).length;
- return '<div class="sd-gbox"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px"><b style="font-size:15px">ພະນັກງານໃນເຄືອ</b><span style="color:var(--muted);font-size:13px">'+act+' ຄົນໃຊ້ໄດ້'+(G.length>act?' · ລະງັບ '+(G.length-act):'')+'</span>'+
-  '<span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-sm green" onclick="sdgEdit(null)">+ ເພີ່ມພະນັກງານ</button><button type="button" class="btn-sm" onclick="sdgImport()">ນຳເຂົ້າ Excel</button><button type="button" class="btn-sm" onclick="sdgTemplate()">ແບບຟອມ Excel</button></span></div>'+
-  '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">ພະນັກງານສາຂາອື່ນ / ບໍລິສັດໃນເຄືອ ທີ່ບໍ່ມີບັນຊີ POS — ແຕ່ລະຄົນມີ PIN ຂອງຕົນເອງ (ແອັດມິນຕັ້ງໃຫ້ ແລ້ວແຈ້ງເຈົ້າຕົວ) · ໃຊ້ກົດດຽວກັນ: PIN + ຮູບ + ໂຄຕ້າ</div>'+
-  (G.length?'<div style="max-height:360px;overflow:auto"><table class="tbl"><thead><tr><th>ຊື່</th><th>ສາຂາ / ບໍລິສັດ</th><th>ລະຫັດ</th><th>ເບີໂທ</th><th style="text-align:right">ເດືອນນີ້</th><th></th></tr></thead><tbody>'+
-   G.map(function(g){var u=sdMonthUse('g:'+g.id);var off=g.active===false;return '<tr'+(off?' style="opacity:.5"':'')+'><td><b>'+cesc(g.name)+'</b>'+(off?' <span class="tag">ລະງັບ</span>':'')+(g.pinH?'':' <span class="sd-flag">ຍັງບໍ່ມີ PIN</span>')+'</td><td>'+cesc(g.org||'')+'</td><td>'+cesc(g.code||'')+'</td><td>'+cesc(g.phone||'')+'</td><td style="text-align:right">'+u.n+' ຄັ້ງ<br><small style="color:var(--muted)">'+KIP(u.amt)+' ₭</small></td>'+
-    '<td style="white-space:nowrap"><button type="button" class="btn-sm" data-k="'+cesc(g.id)+'" onclick="sdgEdit(this.dataset.k)">ແກ້</button> <button type="button" class="btn-sm" data-k="'+cesc(g.id)+'" onclick="sdgToggle(this.dataset.k)">'+(off?'ເປີດໃຊ້':'ລະງັບ')+'</button> <button type="button" class="btn-sm red" data-k="'+cesc(g.id)+'" onclick="sdgDel(this.dataset.k)">ລຶບ</button></td></tr>';}).join('')+'</tbody></table></div>'
-  :'<div style="padding:14px;text-align:center;color:#94a3b8;background:#f8fbfb;border-radius:12px">ຍັງບໍ່ມີ — ກົດ "+ ເພີ່ມພະນັກງານ" ຫຼື ນຳເຂົ້າຈາກ Excel</div>')+'</div>';}
+ return sCard('ພະນັກງານໃນເຄືອ','ສາຂາອື່ນ / ບໍລິສັດໃນເຄືອ ທີ່ບໍ່ມີບັນຊີ POS — ແອັດມິນຕັ້ງ PIN ໃຫ້ແຕ່ລະຄົນ ແລ້ວແຈ້ງເຈົ້າຕົວ · '+act+' ຄົນໃຊ້ໄດ້'+(G.length>act?' · ລະງັບ '+(G.length-act):''),
+  sBtn('ແບບຟອມ Excel','sdgTemplate()')+sBtn('ນຳເຂົ້າ Excel','sdgImport()')+sBtn('+ ເພີ່ມພະນັກງານ','sdgEdit(null)','pri'),
+  G.length?'<div class="sscroll">'+G.map(function(g){var u=sdMonthUse('g:'+g.id),off=g.active===false;
+   return sItem(cesc(g.name)+(off?sBadge('ລະງັບ','off'):'')+(g.pinH?'':sBadge('ຍັງບໍ່ມີ PIN','warn')),[g.org,g.code,g.phone].filter(Boolean).map(cesc).join(' · '),
+    '<span class="suse">ເດືອນນີ້ '+u.n+' ຄັ້ງ · '+KIP(u.amt)+' ₭</span>'+sBtn('ແກ້','sdgEdit(this.dataset.k)','sm',sKX(g.id))+sBtn(off?'ເປີດໃຊ້':'ລະງັບ','sdgToggle(this.dataset.k)','sm',sKX(g.id))+sBtn('ລຶບ','sdgDel(this.dataset.k)','sm ghost-danger',sKX(g.id)),sAv(g.name));}).join('')+'</div>'
+  :sEmpty('ຍັງບໍ່ມີ — ກົດ "+ ເພີ່ມພະນັກງານ" ຫຼື ນຳເຂົ້າຈາກ Excel'));}
 function sdgEdit(id){if(!can('settings')){toast('ບໍ່ມີສິດ');return;}var g=id?sdGroup().find(function(x){return x.id===id;}):null;var orgs={};sdGroup().forEach(function(x){if(x.org)orgs[x.org]=1;});
- openModal('<h2>'+(g?'ແກ້ໄຂ':'ເພີ່ມ')+' ພະນັກງານໃນເຄືອ</h2><label>ຊື່ *</label><input id="sg_n" value="'+cesc(g?g.name:'')+'">'+
-  '<label>ສາຂາ / ບໍລິສັດ</label><input id="sg_o" list="sg_ol" value="'+cesc(g?g.org||'':'')+'" placeholder="ເຊັ່ນ ສາຂາດົງໂດກ"><datalist id="sg_ol">'+Object.keys(orgs).map(function(o){return '<option value="'+cesc(o)+'">';}).join('')+'</datalist>'+
-  '<div style="display:flex;gap:10px"><div style="flex:1"><label>ລະຫັດພະນັກງານ</label><input id="sg_c" value="'+cesc(g?g.code||'':'')+'"></div><div style="flex:1"><label>ເບີໂທ</label><input id="sg_p" inputmode="tel" value="'+cesc(g?g.phone||'':'')+'"></div></div>'+
+ openModal('<h2>'+(g?'ແກ້ໄຂ':'ເພີ່ມ')+' ພະນັກງານໃນເຄືອ</h2><label>ຊື່ *</label><input id="sg_n" value="'+aesc(g?g.name:'')+'">'+
+  '<label>ສາຂາ / ບໍລິສັດ</label><input id="sg_o" list="sg_ol" value="'+aesc(g?g.org||'':'')+'" placeholder="ເຊັ່ນ ສາຂາດົງໂດກ"><datalist id="sg_ol">'+Object.keys(orgs).map(function(o){return '<option value="'+cesc(o)+'">';}).join('')+'</datalist>'+
+  '<div style="display:flex;gap:10px"><div style="flex:1"><label>ລະຫັດພະນັກງານ</label><input id="sg_c" value="'+aesc(g?g.code||'':'')+'"></div><div style="flex:1"><label>ເບີໂທ</label><input id="sg_p" inputmode="tel" value="'+aesc(g?g.phone||'':'')+'"></div></div>'+
   '<label>PIN 4 ຕົວເລກ '+(g&&g.pinH?'<small style="color:var(--muted);font-weight:400">(ປ່ອຍວ່າງ = ໃຊ້ PIN ເດີມ)</small>':'*')+'</label><input id="sg_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" style="text-align:center;font-size:20px;letter-spacing:6px">'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" data-k="'+cesc(id||'')+'" onclick="sdgSave(this.dataset.k)">ບັນທຶກ</button></div>');}
 function sdgSave(id){if(!can('settings'))return;var G=sdGroup(),g=id?G.find(function(x){return x.id===id;}):null;var v=function(k){return ((document.getElementById(k)||{}).value||'').trim();};
@@ -3917,158 +4027,155 @@ function exportSd(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫ�
  var rows=bills.map(function(x){var s=x.sd;return {'ວັນທີ':ymd(x.ts),'ເວລາ':new Date(x.ts).toLocaleTimeString('en-GB'),'ພະນັກງານ':s.name,'ສາຂາ/ບໍລິສັດ':s.org||(s.kind==='g'?'ໃນເຄືອ':'ຮ້ານນີ້'),'ລະຫັດ':s.code||'','ໂຕະ':x.table||'','ບິນ':x.receipt,'ລາຍການ':s.items||'','%':s.pct||0,'ສ່ວນລົດ(ກີບ)':s.amt||0,'ຢືນຢັນໂດຍ':s.appr||'','ເກັບເງິນ':s.cashier||'','ຮູບ':s.photo?(s.src==='file'?'ແນບໄຟລ໌':'ກ້ອງ'):'ບໍ່ມີ','ຄວນກວດ':sdFlags(x,bills).join(', '),'Void':x.voided?'Void':''};});
  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'ສ່ວນລົດພະນັກງານ');XLSX.writeFile(wb,'ສ່ວນລົດພະນັກງານ_'+sdMonth+'.xlsx');});}
 /* ===== ADMIN ===== */
-function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
- var logoPrev=state.shopLogo?('<img src="'+state.shopLogo+'" style="height:48px;border:1px solid #e2e8f0;border-radius:8px;background:#fff">'):'<span style="color:#94a3b8;font-size:13px">ຍັງບໍ່ມີໂລໂກ້ — ໃຊ້ຊື່ຮ້ານແທນ</span>';
- var logoBtn=state.shopLogo?'<button class="btn-sm red" style="margin-left:8px" onclick="removeLogo()">ລຶບໂລໂກ້</button>':'';
- R.innerHTML=`<div class="adminbox adminwide">
-  <div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ການຕັ້ງຄ່າ</div><div class="sub">ເລືອກໝວດທີ່ຕ້ອງການຕັ້ງຄ່າ</div></div></div>
-  <div class="setnav">${[['shop','ຮ້ານ & ການຄິດເງິນ'],['bill','ໃບບິນ / ພິມ'],['table','ໂຕະ & ຊັ້ນ'],['loc','ບ່ອນເກັບ & ສາຂາ'],['menu','ເມນູ & ຮູບ'],['opts','ຕົວເລືອກ & Topping'],['promo','ໂປຣໂມຊັນ'],['cds','ຈໍລູກຄ້າ'],['staff','ກະ & ພະນັກງານ'],['users','ຜູ້ໃຊ້ & ສິດ'],['conn','ການເຊື່ອມຕໍ່'],['adv','ຂັ້ນສູງ']].filter(function(s){var u=curUser();var owner=u&&u.role==='owner';if(s[0]==='users'||s[0]==='adv')return owner;return true;}).map(function(s){return '<button class="'+(adminSec===s[0]?'on':'')+'" onclick="adminSec=\''+s[0]+'\';render()">'+s[1]+'</button>';}).join('')}</div>
-  ${(function(){var u=curUser();if(u&&u.role!=='owner'&&(adminSec==='users'||adminSec==='adv'))adminSec='shop';return '';})()}
-  <div class="kpi asec ${adminSec==='users'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຜູ້ໃຊ້ ແລະ ສິດເຂົ້າເຖິງ</div>
-    <table class="tbl"><thead><tr><th>ຊື່</th><th>ບົດບາດ</th><th>ສິດ</th><th>ເຂົ້າໄດ້</th><th>PIN</th><th></th></tr></thead><tbody>
-    ${(state.users||[]).map(function(u){var nv=PERM_VIEWS.filter(function(x){return permEffView(u,u.role,x[0]);}).length,na=PERM_ACTS.reduce(function(s,g){return s+g[1].filter(function(x){return permEffAct(u,u.role,x[0]);}).length;},0),ta=PERM_ACTS.reduce(function(s,g){return s+g[1].length;},0);return '<tr><td><b>'+cesc(u.name)+'</b></td><td><span class="rolebadge">'+(ROLE_LABELS[u.role]||u.role)+'</span></td><td>'+(!PERMS[u.role]?'<span class="tag ok">ທຸກສິດ</span>':(permCount(u)?'<span class="tag permov">ປັບ '+permCount(u)+' ລາຍການ</span>':'<span style="color:var(--muted)">ຕາມບົດບາດ</span>'))+'</td><td style="color:var(--muted)">'+nv+'/'+PERM_VIEWS.length+' ໜ້າ · '+na+'/'+ta+' ສິດ</td><td>••••</td><td><button class="btn-sm" onclick="editUser(\''+u.id+'\')">ແກ້</button> <button class="btn-sm red" onclick="delUser(\''+u.id+'\')">ລຶບ</button></td></tr>';}).join('')}</tbody></table>
-    <button class="btn-sm green" style="margin-top:8px" onclick="editUser(null)"> ເພີ່ມຜູ້ໃຊ້</button> <button class="btn-sm" style="margin-top:8px;background:#062f2d" onclick="showPermMatrix()">ເບິ່ງຕາຕະລາງສິດທັງໝົດ</button>
-    <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7"><b>ສິດແຕ່ລະບົດບາດ:</b><br>
-     • <b>ເຈົ້າຂອງຮ້ານ</b> — ທຸກຢ່າງ (ຕັ້ງຄ່າ, ຜູ້ໃຊ້, ລ້າງຂໍ້ມູນ)<br>
-     • <b>ຜູ້ຈັດການ</b> — ທຸກຢ່າງ ຍົກເວັ້ນ ຈັດການຜູ້ໃຊ້/ລ້າງຂໍ້ມູນ · ອະນຸມັດ ສ່ວນຫຼຸດເກີນກຳນົດ/Void/ຍົກເລີກໂຕະ<br>
-     • <b>ແຄັດເຊຍ</b> — ຂາຍ, ຮັບເງິນ, ເປີດ/ປິດກະ, ສ່ວນຫຼຸດ ≤ ${state.discLimit||0}%, ປະຫວັດ · <span style="color:var(--red)">Void/ຍົກເລີກຕ້ອງຂໍອະນຸມັດ</span><br>
-     • <b>ພະນັກງານເສີບ</b> — ສັ່ງອາຫານ, ຈໍເສີບ ເທົ່ານັ້ນ<br>
-     • <b>ຄົວ/ບາຣ໌</b> — ຈໍຄົວ/ບາຣ໌ ເທົ່ານັ້ນ</div></div>
-
-  <div class="kpi asec ${adminSec==='opts'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຕົວເລືອກ & Topping (ຄວາມຫວານ, ເຜັດ, ເພີ່ມຊີ້ນ...)</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ກຸ່ມຕົວເລືອກຈະປາກົດຕອນກົດເມນູ (ຕາມ "ໃຊ້ກັບ"). ໃສ່ລາຄາ +ກີບ ສຳລັບ topping ທີ່ຄິດເງິນ</p>
-    ${(state.modGroups||[]).map(function(g,gi){return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1">'+cesc(g.title)+'</b><span class="rolebadge">'+(g.multi?'ເລືອກຫຼາຍ':'ເລືອກ 1')+'</span><span class="rolebadge" style="background:#e0f2fe;color:#075985">'+(g.scope==='items'?((g.codes||[]).length+' ເມນູ'):g.scope==='food'?'ອາຫານ':g.scope==='drink'?'ເຄື່ອງດື່ມ':'ທັງໝົດ')+'</span><button class="btn-sm" onclick="editModGroup('+gi+')">ແກ້</button><button class="btn-sm red" onclick="delModGroup('+gi+')">ລຶບ</button></div>'+
-     '<div style="margin-top:6px">'+(g.opts||[]).map(function(o,oi){return '<span class="pill">'+cesc(o.n)+(o.p?' +'+KIP(o.p):'')+'<button onclick="delModOpt('+gi+','+oi+')">×</button></span>';}).join('')+'</div>'+
-     '<button class="btn-sm green" style="margin-top:6px" onclick="addModOpt('+gi+')"> ເພີ່ມຕົວເລືອກ</button></div>';}).join('')||'<span style="color:#94a3b8">ຍັງບໍ່ມີກຸ່ມ</span>'}
-    <button class="btn-sm green" style="margin-top:6px" onclick="editModGroup(-1)"> ເພີ່ມກຸ່ມຕົວເລືອກ</button></div>
-
-  <div class="kpi asec ${adminSec==='promo'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ໂປຣໂມຊັນ / Happy Hour ${activePromo()?'<span class="tag ok">ກຳລັງໃຊ້: '+cesc(activePromo().name)+'</span>':''}</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ໃນຊ່ວງເວລາທີ່ກຳນົດ ລະບົບຈະໃສ່ສ່ວນຫຼຸດລາຍການໃຫ້ອັດຕະໂນມັດ (ທັງ POS ແລະ QR ລູກຄ້າ)</p>
-    <table class="tbl"><thead><tr><th>ຊື່</th><th>ແບບ</th><th>ໃຊ້ກັບ</th><th>ເວລາ</th><th>ສະຖານະ</th><th></th></tr></thead><tbody>
-    ${(state.promos||[]).map(function(p,i){return '<tr><td><b>'+cesc(p.name)+'</b></td><td style="font-weight:700;color:var(--pink)">'+cesc(promoDesc(p))+'</td><td style="font-size:12px">'+cesc(promoScopeDesc(p))+'</td><td>'+(p.from&&p.to?cesc(p.from)+'–'+cesc(p.to):'ໝົດມື້')+'</td><td><button class="btn-sm '+(p.active!==false?'green':'')+'" onclick="togglePromo('+i+')">'+(p.active!==false?'ເປີດ':'ປິດ')+'</button></td><td><button class="btn-sm red" onclick="delPromo('+i+')">ລຶບ</button></td></tr>';}).join('')||'<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:14px">ຍັງບໍ່ມີໂປຣໂມຊັນ</td></tr>'}</tbody></table>
-    <button class="btn-sm green" style="margin-top:8px" onclick="addPromoModal()"> ເພີ່ມໂປຣໂມຊັນ</button></div>
-
-  <div class="kpi asec ${adminSec==='cds'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຈໍລູກຄ້າ (CDS — ໜ້າຈໍທີ 2)</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn-ok grad" style="padding:9px 16px;border-radius:11px;font-weight:700" onclick="window.open(location.pathname+'?cds=1','stpos_cds','width=900,height=650')"> ເປີດຈໍລູກຄ້າ</button><button class="btn-sm" onclick="cdsPushIdle()"> ອັບເດດຈໍ (ໃຊ້ຄ່າໃໝ່)</button></div>
-    <label>ຂໍ້ຄວາມຕ້ອນຮັບ (ພາສາລາວ)</label><input id="cd_w" value="${cesc(state.cds.welcome||'')}">
-    <label>ຂໍ້ຄວາມຮອງ (ອັງກິດ/ອື່ນໆ)</label><input id="cd_ws" value="${cesc(state.cds.welcomeSub||'')}">
-    <div style="display:flex;gap:10px"><div style="flex:1"><label>ຂໍ້ຄວາມຂອບໃຈ</label><input id="cd_t" value="${cesc(state.cds.thanks||'')}"></div><div style="flex:1"><label>ຂອບໃຈ (ຮອງ)</label><input id="cd_ts" value="${cesc(state.cds.thanksSub||'')}"></div></div>
-    <label style="margin-top:10px">ສີ Theme</label>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <span style="font-size:12px">ສີ 1 <input id="cd_c1" type="color" value="${state.cds.c1||'#0ABAB5'}" style="width:46px;height:34px;padding:0;border:none;vertical-align:middle"></span>
-      <span style="font-size:12px">ສີ 2 <input id="cd_c2" type="color" value="${state.cds.c2||'#5FD9D2'}" style="width:46px;height:34px;padding:0;border:none;vertical-align:middle"></span>
-      ${[['#0ABAB5','#5FD9D2','Tiffany'],['#0A7E7A','#0ABAB5','ຂຽວເຂັ້ມ'],['#7c3aed','#a78bfa','ມ່ວງ'],['#b45309','#f59e0b','ທອງ'],['#be123c','#fb7185','ແດງ'],['#1e293b','#475569','ດຳ']].map(function(p){return '<button class="btn-sm" style="background:linear-gradient(135deg,'+p[0]+','+p[1]+');color:#fff" onclick="cdsPreset(\''+p[0]+'\',\''+p[1]+'\')">'+p[2]+'</button>';}).join('')}
-    </div>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600"><input type="checkbox" id="cd_lg" ${state.cds.showLogo!==false?'checked':''} style="width:auto"> ສະແດງໂລໂກ້ຮ້ານ</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="cd_pr" ${state.cds.showPromo!==false?'checked':''} style="width:auto"> ສະແດງໂປຣໂມຊັນທີ່ກຳລັງໃຊ້</label>
-    <label style="margin-top:12px">ຮູບໂປສເຕີ ໜ້າຈໍວ່າງ (slideshow) — ${(state.cds.images||[]).length} ຮູບ</label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0">${(state.cds.images||[]).map(function(src,i){return '<div style="position:relative"><img src="'+src+'" style="width:90px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button class="pill" style="position:absolute;top:-6px;right:-6px;padding:0"><span onclick="cdsDelImg('+i+')" style="background:var(--red);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">×</span></button></div>';}).join('')||'<span style="color:#94a3b8;font-size:13px">ຍັງບໍ່ມີຮູບ — ຈະສະແດງຂໍ້ຄວາມຕ້ອນຮັບແທນ</span>'}</div>
-    <input type="file" accept="image/*" onchange="cdsAddImg(this)">
-    <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><label style="margin:0">ປ່ຽນຮູບທຸກໆ (ວິນາທີ)</label><input id="cd_sec" type="number" value="${state.cds.imgSec||6}" style="width:80px"></div>
-    <button class="btn-ok grad" style="display:block;margin-top:12px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveCDS()"> ບັນທຶກ ແລະ ອັບເດດຈໍ</button></div>
-  <div class="kpi asec ${adminSec==='loc'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ບ່ອນເກັບ / ສາຂາ (Locations)</div>
-   <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ສ້າງບ່ອນເກັບໄດ້ອິດສະຫຼະ: ຄົວກາງ, ສາງ, ສາຂາ. ສະຕ໋ອກແຍກຕາມບ່ອນ — ຂາຍທີ່ເຄື່ອງນີ້ຈະຕັດຈາກບ່ອນທີ່ຕັ້ງໄວ້ລຸ່ມນີ້.</p>
-   <div class="totrow" style="background:#eafbfa;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:10px"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້ (ຕັດສະຕ໋ອກເວລາຂາຍ):</span><select onchange="setTerminalLoc(this.value)" style="padding:7px;border-radius:8px;border:1px solid var(--line);font-family:inherit;font-weight:700">${(state.locations||[]).map(function(l){return '<option value="'+l.id+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')}</select></div>
-   <table class="tbl"><thead><tr><th>ຊື່</th><th>ປະເພດ</th><th></th></tr></thead><tbody>${(state.locations||[]).map(function(l){var LT={branch:'ສາຂາ',warehouse:'ສາງ',kitchen:'ຄົວກາງ',other:'ອື່ນໆ'};return '<tr><td><b>'+cesc(l.name)+'</b>'+(l.id===curLoc()?' <span class="tag ok">ເຄື່ອງນີ້</span>':'')+'</td><td>'+(LT[l.type]||l.type||'')+'</td><td><button class="btn-sm" onclick="editLocation(\''+l.id+'\')">ແກ້</button> '+((state.locations||[]).length>1?'<button class="btn-sm red" onclick="delLocation(\''+l.id+'\')">ລຶບ</button>':'')+'</td></tr>';}).join('')}</tbody></table>
-   <button class="btn-sm green" style="margin-top:10px" onclick="addLocation()"> ເພີ່ມບ່ອນເກັບ</button></div>
-  <div class="kpi asec ${adminSec==='conn'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px">📲 ລາຍງານປະຈຳວັນ ທາງ WhatsApp</div>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Server ສົ່ງສະຫຼຸບຍອດຂາຍ, ກຳໄລ, ຂາຍດີ, ລຶບ/ຍົກເລີກ, ເງິນສົດຂາດ-ເກີນ ແລະ ສະຕ໋ອກໃກ້ໝົດ ໃຫ້ເຈົ້າຂອງຮ້ານທຸກມື້. ເບີ ແລະ ລະຫັດຕັ້ງໃນ Apps Script (ເບິ່ງຄູ່ມື "ຄູ່ມື ລາຍງານ WhatsApp ປະຈຳວັນ").</p>
-    <button class="btn-sm" onclick="waReport('preview')">👁 ເບິ່ງຕົວຢ່າງລາຍງານ</button> <button class="btn-sm green" onclick="waReport('test')">📤 ສົ່ງທົດສອບດຽວນີ້</button></div>
-  <div class="kpi asec ${adminSec==='conn'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ການເຊື່ອມຕໍ່ ແລະ ສະຫຼຸບ</div>
-    <div class="totrow"><span>ໂມດເກັບຂໍ້ມູນ</span><b style="color:${gas?'var(--green)':'var(--orange)'}">${gas?' ເຊື່ອມ Google Sheet ແລ້ວ':'Local (preview)'}</b></div>
-    <div class="totrow"><span>ບ່ອນເກັບຂອງເຄື່ອງນີ້</span><b style="color:var(--tiff-deep)">${cesc(locName(curLoc()))}</b></div>
-    ${HAS_GAS?'':`<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600">ລິ້ງ GAS (ຖານຂໍ້ມູນ Google Sheet ຂອງເຈົ້າ)</label><input id="ad_api" value="${API_URL.replace(/"/g,'&quot;')}" style="font-size:11px"><div style="margin-top:6px"><button class="btn-sm" onclick="setApiUrl()"> ບັນທຶກ link ນີ້ ແລະ ໂຫຼດໃໝ່</button> <button class="btn-sm" onclick="resetApiUrl()">ກັບໄປ default</button></div><p style="font-size:11px;color:var(--muted);margin-top:4px">ສຳລັບຮ້ານໃໝ່: ໃສ່ link /exec ຂອງ GAS ຂອງເຈົ້າ ແລ້ວກົດບັນທຶກ</p></div>`}
-    <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600"> API Token (ປ້ອງກັນຄົນນອກຂຽນທັບຂໍ້ມູນ)</label>
-     <input id="ad_tok" type="password" value="${TOKEN.replace(/"/g,'&quot;')}" placeholder="ໃສ່ token ໃຫ້ກົງກັບ setToken ໃນ Code.gs" style="font-size:12px">
-     <div style="margin-top:6px"><button class="btn-sm" onclick="setApiToken()"> ບັນທຶກ token ແລະ ໂຫຼດໃໝ່</button></div>
-     <p style="font-size:11px;color:var(--muted);margin-top:4px">ວິທີຕັ້ງ: ໃນ Apps Script ແກ້ຂໍ້ຄວາມໃນ setToken() → Run setToken ເທື່ອດຽວ → ໃສ່ token ດຽວກັນທີ່ນີ້ (ທຸກເຄື່ອງພະນັກງານ). ສະຖານະ: <b style="color:${TOKEN?'var(--green)':'var(--orange)'}">${TOKEN?'ໃສ່ token ແລ້ວ':'ຍັງບໍ່ໃສ່ (ເປີດກວ້າງ)'}</b></p></div>
-    <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600"> ສາຂາ (ແຕ່ລະສາຂາ = 1 GAS + 1 Google Sheet ຂອງຕົນເອງ)</label>
-     <div style="margin:6px 0">${getBranches().map(function(b,i){return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)"><b style="flex:1">'+cesc(b.name)+'</b><button class="btn-sm" onclick="switchBranch('+i+')">ສະຫຼັບໄປ</button><button class="btn-sm red" onclick="delBranch('+i+')">ລຶບ</button></div>';}).join('')||'<span style="color:#94a3b8;font-size:13px">ຍັງບໍ່ມີສາຂາອື່ນ</span>'}</div>
-     <button class="btn-sm green" onclick="addBranchModal()"> ເພີ່ມສາຂາ</button>
-     <p style="font-size:11px;color:var(--muted);margin-top:4px">ເບິ່ງຍອດຂາຍລວມທຸກສາຂາ: ລາຍງານ → ແຖບ "ສາຂາ". ການສະຫຼັບຈະປ່ຽນ ລິ້ງ+token ຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່</p></div>
-    <div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><label style="font-size:12px;font-weight:600"> ຈໍລູກຄ້າ (CDS — ໜ້າຈໍທີ 2)</label>
-     <p style="font-size:11px;color:var(--muted);margin:4px 0">ເປີດໜ້າຕ່າງໃໝ່ ລາກໄປຈໍທີ 2 (ຫັນໜ້າຫາລູກຄ້າ) ແລ້ວ F11 ເຕັມຈໍ — ຈະສະແດງລາຍການ+ຍອດຕາມກະຕ່າແບບສົດ (ໃຊ້ browser ດຽວກັນ)</p>
-     <button class="btn-sm" onclick="window.open(location.pathname+'?cds=1','stpos_cds','width=800,height=600')"> ເປີດຈໍລູກຄ້າ</button></div>
-    <div class="totrow"><span>ຊັ້ນ</span><b>${state.floors.length}</b></div><div class="totrow"><span>ໂຕະ</span><b>${Object.keys(state.tables).length}</b></div>
-    <div class="totrow"><span>ວັດຖຸດິບ</span><b>${Object.keys(state.ingredients).length}</b></div><div class="totrow"><span>ເມນູ</span><b>${nMenu}</b></div><div class="totrow"><span>ບິນ</span><b>${state.bills.length}</b></div></div>
-
-  <div class="kpi asec ${adminSec==='shop'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຂໍ້ມູນຮ້ານ ແລະ ການຄິດເງິນ</div>
-    <label>ຊື່ຮ້ານ</label><input id="ad_name" value="${(state.shopName||'').replace(/"/g,'&quot;')}">
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:130px"><label>Service (%)</label><div style="display:flex;gap:4px;align-items:center"><button class="btn-sm" onclick="stepInput('ad_svc',-1)">−</button><input id="ad_svc" type="number" value="${state.serviceChargePct}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_svc',1)">+</button></div></div><div style="flex:1;min-width:130px"><label>VAT (%)</label><div style="display:flex;gap:4px;align-items:center"><button class="btn-sm" onclick="stepInput('ad_vat',-1)">−</button><input id="ad_vat" type="number" value="${state.vatPct}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_vat',1)">+</button></div></div><div style="flex:1;min-width:130px"><label>ສ່ວນຫຼຸດ (%)</label><div style="display:flex;gap:4px;align-items:center"><button class="btn-sm" onclick="stepInput('ad_disc',-1)">−</button><input id="ad_disc" type="number" value="${state.billDiscPct}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_disc',1)">+</button></div></div></div>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600"><input type="checkbox" id="ad_qr" ${state.qrGlobal?'checked':''} style="width:auto"> ເປີດ QR ສັ່ງ (ທັງຮ້ານ)</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_qrpin" ${state.qrPinRequired!==false?'checked':''} style="width:auto"> ໃຫ້ໃສ່ລະຫັດ PIN ກ່ອນສັ່ງຜ່ານ QR</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_qrexp" ${state.qrExpires!==false?'checked':''} style="width:auto"> QR ມີວັນໝົດອາຍຸ (3 ຊົ່ວໂມງ) — ຖ້າບໍ່ຕິກ = ບໍ່ໝົດອາຍຸ</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_snd" ${state.soundOn?'checked':''} style="width:auto"> ເປີດສຽງເຕືອນອໍເດີໃໝ່</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_pk" ${state.printKitchen?'checked':''} style="width:auto"> ພິມສະລິບເຂົ້າຄົວ/ບາຣ໌ ອັດຕະໂນມັດ ເມື່ອຢືນຢັນອໍເດີ</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_rqsh" ${state.requireShift!==false?'checked':''} style="width:auto"> ຕ້ອງເປີດກະກ່ອນຮັບເງິນ (ແນະນຳ)</label>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_stkb" ${state.stockBlock!==false?'checked':''} style="width:auto"> ກັນຂາຍເມື່ອວັດຖຸດິບໃນສະຕ໋ອກບໍ່ພໍ (ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ")</label>
-    <label style="margin-top:12px">ສ່ວນຫຼຸດສູງສຸດ ທີ່ແຄັດເຊຍໃຫ້ເອງໄດ້ (%) — ເກີນນີ້ຕ້ອງໃຫ້ຜູ້ຈັດການອະນຸມັດ</label>
-    <div style="display:flex;gap:4px;align-items:center;max-width:200px"><button class="btn-sm" onclick="stepInput('ad_dlim',-5)">−5</button><input id="ad_dlim" type="number" value="${state.discLimit||0}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_dlim',5)">+5</button></div>
-    <button class="btn-ok grad" style="display:block;margin-top:14px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveSettings()"> ບັນທຶກ</button></div>
-  <div class="kpi asec ${adminSec==='shop'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ແຕ້ມສະສົມ, ປະເພດການຈ່າຍ &amp; QR ທະນາຄານ</div>
-    <div><label style="font-weight:700">⭐ ລະບົບແຕ້ມສະສົມ (Loyalty)</label>
-     <div style="display:flex;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><label>ໄດ້ 1 ແຕ້ມ ຕໍ່ຈ່າຍ (ກີບ)</label><input id="ad_prate" type="number" value="${state.pointRate||10000}"></div><div style="flex:1;min-width:150px"><label>1 ແຕ້ມ = ສ່ວນຫຼຸດ (ກີບ)</label><input id="ad_pval" type="number" value="${state.pointValue||0}"></div></div>
-     <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600"><input type="checkbox" id="ad_predeem" ${state.pointRedeem!==false?'checked':''} style="width:auto"> ອະນຸຍາດໃຫ້ໃຊ້ແຕ້ມແລກສ່ວນຫຼຸດ (ຕອນຮັບເງິນ)</label></div>
-    <label style="margin-top:12px">ປະເພດການຈ່າຍ — ຄ່າທຳນຽມ% ຕໍ່ວິທີ + ເປີດ/ປິດ</label>
-    <table class="tbl"><thead><tr><th>ວິທີ</th><th>ຄ່າທຳນຽມ %</th><th>ໃຊ້ງານ</th><th></th></tr></thead><tbody>
-    ${(state.payTypes||PAYTYPES).map(function(p){var off=state.payOff&&state.payOff[p];var lock=(p==='ເງິນສົດ'||p==='ຕິດໜີ້'||p==='ກະເປົາລູກຄ້າ');return '<tr><td><b>'+cesc(p)+'</b>'+(lock?' <small style="color:var(--muted)">(ລະບົບ)</small>':'')+'</td><td><input type="number" value="'+((state.payFee&&+state.payFee[p])||0)+'" style="width:70px;padding:5px;text-align:center" onchange="setPayFee(\''+p.replace(/'/g,"\\'")+'\',this.value)"></td><td><button class="btn-sm '+(off?'':'green')+'" onclick="togglePayType(\''+p.replace(/'/g,"\\'")+'\')">'+(off?'ປິດ':'ເປີດ')+'</button></td><td>'+(lock?'':'<button class="btn-sm red" onclick="removePayType(\''+p.replace(/'/g,"\\'")+'\')">ລຶບ</button>')+'</td></tr>';}).join('')}</tbody></table>
-    <button class="btn-sm" style="margin-top:6px" onclick="addPayType()"> ເພີ່ມປະເພດການຈ່າຍ</button>
-    <p style="font-size:11px;color:var(--muted);margin-top:4px">ຄ່າທຳນຽມ% ຈະບວກໃສ່ຍອດຕອນເລືອກວິທີນັ້ນ (ເຊັ່ນ ບັດ 3%). "ຕິດໜີ້"=ບັນທຶກໜີ້ຄ້າງ, "ກະເປົາລູກຄ້າ"=ຫັກ wallet</p>
-    <label style="margin-top:12px">QR ໂອນທະນາຄານ (ໃຫ້ລູກຄ້າສະແກນຈ່າຍຕາມຍອດບິນ)</label>
-    <div style="display:flex;align-items:center;gap:10px;margin:4px 0 6px">${state.bankQR?'<span class="tag ok"> ມີ QR ແລ້ວ'+( /^00020/.test(state.bankQR)?' (EMV)':'' )+'</span>':'<span style="color:#94a3b8;font-size:13px">ຍັງບໍ່ມີ QR</span>'}${state.bankQR?'<button class="btn-sm red" onclick="clearBankQR()">ລຶບ QR</button>':''}</div>
-    <label style="font-size:12px;font-weight:600"> ວິທີ 1: ອັບໂຫລດຮູບ QR ທະນາຄານ (ແນະນຳ)</label>
-    <input type="file" accept="image/*" onchange="loadBankQRImg(this)">
-    <label style="font-size:12px;font-weight:600;margin-top:8px">ວິທີ 2: ວາງ QR string (ຂຶ້ນຕົ້ນ 000201...)</label>
-    <textarea id="ad_bankqr" rows="2" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:11px" placeholder="000201...">${(state.bankQR||'').replace(/</g,'&lt;')}</textarea>
-    <p style="font-size:11px;color:var(--muted);margin-top:4px">ບັນທຶກ QR ຮ້ານຈາກ BCEL One/ທະນາຄານ ເປັນຮູບ ແລ້ວອັບໂຫລດທີ່ນີ້. ຕອນຮັບເງິນ ລະບົບຈະສ້າງ QR ໃສ່ <b>ຈຳນວນເງິນ = ຍອດລວມຂອງບິນ</b> ໃຫ້ອັດຕະໂນມັດ.</p>
-    <button class="btn-ok grad" style="display:block;margin-top:12px;padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveSettings()"> ບັນທຶກ</button></div>
-
-  <div class="kpi asec ${adminSec==='bill'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ໃບບິນ / ເຄື່ອງພິມ</div>
-    <label>ໂລໂກ້ຮ້ານ (ສະແດງເທິງໃບບິນ)</label>
-    <div style="display:flex;align-items:center;gap:10px;margin:4px 0 8px">${logoPrev}</div>
-    <input type="file" accept="image/*" onchange="loadLogo(this)">${logoBtn}
-    <label style="margin-top:12px">ທີ່ຢູ່ຮ້ານ</label><input id="ad_addr" value="${(state.shopAddr||'').replace(/"/g,'&quot;')}">
-    <label>ເບີໂທ</label><input id="ad_phone" value="${(state.shopPhone||'').replace(/"/g,'&quot;')}">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-     <div style="flex:1;min-width:160px"><label>ອັດຕາ 1 ฿ (THB) = ກີບ</label><div style="display:flex;gap:4px;align-items:center"><button class="btn-sm" onclick="stepInput('ad_thb',-10)">−10</button><input id="ad_thb" type="number" value="${state.rateTHB||0}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_thb',10)">+10</button></div></div>
-     <div style="flex:1;min-width:160px"><label>ອັດຕາ 1 $ (USD) = ກີບ</label><div style="display:flex;gap:4px;align-items:center"><button class="btn-sm" onclick="stepInput('ad_usd',-100)">−100</button><input id="ad_usd" type="number" value="${state.rateUSD||0}" style="text-align:center"><button class="btn-sm" onclick="stepInput('ad_usd',100)">+100</button></div></div></div>
-    <label style="margin-top:6px">ຂະໜາດເຈ້ຍພິມ</label>
-    <select id="ad_paper"><option value="80" ${(+state.paperW===80)?'selected':''}>80mm (ໃຫຍ່)</option><option value="58" ${(+state.paperW===58)?'selected':''}>58mm (ນ້ອຍ)</option></select>
-    <div style="margin-top:12px"><button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="saveReceiptSettings()"> ບັນທຶກໃບບິນ</button><button class="btn-sm" style="margin-left:8px" onclick="testPrint()"> ທົດລອງພິມ</button></div></div>
-
-  <div class="kpi asec ${adminSec==='table'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຈັດການຊັ້ນ</div>
-    <div>${state.floors.map(f=>`<span class="pill">${f}<button onclick="removeFloor('${f.replace(/'/g,"\\'")}')">×</button></span>`).join('')||'<span style="color:#94a3b8">ບໍ່ມີຊັ້ນ</span>'}</div>
-    <button class="btn-sm" style="margin-top:8px" onclick="addFloor()"> ເພີ່ມຊັ້ນ</button></div>
-
-  <div class="kpi asec ${adminSec==='table'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຈັດການໂຕະ</div>
-    <button class="btn-sm" onclick="addTablePrompt()"> ເພີ່ມໂຕະ</button>
-    <div style="margin-top:8px;max-height:200px;overflow:auto">${Object.values(state.tables).map(t=>`<span class="pill">${t.name} <small style="color:var(--muted)">(${t.floor})</small><button onclick="removeTable('${t.name.replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div></div>
-
-  <div class="kpi asec full ${adminSec==='menu'?'on':''}" style="margin-bottom:14px">${adminSec==='menu'?menuAdminHTML():''}</div>
-
-  <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> Log ການລົບເມນູ (${(state.menuLog||[]).length}) <button class="btn-sm btn-exp" style="margin-left:8px" onclick="exportMenuLog()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export Excel</button></div>
-    <div style="max-height:220px;overflow:auto"><table class="tbl"><thead><tr><th>ວັນທີ</th><th>ລະຫັດ</th><th>ຊື່ເມນູ</th><th>ເຫດຜົນ</th><th>ໂດຍ (ກະ - ຜູ້ໃຊ້)</th></tr></thead><tbody>${(state.menuLog||[]).slice().reverse().map(function(l){return '<tr><td>'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.code)+'</td><td>'+cesc(l.name)+'</td><td>'+cesc(l.reason)+'</td><td>'+cesc(l.by||'')+'</td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:16px">ຍັງບໍ່ມີການລົບ</td></tr>'}</tbody></table></div></div>
-  <div class="kpi asec ${adminSec==='menu'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ນຳເຂົ້າຂໍ້ມູນ (Excel)</div><p style="font-size:13px;color:var(--muted);margin-bottom:8px">ອັບໂຫລດໄຟລ໌ ST POS - Data.xlsx — ດຶງ ເມນູ + ລາຄາ + ສູດຕັດສະຕ໋ອກ + ວັດຖຸດິບ. ສະຕ໋ອກເລີ່ມຕົ້ນ = 0 (ໄປຮັບເຂົ້າທີ່ໜ້າສະຕ໋ອກ)</p><button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="openImport()"> ເລືອກໄຟລ໌ Excel</button>
-   <button class="btn-sm" style="margin-left:8px" onclick="openImportBOM()"> ນຳເຂົ້າສະເພາະສູດຕັດສະຕ໋ອກ</button>
-   <button class="btn-sm btn-exp" style="margin-left:8px" onclick="exportBOM()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export ສູດ (Excel)</button>
-   <button class="btn-sm" style="margin-left:8px" onclick="showBomAudit()"> ກວດສູດ</button>
-   <p style="font-size:12px;color:var(--muted);margin-top:8px">ສະຖານະ: ${state.catalog?('ນຳເຂົ້າແລ້ວ '+allMenu().length+' ເມນູ'):'ຍັງໃຊ້ເມນູຕົວຢ່າງ'} · "ນຳເຂົ້າສະເພາະສູດ" ຈະອັບເດດແຕ່ສູດ — ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກຄົງເຫຼືອ</p></div>
-   <div class="kpi asec full ${adminSec==='staff'?'on':''}" style="margin-bottom:14px">${sdSettingsHTML()}</div>
-   <div class="kpi asec ${adminSec==='staff'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ກະ ແລະ ພະນັກງານ</div>
-    <label>ກະປະຈຸບັນ</label><select id="ad_shift" onchange="state.activeShift=this.value;save()">${state.shifts.map(s=>`<option ${s===state.activeShift?'selected':''}>${s}</option>`).join('')}</select>
-    <div style="margin-top:6px">${state.shifts.map(s=>`<span class="pill">${s}<button onclick="removeShift('${s.replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div>
-    <button class="btn-sm" style="margin-top:6px" onclick="addShift()"> ເພີ່ມກະ</button>
-    <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.7"> ພະນັກງານຍ້າຍໄປຈັດການທີ່ແຖບ <b>"ຜູ້ໃຊ້ & ສິດ"</b> ແລ້ວ (ແຕ່ລະຄົນມີ PIN + ບົດບາດຂອງຕົນເອງ)<br>ບິນຈະບັນທຶກເປັນ: <b>${cesc(whoBy())}</b> (ຕາມກະທີ່ເປີດ + ຜູ້ໃຊ້ທີ່ login)</p></div>
-
-  <div class="kpi asec ${adminSec==='adv'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ສຳຮອງຂໍ້ມູນ (Backup)</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ເປີດສຳຮອງອັດຕະໂນມັດທຸກມື້ 03:00: ໃນ Apps Script → Run ຟັງຊັນ <b>setupBackup</b> ເທື່ອດຽວ (ເກັບ 14 ມື້ຫຼ້າສຸດ ໃນ Google Sheet ດຽວກັນ)</p>
-    <button class="btn-sm green" onclick="bakNow()"> ສຳຮອງດຽວນີ້</button>
-    <button class="btn-sm" onclick="showBackups()"> ລາຍການສຳຮອງ / ກູ້ຄືນ</button></div>
-  <div class="kpi asec ${adminSec==='adv'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ຍ້າຍບິນເກົ່າເຂົ້າຄັງ (ຫຍໍ້ຂໍ້ມູນ ໃຫ້ໄວ)</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">ບິນປັດຈຸບັນ: <b>${(state.bills||[]).length}</b> ໃບ. ຖ້າຫຼາຍ (ຫຼາຍພັນ) ການບັນທຶກຈະຊ້າ — ຍ້າຍບິນເກົ່າໄປ sheet "ບິນ-ຄັງ" (ຂໍ້ມູນບໍ່ເສຍ, ບິນຕິດໜີ້ທີ່ຍັງບໍ່ຈ່າຍຈະບໍ່ຖືກຍ້າຍ)</p>
-    <button class="btn-sm" onclick="archiveModal()"> ຍ້າຍບິນເກົ່າກວ່າ...</button></div>
-  <div class="kpi asec ${adminSec==='adv'?'on':''}" style="border:1px solid #fecaca"><div class="lbl" style="font-weight:700;margin-bottom:8px;color:var(--red)"> ເຂດອັນຕະລາຍ</div>
-    <button class="btn-ok" style="background:var(--red);padding:10px 18px;border-radius:11px;font-weight:700" onclick="confirmReset()"> ລ້າງຂໍ້ມູນທັງໝົດ</button></div></div>`;}
+/* ===== ການຕັ້ງຄ່າ: ເມນູຊ້າຍຈັດກຸ່ມ · ທຸກໝວດໃຊ້ແຖວແບບດຽວກັນ (ຊື່ + ຄຳອະທິບາຍ | ຕົວຄວບຄຸມ) · ປ່ຽນແລ້ວບັນທຶກທັນທີ ===== */
+var SET_NAV=[
+ ['ຮ້ານ',[['shop','ຂໍ້ມູນຮ້ານ & ໃບບິນ','store','ຊື່ ທີ່ຢູ່ ໂລໂກ້ ແລະ ເຄື່ອງພິມໃບບິນ'],['pay','ການຄິດເງິນ & ຈ່າຍເງິນ','pay','ຄ່າບໍລິການ ພາສີ ສ່ວນຫຼຸດ ວິທີຈ່າຍ ແລະ QR ໂອນ']]],
+ ['ການຂາຍ',[['order','ການສັ່ງ & QR ລູກຄ້າ','order','ສຽງເຕືອນ ການພິມເຂົ້າຄົວ ແລະ QR ສັ່ງເອງ'],['table','ໂຕະ & ຊັ້ນ','table','ເພີ່ມ / ລຶບ ຊັ້ນ ແລະ ໂຕະ'],['menu','ເມນູ & ຮູບ','menu','ເມນູ ລາຄາ ຮູບ ແລະ ສູດຕັດສະຕ໋ອກ'],['opts','ຕົວເລືອກ & Topping','opts','ກຸ່ມຕົວເລືອກ ທີ່ຂຶ້ນມາຕອນກົດເມນູ'],['promo','ໂປຣໂມຊັນ','promo','ຫຼຸດລາຄາອັດຕະໂນມັດ ຕາມຊ່ວງເວລາ'],['cds','ຈໍລູກຄ້າ','screen','ໜ້າຈໍທີ 2 ທີ່ຫັນໃສ່ລູກຄ້າ']]],
+ ['ພະນັກງານ',[['users','ຜູ້ໃຊ້ & ສິດ','users','ໃຜເຂົ້າລະບົບໄດ້ ແລະ ເຮັດຫຍັງໄດ້',1],['staff','ກະ & ສ່ວນລົດພະນັກງານ','staff','ກະເຮັດວຽກ ແລະ ສ່ວນລົດພະນັກງານ']]],
+ ['ລະບົບ',[['loc','ບ່ອນເກັບ & ສາຂາ','box','ບ່ອນຕັດສະຕ໋ອກ ແລະ ສາຂາ'],['conn','ການເຊື່ອມຕໍ່ & ລາຍງານ','link','ສະຖານະ server ແລະ ລາຍງານປະຈຳວັນ'],['adv','ສຳຮອງ & ຂັ້ນສູງ','shield','ສຳຮອງ ກູ້ຄືນ ແລະ ລ້າງຂໍ້ມູນ',1]]]];
+var SIC={store:'M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18M9 20v-6h6v6',pay:'M3 7h18v10H3zM3 11h18M7 15h3',order:'M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 2-2 6 0 8v10',table:'M3 9h18M5 9v10M19 9v10M8 5h8',menu:'M4 6h16M4 12h16M4 18h10',opts:'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',promo:'M3 12V3h9l9 9-9 9zM8 8h.01',screen:'M3 4h18v12H3zM8 20h8M12 16v4',users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-5-6',staff:'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1',box:'M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'};
+function sIco(k){return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+SIC[k]+'"/></svg>';}
+function aesc(s){return cesc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+/* ---- ບັນທຶກທັນທີ: data-k = ທີ່ຢູ່ໃນ state (ໃຊ້ຈຸດໄດ້ ເຊັ່ນ cds.welcome), data-t = bool | num | str ---- */
+var SET_DEF={shopName:'ST POS','cds.welcome':'ຍິນດີຕ້ອນຮັບ','cds.thanks':'ຂອບໃຈ'};
+function sOpt(k){var o=state,p=k.split('.');for(var i=0;i<p.length-1;i++){if(!o[p[i]]||typeof o[p[i]]!=='object')o[p[i]]={};o=o[p[i]];}return [o,p[p.length-1]];}
+function setOpt(el){var k=el.dataset.k,t=el.dataset.t||'str',v;if(!k)return;
+ if(t==='bool')v=!!el.checked;
+ else if(t==='num'){v=+String(el.value).replace(/[^\d.\-]/g,'')||0;if(el.dataset.min!=null&&el.dataset.min!=='')v=Math.max(+el.dataset.min,v);if(el.dataset.max!=null&&el.dataset.max!=='')v=Math.min(+el.dataset.max,v);el.value=v;}
+ else{v=String(el.value==null?'':el.value).trim();if(!v&&SET_DEF[k]){v=SET_DEF[k];el.value=v;}}
+ var r=sOpt(k);r[0][r[1]]=v;save();
+ if(k.indexOf('cds.')===0){try{cdsPushIdle();}catch(e){}}
+ if(k==='shopName'){var hb=document.querySelector('.topbar h1');if(hb)hb.textContent=v;}
+ sSaved();}
+function setOptV(k,v){var r=sOpt(k);r[0][r[1]]=v;save();render();sSaved();}
+function sSaved(){var e=document.getElementById('setSaved');if(!e)return;e.classList.add('on');clearTimeout(window.__ssT);window.__ssT=setTimeout(function(){var x=document.getElementById('setSaved');if(x)x.classList.remove('on');},1800);}
+function sStep(btn,d){var i=btn.parentNode.querySelector('input');if(!i)return;var v=Math.round(((+String(i.value).replace(/[^\d.\-]/g,'')||0)+d)*100)/100;if(v<0)v=0;i.value=v;if(i.dataset.k)setOpt(i);else if(i.onchange)i.onchange();}
+/* ---- ຕົວສ້າງ UI ---- */
+function sCard(t,d,act,body,cls){return '<section class="scard'+(cls?' '+cls:'')+'">'+(t?'<header><div><h3>'+t+'</h3>'+(d?'<p>'+d+'</p>':'')+'</div>'+(act?'<div class="scard-act">'+act+'</div>':'')+'</header>':'')+(body||'')+'</section>';}
+function sRow(t,h,ctl,cls){return '<div class="srow'+(cls?' '+cls:'')+'"><div class="srow-t"><b>'+t+'</b>'+(h?'<small>'+h+'</small>':'')+'</div><div class="srow-c">'+ctl+'</div></div>';}
+function sSw(k,on){return '<label class="sw"><input type="checkbox" data-k="'+k+'" data-t="bool"'+(on?' checked':'')+' onchange="setOpt(this)"><i></i></label>';}
+function sNum(k,v,step,unit,min,max){return '<div class="snum"><button type="button" aria-label="ລົດ" onclick="sStep(this,-'+step+')">−</button><input type="number" data-k="'+k+'" data-t="num" value="'+(+v||0)+'"'+(min!=null?' data-min="'+min+'"':'')+(max!=null?' data-max="'+max+'"':'')+' onchange="setOpt(this)"><button type="button" aria-label="ເພີ່ມ" onclick="sStep(this,'+step+')">+</button>'+(unit?'<span>'+unit+'</span>':'')+'</div>';}
+function sMoney(k,v,unit,min){return '<div class="snum"><input class="money" inputmode="numeric" data-k="'+k+'" data-t="num"'+(min!=null?' data-min="'+min+'"':'')+' value="'+(+v||0)+'" onchange="setOpt(this)"><span>'+unit+'</span></div>';}
+function sTxt(k,v,ph,attr){return '<input class="stxt" data-k="'+k+'" data-t="str" value="'+aesc(v||'')+'" placeholder="'+aesc(ph||'')+'" onchange="setOpt(this)"'+(attr||'')+'>';}
+function sBtn(label,onclick,kind,attr){return '<button type="button" class="sb'+(kind?' '+kind:'')+'" onclick="'+onclick+'"'+(attr||'')+'>'+label+'</button>';}
+function sUpl(label,onchange,kind){return '<label class="sb'+(kind?' '+kind:'')+'"><input type="file" accept="image/*" onchange="'+onchange+'" hidden>'+label+'</label>';}
+function sItem(main,sub,acts,lead){return '<div class="sitem">'+(lead||'')+'<div class="sitem-m"><b>'+main+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><div class="sitem-a">'+(acts||'')+'</div></div>';}
+function sEmpty(t){return '<div class="sempty">'+t+'</div>';}
+function sBadge(t,k){return '<span class="sbadge'+(k?' '+k:'')+'">'+t+'</span>';}
+function sAv(n){return '<div class="sav">'+cesc(String(n||'?').slice(0,2))+'</div>';}
+function sKX(k){return ' data-k="'+aesc(k)+'"';}
+function sCdsPreset(c1,c2){state.cds.c1=c1;state.cds.c2=c2;save();render();try{cdsPushIdle();}catch(e){}sSaved();}
+/* ---- ແຕ່ລະໝວດ ---- */
+function setSecShop(){
+ return sCard('ຂໍ້ມູນຮ້ານ','ສະແດງເທິງແອັບ ແລະ ໃບບິນ','',
+  sRow('ຊື່ຮ້ານ','',sTxt('shopName',state.shopName))+
+  sRow('ທີ່ຢູ່','',sTxt('shopAddr',state.shopAddr,'ເຊັ່ນ ບ້ານ… ເມືອງ… ແຂວງ…'))+
+  sRow('ເບີໂທ','',sTxt('shopPhone',state.shopPhone,'020 …',' inputmode="tel"'))+
+  sRow('ໂລໂກ້','ພິມເທິງໃບບິນ · ບໍ່ມີ = ໃຊ້ຊື່ຮ້ານ','<div class="slogo">'+(state.shopLogo?'<img src="'+state.shopLogo+'" alt="">':'ບໍ່ມີ')+'</div>'+sUpl(state.shopLogo?'ປ່ຽນຮູບ':'ອັບໂຫລດຮູບ','loadLogo(this)')+(state.shopLogo?sBtn('ລຶບ','removeLogo()','ghost-danger'):'')))+
+ sCard('ເຄື່ອງພິມໃບບິນ','',sBtn('ທົດລອງພິມ','testPrint()'),
+  sRow('ຂະໜາດເຈ້ຍ','ເບິ່ງຢູ່ກ່ອງເຄື່ອງພິມ',sSeg('paperW',+state.paperW===58?58:80,[[80,'80 mm'],[58,'58 mm']])));}
+function sSeg(k,cur,opts){return '<div class="sseg">'+opts.map(function(o){return '<button type="button" class="'+(cur===o[0]?'on':'')+'" onclick="setOptV(\''+k+'\','+JSON.stringify(o[0])+')">'+o[1]+'</button>';}).join('')+'</div>';}
+function setSecPay(){var pts=state.payTypes||PAYTYPES;
+ return sCard('ຄ່າບໍລິການ ພາສີ ແລະ ສ່ວນຫຼຸດ','ຄິດໃສ່ທຸກບິນ','',
+  sRow('Service charge','',sNum('serviceChargePct',state.serviceChargePct,1,'%',0,100))+
+  sRow('VAT','',sNum('vatPct',state.vatPct,1,'%',0,100))+
+  sRow('ສ່ວນຫຼຸດທັງບິນ (ຄ່າເລີ່ມຕົ້ນ)','ໃຊ້ກັບທຸກໂຕະ — ປົກກະຕິໃຫ້ເປັນ 0',sNum('billDiscPct',state.billDiscPct,1,'%',0,100))+
+  sRow('ເພດານສ່ວນຫຼຸດ ຂອງແຄັດເຊຍ','ເກີນນີ້ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN ອະນຸມັດ',sNum('discLimit',state.discLimit||0,5,'%',0,100)))+
+ sCard('ວິທີຈ່າຍເງິນ','ເປີດ/ປິດ ແລະ ຄ່າທຳນຽມຕໍ່ວິທີ (ເຊັ່ນ ບັດ 3% ຈະບວກໃສ່ຍອດ)',sBtn('+ ເພີ່ມວິທີຈ່າຍ','addPayType()','pri'),
+  pts.map(function(p){var off=state.payOff&&state.payOff[p],lock=(p==='ເງິນສົດ'||p==='ຕິດໜີ້'||p==='ກະເປົາລູກຄ້າ');
+   return sItem(cesc(p)+(lock?sBadge('ລະບົບ'):'')+(off?sBadge('ປິດຢູ່','off'):''),p==='ຕິດໜີ້'?'ບັນທຶກເປັນໜີ້ຄ້າງ':p==='ກະເປົາລູກຄ້າ'?'ຫັກຈາກເງິນໃນກະເປົາສະມາຊິກ':'',
+    '<div class="snum sm"><input type="number" min="0" max="20"'+sKX(p)+' value="'+((state.payFee&&+state.payFee[p])||0)+'" onchange="setPayFee(this.dataset.k,this.value);sSaved()"><span>%</span></div>'+
+    '<label class="sw" title="ເປີດ/ປິດ"><input type="checkbox"'+sKX(p)+(off?'':' checked')+' onchange="togglePayType(this.dataset.k)"><i></i></label>'+
+    (lock?'<span class="sb-ph"></span>':sBtn('ລຶບ','removePayType(this.dataset.k)','sm ghost-danger',sKX(p))));}).join(''))+
+ sCard('QR ໂອນເງິນ (ທະນາຄານ)','ລູກຄ້າສະແກນຈ່າຍ — ລະບົບໃສ່ຈຳນວນເງິນ = ຍອດບິນ ໃຫ້ເອງ',state.bankQR?sBadge(/^00020/.test(state.bankQR)?'✓ ພ້ອມໃຊ້':'✓ ມີ QR (ບໍ່ແມ່ນ EMV)','ok'):sBadge('ຍັງບໍ່ມີ','warn'),
+  sRow('ຮູບ QR ຂອງຮ້ານ','ບັນທຶກ QR ຈາກ BCEL One / ແອັບທະນາຄານ ເປັນຮູບ ແລ້ວອັບໂຫລດ',sUpl(state.bankQR?'ປ່ຽນ QR':'ອັບໂຫລດຮູບ QR','loadBankQRImg(this)',state.bankQR?'':'pri')+(state.bankQR?sBtn('ລຶບ','clearBankQR()','ghost-danger'):''))+
+  '<details class="sadv"><summary>ຫຼື ວາງລະຫັດ QR ເອງ (000201…)</summary><textarea class="stxt" rows="2" data-k="bankQR" data-t="str" onchange="setOpt(this)" placeholder="000201…">'+cesc(state.bankQR||'')+'</textarea></details>')+
+ sCard('ອັດຕາແລກປ່ຽນ','ໃຊ້ຕອນຮັບເງິນເປັນ ບາດ / ໂດລາ','',
+  sRow('1 ບາດ (฿)','',sMoney('rateTHB',state.rateTHB,'ກີບ',0))+sRow('1 ໂດລາ ($)','',sMoney('rateUSD',state.rateUSD,'ກີບ',0)))+
+ sCard('ແຕ້ມສະສົມ (ສະມາຊິກ)','','',
+  sRow('ຈ່າຍທຸກໆ … ໄດ້ 1 ແຕ້ມ','',sMoney('pointRate',state.pointRate||10000,'ກີບ',1))+
+  sRow('1 ແຕ້ມ ມີມູນຄ່າ','ໃຊ້ແລກສ່ວນຫຼຸດ ຕອນຮັບເງິນ',sMoney('pointValue',state.pointValue||0,'ກີບ',0))+
+  sRow('ອະນຸຍາດໃຊ້ແຕ້ມແລກສ່ວນຫຼຸດ','',sSw('pointRedeem',state.pointRedeem!==false)));}
+function setSecOrder(){
+ return sCard('ການສັ່ງອາຫານ','','',
+  sRow('ສຽງເຕືອນ ອໍເດີໃໝ່','',sSw('soundOn',!!state.soundOn))+
+  sRow('ພິມສະລິບເຂົ້າຄົວ / ບາ ອັດຕະໂນມັດ','ເມື່ອກົດ "ຢືນຢັນອໍເດີ"',sSw('printKitchen',!!state.printKitchen))+
+  sRow('ກັນຂາຍ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ"',sSw('stockBlock',state.stockBlock!==false)))+
+ sCard('QR ສັ່ງເອງ (ລູກຄ້າ)','ລູກຄ້າສະແກນ QR ທີ່ໂຕະ ແລ້ວສັ່ງເອງ — ພິມ QR ໄດ້ທີ່ໜ້າ ໂຕະ','',
+  sRow('ເປີດ QR ສັ່ງ ທັງຮ້ານ','',sSw('qrGlobal',!!state.qrGlobal))+
+  sRow('ລູກຄ້າຕ້ອງໃສ່ PIN ໂຕະ ກ່ອນສັ່ງ','ກັນຄົນນອກຮ້ານສັ່ງມົ່ວ',sSw('qrPinRequired',state.qrPinRequired!==false))+
+  sRow('QR ໝົດອາຍຸ ພາຍໃນ 3 ຊົ່ວໂມງ','ປິດ = QR ໃຊ້ໄດ້ຕະຫຼອດ',sSw('qrExpires',state.qrExpires!==false)));}
+function setSecTable(){var T=Object.values(state.tables||{});
+ return sCard('ຊັ້ນ & ໂຕະ',state.floors.length+' ຊັ້ນ · '+T.length+' ໂຕະ — ຈັດຕຳແໜ່ງໂຕະ ໄດ້ທີ່ໜ້າ ໂຕະ → ແກ້ຜັງ',sBtn('+ ເພີ່ມຊັ້ນ','addFloor()','pri'),
+  state.floors.map(function(f){var tt=T.filter(function(t){return t.floor===f;});
+   return '<div class="sfloor"><div class="sfloor-h"><b>'+cesc(f)+'</b><small>'+tt.length+' ໂຕະ</small><span class="sitem-a">'+sBtn('+ ເພີ່ມໂຕະ','addTablePrompt(this.dataset.k)','sm',sKX(f))+(tt.length?'':sBtn('ລຶບຊັ້ນ','removeFloor(this.dataset.k)','sm ghost-danger',sKX(f)))+'</span></div>'+
+    (tt.length?'<div class="schips">'+tt.map(function(t){return '<span class="schip">'+cesc(t.name)+'<button type="button" title="ລຶບໂຕະ"'+sKX(t.name)+' onclick="removeTable(this.dataset.k)">×</button></span>';}).join('')+'</div>':'<div class="sfloor-e">ຍັງບໍ່ມີໂຕະ</div>')+'</div>';}).join('')||sEmpty('ຍັງບໍ່ມີຊັ້ນ — ກົດ "+ ເພີ່ມຊັ້ນ"'));}
+function setSecMenu(){
+ return '<section class="scard smenu">'+menuAdminHTML()+'</section>'+
+ sCard('ນຳເຂົ້າ / ສົ່ງອອກ ສູດ','ໄຟລ໌ ST POS - Data.xlsx = ເມນູ + ລາຄາ + ສູດຕັດສະຕ໋ອກ + ວັດຖຸດິບ (ສະຕ໋ອກເລີ່ມ 0) · "ສະເພາະສູດ" ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກ',
+  sBtn('ກວດສູດ','showBomAudit()')+sBtn('Export ສູດ','exportBOM()')+sBtn('ນຳເຂົ້າສະເພາະສູດ','openImportBOM()')+sBtn('ນຳເຂົ້າທັງໝົດ','openImport()','pri'),
+  sRow('ສະຖານະ','',state.catalog?sBadge('ນຳເຂົ້າແລ້ວ '+allMenu().length+' ເມນູ','ok'):sBadge('ຍັງໃຊ້ເມນູຕົວຢ່າງ','warn')))+
+ sCard('ປະຫວັດການລຶບເມນູ ('+(state.menuLog||[]).length+')','',(state.menuLog||[]).length?sBtn('Export Excel','exportMenuLog()'):'',
+  (state.menuLog||[]).length?'<div class="sscroll"><table class="tbl"><thead><tr><th>ວັນທີ</th><th>ລະຫັດ</th><th>ເມນູ</th><th>ເຫດຜົນ</th><th>ໂດຍ</th></tr></thead><tbody>'+(state.menuLog||[]).slice().reverse().map(function(l){return '<tr><td>'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.code)+'</td><td>'+cesc(l.name)+'</td><td>'+cesc(l.reason)+'</td><td>'+cesc(l.by||'')+'</td></tr>';}).join('')+'</tbody></table></div>':sEmpty('ຍັງບໍ່ມີການລຶບເມນູ'));}
+function setSecOpts(){var G=state.modGroups||[];
+ return sCard('ກຸ່ມຕົວເລືອກ','ຂຶ້ນມາໃຫ້ເລືອກ ຕອນກົດເມນູ (ຕາມ "ໃຊ້ກັບ") · topping ທີ່ຄິດເງິນ ໃສ່ລາຄາ +ກີບ',sBtn('+ ເພີ່ມກຸ່ມ','editModGroup(-1)','pri'),
+  G.map(function(g,gi){var sc=g.scope==='items'?((g.codes||[]).length+' ເມນູ'):g.scope==='food'?'ອາຫານ':g.scope==='drink'?'ເຄື່ອງດື່ມ':'ທຸກເມນູ';
+   return '<div class="sfloor"><div class="sfloor-h"><b>'+cesc(g.title)+'</b><small>'+(g.multi?'ເລືອກໄດ້ຫຼາຍ':'ເລືອກ 1')+' · ໃຊ້ກັບ '+sc+'</small><span class="sitem-a">'+sBtn('ແກ້','editModGroup('+gi+')','sm')+sBtn('ລຶບ','delModGroup('+gi+')','sm ghost-danger')+'</span></div>'+
+    '<div class="schips">'+(g.opts||[]).map(function(o,oi){return '<span class="schip">'+cesc(o.n)+(o.p?' <em>+'+KIP(o.p)+'</em>':'')+'<button type="button" title="ລຶບ" onclick="delModOpt('+gi+','+oi+')">×</button></span>';}).join('')+'<button type="button" class="schip add" onclick="addModOpt('+gi+')">+ ຕົວເລືອກ</button></div></div>';}).join('')||sEmpty('ຍັງບໍ່ມີກຸ່ມ — ເຊັ່ນ "ຄວາມຫວານ", "ເພີ່ມທ໊ອບປິ້ງ"'));}
+function setSecPromo(){var P=state.promos||[],ap=activePromo();
+ return sCard('ໂປຣໂມຊັນ / Happy Hour','ໃນຊ່ວງເວລາທີ່ກຳນົດ ລະບົບຫຼຸດລາຄາໃຫ້ເອງ (ທັງ POS ແລະ QR ລູກຄ້າ)'+(ap?' · ກຳລັງໃຊ້: <b>'+cesc(ap.name)+'</b>':''),sBtn('+ ເພີ່ມໂປຣໂມຊັນ','addPromoModal()','pri'),
+  P.map(function(p,i){var on=p.active!==false;return sItem(cesc(p.name)+(on?'':sBadge('ປິດຢູ່','off')),'<b class="spink">'+cesc(promoDesc(p))+'</b> · '+cesc(promoScopeDesc(p))+' · '+(p.from&&p.to?cesc(p.from)+'–'+cesc(p.to):'ໝົດມື້'),
+   '<label class="sw"><input type="checkbox"'+(on?' checked':'')+' onchange="togglePromo('+i+')"><i></i></label>'+sBtn('ລຶບ','delPromo('+i+')','sm ghost-danger'));}).join('')||sEmpty('ຍັງບໍ່ມີໂປຣໂມຊັນ'));}
+function setSecCds(){var c=state.cds||(state.cds={});var imgs=c.images||[];
+ var pre=[['#0ABAB5','#5FD9D2','Tiffany'],['#0A7E7A','#0ABAB5','ຂຽວເຂັ້ມ'],['#7c3aed','#a78bfa','ມ່ວງ'],['#b45309','#f59e0b','ທອງ'],['#be123c','#fb7185','ແດງ'],['#1e293b','#475569','ດຳ']];
+ return sCard('ຈໍລູກຄ້າ (ຈໍທີ 2)','ກົດ "ເປີດຈໍລູກຄ້າ" → ລາກໜ້າຕ່າງໄປຈໍທີ່ຫັນໃສ່ລູກຄ້າ → ກົດ F11 · ສະແດງລາຍການ + ຍອດ ແບບສົດ',sBtn('ເປີດຈໍລູກຄ້າ',"window.open(location.pathname+'?cds=1','stpos_cds','width=900,height=650')",'pri'),
+  sRow('ຂໍ້ຄວາມຕ້ອນຮັບ','ແຖວ 2 = ພາສາອື່ນ (ບໍ່ບັງຄັບ)',sTxt('cds.welcome',c.welcome)+sTxt('cds.welcomeSub',c.welcomeSub,'Welcome'),'stack')+
+  sRow('ຂໍ້ຄວາມຂອບໃຈ','ຫຼັງຈ່າຍເງິນ',sTxt('cds.thanks',c.thanks)+sTxt('cds.thanksSub',c.thanksSub,'Thank you'),'stack')+
+  sRow('ສີ','ກົດເລືອກ ຫຼື ກຳນົດເອງ','<div class="sswatch">'+pre.map(function(p){var on=(c.c1||'#0ABAB5').toLowerCase()===p[0].toLowerCase()&&(c.c2||'#5FD9D2').toLowerCase()===p[1].toLowerCase();return '<button type="button" title="'+p[2]+'" class="'+(on?'on':'')+'" style="background:linear-gradient(135deg,'+p[0]+','+p[1]+')" onclick="sCdsPreset(\''+p[0]+'\',\''+p[1]+'\')"></button>';}).join('')+'</div><input type="color" data-k="cds.c1" data-t="str" value="'+(c.c1||'#0ABAB5')+'" onchange="setOpt(this)" class="scolor"><input type="color" data-k="cds.c2" data-t="str" value="'+(c.c2||'#5FD9D2')+'" onchange="setOpt(this)" class="scolor">')+
+  sRow('ສະແດງໂລໂກ້ຮ້ານ','',sSw('cds.showLogo',c.showLogo!==false))+
+  sRow('ສະແດງໂປຣໂມຊັນທີ່ກຳລັງໃຊ້','',sSw('cds.showPromo',c.showPromo!==false))+
+  sRow('ຮູບໂປສເຕີ ຕອນຈໍວ່າງ','ສູງສຸດ 6 ຮູບ · ບໍ່ມີ = ສະແດງຂໍ້ຄວາມຕ້ອນຮັບ','<div class="sthumbs">'+imgs.map(function(src,i){return '<span><img src="'+src+'" alt=""><button type="button" title="ລຶບ" onclick="cdsDelImg('+i+')">×</button></span>';}).join('')+'</div>'+(imgs.length<6?sUpl('+ ເພີ່ມຮູບ','cdsAddImg(this)'):''),'stack')+
+  sRow('ປ່ຽນຮູບທຸກໆ','',sNum('cds.imgSec',c.imgSec||6,1,'ວິນາທີ',2,60)));}
+function setSecUsers(){var U=state.users||[],ta=PERM_ACTS.reduce(function(s,g){return s+g[1].length;},0);
+ return sCard('ຜູ້ໃຊ້','ແຕ່ລະຄົນເຂົ້າລະບົບດ້ວຍ PIN ຂອງຕົນເອງ · ສິດຕາມບົດບາດ ຫຼື ປັບລາຍຄົນໄດ້',sBtn('ຕາຕະລາງສິດ','showPermMatrix()')+sBtn('+ ເພີ່ມຜູ້ໃຊ້','editUser(null)','pri'),
+  U.map(function(u){var nv=PERM_VIEWS.filter(function(x){return permEffView(u,u.role,x[0]);}).length,na=PERM_ACTS.reduce(function(s,g){return s+g[1].filter(function(x){return permEffAct(u,u.role,x[0]);}).length;},0);
+   return sItem(cesc(u.name)+sBadge(ROLE_LABELS[u.role]||u.role,'role')+(curUser()&&curUser().id===u.id?sBadge('ເຈົ້າ','ok'):''),!PERMS[u.role]?'ທຸກສິດ':(nv+'/'+PERM_VIEWS.length+' ໜ້າ · '+na+'/'+ta+' ສິດ'+(permCount(u)?' · ປັບລາຍຄົນ '+permCount(u):'')),
+    sBtn('ແກ້','editUser(this.dataset.k)','sm',sKX(u.id))+sBtn('ລຶບ','delUser(this.dataset.k)','sm ghost-danger',sKX(u.id)),sAv(u.name));}).join('')+
+  '<details class="sadv"><summary>ແຕ່ລະບົດບາດ ເຮັດຫຍັງໄດ້ແດ່?</summary><ul class="sroles"><li><b>ເຈົ້າຂອງຮ້ານ</b> — ທຸກຢ່າງ (ຕັ້ງຄ່າ, ຜູ້ໃຊ້, ລ້າງຂໍ້ມູນ)</li><li><b>ຜູ້ຈັດການ</b> — ທຸກຢ່າງ ຍົກເວັ້ນ ຈັດການຜູ້ໃຊ້/ລ້າງຂໍ້ມູນ · ອະນຸມັດ ສ່ວນຫຼຸດເກີນ/Void/ຍົກເລີກໂຕະ</li><li><b>ແຄັດເຊຍ</b> — ຂາຍ, ຮັບເງິນ, ເປີດ/ປິດກະ, ສ່ວນຫຼຸດ ≤ '+(state.discLimit||0)+'% · Void/ຍົກເລີກ ຕ້ອງຂໍອະນຸມັດ</li><li><b>ພະນັກງານເສີບ</b> — ສັ່ງອາຫານ, ຈໍເສີບ</li><li><b>ຄົວ / ບາ</b> — ຈໍຄົວ / ບາ</li></ul></details>');}
+function setSecStaff(){
+ return sCard('ກະເຮັດວຽກ','ຊື່ກະ ທີ່ເລືອກຕອນເປີດກະ · ບິນບັນທຶກເປັນ: <b>'+cesc(whoBy())+'</b>',sBtn('+ ເພີ່ມກະ','addShift()','pri'),
+  sRow('ຕ້ອງເປີດກະ ກ່ອນຮັບເງິນ','ແນະນຳ — ເງິນທຸກບິນຖືກນັບເຂົ້າກະ',sSw('requireShift',state.requireShift!==false))+
+  '<div class="schips">'+(state.shifts||[]).map(function(s){return '<span class="schip">'+cesc(s)+'<button type="button" title="ລຶບກະ"'+sKX(s)+' onclick="removeShift(this.dataset.k)">×</button></span>';}).join('')+'</div>')+sdSettingsHTML();}
+function setSecLoc(){var L=state.locations||[],LT={branch:'ສາຂາ',warehouse:'ສາງ',kitchen:'ຄົວກາງ',other:'ອື່ນໆ'},B=getBranches();
+ return sCard('ເຄື່ອງນີ້ ຕັດສະຕ໋ອກຈາກ','ຂາຍທີ່ເຄື່ອງນີ້ ຈະຕັດວັດຖຸດິບຈາກບ່ອນທີ່ເລືອກ','',
+  sRow('ບ່ອນເກັບຂອງເຄື່ອງນີ້','','<select class="ssel" onchange="setTerminalLoc(this.value)">'+L.map(function(l){return '<option value="'+aesc(l.id)+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')+'</select>'))+
+ sCard('ບ່ອນເກັບ (ສະຕ໋ອກ)','ຄົວກາງ, ສາງ, ສາຂາ — ສະຕ໋ອກແຍກຕາມບ່ອນ ໃນ server ດຽວກັນ',sBtn('+ ເພີ່ມບ່ອນເກັບ','addLocation()','pri'),
+  L.map(function(l){return sItem(cesc(l.name)+(l.id===curLoc()?sBadge('ເຄື່ອງນີ້','ok'):''),LT[l.type]||l.type||'',sBtn('ແກ້','editLocation(this.dataset.k)','sm',sKX(l.id))+(L.length>1?sBtn('ລຶບ','delLocation(this.dataset.k)','sm ghost-danger',sKX(l.id)):''));}).join(''))+
+ sCard('ສາຂາທີ່ມີ server ແຍກ','ແຕ່ລະສາຂາ = 1 Apps Script + 1 Google Sheet · ເບິ່ງຍອດລວມ: ລາຍງານ → ສາຂາ · ສະຫຼັບ = ປ່ຽນລິ້ງຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່',sBtn('+ ເພີ່ມສາຂາ','addBranchModal()','pri'),
+  B.map(function(b,i){return sItem(cesc(b.name),'',sBtn('ສະຫຼັບໄປ','switchBranch('+i+')','sm')+sBtn('ລຶບ','delBranch('+i+')','sm ghost-danger'));}).join('')||sEmpty('ຍັງບໍ່ມີສາຂາອື່ນ'));}
+function setSecConn(){var gas=HAS_GAS||HAS_API;
+ return sCard('ສະຖານະ','','',
+  sRow('ບ່ອນເກັບຂໍ້ມູນ','',gas?sBadge('✓ ເຊື່ອມ Google Sheet ແລ້ວ','ok'):sBadge('Local (ທົດລອງ — ບໍ່ເຊື່ອມ server)','warn'))+
+  sRow('ຂໍ້ມູນໃນລະບົບ','','<div class="sstat"><span><b>'+state.floors.length+'</b>ຊັ້ນ</span><span><b>'+Object.keys(state.tables).length+'</b>ໂຕະ</span><span><b>'+allMenu().length+'</b>ເມນູ</span><span><b>'+Object.keys(state.ingredients||{}).length+'</b>ວັດຖຸດິບ</span><span><b>'+(state.bills||[]).length+'</b>ບິນ</span></div>','stack'))+
+ (HAS_GAS?'':sCard('ເຊື່ອມ Google Sheet','ສຳລັບຮ້ານໃໝ່ ຫຼື ປ່ຽນ server — ບັນທຶກແລ້ວແອັບຈະໂຫຼດໃໝ່','',
+  sRow('ລິ້ງ Apps Script (/exec)','','<input id="ad_api" class="stxt" value="'+aesc(API_URL)+'" placeholder="https://script.google.com/…/exec">'+sBtn('ບັນທຶກ','setApiUrl()','pri'),'stack')+
+  sRow('API Token','ກັນຄົນນອກຂຽນທັບຂໍ້ມູນ · ຕ້ອງກົງກັບ server · '+(TOKEN?'<b class="sgreen">ໃສ່ແລ້ວ</b>':'<b class="sorange">ຍັງບໍ່ໃສ່</b>'),'<input id="ad_tok" class="stxt" type="password" autocomplete="off" value="'+aesc(TOKEN)+'">'+sBtn('ບັນທຶກ','setApiToken()'),'stack')+
+  '<div class="sfoot">'+sBtn('ກັບໄປລິ້ງເລີ່ມຕົ້ນ','resetApiUrl()','sm')+'</div>'))+
+ sCard('ລາຍງານປະຈຳວັນ','Server ສົ່ງສະຫຼຸບ ຍອດຂາຍ ກຳໄລ ລຶບ/ຍົກເລີກ ເງິນສົດຂາດ-ເກີນ ສະຕ໋ອກໃກ້ໝົດ ໃຫ້ເຈົ້າຂອງທຸກມື້ (WhatsApp / Telegram — ຕັ້ງໃນ Apps Script)',sBtn('ເບິ່ງຕົວຢ່າງ',"waReport('preview')")+sBtn('ສົ່ງທົດສອບ',"waReport('test')",'pri'),'');}
+function setSecAdv(){
+ return sCard('ສຳຮອງຂໍ້ມູນ','ສຳຮອງອັດຕະໂນມັດທຸກມື້ 03:00 ເກັບ 14 ມື້ (ເປີດໃນ Apps Script: Run setupBackup ຄັ້ງດຽວ)',sBtn('ລາຍການສຳຮອງ / ກູ້ຄືນ','showBackups()')+sBtn('ສຳຮອງດຽວນີ້','bakNow()','pri'),'')+
+ sCard('ຍ້າຍບິນເກົ່າເຂົ້າຄັງ','ບິນປັດຈຸບັນ <b>'+(state.bills||[]).length+'</b> ໃບ — ຫຼາຍພັນໃບ ຈະບັນທຶກຊ້າ · ຍ້າຍໄປ sheet "ບິນ-ຄັງ" ຂໍ້ມູນບໍ່ເສຍ · ບິນຕິດໜີ້ທີ່ຍັງບໍ່ຈ່າຍ ບໍ່ຖືກຍ້າຍ',sBtn('ຍ້າຍບິນເກົ່າ…','archiveModal()'),'')+
+ sCard('ລ້າງຂໍ້ມູນທັງໝົດ','ລຶບບິນ ສະຕ໋ອກ ແລະ ທຸກຢ່າງ — ກູ້ຄືນບໍ່ໄດ້ ຖ້າບໍ່ມີສຳຮອງ',sBtn('ລ້າງຂໍ້ມູນທັງໝົດ','confirmReset()','danger'),'','danger');}
+function renderAdmin(R){var u=curUser(),owner=u&&u.role==='owner';
+ if(adminSec==='bill')adminSec='shop';
+ var items=[];SET_NAV.forEach(function(g){g[1].forEach(function(x){if(!x[4]||owner)items.push(x);});});
+ if(!items.some(function(x){return x[0]===adminSec;}))adminSec='shop';
+ var cur=items.find(function(x){return x[0]===adminSec;});
+ var rail='<h2>ການຕັ້ງຄ່າ</h2>'+SET_NAV.map(function(g){var its=g[1].filter(function(x){return !x[4]||owner;});if(!its.length)return '';
+  return '<div class="sg">'+g[0]+'</div>'+its.map(function(x){return '<button type="button" class="'+(x[0]===adminSec?'on':'')+'" onclick="adminSec=\''+x[0]+'\';render();var m=document.querySelector(\'.setmain\');if(m)m.scrollIntoView({block:\'start\'})">'+sIco(x[2])+'<span>'+x[1]+'</span></button>';}).join('');}).join('');
+ var F={shop:setSecShop,pay:setSecPay,order:setSecOrder,table:setSecTable,menu:setSecMenu,opts:setSecOpts,promo:setSecPromo,cds:setSecCds,users:setSecUsers,staff:setSecStaff,loc:setSecLoc,conn:setSecConn,adv:setSecAdv};
+ R.innerHTML='<div class="adminbox setpage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain"><div class="sethead"><div><h2>'+cur[1]+'</h2><p>'+cur[3]+'</p></div><span id="setSaved" class="ssaved">✓ ບັນທຶກແລ້ວ</span></div>'+F[adminSec]()+'</div></div></div>';
+ var on=R.querySelector('.setrail button.on');if(on&&on.scrollIntoView&&window.innerWidth<900){try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}}
 /* ===== BACKUP / RESTORE (client) ===== */
 function bakNow(){toast('ກຳລັງສຳຮອງ...');
  if(HAS_GAS){google.script.run.withSuccessHandler(function(r){toast(r&&r!=='no data'?' ສຳຮອງແລ້ວ: '+r:'ສຳຮອງບໍ່ໄດ້');}).withFailureHandler(function(){toast('ສຳຮອງບໍ່ໄດ້');}).backupDaily();}
@@ -4263,7 +4370,7 @@ function doDelUser(id){var u=(state.users||[]).find(function(x){return x.id===id
 function addFloor(){openModal(`<h2> ເພີ່ມຊັ້ນ</h2><label>ຊື່ຊັ້ນ</label><input id="fn" placeholder="ເຊັ່ນ ຊັ້ນ4 / ລະບຽງ"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="doAddFloor()">ເພີ່ມ</button></div>`);}
 function doAddFloor(){const v=(document.getElementById('fn').value||'').trim();if(!v){toast('ໃສ່ຊື່ຊັ້ນ');return;}if(state.floors.includes(v)){toast('ຊັ້ນຊ້ຳ');return;}state.floors.push(v);save();closeModal();render();showSuccess('ເພີ່ມຊັ້ນສຳເລັດ!',v);}
 function removeFloor(name){const used=Object.values(state.tables).some(t=>t.floor===name);if(used){toast('ມີໂຕະຢູ່ຊັ້ນນີ້ — ຍ້າຍ/ລຶບໂຕະກ່ອນ');return;}state.floors=state.floors.filter(f=>f!==name);save();render();toast('ລຶບຊັ້ນ '+name);}
-function addTablePrompt(){if(!state.floors.length){toast('ເພີ່ມຊັ້ນກ່ອນ');return;}openModal(`<h2> ເພີ່ມໂຕະ</h2><label>ຊື່ໂຕະ</label><input id="tn" placeholder="ເຊັ່ນ A9 / VIP1"><label>ຊັ້ນ</label><select id="tf">${state.floors.map(f=>`<option>${f}</option>`).join('')}</select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="doAddTable()">ເພີ່ມ</button></div>`);}
+function addTablePrompt(fl){if(!state.floors.length){toast('ເພີ່ມຊັ້ນກ່ອນ');return;}openModal(`<h2> ເພີ່ມໂຕະ</h2><label>ຊື່ໂຕະ</label><input id="tn" placeholder="ເຊັ່ນ A9 / VIP1"><label>ຊັ້ນ</label><select id="tf">${state.floors.map(f=>`<option${f===fl?' selected':''}>${f}</option>`).join('')}</select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="doAddTable()">ເພີ່ມ</button></div>`);}
 function doAddTable(){const nm=(document.getElementById('tn').value||'').trim();if(!nm){toast('ໃສ່ຊື່ໂຕະ');return;}if(state.tables[nm]){toast('ຊື່ໂຕະຊ້ຳ');return;}state.tables[nm]={name:nm,floor:document.getElementById('tf').value,status:'free',items:[],customer:null,main:false,mergedInto:null};save();closeModal();render();showSuccess('ເພີ່ມໂຕະສຳເລັດ!',nm);}
 function removeTable(name){const t=state.tables[name];if(t.status!=='free'){toast('ໂຕະບໍ່ວ່າງ — ປິດບິນ/ຍົກເລີກກ່ອນ');return;}openModal(`<h2>ລຶບໂຕະ ${name}?</h2><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--red)" onclick="doRemoveTable('${name.replace(/'/g,"\\'")}')">ລຶບ</button></div>`);}
 function doRemoveTable(name){delete state.tables[name];delete state.qr[name];save();closeModal();render();toast('ລຶບໂຕະ '+name);}
