@@ -523,6 +523,44 @@ function waTargets_() {
 }
 function fmtK_(n) { return Utilities.formatString('%s', Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
+
+/* ແຜນຈັດຊື້ (ຄືກັບໜ້າ ສະຕ໋ອກ → ແຜນຈັດຊື້ ໃນແອັບ): ການໃຊ້/ມື້ ຈາກບິນ 14 ມື້ × ສູດ, ພໍໃຊ້ ≤ ເວລາສົ່ງ = ດ່ວນ, ≤ ເວລາສົ່ງ+3 = 1–3 ມື້ */
+function purchasePlan_(st, loc, planDays) {
+  planDays = planDays || 7; var D = 86400000, W = 14, now = Date.now();
+  var t0 = new Date(Utilities.formatDate(new Date(now), 'GMT+7', 'yyyy-MM-dd') + 'T00:00:00+07:00').getTime(), start = t0 - (W - 1) * D;
+  var mainId = ((st.locations || [])[0] || {}).id || 'main';
+  var bom = {}; var cat = st.catalog || {}; for (var c in cat) for (var sb in cat[c]) (cat[c][sb] || []).forEach(function (m) { if (m.bom && m.bom.length) bom[m.c] = m.bom; });
+  var use = {}, sum7 = {}, firstTs = Infinity;
+  (st.bills || []).forEach(function (b) {
+    if (b.voided || b.ts < start || (b.loc || mainId) !== loc) return; if (b.ts < firstTs) firstTs = b.ts;
+    var recent = b.ts >= t0 - 6 * D;
+    (b.items || []).forEach(function (it) {
+      var bm = bom[it.code]; if (!bm) return; var rq = 0;
+      (b.refunds || []).forEach(function (r) { (r.items || []).forEach(function (x) { if (String(x.id) === String(it.id)) rq += +x.qty || 0; }); });
+      var q = (+it.qty || 0) - rq; if (q <= 0) return;
+      bm.forEach(function (x) { var v = (+x[1] || 0) * q; use[x[0]] = (use[x[0]] || 0) + v; if (recent) sum7[x[0]] = (sum7[x[0]] || 0) + v; });
+    });
+  });
+  var span = firstTs === Infinity ? 0 : Math.max(1, Math.min(W, Math.ceil((now - firstTs) / D)));
+  var out = { urgent: [], soon: [], span: span };
+  var ing = st.ingredients || {};
+  Object.keys(ing).forEach(function (code) {
+    var it = ing[code]; if (!it) return;
+    var y = +it.shelf > 0 ? +it.shelf : 0, lead = (it.lead === undefined || it.lead === null || it.lead === '') ? 1 : Math.max(0, +it.lead || 0);
+    var stock = (it.locs && it.locs[loc] !== undefined) ? +it.locs[loc] || 0 : (loc === mainId ? +it.stock || 0 : 0);
+    var a14 = span ? (use[code] || 0) / span : 0, a7 = span ? (sum7[code] || 0) / Math.min(7, span) : 0, avg = span >= 7 ? 0.6 * a7 + 0.4 * a14 : a14;
+    var target = Math.min(planDays, y || planDays), cover = avg > 0 ? Math.max(0, stock) / avg : Infinity, catg = '';
+    if (avg > 0) { if (stock <= 0 || cover <= lead) catg = 'urgent'; else if (cover <= lead + 3) catg = 'soon'; }
+    else if ((+it.reorder || 0) > 0 && stock <= it.reorder) catg = 'soon';
+    if (!catg) return;
+    var qty = avg > 0 ? avg * (target + lead) - Math.max(0, stock) : it.reorder * 2 - Math.max(0, stock);
+    if (qty > 0) { if (/^(g|ml)$/i.test(it.unit || '') && qty >= 200) qty = Math.ceil(qty / 100) * 100; else if (qty >= 20) qty = Math.ceil(qty / 5) * 5; else qty = Math.ceil(qty * 10) / 10; } else qty = 0;
+    out[catg].push({ code: code, name: it.name || code, unit: it.unit || '', stock: stock, avg: avg, cover: cover, qty: qty, value: qty * (+it.cost || 0) });
+  });
+  out.urgent.sort(function (a, b) { return a.cover - b.cover; }); out.soon.sort(function (a, b) { return a.cover - b.cover; });
+  return out;
+}
+function fmtQ_(q, u) { return fmtK_(Math.round(q * 10) / 10) + (u ? ' ' + u : ''); }
 function buildDailyReport_(when) {
   var s = getState_(); if (!s) return 'ST POS: ບໍ່ມີຂໍ້ມູນ';
   var st; try { st = JSON.parse(s); } catch (e) { return 'ST POS: ອ່ານຂໍ້ມູນບໍ່ໄດ້'; }
@@ -571,7 +609,24 @@ function buildDailyReport_(when) {
   if (z.length) L.push('💵 ປິດກະ ' + z.length + ' ກະ · ເງິນສົດ ' + (cashDiff === 0 ? 'ຕົງ ✅' : (cashDiff > 0 ? 'ເກີນ +' : 'ຂາດ ') + fmtK_(Math.abs(cashDiff)) + ' ⚠️'));
   else L.push('💵 ຍັງບໍ່ໄດ້ປິດກະ' + (st.curShift ? ' (ກະ "' + st.curShift.name + '" ເປີດຢູ່)' : ''));
   if (busy) L.push('🍽 ໂຕະຍັງບໍ່ປິດບິນ: ' + busy);
-  if (low.length) L.push('⚠️ ສະຕ໋ອກໃກ້ໝົດ ' + low.length + ': ' + low.slice(0, 5).join(', ') + (low.length > 5 ? ' …' : ''));
+  var locs = (st.locations && st.locations.length) ? st.locations : [{ id: 'main', name: '' }], anyPlan = false;
+  locs.forEach(function (lc) {
+    var pl; try { pl = purchasePlan_(st, lc.id, 7); } catch (e) { return; }
+    if (!pl.urgent.length && !pl.soon.length) return; anyPlan = true;
+    var nm = locs.length > 1 ? ' — ' + (lc.name || lc.id) : '';
+    L.push('');
+    if (pl.urgent.length) {
+      var uv = pl.urgent.reduce(function (a, r) { return a + r.value; }, 0);
+      L.push('🛒 *ຈັດຊື້ດ່ວນ' + nm + ' (' + pl.urgent.length + ')*' + (uv ? ' ≈ ' + fmtK_(uv) + ' ກີບ' : ''));
+      pl.urgent.slice(0, 10).forEach(function (r) {
+        var left = r.stock <= 0 ? 'ໝົດແລ້ວ' : (r.cover < 1 ? 'ພໍ ' + Math.max(1, Math.round(r.cover * 24)) + ' ຊມ' : 'ພໍ ' + (Math.round(r.cover * 10) / 10) + ' ມື້');
+        L.push('• ' + r.name + ' — ເຫຼືອ ' + fmtQ_(Math.max(0, r.stock), r.unit) + ' (' + left + ') → ຊື້ ' + fmtQ_(r.qty, r.unit));
+      });
+      if (pl.urgent.length > 10) L.push('  … ອີກ ' + (pl.urgent.length - 10) + ' ລາຍການ (ເບິ່ງໃນແອັບ: ສະຕ໋ອກ → ແຜນຈັດຊື້)');
+    }
+    if (pl.soon.length) L.push('🟠 ຈັດຊື້ພາຍໃນ 1–3 ມື້' + nm + ' (' + pl.soon.length + '): ' + pl.soon.slice(0, 6).map(function (r) { return r.name; }).join(', ') + (pl.soon.length > 6 ? ' …' : ''));
+  });
+  if (!anyPlan && low.length) L.push('⚠️ ສະຕ໋ອກໃກ້ໝົດ ' + low.length + ': ' + low.slice(0, 5).join(', ') + (low.length > 5 ? ' …' : ''));
   if (prW || poW) L.push('📋 ລໍອະນຸມັດ: PR ' + prW + ' · PO ' + poW);
   return L.join('\n');
 }
