@@ -654,6 +654,7 @@ table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
 .adminbox .sd-chips .chip,.sd-chips .chip{border:1px solid #cfe5e3!important;background:#fff;padding:6px 14px;border-radius:999px;font-weight:600}.adminbox .sd-chips .chip.active,.sd-chips .chip.active{background:#062f2d!important;color:#fff;border-color:#062f2d}
 .sd-cam button{padding:10px 16px!important;font-size:15px!important;min-width:130px}.sd-incl{color:var(--muted);font-size:13px}
 @media (max-width:700px){.sd-grid{grid-template-columns:1fr}}
+.sd-gbox{border-top:1px dashed #cfe5e3;margin-top:14px;padding-top:14px}.sd-gtag{display:inline-block;font-size:12px;font-weight:700;color:#5b21b6;background:#ede9fe;border-radius:999px;padding:2px 8px}
 .sd-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}.sd-th{width:44px;height:58px;object-fit:cover;border-radius:8px;cursor:pointer}
 .sd-flag{display:inline-block;font-size:12px;font-weight:700;color:#92400e;background:#fef3c7;border-radius:999px;padding:2px 8px;margin:1px 0;white-space:nowrap}
 .cxlist-h{display:flex;align-items:center;gap:12px;padding:4px 18px 10px;font-size:15px;flex-wrap:wrap}
@@ -3749,6 +3750,16 @@ function sdCfg(){var c=state.sdCfg;if(!c||typeof c!=='object')c=state.sdCfg={on:
 function sdOn(){var c=state.sdCfg;return !!(c&&c.on&&+c.pct>0);}
 function menuCatMap(){var M=MSRC(),m={};for(var c in M)for(var s in M[c])(M[c][s]||[]).forEach(function(x){m[x.c]=c;});return m;}
 function sdUsers(){var c=sdCfg();return (state.users||[]).filter(function(u){return !c.users.length||c.users.indexOf(u.id)>=0;});}
+/* ພະນັກງານໃນເຄືອ (ບໍ່ແມ່ນຜູ້ໃຊ້ POS): {id,name,org,code,phone,pinH,active} — PIN ເກັບແບບ hash ເທົ່ານັ້ນ */
+function sdGroup(){if(!Array.isArray(state.sdStaff))state.sdStaff=[];return state.sdStaff;}
+function sdPeople(){return sdUsers().map(function(u){return {id:u.id,name:u.name,org:'',kind:'u',ref:u};}).concat(sdGroup().filter(function(g){return g.active!==false;}).map(function(g){return {id:'g:'+g.id,name:g.name,org:g.org||'',code:g.code||'',kind:'g',ref:g};}));}
+function sdFind(id){return sdPeople().find(function(p){return p.id===id;})||null;}
+function sdOptHTML(){var us=sdUsers(),gs=sdGroup().filter(function(g){return g.active!==false;}).slice().sort(function(a,b){return String(a.org||'').localeCompare(String(b.org||''))||String(a.name).localeCompare(String(b.name));});
+ return '<option value="">— ເລືອກ —</option>'+(us.length?'<optgroup label="ພະນັກງານຮ້ານ">'+us.map(function(u){return '<option value="'+cesc(u.id)+'">'+cesc(u.name)+'</option>';}).join('')+'</optgroup>':'')+
+  (gs.length?'<optgroup label="ພະນັກງານໃນເຄືອ">'+gs.map(function(g){return '<option value="g:'+cesc(g.id)+'">'+cesc(g.name)+(g.org?' · '+cesc(g.org):'')+(g.code?' ('+cesc(g.code)+')':'')+'</option>';}).join('')+'</optgroup>':'');}
+function sdFilter(q){q=String(q||'').toLowerCase().trim();var sel=document.getElementById('sd_u');if(!sel)return;var first=null;
+ [].forEach.call(sel.querySelectorAll('option'),function(o){if(!o.value)return;var hit=!q||o.textContent.toLowerCase().indexOf(q)>=0;o.hidden=!hit;o.disabled=!hit;if(hit&&!first)first=o;});
+ if(q&&first&&(sel.value===''||sel.selectedOptions[0].hidden)){sel.value=first.value;sdUChange();}}
 function sdPinOk(u,pin){pin=String(pin||'');return !!(u&&pin&&(u.pinH===pinHash(pin)||String(u.pin)===pin));}
 function sdEligible(items){var c=sdCfg(),cm=menuCatMap();return (items||[]).filter(function(it){return !it.sdd&&c.noCats.indexOf(cm[it.code]||'')<0&&Math.max(0,(it.qty||0)-(+it.promoFree||0))>0;});}
 function sdItemAmt(it,pct){var paid=Math.max(0,(it.qty||0)-(+it.promoFree||0));var d=Math.max(0,(pct==null?(+it.disc||0)-(+it.sdPrev||0):pct-(+it.disc||0)));return Math.round((it.price+(it.modPrice||0))*paid*d/100);}
@@ -3760,16 +3771,16 @@ function sdQuotaTxt(uid){var c=sdCfg(),u=sdMonthUse(uid);var a=[];
 function sdOpen(){var t=state.tables[state.activeTable];if(!t)return;var c=sdCfg();
  if(state.draft&&state.draft.length){toast('ກົດ "ຢືນຢັນອໍເດີ" ກ່ອນ ຈຶ່ງໃຊ້ສ່ວນລົດພະນັກງານ');return;}
  if(t.sd){var amt=t.items.reduce(function(s,it){return s+(it.sdd?sdItemAmt(it):0);},0);
-  openModal('<h2>ສ່ວນລົດພະນັກງານ</h2><div class="sd-on">'+(t.sd.photo?'<img src="'+t.sd.photo+'">':'')+'<div><b style="font-size:18px">'+cesc(t.sd.name)+'</b><br>ສ່ວນລົດ '+t.sd.pct+'% · <b style="color:var(--red)">−'+KIP(amt)+' ₭</b><br><small style="color:var(--muted)">ຢືນຢັນໂດຍ '+cesc(t.sd.appr||'-')+' · '+new Date(t.sd.ts).toLocaleTimeString('en-GB').slice(0,5)+'</small></div></div>'+
+  openModal('<h2>ສ່ວນລົດພະນັກງານ</h2><div class="sd-on">'+(t.sd.photo?'<img src="'+t.sd.photo+'">':'')+'<div><b style="font-size:18px">'+cesc(t.sd.name)+'</b>'+(t.sd.org?' <span class="sd-gtag">'+cesc(t.sd.org)+'</span>':'')+'<br>ສ່ວນລົດ '+t.sd.pct+'% · <b style="color:var(--red)">−'+KIP(amt)+' ₭</b><br><small style="color:var(--muted)">ຢືນຢັນໂດຍ '+cesc(t.sd.appr||'-')+' · '+new Date(t.sd.ts).toLocaleTimeString('en-GB').slice(0,5)+'</small></div></div>'+
    '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" style="background:var(--red)" onclick="sdRemove()">ຍົກເລີກສ່ວນລົດນີ້</button></div>');return;}
  if(!sdOn()){toast('ຍັງບໍ່ໄດ້ເປີດໃຊ້ສ່ວນລົດພະນັກງານ (ການຕັ້ງຄ່າ → ກະ & ພະນັກງານ)');return;}
  var el=sdEligible(t.items);if(!el.length){toast('ບໍ່ມີລາຍການທີ່ລົດໄດ້ໃນໂຕະນີ້');return;}
- var us=sdUsers();if(!us.length){toast('ຍັງບໍ່ມີພະນັກງານທີ່ມີສິດ');return;}
+ var us=sdPeople();if(!us.length){toast('ຍັງບໍ່ມີພະນັກງານທີ່ມີສິດ');return;}
  var me=curUser();window.__sdPhoto=null;window.__sdSrc='';
  var amt2=el.reduce(function(s,it){return s+sdItemAmt(it,c.pct);},0);
  openModal('<h2>ສ່ວນລົດພະນັກງານ '+c.pct+'%</h2>'+
   '<div class="sd-sum">'+el.length+' ລາຍການ · ລົດ <b>−'+KIP(amt2)+' ₭</b>'+(el.length<t.items.length?' <small>(ບາງລາຍການບໍ່ລົດ)</small>':'')+'</div>'+
-  '<div class="sd-step"><span>1</span><div style="flex:1"><label>ພະນັກງານທີ່ກິນ</label><select id="sd_u" onchange="sdUChange()"><option value="">— ເລືອກ —</option>'+us.map(function(u){return '<option value="'+u.id+'">'+cesc(u.name)+'</option>';}).join('')+'</select><div id="sd_q" class="sd-q"></div></div></div>'+
+  '<div class="sd-step"><span>1</span><div style="flex:1"><label>ພະນັກງານທີ່ກິນ</label>'+(us.length>12?'<input id="sd_q_in" placeholder="ຄົ້ນຫາ ຊື່ / ສາຂາ / ລະຫັດ…" oninput="sdFilter(this.value)" style="margin-bottom:6px">':'')+'<select id="sd_u" onchange="sdUChange()">'+sdOptHTML()+'</select><div id="sd_q" class="sd-q"></div></div></div>'+
   '<div class="sd-step"><span>2</span><div style="flex:1"><label>PIN ຂອງພະນັກງານຄົນນັ້ນ (ໃຫ້ລາວໃສ່ເອງ)</label><input id="sd_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" style="text-align:center;font-size:20px;letter-spacing:6px"></div></div>'+
   '<div class="sd-step"><span>3</span><div style="flex:1"><label>ຮູບຢືນຢັນຕົວຕົນ'+(c.photo!==false?' <b style="color:var(--red)">*</b>':' (ບໍ່ບັງຄັບ)')+'</label>'+
    '<div class="sd-cam"><div id="sd_pv" class="sd-pv"><video id="sd_vid" playsinline muted style="display:none"></video><span id="sd_ph">ຍັງບໍ່ມີຮູບ</span></div>'+
@@ -3777,7 +3788,7 @@ function sdOpen(){var t=state.tables[state.activeTable];if(!t)return;var c=sdCfg
    '<button class="btn-sm" type="button" onclick="document.getElementById(\'sd_file\').click()">ແນບຮູບ</button><input id="sd_file" type="file" accept="image/*" capture="user" style="display:none" onchange="sdFile(this)"></div></div></div></div>'+
   '<div class="sd-step" id="sd_ap" style="display:none"><span>4</span><div style="flex:1"><label>ເຈົ້າເປັນຄົນກິນເອງ — ຕ້ອງໃຫ້ຄົນອື່ນຢືນຢັນ</label><div style="display:flex;gap:8px"><select id="sd_a"><option value="">— ຜູ້ຢືນຢັນ —</option>'+(state.users||[]).filter(function(u){return !me||u.id!==me.id;}).map(function(u){return '<option value="'+u.id+'">'+cesc(u.name)+'</option>';}).join('')+'</select><input id="sd_apin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN ຜູ້ຢືນຢັນ" autocomplete="off" style="text-align:center;letter-spacing:4px"></div></div></div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="sdCamStop();closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="sdApply()">ຢືນຢັນ ໃຊ້ສ່ວນລົດ</button></div>');}
-function sdUChange(){var uid=(document.getElementById('sd_u')||{}).value,me=curUser();var q=document.getElementById('sd_q');if(q)q.innerHTML=uid?sdQuotaTxt(uid):'';
+function sdUChange(){var uid=(document.getElementById('sd_u')||{}).value,me=curUser();var q=document.getElementById('sd_q');var pp=uid?sdFind(uid):null;if(q)q.innerHTML=uid?((pp&&pp.kind==='g'?'<span class="sd-gtag">ພະນັກງານໃນເຄືອ'+(pp.org?' · '+cesc(pp.org):'')+'</span> ':'')+sdQuotaTxt(uid)):'';
  var ap=document.getElementById('sd_ap');if(ap)ap.style.display=(uid&&me&&uid===me.id)?'':'none';}
 function sdCamStart(){var v=document.getElementById('sd_vid');
  if(!v||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){document.getElementById('sd_file').click();return;}
@@ -3792,8 +3803,7 @@ function sdSnap(){var v=document.getElementById('sd_vid');if(!v)return;sdDraw(v,
 function sdFile(inp){var f=inp.files&&inp.files[0];if(!f)return;var url=URL.createObjectURL(f),img=new Image();img.onload=function(){sdCamStop();sdDraw(img,img.naturalWidth,img.naturalHeight,'file');URL.revokeObjectURL(url);};img.src=url;}
 function sdApply(){var c=sdCfg(),t=state.tables[state.activeTable];if(!t||!t.items.length)return;if(t.sd){toast('ໂຕະນີ້ໃຊ້ສ່ວນລົດພະນັກງານແລ້ວ');return;}
  var g=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
- var u=(state.users||[]).find(function(x){return x.id===g('sd_u');});if(!u){toast('ເລືອກພະນັກງານທີ່ກິນ');return;}
- if(sdUsers().indexOf(u)<0){toast(u.name+' ບໍ່ມີສິດສ່ວນລົດພະນັກງານ');return;}
+ var pp=sdFind(g('sd_u'));if(!pp){toast('ເລືອກພະນັກງານທີ່ກິນ');return;}var u={id:pp.id,name:pp.name,pin:pp.ref.pin,pinH:pp.ref.pinH};
  if(!sdPinOk(u,g('sd_pin'))){toast('PIN ຂອງ '+u.name+' ບໍ່ຖືກ');var p=document.getElementById('sd_pin');if(p){p.value='';p.focus();}return;}
  var me=curUser(),appr=me;
  if(me&&me.id===u.id){var a=(state.users||[]).find(function(x){return x.id===g('sd_a');});
@@ -3804,8 +3814,8 @@ function sdApply(){var c=sdCfg(),t=state.tables[state.activeTable];if(!t||!t.ite
  if(c.qN>0&&use.n>=c.qN){toast(u.name+' ໃຊ້ຄົບ '+c.qN+' ຄັ້ງ ໃນເດືອນນີ້ແລ້ວ');return;}
  if(c.qAmt>0&&use.amt+amt>c.qAmt){toast('ເກີນໂຄຕ້າ — '+u.name+' ເຫຼືອ '+KIP(Math.max(0,c.qAmt-use.amt))+' ₭ (ບິນນີ້ລົດ '+KIP(amt)+' ₭)');return;}
  el.forEach(function(it){it.sdPrev=+it.disc||0;it.disc=Math.max(+it.disc||0,c.pct);it.sdd=1;});
- t.sd={id:'SD'+Date.now()+Math.floor(Math.random()*1000),uid:u.id,name:u.name,pct:+c.pct,apprId:appr?appr.id:'',appr:appr?appr.name:'',cashier:me?me.name:'',photo:window.__sdPhoto||'',src:window.__sdSrc||'',ts:Date.now()};
- logOrder('ສ່ວນລົດພະນັກງານ',u.name+' '+c.pct+'% −'+KIP(amt)+' ກີບ'+(appr&&me&&appr.id!==me.id?' · ຢືນຢັນໂດຍ '+appr.name:''),t.name);
+ t.sd={id:'SD'+Date.now()+Math.floor(Math.random()*1000),uid:u.id,name:u.name,org:pp.org||'',kind:pp.kind,code:pp.code||'',pct:+c.pct,apprId:appr?appr.id:'',appr:appr?appr.name:'',cashier:me?me.name:'',photo:window.__sdPhoto||'',src:window.__sdSrc||'',ts:Date.now()};
+ logOrder('ສ່ວນລົດພະນັກງານ',u.name+(pp.org?' ('+pp.org+')':'')+' '+c.pct+'% −'+KIP(amt)+' ກີບ'+(appr&&me&&appr.id!==me.id?' · ຢືນຢັນໂດຍ '+appr.name:''),t.name);
  window.__sdPhoto=null;sdCamStop();sdTrimPhotos();save();closeModal();renderCart();toast('ໃຊ້ສ່ວນລົດພະນັກງານ: '+u.name+' −'+KIP(amt)+' ₭');}
 function sdRemove(){var t=state.tables[state.activeTable];if(!t||!t.sd)return;
  t.items.forEach(function(it){if(it.sdd){it.disc=+it.sdPrev||0;delete it.sdd;delete it.sdPrev;}});logOrder('ຍົກເລີກສ່ວນລົດພະນັກງານ',t.sd.name,t.name);t.sd=null;save();closeModal();renderCart();}
@@ -3833,7 +3843,49 @@ function sdSettingsHTML(){var c=sdCfg(),cats=Object.keys(MSRC());
   '<label>ໝວດທີ່ບໍ່ລົດ <small style="color:var(--muted);font-weight:400">(ກົດເພື່ອເລືອກ ເຊັ່ນ ເບຍ/ເຫຼົ້າ)</small></label><div class="sd-chips">'+cats.map(function(k){var on=c.noCats.indexOf(k)>=0;return '<button type="button" class="chip'+(on?' active':'')+'" data-k="'+cesc(k)+'" onclick="sdSet(\'cat\',this.dataset.k)">'+(on?'✕ ':'')+cesc(k)+'</button>';}).join('')+'</div>'+
   '<label>ພະນັກງານທີ່ມີສິດ <small style="color:var(--muted);font-weight:400">(ບໍ່ເລືອກ = ທຸກຄົນ)</small></label><div class="sd-chips">'+(state.users||[]).map(function(u){var on=c.users.indexOf(u.id)>=0;return '<button type="button" class="chip'+(on?' active':'')+'" data-k="'+cesc(u.id)+'" onclick="sdSet(\'user\',this.dataset.k)">'+(on?'✓ ':'')+cesc(u.name)+'</button>';}).join('')+'</div>'+
   '<label style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" '+(c.photo!==false?'checked':'')+' onchange="sdSet(\'photo\',this.checked)"> ບັງຄັບຖ່າຍຮູບຢືນຢັນຕົວຕົນທຸກຄັ້ງ</label>'+
+  sdGroupHTML()+
   '<div style="font-size:12px;color:var(--muted);margin-top:8px">📲 ແຈ້ງເຕືອນ Telegram ທຸກຄັ້ງທີ່ໃຊ້ (ພ້ອມຮູບ) — ໃຊ້ໄດ້ຫຼັງ deploy server ເວີຊັນໃໝ່</div>';}
+function sdGroupHTML(){var G=sdGroup(),act=G.filter(function(g){return g.active!==false;}).length;
+ return '<div class="sd-gbox"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px"><b style="font-size:15px">ພະນັກງານໃນເຄືອ</b><span style="color:var(--muted);font-size:13px">'+act+' ຄົນໃຊ້ໄດ້'+(G.length>act?' · ລະງັບ '+(G.length-act):'')+'</span>'+
+  '<span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-sm green" onclick="sdgEdit(null)">+ ເພີ່ມພະນັກງານ</button><button type="button" class="btn-sm" onclick="sdgImport()">ນຳເຂົ້າ Excel</button><button type="button" class="btn-sm" onclick="sdgTemplate()">ແບບຟອມ Excel</button></span></div>'+
+  '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">ພະນັກງານສາຂາອື່ນ / ບໍລິສັດໃນເຄືອ ທີ່ບໍ່ມີບັນຊີ POS — ແຕ່ລະຄົນມີ PIN ຂອງຕົນເອງ (ແອັດມິນຕັ້ງໃຫ້ ແລ້ວແຈ້ງເຈົ້າຕົວ) · ໃຊ້ກົດດຽວກັນ: PIN + ຮູບ + ໂຄຕ້າ</div>'+
+  (G.length?'<div style="max-height:360px;overflow:auto"><table class="tbl"><thead><tr><th>ຊື່</th><th>ສາຂາ / ບໍລິສັດ</th><th>ລະຫັດ</th><th>ເບີໂທ</th><th style="text-align:right">ເດືອນນີ້</th><th></th></tr></thead><tbody>'+
+   G.map(function(g){var u=sdMonthUse('g:'+g.id);var off=g.active===false;return '<tr'+(off?' style="opacity:.5"':'')+'><td><b>'+cesc(g.name)+'</b>'+(off?' <span class="tag">ລະງັບ</span>':'')+(g.pinH?'':' <span class="sd-flag">ຍັງບໍ່ມີ PIN</span>')+'</td><td>'+cesc(g.org||'')+'</td><td>'+cesc(g.code||'')+'</td><td>'+cesc(g.phone||'')+'</td><td style="text-align:right">'+u.n+' ຄັ້ງ<br><small style="color:var(--muted)">'+KIP(u.amt)+' ₭</small></td>'+
+    '<td style="white-space:nowrap"><button type="button" class="btn-sm" data-k="'+cesc(g.id)+'" onclick="sdgEdit(this.dataset.k)">ແກ້</button> <button type="button" class="btn-sm" data-k="'+cesc(g.id)+'" onclick="sdgToggle(this.dataset.k)">'+(off?'ເປີດໃຊ້':'ລະງັບ')+'</button> <button type="button" class="btn-sm red" data-k="'+cesc(g.id)+'" onclick="sdgDel(this.dataset.k)">ລຶບ</button></td></tr>';}).join('')+'</tbody></table></div>'
+  :'<div style="padding:14px;text-align:center;color:#94a3b8;background:#f8fbfb;border-radius:12px">ຍັງບໍ່ມີ — ກົດ "+ ເພີ່ມພະນັກງານ" ຫຼື ນຳເຂົ້າຈາກ Excel</div>')+'</div>';}
+function sdgEdit(id){if(!can('settings')){toast('ບໍ່ມີສິດ');return;}var g=id?sdGroup().find(function(x){return x.id===id;}):null;var orgs={};sdGroup().forEach(function(x){if(x.org)orgs[x.org]=1;});
+ openModal('<h2>'+(g?'ແກ້ໄຂ':'ເພີ່ມ')+' ພະນັກງານໃນເຄືອ</h2><label>ຊື່ *</label><input id="sg_n" value="'+cesc(g?g.name:'')+'">'+
+  '<label>ສາຂາ / ບໍລິສັດ</label><input id="sg_o" list="sg_ol" value="'+cesc(g?g.org||'':'')+'" placeholder="ເຊັ່ນ ສາຂາດົງໂດກ"><datalist id="sg_ol">'+Object.keys(orgs).map(function(o){return '<option value="'+cesc(o)+'">';}).join('')+'</datalist>'+
+  '<div style="display:flex;gap:10px"><div style="flex:1"><label>ລະຫັດພະນັກງານ</label><input id="sg_c" value="'+cesc(g?g.code||'':'')+'"></div><div style="flex:1"><label>ເບີໂທ</label><input id="sg_p" inputmode="tel" value="'+cesc(g?g.phone||'':'')+'"></div></div>'+
+  '<label>PIN 4 ຕົວເລກ '+(g&&g.pinH?'<small style="color:var(--muted);font-weight:400">(ປ່ອຍວ່າງ = ໃຊ້ PIN ເດີມ)</small>':'*')+'</label><input id="sg_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" style="text-align:center;font-size:20px;letter-spacing:6px">'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" data-k="'+cesc(id||'')+'" onclick="sdgSave(this.dataset.k)">ບັນທຶກ</button></div>');}
+function sdgSave(id){if(!can('settings'))return;var G=sdGroup(),g=id?G.find(function(x){return x.id===id;}):null;var v=function(k){return ((document.getElementById(k)||{}).value||'').trim();};
+ var n=v('sg_n'),pin=v('sg_pin'),code=v('sg_c');if(!n){toast('ໃສ່ຊື່');return;}
+ if(pin&&!/^\d{4}$/.test(pin)){toast('PIN ຕ້ອງເປັນຕົວເລກ 4 ຫຼັກ');return;}if(!g&&!pin){toast('ຕັ້ງ PIN ໃຫ້ພະນັກງານ');return;}
+ if(code&&G.some(function(x){return x!==g&&String(x.code||'')===code;})){toast('ລະຫັດ '+code+' ມີແລ້ວ');return;}
+ if(!g){g={id:'G'+Date.now().toString(36)+Math.floor(Math.random()*1000),active:true,ts:Date.now()};G.push(g);}
+ g.name=n;g.org=v('sg_o');g.code=code;g.phone=v('sg_p');if(pin){g.pinH=pinHash(pin);delete g.pin;}
+ logOrder('ພະນັກງານໃນເຄືອ',(id?'ແກ້ໄຂ ':'ເພີ່ມ ')+n+(g.org?' ('+g.org+')':''),'');save();closeModal();render();toast('ບັນທຶກ '+n);}
+function sdgToggle(id){if(!can('settings'))return;var g=sdGroup().find(function(x){return x.id===id;});if(!g)return;g.active=g.active===false;logOrder('ພະນັກງານໃນເຄືອ',(g.active?'ເປີດໃຊ້ ':'ລະງັບ ')+g.name,'');save();render();}
+function sdgDel(id){if(!can('settings'))return;var G=sdGroup(),i=G.findIndex(function(x){return x.id===id;});if(i<0)return;if(!confirm('ລຶບ '+G[i].name+' ອອກຈາກລາຍຊື່? (ປະຫວັດໃນບິນຍັງຢູ່)'))return;logOrder('ພະນັກງານໃນເຄືອ','ລຶບ '+G[i].name,'');G.splice(i,1);save();render();}
+var SDG_COLS=['ຊື່','ສາຂາ/ບໍລິສັດ','ລະຫັດພະນັກງານ','ເບີໂທ','PIN'];
+function sdgTemplate(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var rows=[SDG_COLS,['ຕົວຢ່າງ ສົມພອນ','ສາຂາດົງໂດກ','DD001','020 5555 1234','4821']];
+ var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:22},{wch:20},{wch:16},{wch:16},{wch:8}];var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ພະນັກງານໃນເຄືອ');XLSX.writeFile(wb,'ແບບຟອມ ພະນັກງານໃນເຄືອ.xlsx');});}
+function sdgImport(){if(!can('settings')){toast('ບໍ່ມີສິດ');return;}var inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';
+ inp.onchange=function(){var f=inp.files&&inp.files[0];if(!f)return;loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var r=new FileReader();
+  r.onload=function(e){try{var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});var rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''});sdgImportRows(rows);}catch(x){toast('ອ່ານໄຟລ໌ບໍ່ໄດ້: '+(x&&x.message||x));}};r.readAsArrayBuffer(f);});};inp.click();}
+function sdgImportRows(rows){var G=sdGroup(),h=(rows[0]||[]).map(function(x){return String(x).trim();});
+ var ix=function(keys){for(var i=0;i<h.length;i++)for(var k=0;k<keys.length;k++)if(h[i].toLowerCase().indexOf(keys[k])>=0)return i;return -1;};
+ var cN=ix(['ຊື່','name']),cO=ix(['ສາຂາ','ບໍລິສັດ','branch','org','company']),cC=ix(['ລະຫັດ','code','id']),cP=ix(['ເບີ','ໂທ','phone','tel']),cX=ix(['pin']);
+ if(cN<0){toast('ບໍ່ພົບຖັນ "ຊື່" ໃນແຖວທຳອິດ');return {add:0,upd:0,skip:0};}var add=0,upd=0,skip=0,nopin=0;
+ rows.slice(1).forEach(function(r){var gv=function(c){return c<0?'':String(r[c]==null?'':r[c]).trim();};var n=gv(cN);if(!n||/^ຕົວຢ່າງ/.test(n)){if(n)skip++;return;}
+  var code=gv(cC),org=gv(cO),pin=gv(cX).replace(/\D/g,'');if(pin&&pin.length<4)pin=('0000'+pin).slice(-4);
+  var g=G.find(function(x){return code?String(x.code||'')===code:(x.name===n&&String(x.org||'')===org);});
+  if(pin&&!/^\d{4}$/.test(pin)){skip++;return;}if(!g&&!pin){nopin++;}
+  if(!g){g={id:'G'+Date.now().toString(36)+Math.floor(Math.random()*100000),active:true,ts:Date.now()};G.push(g);add++;}else upd++;
+  g.name=n;g.org=org;g.code=code;if(cP>=0)g.phone=gv(cP);if(pin)g.pinH=pinHash(pin);});
+ logOrder('ພະນັກງານໃນເຄືອ','ນຳເຂົ້າ Excel: ເພີ່ມ '+add+' · ອັບເດດ '+upd,'');save();render();
+ toast('ນຳເຂົ້າແລ້ວ: ເພີ່ມ '+add+' · ອັບເດດ '+upd+(skip?' · ຂ້າມ '+skip:'')+(nopin?' · ຍັງບໍ່ມີ PIN '+nopin+' ຄົນ':''));return {add:add,upd:upd,skip:skip,nopin:nopin};}
 /* ---- ລາຍງານ ---- */
 let sdMonth=null;
 function sdBills(){if(!sdMonth)sdMonth=ymd(Date.now()).slice(0,7);return (state.bills||[]).filter(function(b){return b&&b.sd&&ymd(b.ts).slice(0,7)===sdMonth;}).sort(function(a,b){return b.ts-a.ts;});}
@@ -3843,7 +3895,7 @@ function sdFlags(b,all){var s=b.sd,f=[];if(b.voided)f.push('ບິນຖືກ V
 function sdPhotoView(rc){var b=(state.bills||[]).find(function(x){return x.receipt===rc;});if(!b||!b.sd||!b.sd.photo)return;
  openModal('<h2>'+cesc(b.sd.name)+'</h2><div style="text-align:center"><img src="'+b.sd.photo+'" style="width:240px;max-width:100%;border-radius:14px"></div><p style="text-align:center;color:var(--muted)">'+new Date(b.ts).toLocaleString('en-GB')+' · ໂຕະ '+cesc(b.table||'')+' · '+(b.sd.src==='file'?'ແນບຈາກໄຟລ໌':'ຖ່າຍຈາກກ້ອງ')+'</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');}
 function renderRepSd(b){var bills=sdBills(),c=sdCfg();var per={};
- bills.forEach(function(x){if(x.voided)return;var s=x.sd,k=s.uid||s.name;var p=per[k]||(per[k]={name:s.name,uid:s.uid,ids:{},amt:0,flags:0});p.ids[s.id]=1;p.amt+=(+s.amt||0);});
+ bills.forEach(function(x){if(x.voided)return;var s=x.sd,k=s.uid||s.name;var p=per[k]||(per[k]={name:s.name,org:s.org||'',uid:s.uid,ids:{},amt:0,flags:0});p.ids[s.id]=1;p.amt+=(+s.amt||0);});
  bills.forEach(function(x){var k=x.sd.uid||x.sd.name;if(per[k]&&sdFlags(x,bills).length)per[k].flags++;});
  var rows=Object.values(per).sort(function(a,b){return b.amt-a.amt;});var tot=rows.reduce(function(s,p){return s+p.amt;},0),totN=rows.reduce(function(s,p){return s+Object.keys(p.ids).length;},0);
  var q=function(v,lim){return lim>0?'<span style="color:'+(v>=lim?'var(--red)':'var(--muted)')+'"> / '+KIP(lim)+'</span>':'';};
@@ -3854,15 +3906,15 @@ function renderRepSd(b){var bills=sdBills(),c=sdCfg();var per={};
   '<div class="kpi"><div class="lbl">ຕັ້ງຄ່າ</div><div class="val">'+(+c.pct||0)+'%</div><div class="sub">ໂຄຕ້າ: '+(c.qN>0?c.qN+' ຄັ້ງ':'ບໍ່ຈຳກັດຄັ້ງ')+' · '+(c.qAmt>0?KIP(c.qAmt)+' ₭':'ບໍ່ຈຳກັດມູນຄ່າ')+'</div></div>'+
   '<div class="kpi"><div class="lbl">ຈຸດທີ່ຄວນກວດ</div><div class="val" style="color:#b45309">'+bills.filter(function(x){return sdFlags(x,bills).length;}).length+' ລາຍການ</div><div class="sub">ເບິ່ງຖັນ "ຄວນກວດ" ຂ້າງລຸ່ມ</div></div></div>'+
   '<div style="padding:0 18px 14px;overflow:auto"><table class="tbl"><thead><tr><th>ພະນັກງານ</th><th style="text-align:right">ຈຳນວນຄັ້ງ</th><th style="text-align:right">ສ່ວນລົດ (₭)</th><th style="text-align:right">ຈຸດຄວນກວດ</th></tr></thead><tbody>'+
-  (rows.length?rows.map(function(p){var n=Object.keys(p.ids).length;return '<tr><td><b>'+cesc(p.name)+'</b></td><td style="text-align:right">'+n+(c.qN>0?'<span style="color:'+(n>=c.qN?'var(--red)':'var(--muted)')+'"> / '+c.qN+'</span>':'')+'</td><td style="text-align:right;font-weight:700">'+KIP(p.amt)+q(p.amt,c.qAmt)+'</td><td style="text-align:right">'+(p.flags?'<b style="color:#b45309">'+p.flags+'</b>':'—')+'</td></tr>';}).join(''):'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94a3b8">ບໍ່ມີການໃຊ້ໃນເດືອນນີ້</td></tr>')+'</tbody></table></div>'+
+  (rows.length?rows.map(function(p){var n=Object.keys(p.ids).length;return '<tr><td><b>'+cesc(p.name)+'</b>'+(p.org?'<br><small style="color:var(--muted)">'+cesc(p.org)+'</small>':'')+'</td><td style="text-align:right">'+n+(c.qN>0?'<span style="color:'+(n>=c.qN?'var(--red)':'var(--muted)')+'"> / '+c.qN+'</span>':'')+'</td><td style="text-align:right;font-weight:700">'+KIP(p.amt)+q(p.amt,c.qAmt)+'</td><td style="text-align:right">'+(p.flags?'<b style="color:#b45309">'+p.flags+'</b>':'—')+'</td></tr>';}).join(''):'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94a3b8">ບໍ່ມີການໃຊ້ໃນເດືອນນີ້</td></tr>')+'</tbody></table></div>'+
   '<div class="cxlist-h"><b>ທຸກຄັ້ງທີ່ໃຊ້ ('+bills.length+')</b><span style="color:var(--muted);font-size:13px">ກົດຮູບເພື່ອເບິ່ງໃຫຍ່</span></div>'+
   '<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>ຮູບ</th><th>ວັນ-ເວລາ</th><th>ພະນັກງານ</th><th>ໂຕະ · ບິນ</th><th>ລາຍການ</th><th style="text-align:right">ສ່ວນລົດ</th><th>ຢືນຢັນ / ເກັບເງິນ</th><th>ຄວນກວດ</th></tr></thead><tbody>'+
   (bills.length?bills.map(function(x){var s=x.sd,fl=sdFlags(x,bills);return '<tr'+(x.voided?' style="opacity:.55"':'')+'><td>'+(s.photo?'<img class="sd-th" src="'+s.photo+'" data-r="'+cesc(x.receipt)+'" onclick="sdPhotoView(this.dataset.r)">':'<span style="color:#94a3b8;font-size:12px">'+(s.photoGone?'ລຶບແລ້ວ (ເກີນ 45 ວັນ)':'ບໍ່ມີ')+'</span>')+'</td>'+
-   '<td style="white-space:nowrap">'+new Date(x.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(x.ts).toLocaleTimeString('en-GB').slice(0,5)+'</b></td><td><b>'+cesc(s.name)+'</b></td><td style="white-space:nowrap">'+cesc(x.table||'')+'<br><small style="color:var(--muted)">'+cesc(x.receipt)+'</small></td>'+
+   '<td style="white-space:nowrap">'+new Date(x.ts).toLocaleDateString('en-GB')+'<br><b>'+new Date(x.ts).toLocaleTimeString('en-GB').slice(0,5)+'</b></td><td><b>'+cesc(s.name)+'</b>'+(s.org?'<br><small style="color:var(--muted)">'+cesc(s.org)+'</small>':'')+'</td><td style="white-space:nowrap">'+cesc(x.table||'')+'<br><small style="color:var(--muted)">'+cesc(x.receipt)+'</small></td>'+
    '<td class="wrap">'+cesc(s.items||'')+'</td><td style="text-align:right;font-weight:700;color:var(--red)">−'+KIP(s.amt||0)+'<br><small style="color:var(--muted);font-weight:400">'+(s.pct||0)+'%</small></td>'+
    '<td><small>ຢືນຢັນ: <b>'+cesc(s.appr||'-')+'</b><br>ເກັບເງິນ: '+cesc(s.cashier||x.by||'-')+'</small></td><td>'+(fl.length?fl.map(function(f){return '<span class="sd-flag">'+cesc(f)+'</span>';}).join(' '):'<span style="color:#15803d">✓</span>')+'</td></tr>';}).join(''):'<tr><td colspan="8" style="text-align:center;padding:20px;color:#94a3b8">ບໍ່ມີ</td></tr>')+'</tbody></table></div>';}
 function exportSd(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var bills=sdBills();if(!bills.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
- var rows=bills.map(function(x){var s=x.sd;return {'ວັນທີ':ymd(x.ts),'ເວລາ':new Date(x.ts).toLocaleTimeString('en-GB'),'ພະນັກງານ':s.name,'ໂຕະ':x.table||'','ບິນ':x.receipt,'ລາຍການ':s.items||'','%':s.pct||0,'ສ່ວນລົດ(ກີບ)':s.amt||0,'ຢືນຢັນໂດຍ':s.appr||'','ເກັບເງິນ':s.cashier||'','ຮູບ':s.photo?(s.src==='file'?'ແນບໄຟລ໌':'ກ້ອງ'):'ບໍ່ມີ','ຄວນກວດ':sdFlags(x,bills).join(', '),'Void':x.voided?'Void':''};});
+ var rows=bills.map(function(x){var s=x.sd;return {'ວັນທີ':ymd(x.ts),'ເວລາ':new Date(x.ts).toLocaleTimeString('en-GB'),'ພະນັກງານ':s.name,'ສາຂາ/ບໍລິສັດ':s.org||(s.kind==='g'?'ໃນເຄືອ':'ຮ້ານນີ້'),'ລະຫັດ':s.code||'','ໂຕະ':x.table||'','ບິນ':x.receipt,'ລາຍການ':s.items||'','%':s.pct||0,'ສ່ວນລົດ(ກີບ)':s.amt||0,'ຢືນຢັນໂດຍ':s.appr||'','ເກັບເງິນ':s.cashier||'','ຮູບ':s.photo?(s.src==='file'?'ແນບໄຟລ໌':'ກ້ອງ'):'ບໍ່ມີ','ຄວນກວດ':sdFlags(x,bills).join(', '),'Void':x.voided?'Void':''};});
  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'ສ່ວນລົດພະນັກງານ');XLSX.writeFile(wb,'ສ່ວນລົດພະນັກງານ_'+sdMonth+'.xlsx');});}
 /* ===== ADMIN ===== */
 function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
@@ -4001,7 +4053,7 @@ function renderAdmin(R){const gas=HAS_GAS||HAS_API,nMenu=allMenu().length;
    <button class="btn-sm btn-exp" style="margin-left:8px" onclick="exportBOM()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export ສູດ (Excel)</button>
    <button class="btn-sm" style="margin-left:8px" onclick="showBomAudit()"> ກວດສູດ</button>
    <p style="font-size:12px;color:var(--muted);margin-top:8px">ສະຖານະ: ${state.catalog?('ນຳເຂົ້າແລ້ວ '+allMenu().length+' ເມນູ'):'ຍັງໃຊ້ເມນູຕົວຢ່າງ'} · "ນຳເຂົ້າສະເພາະສູດ" ຈະອັບເດດແຕ່ສູດ — ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກຄົງເຫຼືອ</p></div>
-   <div class="kpi asec ${adminSec==='staff'?'on':''}" style="margin-bottom:14px">${sdSettingsHTML()}</div>
+   <div class="kpi asec full ${adminSec==='staff'?'on':''}" style="margin-bottom:14px">${sdSettingsHTML()}</div>
    <div class="kpi asec ${adminSec==='staff'?'on':''}" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:8px"> ກະ ແລະ ພະນັກງານ</div>
     <label>ກະປະຈຸບັນ</label><select id="ad_shift" onchange="state.activeShift=this.value;save()">${state.shifts.map(s=>`<option ${s===state.activeShift?'selected':''}>${s}</option>`).join('')}</select>
     <div style="margin-top:6px">${state.shifts.map(s=>`<span class="pill">${s}<button onclick="removeShift('${s.replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div>

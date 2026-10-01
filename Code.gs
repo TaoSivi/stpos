@@ -649,7 +649,7 @@ function sdNotify_(json) {
       var m = mon(b.ts), n = {}, amt = 0;
       (st.bills || []).forEach(function (x) { if (x && x.sd && !x.voided && x.sd.uid === s.uid && mon(x.ts) === m) { n[x.sd.id] = 1; amt += (+x.sd.amt || 0); } });
       var cap = ['👤 ສ່ວນລົດພະນັກງານ — ' + (st.shopName || 'ST POS'),
-        'ພະນັກງານ: ' + (s.name || '-'),
+        'ພະນັກງານ: ' + (s.name || '-') + (s.org ? ' (' + s.org + ')' : (s.kind === 'g' ? ' (ໃນເຄືອ)' : '')),
         'ສ່ວນລົດ ' + (s.pct || 0) + '% = −' + fmt(s.amt) + ' ກີບ',
         'ໂຕະ ' + (b.table || '-') + ' · ບິນ ' + (b.receipt || '') + ' · ' + Utilities.formatDate(new Date(b.ts), 'Asia/Vientiane', 'dd/MM HH:mm'),
         'ລາຍການ: ' + (s.items || '-'),
