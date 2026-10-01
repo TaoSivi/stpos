@@ -814,6 +814,15 @@ html,body{height:100%;overscroll-behavior:none}
 
 /* ກອບ (modal) ຕ້ອງຢູ່ເທິງສຸດ — ເໜືອແຖບລຸ່ມ/ກະຕ່າ ໃນມືຖື */
 .overlay{z-index:600!important}.toast{z-index:700!important}
+
+/* ===== Popup ໃຫຍ່ຂຶ້ນ ===== */
+.modal{width:540px;max-width:94vw}
+.modal.mwide{max-width:94vw}
+.modal.mwide div[style*="max-height:4"],.modal.mwide div[style*="max-height:5"]{max-height:62vh!important;max-height:62dvh!important}
+.modal.mwide table{font-size:14px}
+.modal.mwide table td,.modal.mwide table th{padding:10px 12px}
+.modal .modal-btns{flex-wrap:wrap}
+@media(max-width:699px){.modal{width:auto;max-width:96vw}}
 </style>
 </head>
 <body>
@@ -3538,6 +3547,17 @@ function removeStaff(name){if(state.staff.length<=1){toast('ຕ້ອງມີ�
 function confirmReset(){openModal(`<h2> ລ້າງຂໍ້ມູນທັງໝົດ?</h2><p style="font-size:14px;text-align:center;color:var(--muted)">ກັບคืนບໍ່ໄດ້</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--red)" onclick="doReset()">ລ້າງເລີຍ</button></div>`);}
 function doReset(){const nm=state.shopName;state=freshState();state.shopName=nm;state._reset=Date.now();save();closeModal();setView('tables');showSuccess('ລ້າງຂໍ້ມູນສຳເລັດ!');}
 function openModal(h){document.getElementById('modalRoot').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${h}</div></div>`;}
+/* ຂະໜາດໜ້າຕ່າງ popup ອັດຕະໂນມັດ: ມີຕາຕະລາງ/ເນື້ອຫາກວ້າງກວ່າກອບ (ຕ້ອງເລື່ອນຂ້າງ) → ຂະຫຍາຍໃຫ້ພໍ (ສູງສຸດ 1200px / 94% ຈໍ) */
+function fitModal(){var m=document.querySelector('#modalRoot .modal');if(!m||m.classList.contains('success'))return;var vw=window.innerWidth;if(vw<700)return;
+ var max=Math.min(1200,Math.floor(vw*0.94)),w=m.getBoundingClientRect().width,need=w;
+ var tb=m.querySelectorAll('table');if(tb.length){var cols=0;tb.forEach(function(t){var r=t.rows&&t.rows[0];if(r)cols=Math.max(cols,r.cells.length);});need=Math.max(need,cols>=6?1100:860);}
+ else{var lst=[].some.call(m.querySelectorAll('[style*="overflow"]'),function(e){return e.children.length>=5||e.id;});if(lst)need=Math.max(need,760);}
+ var cand=[m];m.querySelectorAll('[style*="overflow"],.tblwrap,.tbl-wrap,table').forEach(function(e){cand.push(e.tagName==='TABLE'?e.parentElement:e);});
+ cand.forEach(function(e){if(e&&e.scrollWidth>e.clientWidth+2)need=Math.max(need,w+(e.scrollWidth-e.clientWidth)+12);});
+ need=Math.min(max,Math.ceil(need));if(need>w+1){m.style.width=need+'px';m.classList.add('mwide');}}
+(function(){var r=document.getElementById('modalRoot');if(!r||!window.MutationObserver)return;var q=false;
+ new MutationObserver(function(){if(q)return;q=true;requestAnimationFrame(function(){q=false;try{fitModal();}catch(e){}});}).observe(r,{childList:true,subtree:true});
+ window.addEventListener('resize',function(){var m=document.querySelector('#modalRoot .modal');if(m){m.style.width='';m.classList.remove('mwide');}try{fitModal();}catch(e){}});})();
 function closeModal(){document.getElementById('modalRoot').innerHTML='';}
 /* ===== RECEIPT / PRINT ===== */
 var __rcptHTML='';
