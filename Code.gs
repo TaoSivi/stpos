@@ -179,17 +179,24 @@ function mergeStock_(curStr, inc) {
   } catch (e) { return inc; }
 }
 /* ລວມເອກະສານຈັດຊື້ (PR/PO/GRN/ຜູ້ຂາຍ) ຂ້າມເຄື່ອງ: ຄົງເອກະສານຂອງເຄື່ອງອື່ນ + ສະບັບທີ່ອັບເດດຫຼ້າສຸດ (upd) ຊະນະ */
+/* ນັບສາງ: ຫຼາຍເຄື່ອງນັບຮອບດຽວກັນ — ລວມລາຍການທີ່ນັບ ໂດຍເອົາອັນທີ່ໃສ່ຫຼ້າສຸດ (line.ts) */
+function mergeCountLines_(a, b) {
+  var m = {}; (b.lines || []).forEach(function (l) { m[l.code] = l; });
+  (a.lines || []).forEach(function (l, i) { var o = m[l.code]; if (o && (o.ts || 0) > (l.ts || 0)) a.lines[i] = o; });
+  a.upd = Math.max(a.upd || 0, b.upd || 0);
+}
 function mergeDocs_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object') return inc;
     var cur = JSON.parse(curStr); if (!cur) return inc;
-    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows'].forEach(function (k) {
+    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts'].forEach(function (k) {
       if (!Array.isArray(cur[k])) return;
       if (!Array.isArray(inc[k])) inc[k] = [];
       var byId = {}; inc[k].forEach(function (d, i) { byId[d.id] = i; });
       cur[k].forEach(function (d) {
         var i = byId[d.id];
         if (i === undefined) { inc[k].push(d); byId[d.id] = inc[k].length - 1; }
+        else if (k === 'stockCounts' && d.status === 'COUNTING' && inc[k][i].status === 'COUNTING') { mergeCountLines_(inc[k][i], d); }
         else if ((d.upd || d.ts || 0) > (inc[k][i].upd || inc[k][i].ts || 0)) inc[k][i] = d;
       });
       inc[k].sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
