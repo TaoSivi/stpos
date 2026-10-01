@@ -1447,6 +1447,8 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 .sa-lines{margin:8px 0 4px 18px;padding:0;font-size:13.5px}.sa-rsn{font-size:13px;margin:4px 0}
 .sa-act{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}.sa-act input{flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--line);border-radius:8px}.sa-act .sa-mut{flex:1}
 .sa-none{padding:40px;text-align:center;color:var(--muted);background:#fff;border-radius:14px}
+.sbento{display:grid;gap:16px;grid-template-columns:1fr}.sbento>.scard{margin:0}
+@media (min-width:1000px){.sbento.bpay{grid-template-columns:1fr 1fr;grid-template-areas:"fee pay" "qr pay" "rate pts";align-items:stretch}.bpay .bx-fee{grid-area:fee}.bpay .bx-pay{grid-area:pay}.bpay .bx-qr{grid-area:qr}.bpay .bx-rate{grid-area:rate}.bpay .bx-pts{grid-area:pts}}
 </style>
 </head>
 <body>
@@ -4856,26 +4858,26 @@ function setSecShop(){
   sRow('ຂະໜາດເຈ້ຍ','ເບິ່ງຢູ່ກ່ອງເຄື່ອງພິມ',sSeg('paperW',+state.paperW===58?58:80,[[80,'80 mm'],[58,'58 mm']])));}
 function sSeg(k,cur,opts){return '<div class="sseg">'+opts.map(function(o){return '<button type="button" class="'+(cur===o[0]?'on':'')+'" onclick="setOptV(\''+k+'\','+JSON.stringify(o[0])+')">'+o[1]+'</button>';}).join('')+'</div>';}
 function setSecPay(){var pts=state.payTypes||PAYTYPES;
- return sCard('ຄ່າບໍລິການ ພາສີ ແລະ ສ່ວນຫຼຸດ','ຄິດໃສ່ທຸກບິນ','',
+ return '<div class="sbento bpay">'+sCard('ຄ່າບໍລິການ ພາສີ ແລະ ສ່ວນຫຼຸດ','ຄິດໃສ່ທຸກບິນ','',
   sRow('Service charge','',sNum('serviceChargePct',state.serviceChargePct,1,'%',0,100))+
   sRow('VAT','',sNum('vatPct',state.vatPct,1,'%',0,100))+
   sRow('ສ່ວນຫຼຸດທັງບິນ (ຄ່າເລີ່ມຕົ້ນ)','ໃຊ້ກັບທຸກໂຕະ — ປົກກະຕິໃຫ້ເປັນ 0',sNum('billDiscPct',state.billDiscPct,1,'%',0,100))+
-  sRow('ເພດານສ່ວນຫຼຸດ ຂອງແຄັດເຊຍ','ເກີນນີ້ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN ອະນຸມັດ',sNum('discLimit',state.discLimit||0,5,'%',0,100)))+
+  sRow('ເພດານສ່ວນຫຼຸດ ຂອງແຄັດເຊຍ','ເກີນນີ້ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN ອະນຸມັດ',sNum('discLimit',state.discLimit||0,5,'%',0,100)),'bx-fee')+
  sCard('ວິທີຈ່າຍເງິນ','ເປີດ/ປິດ ແລະ ຄ່າທຳນຽມຕໍ່ວິທີ (ເຊັ່ນ ບັດ 3% ຈະບວກໃສ່ຍອດ)',sBtn('+ ເພີ່ມວິທີຈ່າຍ','addPayType()','pri'),
   pts.map(function(p){var off=state.payOff&&state.payOff[p],lock=(p==='ເງິນສົດ'||p==='ຕິດໜີ້'||p==='ກະເປົາລູກຄ້າ');
    return sItem(cesc(p)+(lock?sBadge('ລະບົບ'):'')+(off?sBadge('ປິດຢູ່','off'):''),p==='ຕິດໜີ້'?'ບັນທຶກເປັນໜີ້ຄ້າງ':p==='ກະເປົາລູກຄ້າ'?'ຫັກຈາກເງິນໃນກະເປົາສະມາຊິກ':'',
     '<div class="snum sm"><input type="number" min="0" max="20"'+sKX(p)+' value="'+((state.payFee&&+state.payFee[p])||0)+'" onchange="setPayFee(this.dataset.k,this.value);sSaved()"><span>%</span></div>'+
     '<label class="sw" title="ເປີດ/ປິດ"><input type="checkbox"'+sKX(p)+(off?'':' checked')+' onchange="togglePayType(this.dataset.k)"><i></i></label>'+
-    (lock?'<span class="sb-ph"></span>':sBtn('ລຶບ','removePayType(this.dataset.k)','sm ghost-danger',sKX(p))));}).join(''))+
+    (lock?'<span class="sb-ph"></span>':sBtn('ລຶບ','removePayType(this.dataset.k)','sm ghost-danger',sKX(p))));}).join(''),'bx-pay')+
  sCard('QR ໂອນເງິນ (ທະນາຄານ)','ລູກຄ້າສະແກນຈ່າຍ — ລະບົບໃສ່ຈຳນວນເງິນ = ຍອດບິນ ໃຫ້ເອງ',state.bankQR?sBadge(/^00020/.test(state.bankQR)?'✓ ພ້ອມໃຊ້':'✓ ມີ QR (ບໍ່ແມ່ນ EMV)','ok'):sBadge('ຍັງບໍ່ມີ','warn'),
   sRow('ຮູບ QR ຂອງຮ້ານ','ບັນທຶກ QR ຈາກ BCEL One / ແອັບທະນາຄານ ເປັນຮູບ ແລ້ວອັບໂຫລດ',sUpl(state.bankQR?'ປ່ຽນ QR':'ອັບໂຫລດຮູບ QR','loadBankQRImg(this)',state.bankQR?'':'pri')+(state.bankQR?sBtn('ລຶບ','clearBankQR()','ghost-danger'):''))+
-  '<details class="sadv"><summary>ຫຼື ວາງລະຫັດ QR ເອງ (000201…)</summary><textarea class="stxt" rows="2" data-k="bankQR" data-t="str" onchange="setOpt(this)" placeholder="000201…">'+cesc(state.bankQR||'')+'</textarea></details>')+
+  '<details class="sadv"><summary>ຫຼື ວາງລະຫັດ QR ເອງ (000201…)</summary><textarea class="stxt" rows="2" data-k="bankQR" data-t="str" onchange="setOpt(this)" placeholder="000201…">'+cesc(state.bankQR||'')+'</textarea></details>','bx-qr')+
  sCard('ອັດຕາແລກປ່ຽນ','ໃຊ້ຕອນຮັບເງິນເປັນ ບາດ / ໂດລາ','',
-  sRow('1 ບາດ (฿)','',sMoney('rateTHB',state.rateTHB,'ກີບ',0))+sRow('1 ໂດລາ ($)','',sMoney('rateUSD',state.rateUSD,'ກີບ',0)))+
+  sRow('1 ບາດ (฿)','',sMoney('rateTHB',state.rateTHB,'ກີບ',0))+sRow('1 ໂດລາ ($)','',sMoney('rateUSD',state.rateUSD,'ກີບ',0)),'bx-rate')+
  sCard('ແຕ້ມສະສົມ (ສະມາຊິກ)','','',
   sRow('ຈ່າຍທຸກໆ … ໄດ້ 1 ແຕ້ມ','',sMoney('pointRate',state.pointRate||10000,'ກີບ',1))+
   sRow('1 ແຕ້ມ ມີມູນຄ່າ','ໃຊ້ແລກສ່ວນຫຼຸດ ຕອນຮັບເງິນ',sMoney('pointValue',state.pointValue||0,'ກີບ',0))+
-  sRow('ອະນຸຍາດໃຊ້ແຕ້ມແລກສ່ວນຫຼຸດ','',sSw('pointRedeem',state.pointRedeem!==false)));}
+  sRow('ອະນຸຍາດໃຊ້ແຕ້ມແລກສ່ວນຫຼຸດ','',sSw('pointRedeem',state.pointRedeem!==false)),'bx-pts')+'</div>';}
 function setSecOrder(){
  return sCard('ການສັ່ງອາຫານ','','',
   sRow('ສຽງເຕືອນ ອໍເດີໃໝ່','',sSw('soundOn',!!state.soundOn))+
