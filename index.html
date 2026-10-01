@@ -956,6 +956,41 @@ details.more[open]>summary{background:#eef8f7!important}
 .pm.cash:before{background:#16a34a}.pm.xfer:before{background:#2563eb}.pm.credit:before{background:#d97706}.pm.wallet:before{background:#7c3aed}
 .pm b{font-weight:800}
 .pmlist{display:flex;flex-direction:column;gap:3px}
+
+/* ===== ອ່ານງ່າຍ: ຕົວໜັງສືຮອງເຂັ້ມຂຶ້ນ (≥7:1) ແລະ ໜາຂຶ້ນ — ບໍ່ກືນກັບພື້ນ ===== */
+:root{--muted:#2e5450}
+body{-webkit-font-smoothing:antialiased}
+.tb-date{color:#2e5450!important;font-weight:600;font-size:13.5px!important}
+.tb-hi{color:#0f2e2c!important;font-weight:800}
+.toolbar>label,.toolbar>span:not(:first-child){color:#2e5450!important;font-weight:700}
+.toolbar>span:first-child{color:#0f2e2c}
+.tbl th{color:#1f3f3c!important;font-weight:800!important;font-size:12.5px!important;letter-spacing:.2px}
+.tbl td{color:#14302e}
+.kpi .lbl{color:#2e5450!important;font-weight:700!important;font-size:13px!important}
+.kpi .sub{color:#355a56!important;font-weight:600!important}
+.hps-c small{color:#2e5450}.hps-c span{color:#355a56;font-weight:600}
+.dc-sub,.dbill-h .meta,.p2-tb{color:#355a56!important;font-weight:600}
+input::placeholder,textarea::placeholder{color:#6b8784;opacity:1}
+/* ສີສົດ (ທອງ/ສົ້ມ/ບົວ/ແດງ/ຂຽວ) ເປັນຕົວໜັງສື → ໃຊ້ໂທນເຂັ້ມ ໃຫ້ອ່ານໄດ້ເທິງພື້ນຂາວ */
+[style*="color:var(--gold)"],[style*="color:#f4b740"],[style*="color:#F4B740"]{color:#9a5b00!important}
+[style*="color:var(--orange)"],[style*="color:#f97316"]{color:#c2410c!important}
+[style*="color:var(--pink)"],[style*="color:#ec4899"]{color:#be185d!important}
+[style*="color:var(--red)"],[style*="color:#ef4444"]{color:#c81e1e!important}
+[style*="color:var(--green)"],[style*="color:#16a34a"]{color:#15803d!important}
+[style*="color:#94a3b8"],[style*="color:#cbd5e1"]{color:#5f7774!important}
+[style*="background:var(--red)"]{background:#c81e1e!important}
+.kpi .val[style*="var(--orange)"]{color:#c2410c!important}
+.trash{color:#c81e1e!important}
+.outstanding,.outstanding b{color:#7a4a00!important}
+td .star,td[style*="gold"]{color:#9a5b00!important}
+
+.kpi.on-dark .lbl,.kpi.on-dark .sub{color:#c9f1ee!important}
+.tamt,.tamt b{color:#0f2e2c!important;font-weight:800}
+.totrow{color:#2e5450!important}
+.tv-head .sub{color:#2e5450!important;font-weight:600}
+.ingimg.ph{color:#086b68!important}
+.chip small,.catbtn small,.ordbar small{opacity:1!important;color:inherit}
+.subcat small{opacity:.92!important}
 </style>
 </head>
 <body>
@@ -3779,7 +3814,12 @@ function moneyify(el){if(!el||el.__money)return;el.__money=1;var init=_VD.get.ca
  el.addEventListener('input',function(){var s=_VD.get.call(el),pos=el.selectionStart==null?s.length:el.selectionStart;var right=s.slice(pos).replace(/[^\d.]/g,'').length;var f=fmtMoney(s);if(f===s)return;_VD.set.call(el,f);var p=f.length,c=0;while(p>0&&c<right){p--;if(/[\d.]/.test(f.charAt(p)))c++;}try{el.setSelectionRange(p,p);}catch(e){}});
  el.addEventListener('focus',function(){try{if(_VD.get.call(el)==='0')el.select();}catch(e){}});}
 function moneyScan(root){(root||document).querySelectorAll(MONEY_SEL).forEach(moneyify);}
-if(window.MutationObserver)new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.matches&&n.matches(MONEY_SEL))moneyify(n);if(n.querySelectorAll)moneyScan(n);});});}).observe(document.documentElement,{childList:true,subtree:true});
+/* ບັດ KPI ພື້ນເຂັ້ມ → ຕົວໜັງສືອ່ອນ; ພື້ນອ່ອນ → ຕົວໜັງສືເຂັ້ມ (ກວດຈາກສີພື້ນຈິງ) */
+function kpiTone(root){(root||document).querySelectorAll('.kpi').forEach(function(k){var cs=getComputedStyle(k),dark=false;
+ if(cs.backgroundImage&&/gradient/.test(cs.backgroundImage))dark=true;else{var m=(cs.backgroundColor.match(/[\d.]+/g)||[255,255,255,1]).map(Number);if((m[3]==null||m[3]>.5)&&(.299*m[0]+.587*m[1]+.114*m[2])<120)dark=true;}
+ k.classList.toggle('on-dark',dark);});}
+var _ktT=null;function kpiToneSoon(){if(_ktT)return;_ktT=setTimeout(function(){_ktT=null;try{kpiTone();}catch(e){}},0);}
+if(window.MutationObserver)new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.matches&&n.matches(MONEY_SEL))moneyify(n);if(n.querySelectorAll){moneyScan(n);if(n.classList&&n.classList.contains('kpi')||n.querySelector&&n.querySelector('.kpi'))kpiToneSoon();}});});}).observe(document.documentElement,{childList:true,subtree:true});
 document.addEventListener('click',function(e){document.querySelectorAll('details.more[open]').forEach(function(d){if(!d.contains(e.target))d.removeAttribute('open');});});
 function openModal(h){document.getElementById('modalRoot').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${h}</div></div>`;}
 /* ຂະໜາດໜ້າຕ່າງ popup ອັດຕະໂນມັດ: ມີຕາຕະລາງ/ເນື້ອຫາກວ້າງກວ່າກອບ (ຕ້ອງເລື່ອນຂ້າງ) → ຂະຫຍາຍໃຫ້ພໍ (ສູງສຸດ 1200px / 94% ຈໍ) */
