@@ -314,6 +314,7 @@ function saveStateRaw_(json, skipMerge, quiet) {
   if (rows.length) sh.getRange(1, 1, rows.length, 1).setValues(rows);
   /* ເລກເວີຊັນ ໄວ້ໃຫ້ແອັບກວດໄວໆ (ບໍ່ຕ້ອງດຶງ state ເຕັມ) */
   var mv = /"_v":(\d+)/.exec(json); PROP.setProperty('STATE_V', String(mv ? mv[1] : Date.now()));
+  sdNotify_(json);
   /* ແທັບສຳເນົາໃຫ້ຄົນອ່ານ (Tables/Stock/Bills…) ຂຽນຊ້າ — ສູງສຸດທຸກ 2 ນາທີ (ເດີມຂຽນທຸກການບັນທຶກ ເຮັດໃຫ້ຊ້າ) */
   var lastM = +(PROP.getProperty('MIRROR_TS') || 0);
   if ((skipMerge && !quiet) || Date.now() - lastM > 120000) { try { writeMirrors_(ss, JSON.parse(json)); PROP.setProperty('MIRROR_TS', String(Date.now())); } catch (e) {} }
@@ -633,6 +634,38 @@ function buildDailyReport_(when) {
 }
 
 /* ສົ່ງ: CallMeBot (WhatsApp) ຮັບຜ່ານ URL (GET) → ແບ່ງເປັນຫຼາຍຂໍ້ຄວາມ ຖ້າຍາວ; Telegram (ຖ້າຕັ້ງ) ສົ່ງທັງກ້ອນ */
+/* ສ່ວນລົດພະນັກງານ: ແຈ້ງ Telegram ທຸກບິນທີ່ມີ bill.sd ໃໝ່ (ພ້ອມຮູບຢືນຢັນ) — ຈື່ເວລາບິນລ່າສຸດທີ່ແຈ້ງແລ້ວໃນ SD_TG_TS */
+function sdNotify_(json) {
+  try {
+    if (String(json).indexOf('"sd":{') < 0) return;
+    var bot = PROP.getProperty('TG_BOT'), chat = PROP.getProperty('TG_CHAT'); if (!bot || !chat) return;
+    var last = +(PROP.getProperty('SD_TG_TS') || 0);
+    if (!last) { PROP.setProperty('SD_TG_TS', String(Date.now())); return; } /* ຄັ້ງທຳອິດ: ບໍ່ສົ່ງຂອງເກົ່າ */
+    var st = JSON.parse(json), mx = last, sent = 0, nl = String.fromCharCode(10);
+    var fmt = function (n) { return String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+    var mon = function (ts) { return Utilities.formatDate(new Date(ts), 'Asia/Vientiane', 'yyyy-MM'); };
+    (st.bills || []).forEach(function (b) {
+      var s = b && b.sd; if (!s || !(b.ts > last) || sent >= 10) return;
+      var m = mon(b.ts), n = {}, amt = 0;
+      (st.bills || []).forEach(function (x) { if (x && x.sd && !x.voided && x.sd.uid === s.uid && mon(x.ts) === m) { n[x.sd.id] = 1; amt += (+x.sd.amt || 0); } });
+      var cap = ['👤 ສ່ວນລົດພະນັກງານ — ' + (st.shopName || 'ST POS'),
+        'ພະນັກງານ: ' + (s.name || '-'),
+        'ສ່ວນລົດ ' + (s.pct || 0) + '% = −' + fmt(s.amt) + ' ກີບ',
+        'ໂຕະ ' + (b.table || '-') + ' · ບິນ ' + (b.receipt || '') + ' · ' + Utilities.formatDate(new Date(b.ts), 'Asia/Vientiane', 'dd/MM HH:mm'),
+        'ລາຍການ: ' + (s.items || '-'),
+        'ຢືນຢັນ: ' + (s.appr || '-') + ' · ເກັບເງິນ: ' + (s.cashier || b.by || '-'),
+        'ເດືອນນີ້: ' + Object.keys(n).length + ' ຄັ້ງ / −' + fmt(amt) + ' ກີບ' + (s.src === 'file' ? nl + '⚠️ ຮູບແນບຈາກໄຟລ໌ (ບໍ່ແມ່ນກ້ອງ)' : '') + (s.photo ? '' : nl + '⚠️ ບໍ່ມີຮູບ')].join(nl).slice(0, 1000);
+      var api = 'https://api.telegram.org/bot' + bot;
+      try {
+        var mm = /^data:image\/\w+;base64,(.+)$/.exec(s.photo || '');
+        if (mm) UrlFetchApp.fetch(api + '/sendPhoto', { method: 'post', payload: { chat_id: chat, caption: cap, photo: Utilities.newBlob(Utilities.base64Decode(mm[1]), 'image/jpeg', 'staff.jpg') }, muteHttpExceptions: true });
+        else UrlFetchApp.fetch(api + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat, text: cap }), muteHttpExceptions: true });
+      } catch (e2) {}
+      sent++; if (b.ts > mx) mx = b.ts;
+    });
+    if (mx > last) PROP.setProperty('SD_TG_TS', String(mx));
+  } catch (e) {}
+}
 function sendReport_(text) {
   var out = { whatsapp: [], telegram: null };
   waTargets_().forEach(function (t) {
