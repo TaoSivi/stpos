@@ -1028,6 +1028,55 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 @media(min-width:900px){#app:not(.cust) .ordbar .cats{flex-wrap:wrap!important;overflow:visible!important;row-gap:4px}
  #app:not(.cust) .ordbar .cat{height:44px!important;padding:0 14px 0 5px!important}
  #app:not(.cust) .ordbar .cat .ci{width:34px!important;height:34px!important}}
+
+/* ===== ຈໍຄົວ / ບາ / ເສີບ (ແບບໃໝ່) ===== */
+.kx-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 18px 12px}
+.kx-head h2{font-size:22px;font-weight:800;color:#062f2d;margin:0 6px 0 0}
+.kx-chip{background:#fff;border:1px solid #d9ebea;border-radius:12px;padding:7px 12px;font-size:14px;font-weight:600;color:#1f3d3a}
+.kx-chip b{color:#062f2d;font-weight:800;margin-left:3px}.kx-chip.late{background:#fff1f1;border-color:#f6c9cb;color:#c0262d}.kx-chip.late b{color:#c0262d}
+.kx-sp{flex:1}
+.kx-snd{background:#fff;border:1.5px solid #cfe6e4;border-radius:12px;padding:8px 14px;font-weight:700;font-size:14px;color:#1f3d3a}.kx-snd.on{background:#e7f6f5;border-color:#0A7E7A;color:#075e5b}
+.kx-live{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#15803d}.kx-live i{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.15)}
+.kx-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0 18px 22px;align-items:start}
+.kx-board.wt{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
+.kx-col{background:#f3f8f8;border-radius:22px;padding:10px;min-height:200px}
+.kx-col>header{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#062f2d;padding:6px 8px 10px}
+.kx-col>header b{margin-left:auto;background:#fff;border-radius:10px;padding:2px 10px;font-size:14px}
+.kx-col .dot{width:10px;height:10px;border-radius:50%}
+.c-wait .dot{background:#f59f00}.c-cook .dot{background:#1c7ed6}.c-ready .dot{background:#16a34a}
+.c-wait{box-shadow:inset 0 4px 0 #f59f00}.c-cook{box-shadow:inset 0 4px 0 #1c7ed6}.c-ready{box-shadow:inset 0 4px 0 #16a34a}
+.kx-list{display:flex;flex-direction:column;gap:10px}
+.kx-list.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.kx-empty{text-align:center;color:#3d5653;font-weight:600;padding:26px 10px;font-size:14px}
+.tk{background:#fff;border-radius:18px;padding:12px;box-shadow:0 2px 10px rgba(6,47,45,.06);border:2px solid transparent;position:relative}
+.tk.warn{border-color:#f6c76b}.tk.late{border-color:#e03131;animation:tkPulse 1.6s ease-in-out infinite}
+@keyframes tkPulse{50%{box-shadow:0 0 0 6px rgba(224,49,49,.12)}}
+.tk-h{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.tk-h b{font-size:20px;font-weight:800;color:#062f2d}
+.tk-n{font-size:13px;font-weight:700;color:#1f3d3a}
+.tk-age{margin-left:auto;font-size:13px;font-weight:800;color:#1f3d3a;background:#eef5f4;border-radius:10px;padding:3px 9px}
+.tk.warn .tk-age{background:#fff4dc;color:#8a5300}.tk.late .tk-age{background:#e03131;color:#fff}
+.tk-its{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.tk-it{display:flex;align-items:center;gap:10px;text-align:left;width:100%;background:#f7fbfb;border:1px solid #e3efee;border-radius:12px;padding:8px 10px;cursor:pointer;color:#0b2523}
+.tk-it:hover:not([disabled]){background:#eef8f7;border-color:#9fd9d5}
+.tk-it[disabled]{cursor:default;opacity:1}
+.tk-it .q{font-size:20px;font-weight:800;color:#062f2d;min-width:36px}
+.tk-it img{width:38px;height:38px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.tk-it .n{font-size:16px;font-weight:700;line-height:1.3;display:flex;flex-direction:column}
+.tk-it .n small{font-size:13px;font-weight:700;color:#a14800}
+.tk-it .note{font-size:13.5px;font-weight:800;color:#7a4a00;background:#fff4dc;border-radius:8px;padding:3px 8px;margin-top:3px;display:inline-block}
+.tk-it em{font-style:normal;font-size:12px;font-weight:800;border-radius:7px;padding:1px 7px;margin-left:4px;vertical-align:middle}
+.tk-it em.away{background:#ffe8cc;color:#8a4b00}.tk-it em.src{background:#e7f6f5;color:#075e5b}
+.tk-go{width:100%;padding:14px;border-radius:14px;font-size:17px;font-weight:800;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.go-start{background:#e8590c}.go-start:hover{background:#d9480f}
+.go-ready{background:#15803d}.go-ready:hover{background:#166534}
+.go-serve{background:#0A7E7A}.go-serve:hover{background:#086b68}
+.tk-wait{text-align:center;font-weight:700;color:#15803d;background:#e9f8ef;border-radius:12px;padding:11px;font-size:14px}
+.tk-undo{display:block;margin:8px auto 0;background:none;border:none;padding:4px 10px;font-size:13px;font-weight:700;color:#3d5653;text-decoration:underline;text-underline-offset:3px}
+.tk.mini{padding:10px 12px}.tk.mini .tk-h b{font-size:16px}.mini-its{font-size:14px;color:#0b2523;line-height:1.6}.mini-its em{font-style:normal;font-size:12px;font-weight:700;color:#1c5fa8}
+@media(max-width:899px){.kx-board,.kx-board.wt{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86vw;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:110px}.kx-col{scroll-snap-align:start}}
+.tk-it .n em{align-self:flex-start;margin:3px 0 0}
+.tk-it .n>em.away{order:3}
 </style>
 </head>
 <body>
@@ -2070,14 +2119,32 @@ function setBillDisc(){if(!can('discount')){toast('ບໍ່ມີສິດໃ�
   if(v>(+state.discLimit||0)&&!can('discountOver')){requireOverride('discountOver','ສ່ວນຫຼຸດທັງບິນ '+v+'% (ເກີນ '+state.discLimit+'%)',doIt);return;}
   doIt();});}
 function numPrompt(title,cur,cb){openModal(`<h2>${title}</h2><input id="nv" type="number" value="${cur}"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="window.__np()">ຕົກລົງ</button></div>`);window.__np=()=>{cb(+document.getElementById('nv').value||0);save();closeModal();renderCart();};}
-function renderKDS(R,kind,title){const all=state.orders.filter(o=>o.k===kind);const cnt={wait:0,cooking:0,ready:0};all.forEach(o=>cnt[o.status]=(cnt[o.status]||0)+1);
- const active=all.filter(o=>o.status!=='served').length;
- if(_kdsInit[kind]&&active>(_kdsCount[kind]||0)&&state.soundOn)playBeep();_kdsCount[kind]=active;_kdsInit[kind]=true;
- const shown=all.filter(o=>kfilter==='all'||o.status===kfilter).filter(o=>o.status!=='served');
- const stats=[['all','ທັງໝົດ',active],['wait','ລໍຖ້າ',cnt.wait||0],['cooking',kind==='food'?'ກຳລັງປຸງ':'ກຳລັງເຮັດ',cnt.cooking||0],['ready','ພ້ອມ',cnt.ready||0]];
- R.innerHTML=`<div class="kds-head"><span style="font-size:22px">${title}</span>${stats.map(([k,l,n])=>`<span class="stat ${kfilter===k?'on':''}" onclick="kfilter='${k}';render()">${l} ${n}</span>`).join('')}
-   <span style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="stat" onclick="toggleSound()">${state.soundOn?'':''} ສຽງ</span><span style="font-size:12px"> ເຊື່ອມຕໍ່ແລ້ວ</span></span></div>
-  ${shown.length?`<div class="kds-grid">${shown.sort((a,b)=>a.ts-b.ts).map(o=>kcard(o)).join('')}</div>`:'<div class="empty"> ບໍ່ມີລາຍການທີ່ຕ້ອງເຮັດ</div>'}`;}
+/* ===== ຈໍຄົວ / ຈໍບາຣ໌: ໃບອໍເດີຕາມໂຕະ × 3 ຖັນ (ລໍຖ້າ → ກຳລັງເຮັດ → ພ້ອມເສີບ) — ປຸ່ມດຽວຕໍ່ໂຕະ, ແຕະລາຍການເພື່ອເລື່ອນສະເພາະອັນນັ້ນ ===== */
+var KDS_LATE={food:[8,15],drink:[4,8]};
+function kdsAge(ts){return Math.max(0,Math.floor((Date.now()-ts)/60000));}
+function kdsTickets(list){var g={};list.forEach(function(o){var k=o.table||'-';(g[k]=g[k]||[]).push(o);});
+ return Object.keys(g).map(function(k){var it=g[k].sort(function(a,b){return a.ts-b.ts;});return {table:k,items:it,ts:it[0].ts};}).sort(function(a,b){return a.ts-b.ts;});}
+function kdsIds(t){return t.items.map(function(o){return String(o.id).replace(/'/g,"\\'");}).join("','");}
+function kdsItemHTML(o,act){var mods=(o.mods||[]).filter(function(m){return m!==state.dineType&&m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});var away=(o.mods||[]).indexOf('ກັບບ້ານ')>=0;
+ return '<button class="tk-it" '+(act?'onclick="advanceOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເລື່ອນສະເພາະລາຍການນີ້"':'disabled')+'>'+
+  '<span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+
+  '<span class="n">'+cesc(o.name)+(away?' <em class="away">ກັບບ້ານ</em>':'')+(mods.length?'<small>+ '+cesc(mods.join(', '))+'</small>':'')+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}
+function kdsTicketHTML(t,stage,kind){var age=kdsAge(t.ts),L=KDS_LATE[kind]||[8,15];var late=age>=L[1]?'late':age>=L[0]?'warn':'';var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
+ var go={wait:['ເລີ່ມເຮັດ','go-start'],cooking:['ພ້ອມເສີບ','go-ready']}[stage];
+ return '<div class="tk '+late+'"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ</span><span class="tk-age">'+(age?age+' ນາທີ':'ຫາກໍສັ່ງ')+'</span></div>'+
+  '<div class="tk-its">'+t.items.map(function(o){return kdsItemHTML(o,stage!=='ready');}).join('')+'</div>'+
+  (go?'<button class="tk-go '+go[1]+'" onclick="advanceTicket([\''+kdsIds(t)+'\'])">'+go[0]+(t.items.length>1?' ທັງໂຕະ':'')+' →</button>':'<div class="tk-wait">⏳ ລໍພະນັກງານມາຍົກ</div>')+
+  (stage!=='wait'?'<button class="tk-undo" title="ຍ້ອນກັບ 1 ຂັ້ນ (ກົດຜິດ)" onclick="backTicket([\''+kdsIds(t)+'\'])">↶ ຍ້ອນ</button>':'')+'</div>';}
+function kdsHead(title,chips){return '<div class="kx-head"><h2>'+title+'</h2>'+chips+'<span class="kx-sp"></span><button class="kx-snd '+(state.soundOn?'on':'')+'" onclick="toggleSound()">'+(state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ')+'</button><span class="kx-live"><i></i>ອອນລາຍ</span></div>';}
+function renderKDS(R,kind,title){const all=state.orders.filter(o=>o.k===kind&&o.status!=='served');
+ const active=all.length;if(_kdsInit[kind]&&active>(_kdsCount[kind]||0)&&state.soundOn)playBeep();_kdsCount[kind]=active;_kdsInit[kind]=true;
+ var cols=[['wait','ລໍຖ້າ','c-wait'],['cooking',kind==='food'?'ກຳລັງປຸງ':'ກຳລັງເຮັດ','c-cook'],['ready','ພ້ອມເສີບ','c-ready']];
+ var oldest=all.filter(o=>o.status!=='ready').reduce(function(m,o){return Math.max(m,kdsAge(o.ts));},0);
+ var chips='<span class="kx-chip">ຄ້າງ <b>'+all.filter(o=>o.status!=='ready').length+'</b></span>'+(oldest?'<span class="kx-chip '+(oldest>=(KDS_LATE[kind]||[8,15])[1]?'late':'')+'">ດົນສຸດ <b>'+oldest+' ນາທີ</b></span>':'');
+ R.innerHTML=kdsHead(title.trim(),chips)+'<div class="kx-board">'+cols.map(function(c){var tk=kdsTickets(all.filter(o=>o.status===c[0]));
+  return '<section class="kx-col '+c[2]+'"><header><span class="dot"></span>'+c[1]+'<b>'+tk.length+'</b></header><div class="kx-list">'+(tk.length?tk.map(function(t){return kdsTicketHTML(t,c[0],kind);}).join(''):'<div class="kx-empty">'+(c[0]==='wait'?'ບໍ່ມີອໍເດີໃໝ່ 👌':'—')+'</div>')+'</div></section>';}).join('')+'</div>';}
+function advanceTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0&&o.status!=='ready'&&o.status!=='served'){o.status=o.status==='wait'?'cooking':'ready';n++;}});if(n){save();render();}}
+function backTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0){if(o.status==='ready'){o.status='cooking';n++;}else if(o.status==='cooking'){o.status='wait';n++;}}});if(n){save();render();toast('ຍ້ອນກັບ 1 ຂັ້ນ');}}
 /* ===== ແຈ້ງເຕືອນພະນັກງານເສີບ ເມື່ອມີອາຫານ/ເຄື່ອງດື່ມ "ພ້ອມເສີບ" ໃໝ່ ===== */
 let _readyIds=null;
 function playReadyChime(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),t=a.currentTime;[[988,0],[1319,0.18],[1568,0.36]].forEach(function(n){var o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=n[0];o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0.0001,t+n[1]);g.gain.exponentialRampToValueAtTime(0.25,t+n[1]+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]+0.5);o.start(t+n[1]);o.stop(t+n[1]+0.55);});setTimeout(function(){a.close();},1500);}catch(e){}
@@ -2098,9 +2165,16 @@ function kcard(o){const mins=Math.floor((Date.now()-o.ts)/60000);const next={wai
  return `<div class="kcard st-${o.status}"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${cesc(o.name)}</h4><div class="meta">ໂຕະ ${cesc(o.table)} · ${mins} ນາທີ${mins>=15?' ⚠':''}</div></div></div>${o.mods&&o.mods.length?`<div style="font-size:12px;color:var(--pink)">${cesc(o.mods.join(', '))}</div>`:''}${o.note?`<div style="font-size:12px;color:var(--blue)"> ${cesc(o.note)}</div>`:''}
   ${o.status!=='ready'?`<button class="kbtn" style="background:${next[2]}" onclick="advanceOrder('${o.id}')">${next[1]}</button>`:`<div class="kbtn" style="background:${next[2]};text-align:center">${next[1]}</div>`}</div>`;}
 function advanceOrder(id){const o=state.orders.find(x=>String(x.id)===String(id));if(!o)return;o.status=o.status==='wait'?'cooking':'ready';save();render();}
-function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');
- R.innerHTML=`<div class="kds-head"><span style="font-size:22px"> ຈໍພະນັກງານເສີບ</span><span class="stat on">ພ້ອມເສີບ ${ready.length}</span><span class="stat">ເສີບແລ້ວມື້ນີ້ ${state.servedToday||0}</span><span style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="stat ${state.soundOn?'on':''}" onclick="toggleSound()">${state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ'}</span><span class="stat" onclick="playReadyChime()">▶ ລອງສຽງ</span></span></div>
-  ${ready.length?`<div class="kds-grid">${ready.sort((a,b)=>a.ts-b.ts).map(o=>`<div class="kcard st-ready"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${cesc(o.name)}</h4><div class="meta">ໂຕະ ${o.table} · ${o.k==='food'?' ຄົວ':' ບາ'}</div></div></div>${o.note?`<div style="font-size:13px;color:var(--blue)">✎ ${cesc(o.note)}</div>`:''}<button class="kbtn" style="background:var(--green)" onclick="serveOrder('${o.id}')"> ເສີບແລ້ວ</button></div>`).join('')}</div>`:'<div class="empty">ບໍ່ມີລາຍການພ້ອມເສີບ</div>'}`;}
+function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');const prep=state.orders.filter(o=>o.status==='wait'||o.status==='cooking');
+ var tk=kdsTickets(ready);var pt=kdsTickets(prep);
+ var chips='<span class="kx-chip">ພ້ອມເສີບ <b>'+ready.length+'</b></span><span class="kx-chip">ເສີບແລ້ວມື້ນີ້ <b>'+(state.servedToday||0)+'</b></span>';
+ R.innerHTML=kdsHead('ຈໍພະນັກງານເສີບ',chips)+'<div class="kx-board wt">'+
+  '<section class="kx-col c-ready"><header><span class="dot"></span>ພ້ອມເສີບ — ຍົກໄປໂຕະ<b>'+tk.length+'</b></header><div class="kx-list grid">'+(tk.length?tk.map(function(t){var age=kdsAge(t.ts);
+   return '<div class="tk '+(age>=5?'warn':'')+'"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+t.items.length+' ລາຍການ</span><span class="tk-age">'+(age?'ພ້ອມ '+age+' ນາທີ':'ຫາກໍພ້ອມ')+'</span></div>'+
+    '<div class="tk-its">'+t.items.map(function(o){return '<button class="tk-it" onclick="serveOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເສີບສະເພາະລາຍການນີ້"><span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+'<span class="n">'+cesc(o.name)+' <em class="src">'+(o.k==='food'?'ຄົວ':'ບາ')+'</em>'+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}).join('')+'</div>'+
+    '<button class="tk-go go-serve" onclick="serveTicket([\''+kdsIds(t)+'\'])">✓ ເສີບແລ້ວ'+(t.items.length>1?' ທັງໂຕະ':'')+'</button></div>';}).join(''):'<div class="kx-empty">ຍັງບໍ່ມີລາຍການພ້ອມເສີບ — ຈະມີສຽງແຈ້ງເຕືອນເມື່ອຄົວ/ບາ ເຮັດແລ້ວ</div>')+'</div></section>'+
+  '<section class="kx-col c-cook side"><header><span class="dot"></span>ກຳລັງກຽມ<b>'+pt.length+'</b></header><div class="kx-list">'+(pt.length?pt.map(function(t){return '<div class="tk mini"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-age">'+kdsAge(t.ts)+' ນາທີ</span></div><div class="mini-its">'+t.items.map(function(o){return o.qty+'× '+cesc(o.name)+' <em>'+(o.status==='wait'?'ລໍ':'ກຳລັງເຮັດ')+'</em>';}).join('<br>')+'</div></div>';}).join(''):'<div class="kx-empty">—</div>')+'</div></section></div>';}
+function serveTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0&&o.status==='ready'){o.status='served';n++;}});if(n){state.servedToday=(state.servedToday||0)+n;save();render();toast('✓ ເສີບແລ້ວ '+n+' ລາຍການ');}}
 function serveOrder(id){const i=state.orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;state.orders[i].status='served';state.servedToday=(state.servedToday||0)+1;save();render();}
 var histPay='';
 function histBillsDay(){var all=[...state.bills].reverse();return histDate?all.filter(function(b){return ymd(b.ts)===histDate;}):all;}
