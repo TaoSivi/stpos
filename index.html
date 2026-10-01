@@ -1343,6 +1343,52 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .a4sig{text-align:center}.a4sigimg{height:58px;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #3d4b49;margin-bottom:5px}.a4sigimg img{max-height:54px;max-width:100%}
 .a4sig b{display:block;font-size:12px}.a4sig span{display:block;font-size:10.5px;color:#1D3F6E;font-weight:700}.a4sig small{display:block;font-size:9.5px;color:#6a7b78}
 .a4fp{margin-top:12px;font-size:10px;color:#6a7b78;text-align:right}
+/* ===== ເຊັກລິດ (ທີມ ST POS) ===== */
+.ck{max-width:880px}
+.ck-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
+.ck-tabs button{height:42px;padding:0 18px;border-radius:12px;border:1px solid #cfe4e2;background:#fff;color:#24504c;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer}
+.ck-tabs button.on{background:#062f2d;border-color:#062f2d;color:#fff}
+.ck-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border-radius:18px;box-shadow:var(--sh-1);padding:12px 14px}
+.ck-head select,.ck-head input,.ck-filters select,.ck-filters input,.ck-edh select{height:42px;border:1px solid #d6e9e7;border-radius:12px;background:#fbfefe;padding:0 12px;font:inherit;font-size:14.5px;color:var(--ink)}
+.ck-chip{background:#e0f7f5;color:#0A5E5B;font-weight:800;border-radius:12px;padding:9px 14px}
+.ck-seg{display:inline-flex;background:#eef7f6;border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.ck-seg button{border:0;background:none;height:36px;padding:0 16px;border-radius:10px;font:inherit;font-weight:700;color:#3f6662;cursor:pointer}
+.ck-seg button.on{background:#fff;color:#0A5E5B;box-shadow:0 1px 4px rgba(6,47,45,.12)}
+.ck-done{margin:10px 2px 0;font-size:13.5px;color:#557673}
+.ck-prog{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;background:var(--bg);padding:12px 0 8px;flex-wrap:wrap}
+.ck-bar{flex:1;min-width:160px;height:10px;border-radius:99px;background:#dcebea;overflow:hidden}.ck-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0ABAB5,#0A7E7A);border-radius:99px;transition:width .25s}
+#cktxt{font-weight:700;color:#24504c;font-size:14px}
+.ck-all{height:36px;padding:0 14px;border-radius:10px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.ck-item{background:#fff;border-radius:16px;box-shadow:var(--sh-1);padding:14px 16px;margin-top:10px;border-left:4px solid transparent}
+.ck-item.done{border-left-color:#0ABAB5}.ck-item.failed{border-left-color:#dc2626}
+.ck-q{display:flex;gap:12px;align-items:flex-start}.ck-q i{flex-shrink:0;width:28px;height:28px;border-radius:9px;background:#e0f7f5;color:#0A5E5B;font-style:normal;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center}.ck-q span{font-size:15.5px;line-height:1.6;color:var(--ink)}
+.ck-pf{display:flex;gap:10px;margin-top:12px}
+.ck-pf button{flex:1;height:46px;border-radius:12px;border:2px solid #e1ecea;background:#fff;color:#6b8a87;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.ck-pf .pass.on{background:#e7f8f1;border-color:#0A7E7A;color:#0A7E7A}.ck-pf .fail.on{background:#fdecec;border-color:#dc2626;color:#dc2626}
+.ck-note{display:none;width:100%;margin-top:10px;border:1px solid #f3c1c1;border-radius:12px;padding:10px;font:inherit;font-size:14.5px;resize:vertical;background:#fffafa}
+.ck-item.failed .ck-note{display:block}
+.ck-card{background:#fff;border-radius:18px;box-shadow:var(--sh-1);padding:14px 16px;margin-top:12px}
+.ck-card label{display:block;font-weight:700;font-size:14px;margin-bottom:6px;color:var(--ink)}
+.ck-card textarea{width:100%;border:1px solid #d6e9e7;border-radius:12px;padding:10px;font:inherit;font-size:14.5px;resize:vertical;background:#fbfefe}
+.ck-submit{display:block;width:100%;margin-top:14px;height:54px;border-radius:14px;border:0;background:#0A7E7A;color:#fff;font:inherit;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(10,126,122,.25)}
+.ck-submit.grey{background:#8fb8b5;box-shadow:none}
+.ck-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.ck-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}.ck-kpis div{background:#fff;border-radius:16px;box-shadow:var(--sh-1);padding:12px;text-align:center}.ck-kpis b{display:block;font-size:24px}.ck-kpis small{color:var(--muted);font-size:12.5px}
+.ck-sub{background:#fff;border-radius:16px;box-shadow:var(--sh-1);padding:14px 16px;margin-top:10px;cursor:pointer}.ck-sub:hover{box-shadow:0 0 0 2px #9fd6cf,var(--sh-1)}
+.ck-r1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.ck-r1 b{font-size:16px}.ck-r1 small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.ck-pill{display:inline-block;font-size:12.5px;font-weight:800;padding:3px 11px;border-radius:999px;white-space:nowrap}
+.ck-cnt{display:flex;gap:14px;margin-top:8px;font-size:14px;color:var(--muted)}.ck-cnt .g{color:#0A7E7A;font-weight:800}.ck-cnt .b{color:#dc2626;font-weight:800}
+.ck-ri{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #eef4f3;font-size:14.5px}.ck-ri>b{flex-shrink:0;width:20px}.ck-ri b.p{color:#0A7E7A}.ck-ri b.f{color:#dc2626}.ck-ri small{display:block;color:#b45309;margin-top:3px}
+.ck-note2{margin-top:12px;color:var(--muted);font-size:14px}
+.ck-decide{display:flex;gap:10px;margin-top:12px}.ck-decide button{flex:1;height:50px;border-radius:13px;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.ck-decide .ap{background:#0A7E7A;color:#fff;border:0}.ck-decide .rj{background:#fff;border:2px solid #dc2626;color:#dc2626}
+.ck-edh{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ck-edh select{flex:1;min-width:180px}
+.ck-ei{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eef4f3}.ck-ei i{flex-shrink:0;width:26px;height:26px;margin-top:6px;border-radius:8px;background:#e0f7f5;color:#0A5E5B;font-style:normal;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.ck-ei textarea{flex:1;min-height:44px}.ck-eb{display:flex;flex-direction:column;gap:4px}.ck-eb button{width:32px;height:28px;border-radius:8px;border:1px solid #d6e9e7;background:#fff;cursor:pointer;font-weight:800;color:#0A5E5B}.ck-eb button.x{color:#dc2626;border-color:#f8cccc}
+.ck-add{width:100%;margin-top:10px;height:44px;border-radius:12px;border:1.5px dashed #9fd6cf;background:#fff;color:#0A7E7A;font:inherit;font-weight:800;cursor:pointer}
+.ck-savebar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ck-savebar .ck-submit{flex:1 1 100%}
+.ck-u{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef4f3}.ck-u small{color:var(--muted)}.ck-u select{height:38px;border:1px solid #d6e9e7;border-radius:10px;padding:0 10px;font:inherit;background:#fbfefe}
+@media (max-width:700px){.ck-kpis{grid-template-columns:repeat(2,1fr)}.ck-head select,.ck-head input{flex:1}}
 </style>
 </head>
 <body>
@@ -1355,6 +1401,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
     <button class="navitem" data-v="kitchen"><span class="ic"></span> ຈໍຄົວ</button>
     <button class="navitem" data-v="bar"><span class="ic"></span> ຈໍບາຣ໌ນ້ຳ</button>
     <button class="navitem" data-v="waiter"><span class="ic"></span> ຈໍພະນັກງານເສີບ</button>
+    <button class="navitem" data-v="chk"><span class="ic"></span> ເຊັກລິດປະຈຳກະ <span class="live" id="chkBadge" style="display:none"></span></button>
     <div class="navsec">ເງິນ & ລູກຄ້າ</div>
     <button class="navitem" data-v="shift"><span class="ic"></span> ກະ / ລີ້ນຊັກເງິນ</button>
     <button class="navitem" data-v="debt"><span class="ic"></span> ໜີ້ຄ້າງ</button>
@@ -1398,15 +1445,15 @@ const PERMS={
  superadmin:null, /* ເຈົ້າຂອງລະບົບ: ທຸກສິດ + ເປີດ/ປິດໂມດູນ + ກຳນົດສິດບົດບາດ */
  owner:null, /* null = ທຸກສິດ */
  admin:{view:[],act:[]}, /* ທຸກສິດ + ຕັ້ງຄ່າ — ເຕີມຫຼັງ PERM_VIEWS/PERM_ACTS */
- manager:{view:['tables','order','kitchen','bar','waiter','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count'],
-          act:['reqCreate','reqIssue','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
- cashier:{view:['tables','order','history','waiter','shift','members','debt'],
-          act:['pay','discount','soldout','shiftMng','expenseAdd','export','memberMng','debtCollect']},
- waiter: {view:['tables','order','waiter'],act:['soldout']},
- kitchen:{view:['kitchen','waiter','req','purchase'],act:['reqCreate','prCreate','grnReceive']},
- bar:{view:['bar','waiter','req','purchase'],act:['reqCreate','prCreate','grnReceive']},
- storekeeper:{view:['stock','req','count','transfer','purchase'],act:['stockAdjust','reqCreate','reqIssue','countDo','prCreate','grnReceive']},
- purchasing:{view:['purchase','stock'],act:['prCreate','poCreate','grnReceive','vendorMng']}
+ manager:{view:['tables','order','kitchen','bar','waiter','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk'],
+          act:['chkDo','chkApprove','chkEdit','reqCreate','reqIssue','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
+ cashier:{view:['tables','order','history','waiter','shift','members','debt','chk'],
+          act:['chkDo','pay','discount','soldout','shiftMng','expenseAdd','export','memberMng','debtCollect']},
+ waiter: {view:['tables','order','waiter','chk'],act:['soldout','chkDo']},
+ kitchen:{view:['kitchen','waiter','req','chk','purchase'],act:['chkDo','reqCreate','prCreate','grnReceive']},
+ bar:{view:['bar','waiter','req','chk','purchase'],act:['chkDo','reqCreate','prCreate','grnReceive']},
+ storekeeper:{view:['stock','req','count','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','countDo','prCreate','grnReceive']},
+ purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng']}
 };
 /* hash PIN — ບໍ່ເກັບ PIN ແບບອ່ານໄດ້ໃນ Google Sheet */
 function pinHash(p){p='stpos:'+String(p==null?'':p);var h=5381;for(var i=0;i<p.length;i++){h=((h<<5)+h+p.charCodeAt(i))|0;}var h2=52711;for(var j=p.length-1;j>=0;j--){h2=((h2<<5)+h2+p.charCodeAt(j))|0;}return 'h'+(h>>>0).toString(16)+'.'+(h2>>>0).toString(16);}
@@ -1418,15 +1465,15 @@ function roleCan(r,a){var p=roleDef(r);if(!p)return true;return p.act.indexOf(a)
 function roleView(r,v){var p=roleDef(r);if(!p)return true;return p.view.indexOf(v)>=0;}
 function isSuper(){var u=curUser();return !!u&&u.role==='superadmin';}
 /* ໂມດູນ: ປິດແລ້ວ ໜ້າທີ່ກ່ຽວຂ້ອງຖືກເຊື່ອງ ສຳລັບທຸກຄົນ */
-var MODULES=[['kds','ຈໍຄົວ / ບາ / ເສີບ','ສົ່ງອໍເດີເຂົ້າຈໍ ແລະ ຕິດຕາມການເສີບ',['kitchen','bar','waiter']],['shift','ກະ & ລີ້ນຊັກເງິນ','ປິດ = ຮັບເງິນໄດ້ ໂດຍບໍ່ຕ້ອງເປີດກະ',['shift']],['members','ສະມາຊິກ & ສ່ວນລົດພະນັກງານ','ແຕ້ມ, ກະເປົາເງິນ ແລະ ສ່ວນລົດພະນັກງານ',['members']],['debt','ໜີ້ຄ້າງ (ຕິດໜີ້)','ປິດ = ບໍ່ມີວິທີຈ່າຍ "ຕິດໜີ້"',['debt']],['expense','ລາຍຈ່າຍ','',['expense']],['stock','ສະຕ໋ອກ & ໂອນສາຂາ','ປິດ = ບໍ່ກັນຂາຍຕາມສະຕ໋ອກ',['stock','transfer']],['purchase','ຈັດຊື້ (PR / PO)','',['purchase']],['req','ເບີກເຄື່ອງ (ສາງ)','ໃບເບີກ → ອະນຸມັດ → ນາຍສາງຈ່າຍ',['req']],['count','ນັບສາງ','ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ',['count']],['dash','Dashboard','',['dash']],['reports','ລາຍງານ','',['reports']]];
+var MODULES=[['kds','ຈໍຄົວ / ບາ / ເສີບ','ສົ່ງອໍເດີເຂົ້າຈໍ ແລະ ຕິດຕາມການເສີບ',['kitchen','bar','waiter']],['chk','ເຊັກລິດປະຈຳກະ','ພະນັກງານຕິກ ຜ່ານ/ບໍ່ຜ່ານ → ຫົວໜ້າອະນຸມັດ',['chk']],['shift','ກະ & ລີ້ນຊັກເງິນ','ປິດ = ຮັບເງິນໄດ້ ໂດຍບໍ່ຕ້ອງເປີດກະ',['shift']],['members','ສະມາຊິກ & ສ່ວນລົດພະນັກງານ','ແຕ້ມ, ກະເປົາເງິນ ແລະ ສ່ວນລົດພະນັກງານ',['members']],['debt','ໜີ້ຄ້າງ (ຕິດໜີ້)','ປິດ = ບໍ່ມີວິທີຈ່າຍ "ຕິດໜີ້"',['debt']],['expense','ລາຍຈ່າຍ','',['expense']],['stock','ສະຕ໋ອກ & ໂອນສາຂາ','ປິດ = ບໍ່ກັນຂາຍຕາມສະຕ໋ອກ',['stock','transfer']],['purchase','ຈັດຊື້ (PR / PO)','',['purchase']],['req','ເບີກເຄື່ອງ (ສາງ)','ໃບເບີກ → ອະນຸມັດ → ນາຍສາງຈ່າຍ',['req']],['count','ນັບສາງ','ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ',['count']],['dash','Dashboard','',['dash']],['reports','ລາຍງານ','',['reports']]];
 var MOD_OF={};MODULES.forEach(function(m){m[3].forEach(function(v){MOD_OF[v]=m[0];});});
 function modOn(k){return !(state&&state.modules&&state.modules[k]===false);}
 function can(a){var u=curUser();if(!u)return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.a;if(o&&Object.prototype.hasOwnProperty.call(o,a))return !!o[a];return roleCan(u.role,a);}
 function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';if(v==='cancellog')v='reports';if(MOD_OF[v]&&!modOn(MOD_OF[v]))return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(u.role,v);}
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])return 'tables';var f=PERM_VIEWS.map(function(x){return x[0];}).filter(function(v){return canView(v);});var d=roleDef(u.role).view.filter(function(v){return canView(v);});return d[0]||f[0]||'tables';}
-var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
-var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
+var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
+var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
 PERMS.admin={view:PERM_VIEWS.map(function(x){return x[0];}).concat(['order']),act:[].concat.apply([],PERM_ACTS.map(function(g){return g[1].map(function(x){return x[0];});}))};
 function permCount(u){if(!u||!u.perm)return 0;return Object.keys(u.perm.v||{}).length+Object.keys(u.perm.a||{}).length;}
 function permEffView(u,r,v){var o=u&&u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(r,v);}
@@ -1709,12 +1756,12 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();try{tickClock();}catch(e){}
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});renderBottomNav();procBadge();try{rqBadge();}catch(e){}try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});renderBottomNav();procBadge();try{rqBadge();}catch(e){}try{chkBadge();}catch(e){}try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
  else if(view==='kitchen')renderKDS(R,'food',' ຈໍຄົວ');else if(view==='bar')renderKDS(R,'drink',' ຈໍບາຣ໌ນ້ຳ');
- else if(view==='waiter')renderWaiter(R);else if(view==='history')renderHistory(R);else if(view==='dash')renderDash(R);else if(view==='stock')renderStock(R);else if(view==='transfer')renderTransfers(R);else if(view==='purchase')renderPurchase(R);else if(view==='req')renderReq(R);else if(view==='count')renderCount(R);else if(view==='expense')renderExpense(R);else if(view==='reports')renderReports(R);else if(view==='shift')renderShift(R);else if(view==='members')renderMembers(R);else if(view==='debt')renderDebt(R);}
+ else if(view==='waiter')renderWaiter(R);else if(view==='history')renderHistory(R);else if(view==='dash')renderDash(R);else if(view==='stock')renderStock(R);else if(view==='transfer')renderTransfers(R);else if(view==='purchase')renderPurchase(R);else if(view==='req')renderReq(R);else if(view==='chk')renderChk(R);else if(view==='count')renderCount(R);else if(view==='expense')renderExpense(R);else if(view==='reports')renderReports(R);else if(view==='shift')renderShift(R);else if(view==='members')renderMembers(R);else if(view==='debt')renderDebt(R);}
 function tableTotal(t){return t.items.reduce((s,i)=>s+lineTotal(i),0);}
 function lineUnit(i){var d=Math.min(100,(+i.disc||0)+(+i.promoPct||0));return (i.price+(i.modPrice||0))*(1-d/100);}
 function lineTotal(i){var paid=Math.max(0,(i.qty||0)-(+i.promoFree||0));return lineUnit(i)*paid;}
@@ -2809,6 +2856,7 @@ const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 
  shift:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 14h4"/>',
  dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
  reports:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+ chk:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
  req:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M9 12h6M9 16h4"/>',
  count:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M8.5 13l2 2 4-4"/>',
  cancellog:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>',
@@ -2820,7 +2868,7 @@ const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 
 function navSvg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(NAV_IC[k]||'')+'</svg>';}
 function toggleDrawer(on){var a=document.getElementById('app');if(!a)return;if(on===undefined)on=!a.classList.contains('drawer');a.classList.toggle('drawer',!!on);}
 function renderBottomNav(){var el=document.getElementById('bnav');if(!el)return;if(isCust()||!curUser()){el.innerHTML='';return;}
- var cand=[['tables','ໂຕະ'],['kitchen','ຄົວ'],['history','ປະຫວັດ'],['dash','ພາບລວມ'],['stock','ສະຕ໋ອກ'],['members','ສະມາຊິກ'],['bar','ບາ'],['waiter','ເສີບ'],['req','ເບີກ'],['count','ນັບສາງ'],['transfer','ໂອນ'],['purchase','ຈັດຊື້']].filter(function(x){return canView(x[0]);}).slice(0,4);
+ var cand=[['tables','ໂຕະ'],['kitchen','ຄົວ'],['history','ປະຫວັດ'],['dash','ພາບລວມ'],['stock','ສະຕ໋ອກ'],['members','ສະມາຊິກ'],['bar','ບາ'],['waiter','ເສີບ'],['chk','ເຊັກລິດ'],['req','ເບີກ'],['count','ນັບສາງ'],['transfer','ໂອນ'],['purchase','ຈັດຊື້']].filter(function(x){return canView(x[0]);}).slice(0,4);
  var cur=(view==='order')?'tables':(view==='transfer'?'stock':view);if(curUser()&&curUser().role==='purchasing')cand=[['purchase','ຈັດຊື້'],['stock','ສະຕ໋ອກ']];
  el.innerHTML=cand.map(function(x){return '<button class="'+(cur===x[0]?'on':'')+'" onclick="setView(\''+x[0]+'\')"><span class="bi">'+navSvg(x[0])+'</span>'+x[1]+'</button>';}).join('')+'<button onclick="toggleDrawer(true)"><span class="bi">'+navSvg('more')+'</span>ເພີ່ມເຕີມ</button>';}
 function tickClock(){var el=document.getElementById('tbDate');if(!el)return;var d=new Date();var dn=['ວັນອາທິດ','ວັນຈັນ','ວັນອັງຄານ','ວັນພຸດ','ວັນພະຫັດ','ວັນສຸກ','ວັນເສົາ'];
@@ -3527,6 +3575,105 @@ function scPdfParts(c){var s=scStats(c),cost=procSeeCost()||can('countApprove'),
 function scPrint(id){var c=findSC(id);if(!c)return;printDocA4(scDocHTML(c,c.status==='COUNTING'),PDOC.sc.lao+' '+c.no);}
 function scPdf(id){var c=findSC(id);if(!c)return;toast('ກຳລັງສ້າງ PDF…');
  a4Pdf(scPdfParts(c),'ໃບນັບສະຕ໋ອກ_'+c.no+'.pdf').then(function(){logOrder('ນັບສາງ',c.no+' ດາວໂຫຼດ PDF','');toast('ດາວໂຫຼດ PDF ແລ້ວ');},function(){toast('ສ້າງ PDF ບໍ່ໄດ້ (ຕ້ອງມີອິນເຕີເນັດ) — ໃຊ້ "ພິມ" → Save as PDF ແທນ');});}
+/* ===================== ເຊັກລິດປະຈຳກະ (Checklist) — ພະນັກງານຕິກ ຜ່ານ/ບໍ່ຜ່ານ → ຫົວໜ້າອະນຸມັດ/ຕີກັບ → ປະຫວັດ ===================== */
+var CHK_SHIFTS={morning:'ກະເຊົ້າ',evening:'ກະແລງ'};
+var CHK_ROLE_DEPT={kitchen:'kitchen',bar:'bar',waiter:'service',cashier:'cashier'};
+var CHK_DEFAULT={
+ kitchen:{label:'ຄົວ',shifts:{morning:['ແຕ່ງກາຍສະອາດ ໃສ່ໝວກ ແລະ ຜ້າກັນເປື້ອນ','ກວດອຸນຫະພູມຕູ້ເຢັນ / ຕູ້ແຊ່ ແລະ ບັນທຶກ','ກວດວັດຖຸດິບໝົດອາຍຸ ແລະ ຈັດລຽງ ເຂົ້າກ່ອນ-ອອກກ່ອນ','ກຽມວັດຖຸດິບ (Prep) ໃຫ້ພໍສຳລັບມື້','ທຳຄວາມສະອາດເຂົ້ຽງ, ມີດ ແລະ ບ່ອນເຮັດວຽກ'],evening:['ເກັບວັດຖຸດິບເຂົ້າຕູ້ ຕິດປ້າຍວັນທີ','ລ້າງເຕົາ, ໝໍ້ ແລະ ອຸປະກອນທັງໝົດ','ຖູພື້ນ ແລະ ເອົາຂີ້ເຫຍື້ອໄປຖິ້ມ','ປິດແກັສ, ໄຟ ແລະ ນ້ຳ']}},
+ bar:{label:'ບາ',shifts:{morning:['ແຕ່ງກາຍສະອາດ ຕາມເຄື່ອງແບບ','ທຳຄວາມສະອາດເຄື່ອງຊົງກາເຟ ແລະ ຫົວບົດ','ຊົງຊ໋ອດທົດສອບ ປັບການບົດໃຫ້ໄດ້ມາດຕະຖານ','ກວດນົມ, ນ້ຳກ້ອນ, syrup ໃຫ້ພຽງພໍ'],evening:['Backflush ແລະ ລ້າງອຸປະກອນທັງໝົດ','ເກັບວັດຖຸດິບເຂົ້າຕູ້ ແລະ ຕິດປ້າຍ','ເຊັດເຄົາເຕີ ແລະ ຖູພື້ນບາ','ປິດເຄື່ອງ ແລະ ໄຟທັງໝົດ']}},
+ service:{label:'ບໍລິການ',shifts:{morning:['ແຕ່ງກາຍສະອາດ ຕິດປ້າຍຊື່','ເຊັດໂຕະ-ຕັ່ງ ແລະ ຈັດໃຫ້ເປັນລະບຽບ','ກວດເມນູ, ຊອດ, ທິດຊູ ທຸກໂຕະ','ກວດຫ້ອງນ້ຳລູກຄ້າໃຫ້ສະອາດ'],evening:['ເກັບຈານ-ຈອກ ທຸກໂຕະ','ເຊັດໂຕະ ແລະ ຍົກຕັ່ງຂຶ້ນ','ກວດຂອງລູກຄ້າລືມ','ປິດປ່ອງຢ້ຽມ ແລະ ພັດລົມ']}},
+ cashier:{label:'ແຄັດເຊຍ',shifts:{morning:['ເປີດກະ ແລະ ນັບເງິນຕັ້ງລີ້ນຊັກ','ກວດເຄື່ອງພິມໃບບິນ ແລະ ເຈ້ຍ','ກວດ QR ໂອນເງິນ ໃຊ້ໄດ້'],evening:['ນັບເງິນສົດ ທຽບກັບລະບົບ','ປິດກະ ແລະ ພິມ Z Report','ສົ່ງມອບເງິນ ໃຫ້ຜູ້ຈັດການ ພ້ອມເຊັນຮັບ']}}};
+let chkTab='do',chkDept=null,chkShift=null,chkDate=null,chkWork=null,chkView=null,chkF={dept:'',st:'',from:'',to:''},chkEd=null;
+function chkInit(){if(!state.chkTpl||typeof state.chkTpl!=='object'||!Object.keys(state.chkTpl).length)state.chkTpl=JSON.parse(JSON.stringify(CHK_DEFAULT));if(!Array.isArray(state.chkSubs))state.chkSubs=[];if(!state.chkSets||typeof state.chkSets!=='object')state.chkSets={};if(!state.chkTplVer)state.chkTplVer=1;}
+function chkMyDept(){var u=curUser()||{};return (u.chkDept&&state.chkTpl[u.chkDept])?u.chkDept:(CHK_ROLE_DEPT[u.role]&&state.chkTpl[CHK_ROLE_DEPT[u.role]]?CHK_ROLE_DEPT[u.role]:null);}
+function chkAnyDept(){return can('chkApprove')||can('chkEdit')||isOwner();}
+function chkCanApprove(s){return s.status==='pending'&&(isOwner()||(can('chkApprove')&&s.uid!==SESSION.uid));}
+function chkPendingN(){if(!state||!curUser()||!canView('chk'))return 0;chkInit();return state.chkSubs.filter(chkCanApprove).length;}
+function chkBadge(){var el=document.getElementById('chkBadge');if(!el)return;var n=chkPendingN();el.textContent=n||'';el.style.display=n?'':'none';}
+/* ເກັບຂໍ້ຄວາມລາຍການເທື່ອດຽວຕໍ່ ເວີຊັນ-ພະແນກ-ກະ (ໃບທີ່ສົ່ງ ເກັບແຕ່ສະຖານະ) */
+function chkSetKey(dept,shift){return state.chkTplVer+'|'+dept+'|'+shift;}
+function chkTasksOf(s){var a=state.chkSets[s.set];return Array.isArray(a)?a:[];}
+function chkStart(){chkInit();var d=chkDept&&state.chkTpl[chkDept]?chkDept:(chkMyDept()||Object.keys(state.chkTpl)[0]);chkDept=d;var sh=Object.keys(state.chkTpl[d].shifts);if(!chkShift||sh.indexOf(chkShift)<0)chkShift=sh[0];if(!chkDate)chkDate=ymd(Date.now());
+ var t=state.chkTpl[d].shifts[chkShift]||[];chkWork={dept:d,shift:chkShift,st:t.map(function(){return '';}),notes:{},note:''};}
+function renderChk(R){chkInit();if(chkView){var s0=state.chkSubs.find(function(x){return x.id===chkView;});if(s0){renderChkView(R,s0);return;}chkView=null;}
+ var ap=can('chkApprove')||isOwner(),ed=can('chkEdit')||isOwner(),np=chkPendingN();
+ var tabs=[['do','✓ ເຮັດເຊັກລິດ']].concat(ap?[['pend','ລໍອະນຸມັດ'+(np?' ('+np+')':'')]]:[]).concat([['hist','ປະຫວັດ']]).concat(ed?[['edit','ແກ້ລາຍການ']]:[]);if(!tabs.some(function(t){return t[0]===chkTab;}))chkTab='do';
+ var body=chkTab==='do'?chkDoHTML():chkTab==='pend'?chkListHTML(state.chkSubs.filter(chkCanApprove),true):chkTab==='hist'?chkHistHTML():chkEditHTML();
+ R.innerHTML='<div class="pad ck"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ເຊັກລິດປະຈຳກະ</div><div class="sub">ພະນັກງານຕິກ ຜ່ານ / ບໍ່ຜ່ານ → ຫົວໜ້າອະນຸມັດ</div></div></div>'+
+  '<div class="ck-tabs">'+tabs.map(function(t){return '<button class="'+(chkTab===t[0]?'on':'')+'" onclick="chkTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+'</div>'+body+'</div>';
+ if(chkTab==='do')chkProg();}
+/* ---- ເຮັດເຊັກລິດ ---- */
+function chkDoHTML(){if(!can('chkDo')&&!isOwner())return '<div class="empty">ບໍ່ມີສິດເຮັດເຊັກລິດ</div>';var my=chkMyDept(),any=chkAnyDept();
+ if(!my&&!any)return '<div class="empty">ທ່ານຍັງບໍ່ໄດ້ຖືກກຳນົດພະແນກ — ໃຫ້ຫົວໜ້າກຳນົດທີ່ແຖບ "ແກ້ລາຍການ"</div>';
+ if(!chkWork)chkStart();if(!any&&chkWork.dept!==my){chkDept=my;chkStart();}
+ var T=state.chkTpl,w=chkWork,tasks=T[w.dept].shifts[w.shift]||[];
+ var done=state.chkSubs.filter(function(s){return s.dept===w.dept&&s.shift===w.shift&&s.date===chkDate;});
+ var head='<div class="ck-head">'+(any?'<select onchange="chkDept=this.value;chkShift=null;chkStart();render()">'+Object.keys(T).map(function(k){return '<option value="'+aesc(k)+'"'+(k===w.dept?' selected':'')+'>'+cesc(T[k].label)+'</option>';}).join('')+'</select>':'<span class="ck-chip">'+cesc(T[w.dept].label)+'</span>')+
+  '<div class="ck-seg">'+Object.keys(T[w.dept].shifts).map(function(k){return '<button class="'+(k===w.shift?'on':'')+'" onclick="chkShift=\''+k+'\';chkStart();render()">'+cesc(CHK_SHIFTS[k]||k)+'</button>';}).join('')+'</div>'+
+  '<input type="date" value="'+chkDate+'" onchange="chkDate=this.value||ymd(Date.now());render()"></div>'+
+  (done.length?'<div class="ck-done">ໃບນີ້ສົ່ງແລ້ວ '+done.length+' ເທື່ອ: '+done.map(function(s){return chkPill(s.status)+' '+cesc(s.byName);}).join(' · ')+'</div>':'');
+ var items=tasks.map(function(t,i){var st=w.st[i]||'';return '<div class="ck-item'+(st==='F'?' failed':'')+(st?' done':'')+'" id="cki'+i+'"><div class="ck-q"><i>'+(i+1)+'</i><span>'+cesc(t)+'</span></div>'+
+  '<div class="ck-pf"><button class="pass'+(st==='P'?' on':'')+'" onclick="chkMark('+i+',\'P\')">✓ ຜ່ານ</button><button class="fail'+(st==='F'?' on':'')+'" onclick="chkMark('+i+',\'F\')">✗ ບໍ່ຜ່ານ</button></div>'+
+  '<textarea class="ck-note" rows="2" placeholder="ບັນຫາທີ່ພົບ / ໝາຍເຫດ…" oninput="chkWork.notes['+i+']=this.value">'+cesc(w.notes[i]||'')+'</textarea></div>';}).join('');
+ return head+'<div class="ck-prog"><div class="ck-bar"><i id="ckbar"></i></div><span id="cktxt"></span><button class="ck-all" onclick="chkAllPass()">ຕິກຜ່ານທັງໝົດ</button></div>'+(items||'<div class="empty">ບໍ່ມີລາຍການໃນກະນີ້</div>')+
+  '<div class="ck-card"><label>ຂໍ້ສະເໜີ / ໝາຍເຫດລວມ (ຖ້າມີ)</label><textarea rows="2" oninput="chkWork.note=this.value">'+cesc(w.note||'')+'</textarea></div>'+
+  (tasks.length?'<button class="ck-submit" id="cksub" onclick="chkSubmit()">ສົ່ງເຊັກລິດ</button>':'');}
+function chkMark(i,v){var w=chkWork;w.st[i]=w.st[i]===v?'':v;var el=document.getElementById('cki'+i);if(el){el.querySelector('.pass').classList.toggle('on',w.st[i]==='P');el.querySelector('.fail').classList.toggle('on',w.st[i]==='F');el.classList.toggle('failed',w.st[i]==='F');el.classList.toggle('done',!!w.st[i]);if(w.st[i]==='F'){var n=el.querySelector('.ck-note');if(n)n.focus();}}chkProg();}
+function chkAllPass(){chkWork.st=chkWork.st.map(function(x){return x||'P';});render();}
+function chkProg(){var w=chkWork;if(!w)return;var n=w.st.length,d=w.st.filter(Boolean).length,f=w.st.filter(function(x){return x==='F';}).length;var b=document.getElementById('ckbar');if(b)b.style.width=(n?Math.round(d/n*100):0)+'%';
+ var t=document.getElementById('cktxt');if(t)t.textContent=(d<n?'ຕິກແລ້ວ '+d+' / '+n+' · ຍັງເຫຼືອ '+(n-d):'ຄົບແລ້ວ ✓ '+d+' / '+n)+(f?' · ບໍ່ຜ່ານ '+f:'');var s=document.getElementById('cksub');if(s)s.classList.toggle('grey',d<n);}
+function chkSubmit(){var w=chkWork,T=state.chkTpl,tasks=T[w.dept].shifts[w.shift]||[],d=w.st.filter(Boolean).length;
+ if(d<tasks.length&&!confirm('ຍັງມີ '+(tasks.length-d)+' ຂໍ້ທີ່ບໍ່ໄດ້ຕິກ — ສົ່ງເລີຍບໍ?'))return;
+ var miss=w.st.map(function(x,i){return x==='F'&&!String(w.notes[i]||'').trim()?i+1:0;}).filter(Boolean);if(miss.length){toast('ຂໍ້ທີ່ບໍ່ຜ່ານ ຕ້ອງບອກບັນຫາ: ຂໍ້ '+miss.join(', '));return;}
+ var key=chkSetKey(w.dept,w.shift);if(!state.chkSets[key])state.chkSets[key]=tasks.slice();var u=curUser()||{};var notes={};w.st.forEach(function(x,i){if(w.notes[i]&&String(w.notes[i]).trim())notes[i]=String(w.notes[i]).trim().slice(0,300);});
+ var s={id:procId('ck'),ts:Date.now(),upd:Date.now(),uid:u.id,byName:u.name||'',dept:w.dept,shift:w.shift,date:chkDate||ymd(Date.now()),set:key,st:w.st.map(function(x){return x||'-';}).join(''),notes:notes,note:String(w.note||'').trim().slice(0,500),pass:w.st.filter(function(x){return x==='P';}).length,fail:w.st.filter(function(x){return x==='F';}).length,total:tasks.length,status:'pending',loc:curLoc()};
+ state.chkSubs.push(s);if(state.chkSubs.length>6000)state.chkSubs=state.chkSubs.slice(-6000);logOrder('ເຊັກລິດ',T[w.dept].label+' · '+(CHK_SHIFTS[w.shift]||w.shift)+' · ✓'+s.pass+' ✗'+s.fail,'');save();chkStart();chkTab='hist';chkView=s.id;render();toast('ສົ່ງແລ້ວ ✓ ລໍຫົວໜ້າອະນຸມັດ');}
+/* ---- ລາຍການ / ປະຫວັດ ---- */
+function chkPill(st){var m={pending:['ລໍອະນຸມັດ','#b45309','#fef3c7'],approved:['ຜ່ານ','#15803d','#dcfce7'],rejected:['ຕີກັບ','#b91c1c','#fee2e2']}[st]||[st,'#475569','#eef2f7'];return '<span class="ck-pill" style="color:'+m[1]+';background:'+m[2]+'">'+m[0]+'</span>';}
+function chkDeptLabel(k){return (state.chkTpl[k]&&state.chkTpl[k].label)||k;}
+function chkCard(s){return '<div class="ck-sub" onclick="chkView=\''+s.id+'\';render()"><div class="ck-r1"><div><b>'+cesc(chkDeptLabel(s.dept))+'</b> · '+cesc(CHK_SHIFTS[s.shift]||s.shift)+'<small>'+cesc(s.byName)+' · '+cesc(s.date)+' · ສົ່ງ '+procD(s.ts)+'</small></div>'+chkPill(s.status)+'</div><div class="ck-cnt"><span class="g">✓ '+s.pass+'</span><span class="b">✗ '+s.fail+'</span><span>'+s.pass+'/'+s.total+' ('+(s.total?Math.round(s.pass/s.total*100):0)+'%)</span></div></div>';}
+function chkListHTML(list,pend){list=list.slice().sort(function(a,b){return b.ts-a.ts;});return list.length?list.map(chkCard).join(''):'<div class="empty">'+(pend?'✅ ບໍ່ມີລາຍການລໍອະນຸມັດ':'ບໍ່ມີຂໍ້ມູນ')+'</div>';}
+function chkFiltered(){var f=chkF,mine=!(can('chkApprove')||isOwner());return state.chkSubs.filter(function(s){return (!mine||s.uid===SESSION.uid)&&(!f.dept||s.dept===f.dept)&&(!f.st||s.status===f.st)&&(!f.from||s.date>=f.from)&&(!f.to||s.date<=f.to);});}
+function chkHistHTML(){var L=chkFiltered(),a=L.filter(function(s){return s.status==='approved';}).length,r=L.filter(function(s){return s.status==='rejected';}).length,p=L.filter(function(s){return s.status==='pending';}).length;
+ var tp=L.reduce(function(x,s){return x+s.pass;},0),tt=L.reduce(function(x,s){return x+s.total;},0);
+ return '<div class="ck-filters"><select onchange="chkF.dept=this.value;render()"><option value="">ທຸກພະແນກ</option>'+Object.keys(state.chkTpl).map(function(k){return '<option value="'+aesc(k)+'"'+(chkF.dept===k?' selected':'')+'>'+cesc(state.chkTpl[k].label)+'</option>';}).join('')+'</select>'+
+  '<select onchange="chkF.st=this.value;render()"><option value="">ທຸກສະຖານະ</option>'+[['pending','ລໍອະນຸມັດ'],['approved','ຜ່ານ'],['rejected','ຕີກັບ']].map(function(o){return '<option value="'+o[0]+'"'+(chkF.st===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'+
+  '<input type="date" value="'+chkF.from+'" onchange="chkF.from=this.value;render()" title="ຈາກ"><input type="date" value="'+chkF.to+'" onchange="chkF.to=this.value;render()" title="ຫາ"><button class="btn-sm btn-exp" onclick="chkExport()">Export Excel</button></div>'+
+  '<div class="ck-kpis"><div><b style="color:#15803d">'+a+'</b><small>ຜ່ານ</small></div><div><b style="color:#b91c1c">'+r+'</b><small>ຕີກັບ</small></div><div><b style="color:#b45309">'+p+'</b><small>ລໍອະນຸມັດ</small></div><div><b>'+(tt?Math.round(tp/tt*100):0)+'%</b><small>ຂໍ້ທີ່ຜ່ານ</small></div></div>'+chkListHTML(L.slice().sort(function(x,y){return y.ts-x.ts;}).slice(0,300),false);}
+function renderChkView(R,s){var tasks=chkTasksOf(s),own=s.uid===SESSION.uid;
+ var rows=s.st.split('').map(function(c,i){var cls=c==='P'?'p':c==='F'?'f':'',tx=c==='P'?'✓':c==='F'?'✗':'—';return '<div class="ck-ri"><b class="'+cls+'">'+tx+'</b><div>'+(i+1)+'. '+cesc(tasks[i]||'(ລາຍການ '+(i+1)+')')+(s.notes&&s.notes[i]?'<small>💬 '+cesc(s.notes[i])+'</small>':'')+'</div></div>';}).join('');
+ var act=chkCanApprove(s)?'<div class="ck-card"><label>ຄຳເຫັນຫົວໜ້າ (ຕີກັບ ຕ້ອງໃສ່ເຫດຜົນ)</label><textarea id="ckcmt" rows="2"></textarea><div class="ck-decide"><button class="rj" onclick="chkDecide(\''+s.id+'\',\'rejected\')">✗ ຕີກັບ</button><button class="ap" onclick="chkDecide(\''+s.id+'\',\'approved\')">✓ ອະນຸມັດ</button></div></div>':
+  (s.status!=='pending'?'<div class="ck-card"><small>ຕັດສິນໂດຍ <b>'+cesc(s.decidedBy||'')+'</b> · '+procD(s.decidedTs)+'</small>'+(s.comment?'<div style="margin-top:6px">💬 '+cesc(s.comment)+'</div>':'')+'</div>':(own?'<div class="ck-card"><small>ລໍຫົວໜ້າອະນຸມັດ</small></div>':''));
+ R.innerHTML='<div class="pad ck"><button class="pd-back" onclick="chkView=null;render()">← ກັບຄືນ</button><div class="ck-card"><div class="ck-r1"><div><b style="font-size:18px">'+cesc(chkDeptLabel(s.dept))+'</b> · '+cesc(CHK_SHIFTS[s.shift]||s.shift)+'<small>'+cesc(s.byName)+' · '+cesc(s.date)+' · ສົ່ງ '+procD(s.ts)+'</small></div>'+chkPill(s.status)+'</div>'+
+  '<div class="ck-cnt" style="margin:10px 0"><span class="g">✓ ຜ່ານ '+s.pass+'</span><span class="b">✗ ບໍ່ຜ່ານ '+s.fail+'</span><span>ທັງໝົດ '+s.total+'</span></div>'+rows+(s.note?'<div class="ck-note2">ຂໍ້ສະເໜີພະນັກງານ: '+cesc(s.note)+'</div>':'')+'</div>'+act+'</div>';}
+function chkDecide(id,dec){var s=state.chkSubs.find(function(x){return x.id===id;});if(!s||!chkCanApprove(s)){toast('ບໍ່ມີສິດ');return;}var c=((document.getElementById('ckcmt')||{}).value||'').trim();if(dec==='rejected'&&!c){toast('ຕີກັບ ຕ້ອງໃສ່ເຫດຜົນ');return;}
+ var u=curUser()||{};s.status=dec;s.comment=c.slice(0,500);s.decidedBy=u.name||'';s.decidedUid=u.id;s.decidedTs=Date.now();s.upd=Date.now();logOrder('ເຊັກລິດ',(dec==='approved'?'ອະນຸມັດ ':'ຕີກັບ ')+chkDeptLabel(s.dept)+' · '+s.byName+' · '+s.date,'');save();chkView=null;chkTab='pend';render();toast(dec==='approved'?'ອະນຸມັດແລ້ວ ✓':'ຕີກັບແລ້ວ');}
+function chkExport(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var L=chkFiltered().slice().sort(function(a,b){return a.ts-b.ts;});if(!L.length){toast('ບໍ່ມີຂໍ້ມູນ');return;}
+ var sum=L.map(function(s){return {'ວັນທີ':s.date,'ກະ':CHK_SHIFTS[s.shift]||s.shift,'ພະແນກ':chkDeptLabel(s.dept),'ພະນັກງານ':s.byName,'ຜ່ານ':s.pass,'ບໍ່ຜ່ານ':s.fail,'ທັງໝົດ':s.total,'ສະຖານະ':{pending:'ລໍອະນຸມັດ',approved:'ຜ່ານ',rejected:'ຕີກັບ'}[s.status],'ຫົວໜ້າ':s.decidedBy||'','ອະນຸມັດເມື່ອ':s.decidedTs?procD(s.decidedTs):'','ໝາຍເຫດພະນັກງານ':s.note||'','ຄຳເຫັນຫົວໜ້າ':s.comment||'','ສົ່ງເມື່ອ':procD(s.ts)};});
+ var fails=[];L.forEach(function(s){var t=chkTasksOf(s);s.st.split('').forEach(function(c,i){if(c==='F')fails.push({'ວັນທີ':s.date,'ກະ':CHK_SHIFTS[s.shift]||s.shift,'ພະແນກ':chkDeptLabel(s.dept),'ພະນັກງານ':s.byName,'ຂໍ້':i+1,'ລາຍການ':t[i]||'','ບັນຫາ':(s.notes&&s.notes[i])||''});});});
+ var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sum),'ສະຫຼຸບ');if(fails.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fails),'ຂໍ້ທີ່ບໍ່ຜ່ານ');XLSX.writeFile(wb,'ເຊັກລິດ_'+ymd(Date.now())+'.xlsx');toast('Export '+L.length+' ໃບ');});}
+/* ---- ແກ້ລາຍການ (ຫົວໜ້າ / ແອັດມິນ) ---- */
+function chkEdInit(){if(!chkEd)chkEd={tpl:JSON.parse(JSON.stringify(state.chkTpl)),dept:Object.keys(state.chkTpl)[0],shift:null,dirty:false};var T=chkEd.tpl;if(!T[chkEd.dept])chkEd.dept=Object.keys(T)[0];if(chkEd.dept&&(!chkEd.shift||!T[chkEd.dept].shifts[chkEd.shift]))chkEd.shift=Object.keys(T[chkEd.dept].shifts)[0];}
+function chkEditHTML(){chkEdInit();var E=chkEd,T=E.tpl,d=T[E.dept],items=d?d.shifts[E.shift]||[]:[];
+ var users=(state.users||[]).map(function(u){var cur=u.chkDept||CHK_ROLE_DEPT[u.role]||'';return '<div class="ck-u"><span>'+cesc(u.name)+' <small>'+cesc(ROLE_LABELS[u.role]||u.role)+'</small></span><select data-k="'+aesc(u.id)+'" onchange="chkSetUserDept(this.dataset.k,this.value)"><option value="">— ບໍ່ມີ —</option>'+Object.keys(state.chkTpl).map(function(k){return '<option value="'+aesc(k)+'"'+(k===cur?' selected':'')+'>'+cesc(state.chkTpl[k].label)+'</option>';}).join('')+'</select></div>';}).join('');
+ return '<div class="ck-card"><div class="ck-edh"><select onchange="chkEd.dept=this.value;chkEd.shift=null;render()">'+Object.keys(T).map(function(k){return '<option value="'+aesc(k)+'"'+(k===E.dept?' selected':'')+'>'+cesc(T[k].label)+'</option>';}).join('')+'</select>'+
+  '<button class="btn-sm" onclick="chkDeptAdd()">+ ພະແນກ</button><button class="btn-sm" onclick="chkDeptRename()">ປ່ຽນຊື່</button>'+(Object.keys(T).length>1?'<button class="btn-sm red" onclick="chkDeptDel()">ລຶບພະແນກ</button>':'')+'</div>'+
+  (d?'<div class="ck-seg" style="margin:10px 0">'+Object.keys(d.shifts).map(function(k){return '<button class="'+(k===E.shift?'on':'')+'" onclick="chkEd.shift=\''+k+'\';render()">'+cesc(CHK_SHIFTS[k]||k)+' ('+d.shifts[k].length+')</button>';}).join('')+'</div>'+
+  items.map(function(t,i){return '<div class="ck-ei"><i>'+(i+1)+'</i><textarea rows="2" oninput="chkEd.tpl[chkEd.dept].shifts[chkEd.shift]['+i+']=this.value;chkEd.dirty=true">'+cesc(t)+'</textarea><div class="ck-eb"><button title="ຂຶ້ນ" onclick="chkMove('+i+',-1)">↑</button><button title="ລົງ" onclick="chkMove('+i+',1)">↓</button><button class="x" title="ລຶບ" onclick="chkEd.tpl[chkEd.dept].shifts[chkEd.shift].splice('+i+',1);chkEd.dirty=true;render()">✕</button></div></div>';}).join('')+
+  '<button class="ck-add" onclick="chkEd.tpl[chkEd.dept].shifts[chkEd.shift].push(\'ຂໍ້ໃໝ່\');chkEd.dirty=true;render()">+ ເພີ່ມຂໍ້</button>':'')+
+  '<div class="ck-savebar"><button class="ck-submit" onclick="chkSaveTpl()">💾 ບັນທຶກລາຍການ'+(E.dirty?' (ມີການປ່ຽນແປງ)':'')+'</button><button class="btn-sm" onclick="chkEd=null;render()">ຍົກເລີກການແກ້</button><button class="btn-sm" onclick="chkImport()">ນຳເຂົ້າໄຟລ໌ (checklists.js / .json)</button></div></div>'+
+  '<div class="ck-card"><label>ພະແນກຂອງພະນັກງານ — ໃຊ້ເປີດເຊັກລິດໃຫ້ອັດຕະໂນມັດ</label>'+users+'</div>';}
+function chkMove(i,d){var a=chkEd.tpl[chkEd.dept].shifts[chkEd.shift],j=i+d;if(j<0||j>=a.length)return;var t=a[i];a[i]=a[j];a[j]=t;chkEd.dirty=true;render();}
+function chkDeptAdd(){var n=prompt('ຊື່ພະແນກໃໝ່');if(!n||!n.trim())return;var k='d'+Date.now().toString(36);chkEd.tpl[k]={label:n.trim(),shifts:{morning:[],evening:[]}};chkEd.dept=k;chkEd.shift='morning';chkEd.dirty=true;render();}
+function chkDeptRename(){var d=chkEd.tpl[chkEd.dept];var n=prompt('ຊື່ພະແນກ',d.label);if(!n||!n.trim())return;d.label=n.trim();chkEd.dirty=true;render();}
+function chkDeptDel(){if(!confirm('ລຶບພະແນກ "'+chkEd.tpl[chkEd.dept].label+'"? (ປະຫວັດທີ່ສົ່ງແລ້ວຍັງຢູ່)'))return;delete chkEd.tpl[chkEd.dept];chkEd.dept=Object.keys(chkEd.tpl)[0];chkEd.shift=null;chkEd.dirty=true;render();}
+function chkSaveTpl(){if(!(can('chkEdit')||isOwner())){toast('ບໍ່ມີສິດ');return;}var T=chkEd.tpl;Object.keys(T).forEach(function(k){Object.keys(T[k].shifts).forEach(function(s){T[k].shifts[s]=T[k].shifts[s].map(function(x){return String(x).trim();}).filter(Boolean);});});
+ state.chkTpl=JSON.parse(JSON.stringify(T));state.chkTplVer=(state.chkTplVer||1)+1;chkEd=null;chkWork=null;logOrder('ເຊັກລິດ','ແກ້ລາຍການ (ເວີຊັນ '+state.chkTplVer+')','');save();render();toast('ບັນທຶກລາຍການແລ້ວ ✓');}
+function chkSetUserDept(uid,k){if(!(can('chkEdit')||isOwner()))return;var u=(state.users||[]).find(function(x){return x.id===uid;});if(!u)return;if(k)u.chkDept=k;else delete u.chkDept;save();toast(u.name+' → '+(k?chkDeptLabel(k):'ບໍ່ມີພະແນກ'));}
+function chkParseFile(txt){var a=txt.indexOf('{'),depth=0,end=-1,inS=false,q='',esc=false;for(var i=a;i>=0&&i<txt.length;i++){var c=txt[i];if(inS){if(esc)esc=false;else if(c==='\\')esc=true;else if(c===q)inS=false;continue;}if(c==='"'||c==="'"){inS=true;q=c;continue;}if(c==='{')depth++;else if(c==='}'){depth--;if(!depth){end=i;break;}}}
+ if(a<0||end<0)throw new Error('ບໍ່ພົບຂໍ້ມູນ');var o=JSON.parse(txt.slice(a,end+1));var out={};Object.keys(o).forEach(function(k){var d=o[k];if(!d||!d.shifts)return;var sh={};Object.keys(d.shifts).forEach(function(s){if(Array.isArray(d.shifts[s]))sh[s]=d.shifts[s].map(String).filter(Boolean);});out[k]={label:String(d.label||k),shifts:sh};});if(!Object.keys(out).length)throw new Error('ບໍ່ມີພະແນກ');return out;}
+function chkImport(){var inp=document.createElement('input');inp.type='file';inp.accept='.js,.json,.txt';inp.onchange=function(){var f=inp.files&&inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var o=chkParseFile(String(r.result));var n=0;Object.keys(o).forEach(function(k){n+=Object.keys(o[k].shifts).reduce(function(s,x){return s+o[k].shifts[x].length;},0);});
+ if(!confirm('ນຳເຂົ້າ '+Object.keys(o).length+' ພະແນກ · '+n+' ຂໍ້ — ແທນລາຍການປັດຈຸບັນ? (ກົດ "ບັນທຶກລາຍການ" ຈຶ່ງມີຜົນ)'))return;chkEd={tpl:o,dept:Object.keys(o)[0],shift:null,dirty:true};render();toast('ນຳເຂົ້າແລ້ວ — ກວດ ແລ້ວກົດບັນທຶກ');}catch(e){toast('ອ່ານໄຟລ໌ບໍ່ໄດ້: '+e.message);}};r.readAsText(f);};inp.click();}
 /* ---------- PR: ສ້າງ / ແກ້ໄຂ ---------- */
 function prModal(id){if(!can('prCreate')&&!isOwner()){toast('ບໍ່ມີສິດສ້າງໃບຂໍຊື້');return;}procInit();var pr=id?findPR(id):null;
  window.__pr=pr?{id:pr.id,loc:pr.loc,need:pr.need||'',note:pr.note||'',wf:(pr.wf&&pr.wf.id)||wfDefault().id,lines:JSON.parse(JSON.stringify(pr.lines))}:{id:null,loc:curLoc(),need:'',note:'',wf:wfDefault().id,lines:[]};renderPrModal();}

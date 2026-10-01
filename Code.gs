@@ -189,7 +189,7 @@ function mergeDocs_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object') return inc;
     var cur = JSON.parse(curStr); if (!cur) return inc;
-    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts'].forEach(function (k) {
+    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts', 'chkSubs'].forEach(function (k) {
       if (!Array.isArray(cur[k])) return;
       if (!Array.isArray(inc[k])) inc[k] = [];
       var byId = {}; inc[k].forEach(function (d, i) { byId[d.id] = i; });
@@ -201,6 +201,8 @@ function mergeDocs_(curStr, inc) {
       });
       inc[k].sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
     });
+    /* ເຊັກລິດ: ຂໍ້ຄວາມລາຍການຕາມເວີຊັນ — ລວມກະແຈທີ່ຂາດ */
+    if (cur.chkSets && typeof cur.chkSets === 'object') { if (!inc.chkSets || typeof inc.chkSets !== 'object') inc.chkSets = {}; Object.keys(cur.chkSets).forEach(function (k) { if (!inc.chkSets[k]) inc.chkSets[k] = cur.chkSets[k]; }); }
     /* log ແບບຕໍ່ທ້າຍ (ບໍ່ມີການລຶບ): ລວມທັງສອງຝັ່ງ ກັນ log ຂອງເຄື່ອງອື່ນຫາຍເມື່ອບັນທຶກພ້ອມກັນ */
     var LOGS = { cancelLog: function (l) { return l.ts + '|' + (l.type || '') + '|' + (l.name || '') + '|' + (l.table || '') + '|' + (l.qty || ''); },
       orderLog: function (l) { return l.ts + '|' + (l.action || '') + '|' + (l.detail || '') + '|' + (l.table || ''); },
