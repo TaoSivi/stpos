@@ -165,12 +165,13 @@ function mergeStock_(curStr, inc) {
     }
     if (Array.isArray(cur.transfers)) {                  /* ລວມໃບໂອນ: ຄົງໃບຂອງເຄື່ອງອື່ນ + ໃຫ້ສະຖານະທີ່ຄືບໜ້າກວ່າຊະນະ */
       if (!Array.isArray(inc.transfers)) inc.transfers = [];
-      var rank = function (t) { var s = t.status; return s === 'received' ? (t.resolution ? 4 : 3) : (s === 'void' ? 2 : 1); };
+      /* ລຳດັບຄວາມຄືບໜ້າ: ລໍອະນຸມັດ < ອະນຸມັດແລ້ວ < ສົ່ງອອກ < ຍົກເລີກ < ຮັບແລ້ວ < ຮັບແລ້ວ+ຈັດການ; ເທົ່າກັນ → ອັບເດດລ່າສຸດ (upd) ຊະນະ */
+      var rank = function (t) { var s = t.status; return s === 'received' ? (t.resolution ? 4 : 3) : (s === 'void' ? 2 : (s === 'sent' ? 1 : (s === 'approved' ? 0.5 : 0))); };
       var byId = {}; inc.transfers.forEach(function (t) { byId[t.id] = t; });
       cur.transfers.forEach(function (t) {
         var e = byId[t.id];
         if (!e) { inc.transfers.push(t); byId[t.id] = t; }
-        else if (rank(t) > rank(e)) { inc.transfers[inc.transfers.indexOf(e)] = t; byId[t.id] = t; }
+        else if (rank(t) > rank(e) || (rank(t) === rank(e) && (+t.upd || 0) > (+e.upd || 0))) { inc.transfers[inc.transfers.indexOf(e)] = t; byId[t.id] = t; }
       });
       inc.transfers.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
     }
