@@ -1302,6 +1302,47 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .sctbl td.r,.sctbl th.r{text-align:right}.scin{width:110px;height:40px;text-align:right;padding:0 10px;font-size:16px;font-weight:700;border:1.5px solid #cfe4e2;border-radius:10px;background:#fbfefe}
 .scin:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 3px rgba(10,186,181,.18)}
 .sctbl tr.scdone td:first-child{box-shadow:inset 4px 0 0 #0ABAB5}.sctbl tr.scdone .scin{background:#effaf8;border-color:#9fd6cf}
+.sigpad{display:block;width:100%;height:170px;border:2px dashed #9fd6cf;border-radius:14px;background:#fbfefe;touch-action:none;cursor:crosshair;margin-top:4px}
+.sig-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.sig-sub{text-align:center;color:var(--muted);font-size:13.5px;margin:-4px 0 10px;line-height:1.5}
+.sig-me{display:flex;align-items:center;gap:12px;background:#f0f8f7;border-radius:14px;padding:10px 14px;margin:4px 0 6px}.sig-me small{display:block;color:var(--muted);font-size:12.5px}
+.esig-card{background:#fff;border-radius:18px;box-shadow:var(--sh-1);padding:12px 16px;margin:4px 0 12px}
+.esig-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.esig-h span{font-size:12.5px;color:var(--muted);flex:1}
+.esig-list{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.esig{position:relative;width:190px;border:1px solid #e3eeed;border-radius:14px;padding:8px 10px;text-align:center;background:#fcfefe}.esig b{display:block;font-size:14px}.esig small{display:block;font-size:11.5px;color:var(--muted);line-height:1.45}
+.esig-img{height:56px;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #d7e3e2;margin-bottom:6px}.esig-img img{max-height:52px;max-width:170px}
+.esig-x{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:0;background:#dc2626;color:#fff;font-weight:800;cursor:pointer}
+.pd-esigs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 16px;margin:12px 0 6px}
+.pd-esig{text-align:center;font-size:13px;break-inside:avoid;page-break-inside:avoid}.pd-esig-img{height:60px;display:flex;align-items:flex-end;justify-content:center}.pd-esig-img img{max-height:58px;max-width:100%}
+.pd-fp{font-size:11.5px;color:#6b7c69;margin-top:8px;text-align:right}
+.pdf-box{position:fixed;left:0;top:0;width:190mm;background:#fff;color:#111;z-index:-5;pointer-events:none}
+.pdf-box .pd-tbl td,.pdf-box .pd-tbl th{padding-top:6px;padding-bottom:6px}
+.pdf-box .pd-doc{border:none!important;border-radius:0!important;padding:0 4mm!important;max-width:none!important;box-shadow:none!important}.pdf-box .pd-foot{margin:14px 4mm 0}
+
+.a4p{position:fixed;left:0;top:0;z-index:-5;pointer-events:none;width:794px;height:1123px;padding:42px 46px 30px;box-sizing:border-box;background:#fff;color:#1c2b2a;display:flex;flex-direction:column;font-size:12px;line-height:1.45}
+.a4p *{box-sizing:border-box}
+.a4body{flex:1;overflow:hidden;min-height:0}
+.a4foot{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #e1e8e6;padding-top:7px;margin-top:8px;font-size:9.5px;color:#7c8e8b}
+.a4head{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:3px solid #1D3F6E}
+.a4logo{width:46px;height:46px;border-radius:10px;object-fit:contain;flex-shrink:0}.a4lt{background:#1D3F6E;color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center}
+.a4co{flex:1;min-width:0}.a4co b{display:block;font-size:16px;color:#1D3F6E}.a4co small{display:block;color:#6a7b78;font-size:10.5px}
+.a4ttl{text-align:right}.a4ttl small{display:block;font-size:9.5px;letter-spacing:1.5px;color:#6a7b78;font-weight:700}.a4ttl b{display:block;font-size:21px;color:#1D3F6E;line-height:1.25}.a4ttl span{font-weight:800;font-size:13px}
+.a4meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 10px}.a4meta div{background:#f5f8fb;border-radius:8px;padding:6px 9px}.a4meta span{display:block;font-size:9.5px;color:#6a7b78}.a4meta b{font-size:11.5px}
+.a4kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}.a4k{border:1px solid #dde6ee;border-radius:8px;padding:6px 9px}.a4k small{display:block;font-size:9.5px;color:#6a7b78}.a4k b{font-size:14px}
+.a4note{background:#fff8e6;border-radius:8px;padding:6px 10px;margin-bottom:10px;font-size:11px}
+.a4cont{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #1D3F6E;padding-bottom:6px;margin-bottom:10px}.a4cont b{color:#1D3F6E;font-size:13px}.a4cont span{font-size:10.5px;color:#6a7b78}
+.a4t{width:100%;border-collapse:collapse;table-layout:fixed}
+.a4t th{background:#1D3F6E;color:#fff;font-size:10.5px;font-weight:700;text-align:left;padding:6px 7px}
+.a4t td{padding:5px 7px;border-bottom:1px solid #edf1f4;font-size:11.5px;vertical-align:middle;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.a4t .r{text-align:right}.a4t td small{color:#8a9b98;font-size:9.5px;margin-left:3px}
+.a4t tr.a4g td{background:#eef3f8;color:#1D3F6E;font-weight:800;font-size:10.5px;padding:4px 7px}
+.a4t tr.a4hot td{background:#fff6f4}
+.a4tail{margin-top:14px}
+.a4sigt{font-weight:800;color:#1D3F6E;font-size:12.5px;margin-bottom:8px}
+.a4sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px}
+.a4sig{text-align:center}.a4sigimg{height:58px;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #3d4b49;margin-bottom:5px}.a4sigimg img{max-height:54px;max-width:100%}
+.a4sig b{display:block;font-size:12px}.a4sig span{display:block;font-size:10.5px;color:#1D3F6E;font-weight:700}.a4sig small{display:block;font-size:9.5px;color:#6a7b78}
+.a4fp{margin-top:12px;font-size:10px;color:#6a7b78;text-align:right}
 </style>
 </head>
 <body>
@@ -3347,9 +3388,10 @@ function renderScDetail(R){var c=findSC(scDetail),s=scStats(c),hide=scHideSys(c)
  var pc=s.tot?Math.round(s.n/s.tot*100):0;
  var chips=[['all','ທັງໝົດ ('+s.tot+')'],['todo','ຍັງບໍ່ນັບ ('+(s.tot-s.n)+')'],['done','ນັບແລ້ວ ('+s.n+')']].concat(hide?[]:[['diff','ມີສ່ວນຕ່າງ ('+s.nd+')']]);
  var acts=[];
- if(edit){acts.push('<button id="scsub" class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="scAct(\''+c.id+'\',\'submit\')">ສົ່ງກວດ ('+s.n+'/'+s.tot+')</button>');}
- if(c.status==='SUBMITTED'){if(scCanApprove(c))acts.push('<button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="scAct(\''+c.id+'\',\'post\')">✔ ອະນຸມັດ & ປັບສະຕ໋ອກ</button>');if(scCanApprove(c)||c.uid===SESSION.uid)acts.push('<button class="btn-sm" onclick="scAct(\''+c.id+'\',\'reopen\')">↩ ກັບໄປນັບຕໍ່</button>');if(!scCanApprove(c))acts.push('<span class="pd-hint" style="margin:0">ລໍຜູ້ຈັດການ / ເຈົ້າຂອງ ອະນຸມັດ'+(c.uid===SESSION.uid&&can('countApprove')?' (ອະນຸມັດຮອບທີ່ຕົນເອງເລີ່ມບໍ່ໄດ້)':'')+'</span>');}
- acts.push('<button class="btn-sm" onclick="scPrint(\''+c.id+'\')">'+(c.status==='COUNTING'?'ພິມໃບນັບ':'ພິມລາຍງານຜົນນັບ')+'</button>');
+ if(edit){acts.push('<button id="scsub" class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="scAct(\''+c.id+'\',\'submit\')">✍ ເຊັນ & ສົ່ງກວດ ('+s.n+'/'+s.tot+')</button>');}
+ if(c.status==='SUBMITTED'){if(scCanApprove(c))acts.push('<button class="btn-ok grad" style="padding:10px 18px;border-radius:11px;font-weight:700" onclick="scAct(\''+c.id+'\',\'post\')">✍ ເຊັນ ອະນຸມັດ & ປັບສະຕ໋ອກ</button>');if(scCanApprove(c)||c.uid===SESSION.uid)acts.push('<button class="btn-sm" onclick="scAct(\''+c.id+'\',\'reopen\')">↩ ກັບໄປນັບຕໍ່</button>');if(!scCanApprove(c))acts.push('<span class="pd-hint" style="margin:0">ລໍຜູ້ຈັດການ / ເຈົ້າຂອງ ອະນຸມັດ'+(c.uid===SESSION.uid&&can('countApprove')?' (ອະນຸມັດຮອບທີ່ຕົນເອງເລີ່ມບໍ່ໄດ້)':'')+'</span>');}
+ if(c.status!=='COUNTING'&&c.status!=='CANCELLED')acts.push('<button class="btn-sm green" onclick="scPdf(\''+c.id+'\')">⬇ ດາວໂຫຼດ PDF</button>');
+ acts.push('<button class="btn-sm" onclick="scPrint(\''+c.id+'\')">'+(c.status==='COUNTING'?'ພິມໃບນັບ (ເປົ່າ)':'ພິມ')+'</button>');
  if(['COUNTING','SUBMITTED'].indexOf(c.status)>=0&&(c.uid===SESSION.uid||isOwner()))acts.push('<button class="btn-sm red" onclick="procReason(\'ເຫດຜົນທີ່ຍົກເລີກຮອບນັບ\',function(x){scAct(\''+c.id+'\',\'cancel\',x)})">ຍົກເລີກຮອບນັບ</button>');
  var sum=c.status==='COUNTING'?'':'<div class="scsum"><div><small>ນັບແລ້ວ</small><b>'+s.n+' / '+s.tot+'</b></div><div><small>ມີສ່ວນຕ່າງ</small><b>'+s.nd+' ລາຍການ</b></div>'+(cost?'<div><small>ຂາດ</small><b style="color:var(--red)">−'+KIP(s.sh)+' ₭</b></div><div><small>ເກີນ</small><b style="color:#15803d">+'+KIP(s.ov)+' ₭</b></div><div><small>ສຸດທິ</small><b style="color:'+(s.net<0?'var(--red)':'#15803d')+'">'+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ₭</b></div>':'')+'</div>';
  var rows=lines.map(function(x){var l=x.l,d=l.cnt==null?null:(+l.cnt)-(+l.sys||0);
@@ -3359,31 +3401,132 @@ function renderScDetail(R){var c=findSC(scDetail),s=scStats(c),hide=scHideSys(c)
    '<td style="color:var(--muted);font-size:12.5px">'+cesc(l.by||'')+'</td></tr>';}).join('');
  R.innerHTML='<div class="pad"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px"><button class="pd-back" onclick="scDetail=null;render()">← ກັບໄປລາຍການ</button><b style="font-size:20px">'+cesc(c.no)+'</b>'+procChip(SC_ST,c.status)+'<span style="color:var(--muted)">'+cesc(locName(c.loc))+' · '+cesc(c.cat)+(c.blind?' · ນັບແບບປິດຕາ':'')+(c.note?' · '+cesc(c.note):'')+'</span></div>'+
   '<div class="scprog"><div class="scbar big"><i id="scbar" style="width:'+pc+'%"></i></div><span id="scprog">'+s.n+' / '+s.tot+' ລາຍການ</span></div>'+sum+
-  '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">'+acts.join('')+'</div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">'+acts.join('')+'</div>'+scSignsHTML(c)+
   '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px">'+chips.map(function(x){return '<button class="chip '+(scShow===x[0]?'active':'')+'" onclick="scShow=\''+x[0]+'\';render()">'+x[1]+'</button>';}).join('')+
   '<input id="scq" placeholder="ຄົ້ນຫາ ຊື່ / ລະຫັດ" value="'+aesc(scQ)+'" oninput="scQ=this.value;clearTimeout(window.__scq);window.__scq=setTimeout(function(){render();var e=document.getElementById(\'scq\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)" style="margin-left:auto;min-width:220px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit"></div>'+
   '<div style="overflow:auto"><table class="tbl sctbl"><thead><tr><th>ລາຍການ</th><th>ຫົວໜ່ວຍ</th>'+(hide?'':'<th class="r">ໃນລະບົບ</th>')+'<th class="r">ນັບໄດ້</th>'+(hide?'':'<th class="r">ສ່ວນຕ່າງ</th>'+(cost?'<th class="r">ມູນຄ່າ (₭)</th>':''))+'<th>ຜູ້ນັບ</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7" class="empty" style="padding:24px">ບໍ່ມີລາຍການ</td></tr>')+'</tbody></table></div>'+
   (c.status!=='COUNTING'?rqTimelineHTML(c):'')+'</div>';}
 function scSet(inp){var c=findSC(scDetail);if(!c||c.status!=='COUNTING')return;var l=c.lines[+inp.dataset.i];if(!l)return;var v=String(inp.value).trim();
  if(v===''){l.cnt=null;delete l.by;}else{var n=+v;if(isNaN(n)||n<0){toast('ຈຳນວນບໍ່ຖືກ');inp.value=l.cnt==null?'':l.cnt;return;}l.cnt=Math.round(n*1000)/1000;l.by=(curUser()||{}).name||'';l.ts=Date.now();}
- c.upd=Date.now();save();var s=scStats(c),pc=s.tot?Math.round(s.n/s.tot*100):0;var b=document.getElementById('scbar');if(b)b.style.width=pc+'%';var p=document.getElementById('scprog');if(p)p.textContent=s.n+' / '+s.tot+' ລາຍການ';var sb=document.getElementById('scsub');if(sb)sb.textContent='ສົ່ງກວດ ('+s.n+'/'+s.tot+')';var tr=inp.closest('tr');if(tr)tr.classList.toggle('scdone',l.cnt!=null);}
+ c.upd=Date.now();save();var s=scStats(c),pc=s.tot?Math.round(s.n/s.tot*100):0;var b=document.getElementById('scbar');if(b)b.style.width=pc+'%';var p=document.getElementById('scprog');if(p)p.textContent=s.n+' / '+s.tot+' ລາຍການ';var sb=document.getElementById('scsub');if(sb)sb.textContent='✍ ເຊັນ & ສົ່ງກວດ ('+s.n+'/'+s.tot+')';var tr=inp.closest('tr');if(tr)tr.classList.toggle('scdone',l.cnt!=null);}
 function scNext(inp){var all=[].slice.call(document.querySelectorAll('.scin'));var i=all.indexOf(inp);if(inp.onchange)inp.onchange();if(all[i+1]){all[i+1].focus();all[i+1].select();}}
 function scAct(id,act,reason){var c=findSC(id);if(!c)return;var s=scStats(c);
- if(act==='submit'&&c.status==='COUNTING'){if(!s.n){toast('ຍັງບໍ່ໄດ້ນັບລາຍການໃດ');return;}if(s.n<s.tot&&!confirm('ຍັງບໍ່ໄດ້ນັບ '+(s.tot-s.n)+' ລາຍການ — ລາຍການທີ່ບໍ່ໄດ້ນັບ ຈະບໍ່ຖືກປັບ. ສົ່ງກວດເລີຍບໍ?'))return;c.status='SUBMITTED';c.subTs=Date.now();procHist(c,'ສົ່ງກວດ',s.n+'/'+s.tot+' ລາຍການ · ມີສ່ວນຕ່າງ '+s.nd);}
- else if(act==='reopen'&&c.status==='SUBMITTED'){c.status='COUNTING';procHist(c,'ກັບໄປນັບຕໍ່','');}
- else if(act==='post'&&c.status==='SUBMITTED'){if(!scCanApprove(c)){toast('ບໍ່ມີສິດອະນຸມັດ');return;}var n=0;
+ if(act==='submit'&&c.status==='COUNTING'){if(!s.n){toast('ຍັງບໍ່ໄດ້ນັບລາຍການໃດ');return;}if(s.n<s.tot&&!(reason&&typeof reason==='object')&&!confirm('ຍັງບໍ່ໄດ້ນັບ '+(s.tot-s.n)+' ລາຍການ — ລາຍການທີ່ບໍ່ໄດ້ນັບ ຈະບໍ່ຖືກປັບ. ສົ່ງກວດເລີຍບໍ?'))return;
+  if(!reason||typeof reason!=='object'){var me=curUser();if(!me)return;sigModal({title:'ເຊັນ ແລະ ສົ່ງກວດ',sub:cesc(c.no)+' · ນັບແລ້ວ '+s.n+' / '+s.tot+' ລາຍການ — ລາຍເຊັນຢືນຢັນວ່າ ຈຳນວນທີ່ໃສ່ ແມ່ນນັບໄດ້ຈິງ',user:me,ok:'ເຊັນ ແລະ ສົ່ງກວດ'},function(sig){scAct(id,'submit',sig);});return;}
+  var sg=reason;sg.role='counter';c.signs=scSigns(c).filter(function(x){return x.role!=='counter'&&x.role!=='approver';});c.signs.unshift(sg);reason='';
+  c.status='SUBMITTED';c.subTs=Date.now();procHist(c,'ເຊັນ ແລະ ສົ່ງກວດ',s.n+'/'+s.tot+' ລາຍການ · ມີສ່ວນຕ່າງ '+s.nd+' · ຜູ້ນັບ: '+sg.name);}
+ else if(act==='reopen'&&c.status==='SUBMITTED'){c.status='COUNTING';c.signs=scSigns(c).filter(function(x){return x.role==='participant';});procHist(c,'ກັບໄປນັບຕໍ່','ລາຍເຊັນຜູ້ນັບ ຖືກລ້າງ — ຕ້ອງເຊັນໃໝ່ຕອນສົ່ງກວດ');}
+ else if(act==='post'&&c.status==='SUBMITTED'){if(!scCanApprove(c)){toast('ບໍ່ມີສິດອະນຸມັດ');return;}
+  if(!reason||typeof reason!=='object'){var me2=curUser();sigModal({title:'ເຊັນ ແລະ ອະນຸມັດຜົນນັບ',sub:cesc(c.no)+' · ສຸດທິ '+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ — ລະບົບຈະປັບສະຕ໋ອກຕາມສ່ວນຕ່າງ',user:me2,ok:'ເຊັນ ແລະ ອະນຸມັດ'},function(sig){scAct(id,'post',sig);});return;}
+  var sa=reason;sa.role='approver';scSigns(c).push(sa);reason='';var n=0;
   c.lines.forEach(function(l){if(l.cnt==null)return;var d=Math.round(((+l.cnt)-(+l.sys||0))*1000)/1000;if(Math.abs(d)<1e-9)return;addStockAt(l.code,c.loc,d,'ນັບປັບສະຕ໋ອກ',c.no+' ນັບໄດ້ '+KIP(l.cnt)+' '+(l.unit||'')+' (ລະບົບ '+KIP(l.sys)+') ['+locName(c.loc)+']');n++;});
-  var u=curUser()||{};c.status='POSTED';c.postTs=Date.now();c.postBy=u.name||'';procHist(c,'ອະນຸມັດ & ປັບສະຕ໋ອກ',n+' ລາຍການ · ສຸດທິ '+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ');}
+  var u=curUser()||{};c.status='POSTED';c.postTs=Date.now();c.postBy=u.name||'';procHist(c,'ເຊັນ ອະນຸມັດ & ປັບສະຕ໋ອກ',n+' ລາຍການ · ສຸດທິ '+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ');}
  else if(act==='cancel'&&['COUNTING','SUBMITTED'].indexOf(c.status)>=0){c.status='CANCELLED';procHist(c,'ຍົກເລີກຮອບນັບ',reason||'');}
  else{toast('ເຮັດບໍ່ໄດ້ໃນສະຖານະນີ້');return;}
  logOrder('ນັບສາງ',c.no+' → '+SC_ST[c.status][0],'');save();closeModal();render();toast(c.no+' · '+SC_ST[c.status][0]);}
-function scPrint(id){var c=findSC(id);if(!c)return;var sheet=c.status==='COUNTING',hide=sheet&&c.blind,cost=!sheet&&(procSeeCost()||can('countApprove')),s=scStats(c);
+/* ===== ລາຍເຊັນອີເລັກໂທຣນິກ (ເຊັນໃນກອບ + PIN ຢືນຢັນຕົວຕົນ ສຳລັບຜູ້ໃຊ້ລະບົບ) ===== */
+function sigPadInit(cv){if(!cv)return;var dpr=window.devicePixelRatio||1,r=cv.getBoundingClientRect();cv.width=Math.max(10,r.width*dpr);cv.height=Math.max(10,r.height*dpr);
+ var ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.lineWidth=2.6;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0b2545';ctx.fillStyle='#0b2545';cv.__empty=true;var dr=false,lx=0,ly=0;
+ var pos=function(e){var b=cv.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top];};
+ cv.onpointerdown=function(e){dr=true;try{cv.setPointerCapture(e.pointerId);}catch(x){}var p=pos(e);lx=p[0];ly=p[1];ctx.beginPath();ctx.arc(lx,ly,1.3,0,7);ctx.fill();cv.__empty=false;e.preventDefault();};
+ cv.onpointermove=function(e){if(!dr)return;var p=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p[0],p[1]);ctx.stroke();lx=p[0];ly=p[1];e.preventDefault();};
+ cv.onpointerup=cv.onpointercancel=cv.onpointerleave=function(){dr=false;};}
+function sigPadData(cv){if(!cv||cv.__empty)return null;var w=cv.width,h=cv.height,d=cv.getContext('2d').getImageData(0,0,w,h).data,x0=w,y0=h,x1=-1,y1=-1;
+ for(var y=0;y<h;y+=2)for(var x=0;x<w;x+=2){if(d[(y*w+x)*4+3]>20){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+ if(x1<0)return null;var pad=8;x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(w,x1+pad);y1=Math.min(h,y1+pad);
+ var sw=x1-x0,sh=y1-y0,H=90,W=Math.round(sw*H/sh);if(W>340){W=340;H=Math.round(sh*W/sw);}
+ var o=document.createElement('canvas');o.width=W;o.height=H;o.getContext('2d').drawImage(cv,x0,y0,sw,sh,0,0,W,H);return o.toDataURL('image/png');}
+function sigClear(){var cv=document.getElementById('sig_cv');if(!cv)return;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);cv.__empty=true;}
+/* o = {title, sub, user (ຜູ້ເຊັນທີ່ກຳນົດ) | pick:true (ເລືອກຜູ້ໃຊ້ ຫຼື ຄົນນອກ), ok} */
+function sigModal(o,cb){window.__sigO=o;window.__sigCb=cb;var us=state.users||[];
+ openModal('<h2>'+o.title+'</h2>'+(o.sub?'<p class="sig-sub">'+o.sub+'</p>':'')+
+  (o.pick?'<label>ຜູ້ເຊັນ</label><select id="sig_u" style="width:100%" onchange="sigWho()"><option value="">— ບຸກຄົນອື່ນ (ບໍ່ມີບັນຊີໃນລະບົບ) —</option>'+us.map(function(u){return '<option value="'+aesc(u.id)+'">'+cesc(u.name)+' · '+cesc(ROLE_LABELS[u.role]||u.role)+'</option>';}).join('')+'</select>'+
+   '<div id="sig_ext" style="display:flex;gap:8px;flex-wrap:wrap"><input id="sig_nm" placeholder="ຊື່ ແລະ ນາມສະກຸນ" style="flex:1;min-width:160px"><input id="sig_tt" placeholder="ຕຳແໜ່ງ / ໜ່ວຍງານ" style="flex:1;min-width:160px"></div>'
+   :'<div class="sig-me">'+sAv(o.user.name)+'<div><b>'+cesc(o.user.name)+'</b><small>'+cesc(ROLE_LABELS[o.user.role]||'')+'</small></div></div>')+
+  '<div id="sig_pinbox"'+(o.pick?' style="display:none"':'')+'><label>PIN ຂອງຜູ້ເຊັນ — ຢືນຢັນວ່າແມ່ນຕົວຈິງ</label><input id="sig_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" style="text-align:center;font-size:20px;letter-spacing:6px"></div>'+
+  '<label>ເຊັນຊື່ໃນກອບ</label><canvas id="sig_cv" class="sigpad"></canvas><div class="sig-tools"><span>ໃຊ້ນິ້ວ, ປາກກາ ຫຼື ເມົ້າ</span><button type="button" class="btn-sm" onclick="sigClear()">ລຶບ ແລ້ວເຊັນໃໝ່</button></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="sigDone()">'+(o.ok||'ຢືນຢັນລາຍເຊັນ')+'</button></div>');
+ setTimeout(function(){sigPadInit(document.getElementById('sig_cv'));},40);}
+function sigWho(){var v=(document.getElementById('sig_u')||{}).value;var e=document.getElementById('sig_ext'),p=document.getElementById('sig_pinbox');if(e)e.style.display=v?'none':'flex';if(p)p.style.display=v?'':'none';}
+function sigDone(){var o=window.__sigO||{},g=function(id){return ((document.getElementById(id)||{}).value||'').trim();};var u=null,sig={ts:Date.now()};
+ if(o.pick){var uid=g('sig_u');if(uid){u=(state.users||[]).find(function(x){return x.id===uid;});}else{sig.name=g('sig_nm');sig.title=g('sig_tt');if(!sig.name){toast('ໃສ່ຊື່ຜູ້ເຊັນ');return;}sig.verified=false;}}else u=o.user;
+ if(u){if(!sdPinOk(u,g('sig_pin'))){toast('PIN ຂອງ '+u.name+' ບໍ່ຖືກ');var pi=document.getElementById('sig_pin');if(pi){pi.value='';pi.focus();}return;}sig.uid=u.id;sig.name=u.name;sig.title=ROLE_LABELS[u.role]||u.role;sig.verified=true;}
+ var img=sigPadData(document.getElementById('sig_cv'));if(!img){toast('ກະລຸນາເຊັນຊື່ໃນກອບ');return;}sig.img=img;
+ var cb=window.__sigCb;closeModal();if(cb)cb(sig);}
+/* ---- PDF (html2pdf ຈາກ cdnjs — ໂຫຼດເມື່ອໃຊ້) ---- */
+function loadPdfLibs(cb){var need=[];if(!window.html2canvas)need.push('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');if(!(window.jspdf&&window.jspdf.jsPDF))need.push('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+ var left=need.length,bad=false;if(!left){cb();return;}need.forEach(function(u){var s=document.createElement('script');s.src=u;s.onload=function(){if(--left===0)cb(bad?'err':null);};s.onerror=function(){bad=true;if(--left===0)cb('err');};document.head.appendChild(s);});}
+/* HTML → PDF A4: ຖ່າຍພາບດ້ວຍ html2canvas (ຮອງຮັບຟອນລາວ) ແລ້ວຕັດໜ້າ ຕາມຂອບແຖວ ບໍ່ໃຫ້ຕັດກາງແຖວ */
+function htmlToPdf(html,fname,mode){return new Promise(function(res,rej){loadPdfLibs(function(err){if(err||!window.html2canvas||!window.jspdf){rej('load');return;}
+ var box=document.createElement('div');box.className='pdf-box';box.innerHTML=html+'<div class="pd-foot">ອອກໂດຍ ST POS — '+cesc(state.shopName||'')+' · ສ້າງ PDF '+procD(Date.now())+'</div>';document.body.appendChild(box);
+ var go=function(){var W=box.offsetWidth,H=box.scrollHeight,t0=box.getBoundingClientRect().top;
+  var cands=[].map.call(box.querySelectorAll('tr,.pd-esig,.pd-sigs,.pd-note,.pd-tot,.pd-h2,.pd-metas,.pd-dhead,.pd-fp,.pd-tbl,.pd-tbl2'),function(e){return Math.round(e.getBoundingClientRect().bottom-t0);}).sort(function(a,b){return a-b;});
+  window.html2canvas(box,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,scrollX:0,scrollY:-window.scrollY,windowWidth:document.documentElement.clientWidth}).then(function(cv){box.remove();
+   var pdf=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'}),mL=10,mT=10,cw=190,chm=277,ppm=W/cw,pageH=chm*ppm,sc=cv.width/W,y=0,first=true;
+   while(y<H-2){var lim=y+pageH,br=H;if(lim<H){br=lim;var c=cands.filter(function(v){return v>y+60&&v<=lim;});if(c.length)br=c[c.length-1];}
+    var hpx=Math.max(1,Math.round((br-y)*sc)),pc=document.createElement('canvas');pc.width=cv.width;pc.height=hpx;var ctx=pc.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,pc.width,hpx);ctx.drawImage(cv,0,Math.round(y*sc),cv.width,hpx,0,0,cv.width,hpx);
+    if(!first)pdf.addPage();pdf.addImage(pc.toDataURL('image/jpeg',0.92),'JPEG',mL,mT,cw,(br-y)/ppm);first=false;y=br;}
+   if(mode==='blob')res(pdf.output('blob'));else{pdf.save(fname);res(true);}},function(e){box.remove();rej(e);});};
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(go,60);});});});}
+/* ---- ນັບສາງ: ລາຍເຊັນ + PDF ---- */
+function scFp(c){var s=JSON.stringify([c.no,c.loc,(c.lines||[]).map(function(l){return [l.code,l.sys,l.cnt];}),(c.signs||[]).map(function(x){return [x.role,x.name,x.ts];})]);var h=5381,h2=7;for(var i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0;h2=((h2<<7)-h2+s.charCodeAt(i))|0;}return ((h>>>0).toString(16).slice(-6)+'-'+(h2>>>0).toString(16).slice(-6)).toUpperCase();}
+var SC_SIGN_ROLE={counter:'ຜູ້ນັບ (ນາຍສາງ)',participant:'ຜູ້ເຂົ້າຮ່ວມນັບ',approver:'ຜູ້ອະນຸມັດ'};
+function scSigns(c){if(!Array.isArray(c.signs))c.signs=[];return c.signs;}
+function scAddPart(id){var c=findSC(id);if(!c||['COUNTING','SUBMITTED'].indexOf(c.status)<0)return;
+ sigModal({title:'ເພີ່ມຜູ້ເຂົ້າຮ່ວມນັບ',sub:'ເຊັນຢືນຢັນວ່າ ໄດ້ຮ່ວມນັບ / ເປັນພະຍານ ໃນຮອບນັບ '+cesc(c.no),pick:true,ok:'ເພີ່ມ ແລະ ເຊັນ'},function(sig){sig.role='participant';
+  if(sig.uid&&scSigns(c).some(function(x){return x.role==='participant'&&x.uid===sig.uid;})){toast(sig.name+' ເຊັນແລ້ວ');return;}scSigns(c).push(sig);c.upd=Date.now();procHist(c,'ຜູ້ເຂົ້າຮ່ວມເຊັນ',sig.name+(sig.title?' ('+sig.title+')':'')+(sig.verified?' · ຢືນຢັນ PIN':' · ບຸກຄົນພາຍນອກ'));save();render();toast('ເພີ່ມລາຍເຊັນ '+sig.name);});}
+function scDelPart(id,ts){var c=findSC(id);if(!c||c.status==='POSTED'||c.status==='CANCELLED')return;var i=scSigns(c).findIndex(function(x){return x.role==='participant'&&String(x.ts)===String(ts);});if(i<0)return;var x=c.signs.splice(i,1)[0];procHist(c,'ລຶບລາຍເຊັນຜູ້ເຂົ້າຮ່ວມ',x.name);c.upd=Date.now();save();render();}
+function scSignsHTML(c){var S=scSigns(c),open=['COUNTING','SUBMITTED'].indexOf(c.status)>=0;
+ var item=function(x){return '<div class="esig"><div class="esig-img">'+(x.img?'<img src="'+x.img+'" alt="">':'')+'</div><b>'+cesc(x.name)+'</b><small>'+cesc(SC_SIGN_ROLE[x.role]||'')+(x.title?' · '+cesc(x.title):'')+'</small><small>'+procD(x.ts)+(x.verified?' · ✓ PIN':' · ພາຍນອກ')+'</small>'+(open&&x.role==='participant'?'<button type="button" class="esig-x" title="ລຶບ" onclick="scDelPart(\''+c.id+'\',\''+x.ts+'\')">×</button>':'')+'</div>';};
+ return '<div class="esig-card"><div class="esig-h"><b>ລາຍເຊັນ ('+S.length+')</b><span>ຜູ້ນັບເຊັນຕອນສົ່ງກວດ · ຜູ້ອະນຸມັດເຊັນຕອນອະນຸມັດ'+(open?' · ເພີ່ມຜູ້ເຂົ້າຮ່ວມນັບໄດ້':'')+'</span>'+(open?'<button class="btn-sm" onclick="scAddPart(\''+c.id+'\')">+ ຜູ້ເຂົ້າຮ່ວມນັບ</button>':'')+'</div>'+
+  (S.length?'<div class="esig-list">'+S.map(item).join('')+'</div>':'<div style="color:var(--muted);font-size:13.5px;padding:6px 0">ຍັງບໍ່ມີລາຍເຊັນ</div>')+'</div>';}
+function scDocHTML(c,sheet){var hide=sheet&&c.blind,cost=!sheet&&(procSeeCost()||can('countApprove')),s=scStats(c),S=scSigns(c);
  var rows=c.lines.map(function(l,i){var d=l.cnt==null?null:(+l.cnt)-(+l.sys||0);return '<tr><td>'+(i+1)+'</td><td>'+cesc(l.name)+'<div class="pd-sub">'+cesc(l.code)+'</div></td><td>'+cesc(l.unit||'')+'</td>'+(hide?'':'<td class="r">'+KIP(l.sys)+'</td>')+'<td class="r" style="min-width:90px">'+(sheet?'':(l.cnt==null?'—':KIP(l.cnt)))+'</td>'+(sheet?'':'<td class="r">'+(d==null?'':(d>0?'+':'')+KIP(Math.round(d*1000)/1000))+'</td>'+(cost?'<td class="r">'+(d?KIP(Math.round(d*(l.cost||0))):'')+'</td>':''))+'</tr>';}).join('');
  var tbl='<table class="pd-tbl"><thead><tr><th style="width:40px">#</th><th>ລາຍການ</th><th>ຫົວໜ່ວຍ</th>'+(hide?'':'<th class="r">ໃນລະບົບ</th>')+'<th class="r">ນັບໄດ້</th>'+(sheet?'':'<th class="r">ສ່ວນຕ່າງ</th>'+(cost?'<th class="r">ມູນຄ່າ</th>':''))+'</tr></thead><tbody>'+rows+'</tbody></table>'+
-  (cost?'<div style="display:flex;justify-content:flex-end;margin:12px 0 4px"><div class="pd-tot"><div><span>ຂາດ</span><span>−'+KIP(s.sh)+'</span></div><div><span>ເກີນ</span><span>+'+KIP(s.ov)+'</span></div><div><span>ສຸດທິ</span><span>'+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ</span></div></div></div>':'');
- var html=docShell('sc',c.no,[['ເລກທີ',cesc(c.no)],['ວັນທີ',procDay(c.ts)],['ຜູ້ເລີ່ມນັບ',cesc(c.byName||'')]],[['ບ່ອນເກັບ',cesc(locName(c.loc))],['ໝວດ',cesc(c.cat)],['ສະຖານະ',SC_ST[c.status][0]]],
-  (sheet&&c.blind?'<div class="pd-note"><span>ນັບແບບປິດຕາ:</span> ຂຽນຈຳນວນທີ່ນັບໄດ້ຈິງ ໃນຊ່ອງ "ນັບໄດ້"</div>':'')+tbl+docSigs([{name:'',role:'',label:'ຜູ້ນັບ',date:''},{name:'',role:'',label:'ຜູ້ກວດນັບ',date:''},{name:c.postBy||'',role:'',label:'ຜູ້ອະນຸມັດ',date:c.postTs?procDay(c.postTs):'',ok:c.status==='POSTED',okText:'ອະນຸມັດ'}]),c.status==='CANCELLED'?'ຍົກເລີກ':'');
- printDocA4(html,PDOC.sc.lao+' '+c.no);}
+  (cost?'<div style="display:flex;justify-content:flex-end;margin:12px 0 4px"><div class="pd-tot"><div><span>ນັບແລ້ວ</span><span>'+s.n+' / '+s.tot+'</span></div><div><span>ຂາດ</span><span>−'+KIP(s.sh)+'</span></div><div><span>ເກີນ</span><span>+'+KIP(s.ov)+'</span></div><div><span>ສຸດທິ</span><span>'+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ</span></div></div></div>':'');
+ var sigBlock;
+ if(sheet||!S.length)sigBlock=docSigs([{name:'',role:'',label:'ຜູ້ນັບ',date:''},{name:'',role:'',label:'ຜູ້ເຂົ້າຮ່ວມນັບ',date:''},{name:'',role:'',label:'ຜູ້ອະນຸມັດ',date:''}]);
+ else{var ord=S.filter(function(x){return x.role==='counter';}).concat(S.filter(function(x){return x.role==='participant';}),S.filter(function(x){return x.role==='approver';}));
+  sigBlock='<div class="pd-h2">ລາຍເຊັນອີເລັກໂທຣນິກ</div><div class="pd-esigs">'+ord.map(function(x){return '<div class="pd-esig"><div class="pd-esig-img">'+(x.img?'<img src="'+x.img+'" alt="">':'')+'</div><div class="pd-sigline"><div class="pd-sn">'+cesc(x.name)+'</div><div class="pd-sr">'+cesc(x.title||'')+'</div><div class="pd-sl">'+cesc(SC_SIGN_ROLE[x.role]||'')+'</div><div class="pd-sd">'+procD(x.ts)+(x.verified?' · ຢືນຢັນດ້ວຍ PIN':' · ບຸກຄົນພາຍນອກ')+'</div></div></div>';}).join('')+'</div>'+
+   '<div class="pd-fp">ເຊັນອີເລັກໂທຣນິກໃນລະບົບ ST POS · ລະຫັດກວດສອບເອກະສານ: <b>'+scFp(c)+'</b></div>';}
+ return docShell('sc',c.no,[['ເລກທີ',cesc(c.no)],['ວັນທີນັບ',procD(c.ts)],['ຜູ້ເລີ່ມນັບ',cesc(c.byName||'')]],[['ບ່ອນເກັບ',cesc(locName(c.loc))],['ໝວດ',cesc(c.cat)+(c.blind?' · ນັບແບບປິດຕາ':'')],['ສະຖານະ',SC_ST[c.status][0]]],
+  (sheet&&c.blind?'<div class="pd-note"><span>ນັບແບບປິດຕາ:</span> ຂຽນຈຳນວນທີ່ນັບໄດ້ຈິງ ໃນຊ່ອງ "ນັບໄດ້"</div>':'')+(c.note?'<div class="pd-note"><span>ໝາຍເຫດ:</span> '+cesc(c.note)+'</div>':'')+tbl+sigBlock,c.status==='CANCELLED'?'ຍົກເລີກ':'');}
+/* ===== PDF ແບບລະໜ້າ A4 ແທ້: ຈັດແຖວລົງແຕ່ລະໜ້າເອງ (ບໍ່ຕັດກາງແຖວ) + ຫົວຕາຕະລາງຊ້ຳທຸກໜ້າ + ເລກໜ້າ ===== */
+/* parts = {first, cont, thead, rows[], tail, foot(i,n)} — HTML strings */
+function a4Paginate(parts){var pg=document.createElement('div');pg.className='a4p a4m';document.body.appendChild(pg);var pages=[];
+ var start=function(head){pg.innerHTML='<div class="a4body">'+head+'<table class="a4t"><thead>'+parts.thead+'</thead><tbody></tbody></table><div class="a4tail"></div></div><div class="a4foot">.</div>';return {body:pg.querySelector('.a4body'),tb:pg.querySelector('tbody'),tail:pg.querySelector('.a4tail'),rows:[]};};
+ var over=function(b){return b.scrollHeight>b.clientHeight+1;};var cur=start(parts.first),firstPage=true;
+ var close=function(){pages.push({first:firstPage,rows:cur.rows.slice(),tail:cur.tailHTML||''});firstPage=false;};
+ parts.rows.forEach(function(r){cur.tb.insertAdjacentHTML('beforeend',r);if(over(cur.body)&&cur.rows.length){cur.tb.removeChild(cur.tb.lastElementChild);close();cur=start(parts.cont);cur.tb.insertAdjacentHTML('beforeend',r);}cur.rows.push(r);});
+ cur.tail.innerHTML=parts.tail||'';if(parts.tail&&over(cur.body)){cur.tail.innerHTML='';close();pg.innerHTML='<div class="a4body">'+parts.cont+'<div class="a4tail">'+parts.tail+'</div></div><div class="a4foot">.</div>';pages.push({first:false,rows:null,tail:parts.tail});}else{cur.tailHTML=parts.tail||'';close();}
+ pg.remove();var n=pages.length;
+ return pages.map(function(p,i){return '<div class="a4body">'+(p.first?parts.first:parts.cont)+(p.rows?'<table class="a4t"><thead>'+parts.thead+'</thead><tbody>'+p.rows.join('')+'</tbody></table>':'')+(p.tail?'<div class="a4tail">'+p.tail+'</div>':'')+'</div><div class="a4foot">'+parts.foot(i+1,n)+'</div>';});}
+function a4Pdf(parts,fname,mode){return new Promise(function(res,rej){loadPdfLibs(function(err){if(err||!window.html2canvas||!window.jspdf){rej('load');return;}
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){var pages=a4Paginate(parts),pdf=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'}),i=0;
+  var next=function(){if(i>=pages.length){if(mode==='blob')res(pdf.output('blob'));else{pdf.save(fname);res(true);}return;}
+   var el=document.createElement('div');el.className='a4p';el.innerHTML=pages[i];document.body.appendChild(el);
+   window.html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,scrollX:0,scrollY:-window.scrollY,width:794,height:1123,windowWidth:document.documentElement.clientWidth}).then(function(cv){el.remove();if(i>0)pdf.addPage();pdf.addImage(cv.toDataURL('image/jpeg',0.93),'JPEG',0,0,210,297);i++;next();},function(e){el.remove();rej(e);});};next();});});});}
+/* ---- ໃບນັບສະຕ໋ອກ ເປັນ PDF ---- */
+function scPdfParts(c){var s=scStats(c),cost=procSeeCost()||can('countApprove'),S=scSigns(c),fp=scFp(c);
+ var logo=state.shopLogo?'<img class="a4logo" src="'+state.shopLogo+'" alt="">':'<div class="a4logo a4lt">'+cesc(String(state.shopName||'ST').slice(0,2))+'</div>';
+ var kpi=function(l,v,cl){return '<div class="a4k"><small>'+l+'</small><b'+(cl?' style="color:'+cl+'"':'')+'>'+v+'</b></div>';};
+ var first='<div class="a4head">'+logo+'<div class="a4co"><b>'+cesc(state.shopName||'')+'</b><small>'+cesc([state.shopAddr,state.shopPhone].filter(Boolean).join(' · '))+'</small></div><div class="a4ttl"><small>STOCK COUNT REPORT</small><b>ໃບນັບສະຕ໋ອກ</b><span>'+cesc(c.no)+'</span></div></div>'+
+  '<div class="a4meta"><div><span>ບ່ອນເກັບ</span><b>'+cesc(locName(c.loc))+'</b></div><div><span>ໝວດ</span><b>'+cesc(c.cat)+(c.blind?' · ນັບແບບປິດຕາ':'')+'</b></div><div><span>ເລີ່ມນັບ</span><b>'+procD(c.ts)+'</b></div><div><span>ສະຖານະ</span><b>'+SC_ST[c.status][0]+(c.postTs?' · '+procD(c.postTs):'')+'</b></div></div>'+
+  '<div class="a4kpis">'+kpi('ນັບແລ້ວ',s.n+' / '+s.tot)+kpi('ມີສ່ວນຕ່າງ',s.nd+' ລາຍການ')+(cost?kpi('ຂາດ','−'+KIP(s.sh)+' ₭','#b91c1c')+kpi('ເກີນ','+'+KIP(s.ov)+' ₭','#15803d')+kpi('ສຸດທິ',(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ₭',s.net<0?'#b91c1c':'#15803d'):'')+'</div>'+
+  (c.note?'<div class="a4note"><b>ໝາຍເຫດ:</b> '+cesc(c.note)+'</div>':'');
+ var cont='<div class="a4cont"><b>ໃບນັບສະຕ໋ອກ '+cesc(c.no)+'</b><span>'+cesc(locName(c.loc))+' · '+cesc(c.cat)+' (ຕໍ່)</span></div>';
+ var thead='<tr><th style="width:34px">#</th><th>ລາຍການ</th><th style="width:58px">ຫົວໜ່ວຍ</th><th class="r" style="width:80px">ໃນລະບົບ</th><th class="r" style="width:80px">ນັບໄດ້</th><th class="r" style="width:76px">ສ່ວນຕ່າງ</th>'+(cost?'<th class="r" style="width:86px">ມູນຄ່າ (₭)</th>':'')+'</tr>';
+ var rows=[],lastCat=null,cols=cost?7:6;
+ c.lines.forEach(function(l,i){if(l.cat!==lastCat){lastCat=l.cat;rows.push('<tr class="a4g"><td colspan="'+cols+'">'+cesc(l.cat||'')+'</td></tr>');}
+  var d=l.cnt==null?null:Math.round(((+l.cnt)-(+l.sys||0))*1000)/1000,hot=d!=null&&Math.abs(d)>1e-9;
+  rows.push('<tr'+(hot?' class="a4hot"':'')+'><td>'+(i+1)+'</td><td>'+cesc(l.name)+' <small>'+cesc(l.code)+'</small></td><td>'+cesc(l.unit||'')+'</td><td class="r">'+KIP(l.sys)+'</td><td class="r"><b>'+(l.cnt==null?'—':KIP(l.cnt))+'</b></td><td class="r"'+(hot?' style="color:'+(d<0?'#b91c1c':'#15803d')+';font-weight:700"':'')+'>'+(d==null?'':(d>0?'+':'')+KIP(d))+'</td>'+(cost?'<td class="r"'+(hot?' style="color:'+(d<0?'#b91c1c':'#15803d')+'"':'')+'>'+(hot?(d>0?'+':'−')+KIP(Math.abs(Math.round(d*(l.cost||0)))):'')+'</td>':'')+'</tr>');});
+ var ord=S.filter(function(x){return x.role==='counter';}).concat(S.filter(function(x){return x.role==='participant';}),S.filter(function(x){return x.role==='approver';}));
+ var tail='<div class="a4sigt">ລາຍເຊັນອີເລັກໂທຣນິກ</div><div class="a4sigs">'+(ord.length?ord.map(function(x){return '<div class="a4sig"><div class="a4sigimg">'+(x.img?'<img src="'+x.img+'" alt="">':'')+'</div><b>'+cesc(x.name)+'</b><span>'+cesc(SC_SIGN_ROLE[x.role]||'')+(x.title?' · '+cesc(x.title):'')+'</span><small>'+procD(x.ts)+' · '+(x.verified?'ຢືນຢັນດ້ວຍ PIN':'ບຸກຄົນພາຍນອກ')+'</small></div>';}).join(''):'<div class="a4sig"><div class="a4sigimg"></div><b>&nbsp;</b><span>ຜູ້ນັບ</span></div><div class="a4sig"><div class="a4sigimg"></div><b>&nbsp;</b><span>ຜູ້ອະນຸມັດ</span></div>')+'</div>'+
+  '<div class="a4fp">ເອກະສານນີ້ເຊັນອີເລັກໂທຣນິກໃນລະບົບ ST POS · ລະຫັດກວດສອບ <b>'+fp+'</b></div>';
+ return {first:first,cont:cont,thead:thead,rows:rows,tail:tail,foot:function(i,n){return '<span>'+cesc(state.shopName||'ST POS')+' · ໃບນັບສະຕ໋ອກ '+cesc(c.no)+' · ສ້າງ '+procD(Date.now())+'</span><span>ລະຫັດກວດສອບ '+fp+' · ໜ້າ '+i+' / '+n+'</span>';}};}
+function scPrint(id){var c=findSC(id);if(!c)return;printDocA4(scDocHTML(c,c.status==='COUNTING'),PDOC.sc.lao+' '+c.no);}
+function scPdf(id){var c=findSC(id);if(!c)return;toast('ກຳລັງສ້າງ PDF…');
+ a4Pdf(scPdfParts(c),'ໃບນັບສະຕ໋ອກ_'+c.no+'.pdf').then(function(){logOrder('ນັບສາງ',c.no+' ດາວໂຫຼດ PDF','');toast('ດາວໂຫຼດ PDF ແລ້ວ');},function(){toast('ສ້າງ PDF ບໍ່ໄດ້ (ຕ້ອງມີອິນເຕີເນັດ) — ໃຊ້ "ພິມ" → Save as PDF ແທນ');});}
 /* ---------- PR: ສ້າງ / ແກ້ໄຂ ---------- */
 function prModal(id){if(!can('prCreate')&&!isOwner()){toast('ບໍ່ມີສິດສ້າງໃບຂໍຊື້');return;}procInit();var pr=id?findPR(id):null;
  window.__pr=pr?{id:pr.id,loc:pr.loc,need:pr.need||'',note:pr.note||'',wf:(pr.wf&&pr.wf.id)||wfDefault().id,lines:JSON.parse(JSON.stringify(pr.lines))}:{id:null,loc:curLoc(),need:'',note:'',wf:wfDefault().id,lines:[]};renderPrModal();}
