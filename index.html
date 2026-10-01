@@ -193,7 +193,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 #cds .cds-promo{background:var(--gold);color:#3a2c00;border-radius:16px;padding:14px 24px;font-size:24px;font-weight:800;margin:16px 0}
 #cds .cds-thanks{position:fixed;inset:0;background:var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:16px;z-index:2}
 #cds .cds-thanks .big{font-size:60px;font-weight:900}#cds .cds-thanks .sub{font-size:30px}
-.adminbox{width:100%;max-width:1600px;padding:18px 22px}
+.adminbox{width:100%;max-width:none;padding:18px 22px}
 .panelgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;margin-bottom:14px}
 .panelgrid>.kpi{margin-bottom:0!important}
 .adminbox .asec input:not([type=checkbox]):not([type=radio]):not([type=file]),.adminbox .asec select,.adminbox .asec textarea{border:1px solid #d9ebea;border-radius:10px;padding:9px 11px;background:#fbfefe;font-size:14px}
@@ -1172,7 +1172,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .keyed-i{flex:1;min-width:160px;color:#1f3d3a}.keyed-a{color:#075e5b}
 .rsn-q{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.rsn-q button{padding:7px 12px;border-radius:10px;background:#fff;border:1.5px solid #dcecea;font-weight:700;font-size:13.5px;color:#12302d}.rsn-q button.on{background:#062f2d;color:#fff;border-color:#062f2d}
 /* ===== ການຕັ້ງຄ່າ (ອອກແບບໃໝ່) ===== */
-.setpage{max-width:1280px}
+.setpage{max-width:none}
 .setwrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:24px;align-items:start}
 .setrail{position:sticky;top:8px;background:#fff;border-radius:22px;padding:14px 10px 12px;box-shadow:var(--sh-1);z-index:6}
 .setrail h2{font-size:21px;font-weight:800;color:var(--ink);padding:4px 12px 6px;margin:0}
@@ -1181,7 +1181,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .setrail button svg{width:19px;height:19px;flex-shrink:0;stroke:currentColor;opacity:.75}
 .setrail button:hover{background:#f0f8f7}
 .setrail button.on{background:#062f2d;color:#fff}.setrail button.on svg{opacity:1}
-.setmain{min-width:0;max-width:960px}
+.setmain{min-width:0;max-width:none}
 .sethead{display:flex;align-items:flex-end;gap:12px;margin:2px 0 16px;scroll-margin-top:90px}
 .sethead h2{font-size:25px;font-weight:800;color:var(--ink);margin:0;line-height:1.3}
 .sethead p{color:#4b6f6c;font-size:14.5px;margin:3px 0 0}
@@ -1283,14 +1283,14 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
  .sitem{flex-wrap:wrap}.sitem-a{width:100%;justify-content:flex-start;padding-left:0}
 }
 
-.repmain{max-width:none}.reppage{max-width:1600px}
+.repmain{max-width:none}.reppage{max-width:none}
 .reppage #repbody>.toolbar:first-child{padding-top:0}
 .setrail .rbadge{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:800;background:#fde68a;color:#78350f;border-radius:999px;padding:1px 8px}
 .setrail button.on .rbadge{background:#7ff0e9;color:#062f2d}
 @media (max-width:900px){.setrail .rbadge{margin-left:6px}}
 .memtabs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px 4px}
 .memtabs .sseg button{height:40px;padding:0 18px;font-size:14.5px}
-#membody.memsd{padding:10px 18px 18px;max-width:1000px}
+#membody.memsd{padding:10px 18px 18px;max-width:none}
 .rolepick{justify-content:flex-start;padding:14px 0 6px}
 .rolehint{font-size:13px;color:#557673;padding:4px 0 10px}
 .roleperm{max-height:none;margin-bottom:14px}
@@ -1344,7 +1344,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .a4sig b{display:block;font-size:12px}.a4sig span{display:block;font-size:10.5px;color:#1D3F6E;font-weight:700}.a4sig small{display:block;font-size:9.5px;color:#6a7b78}
 .a4fp{margin-top:12px;font-size:10px;color:#6a7b78;text-align:right}
 /* ===== ເຊັກລິດ (ທີມ ST POS) ===== */
-.ck{max-width:880px}
+.ck{max-width:none}
 .ck-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}
 .ck-tabs button{height:42px;padding:0 18px;border-radius:12px;border:1px solid #cfe4e2;background:#fff;color:#24504c;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer}
 .ck-tabs button.on{background:#062f2d;border-color:#062f2d;color:#fff}
@@ -1367,6 +1367,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .ck-pf .pass.on{background:#e7f8f1;border-color:#0A7E7A;color:#0A7E7A}.ck-pf .fail.on{background:#fdecec;border-color:#dc2626;color:#dc2626}
 .ck-note{display:none;width:100%;margin-top:10px;border:1px solid #f3c1c1;border-radius:12px;padding:10px;font:inherit;font-size:14.5px;resize:vertical;background:#fffafa}
 .ck-item.failed .ck-note{display:block}
+@media (min-width:1100px){.ck-item{display:grid;grid-template-columns:1fr 340px;column-gap:18px;align-items:center}.ck-pf{margin-top:0}.ck-note{grid-column:1/-1}}
 .ck-card{background:#fff;border-radius:18px;box-shadow:var(--sh-1);padding:14px 16px;margin-top:12px}
 .ck-card label{display:block;font-weight:700;font-size:14px;margin-bottom:6px;color:var(--ink)}
 .ck-card textarea{width:100%;border:1px solid #d6e9e7;border-radius:12px;padding:10px;font:inherit;font-size:14.5px;resize:vertical;background:#fbfefe}
@@ -1390,7 +1391,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .ck-u{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef4f3}.ck-u small{color:var(--muted)}.ck-u select{height:38px;border:1px solid #d6e9e7;border-radius:10px;padding:0 10px;font:inherit;background:#fbfefe}
 @media (max-width:700px){.ck-kpis{grid-template-columns:repeat(2,1fr)}.ck-head select,.ck-head input{flex:1}}
 /* ===== ຈອງໂຕະ ===== */
-.rv{max-width:980px}
+.rv{max-width:none}
 .rv-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.rv-top .ttl{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2}.rv-top .sub{color:var(--muted);font-size:14px;margin-top:2px}
 .rv-add{margin-left:auto;height:48px;padding:0 22px;border-radius:14px;border:0;background:#0A7E7A;color:#fff;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;box-shadow:0 6px 16px rgba(10,126,122,.28)}.rv-add:hover{background:#086b68}
 .rv-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
@@ -1440,7 +1441,7 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 .rv-warn{background:#fff7ed;color:#c2410c;border-radius:10px;padding:9px 11px;font-weight:700;margin-bottom:10px;text-align:center}.rv-warn.bad{background:#fef2f2;color:#b91c1c}
 @media (max-width:700px){.rv-card{flex-wrap:wrap;padding:12px}.rv-acts{width:100%}.rv-acts .rv-b.pri{flex:1}.rv-time{width:52px}.rv-top .ttl{font-size:22px}.rv-add{height:44px;padding:0 16px}.rv-dpick{flex:1}.rv-dpick input{flex:1;width:auto}.rv-week{gap:4px}.rv-week button{min-width:0;padding:6px 2px}.rv-q{flex-basis:100%}.rv-week i{top:-5px;right:-3px;min-width:16px;height:16px;font-size:10px}.rv-week{padding-top:5px}.rv-grid{grid-template-columns:1fr}}
 .sa-note{margin-top:10px;padding:8px 12px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:12.5px;font-weight:600}
-.sa-wrap{padding:16px;max-width:980px}.sa-head{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between;margin-bottom:12px}.sa-head h2{margin:0;font-size:18px}.sa-head p{margin:2px 0 0;color:var(--muted);font-size:12.5px}.sa-chips{display:flex;gap:6px;flex-wrap:wrap}
+.sa-wrap{padding:16px 0;max-width:none}.sa-head{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between;margin-bottom:12px}.sa-head h2{margin:0;font-size:18px}.sa-head p{margin:2px 0 0;color:var(--muted);font-size:12.5px}.sa-chips{display:flex;gap:6px;flex-wrap:wrap}
 .sa-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(6,47,45,.05)}.sa-card.pend{border-left:4px solid #f59e0b}
 .sa-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.sa-tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px}.sa-mut{color:var(--muted);font-size:12px}.sa-val{margin-left:auto}
 .sa-lines{margin:8px 0 4px 18px;padding:0;font-size:13.5px}.sa-rsn{font-size:13px;margin:4px 0}
