@@ -940,6 +940,22 @@ details.more[open]>summary{background:#eef8f7!important}
 .p2-pay.dim{opacity:.55}
 .p2-restx{width:100%;padding:13px;border-radius:14px;background:#fff8eb;border:1.5px solid #f6d9a6;color:#a15c00;font-weight:800;font-size:15px}
 .p2-restx:hover{background:#fff1d6}
+
+/* ===== ປະຫວັດການຂາຍ: ແຍກ ສົດ / ໂອນ ===== */
+.hps{display:flex;gap:10px;padding:0 18px 12px;flex-wrap:wrap}
+.hps-c{flex:1;min-width:150px;text-align:left;background:#fff;border:1.5px solid #e3efee;border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:1px;cursor:pointer;position:relative}
+.hps-c small{font-size:12.5px;font-weight:800;color:var(--muted)}
+.hps-c b{font-size:20px;font-weight:800;color:var(--ink)}
+.hps-c span{font-size:12px;color:var(--muted)}
+.hps-c:before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:#cbd5d4}
+.hps-c.cash:before{background:#16a34a}.hps-c.xfer:before{background:#2563eb}.hps-c.credit:before{background:#d97706}.hps-c.wallet:before{background:#7c3aed}.hps-c.all:before{background:#0A7E7A}
+.hps-c.on{border-color:#0A7E7A;box-shadow:0 0 0 3px rgba(10,126,122,.15)}
+.hps-c.all.on{background:#f3fbfa}
+.pm{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.pm:before{content:'';width:8px;height:8px;border-radius:50%;background:#94a3b8;flex-shrink:0}
+.pm.cash:before{background:#16a34a}.pm.xfer:before{background:#2563eb}.pm.credit:before{background:#d97706}.pm.wallet:before{background:#7c3aed}
+.pm b{font-weight:800}
+.pmlist{display:flex;flex-direction:column;gap:3px}
 </style>
 </head>
 <body>
@@ -2014,32 +2030,53 @@ function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');
  R.innerHTML=`<div class="kds-head"><span style="font-size:22px"> ຈໍພະນັກງານເສີບ</span><span class="stat on">ພ້ອມເສີບ ${ready.length}</span><span class="stat">ເສີບແລ້ວມື້ນີ້ ${state.servedToday||0}</span><span style="margin-left:auto;display:flex;gap:10px;align-items:center"><span class="stat ${state.soundOn?'on':''}" onclick="toggleSound()">${state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ'}</span><span class="stat" onclick="playReadyChime()">▶ ລອງສຽງ</span></span></div>
   ${ready.length?`<div class="kds-grid">${ready.sort((a,b)=>a.ts-b.ts).map(o=>`<div class="kcard st-ready"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${cesc(o.name)}</h4><div class="meta">ໂຕະ ${o.table} · ${o.k==='food'?' ຄົວ':' ບາ'}</div></div></div>${o.note?`<div style="font-size:13px;color:var(--blue)">✎ ${cesc(o.note)}</div>`:''}<button class="kbtn" style="background:var(--green)" onclick="serveOrder('${o.id}')"> ເສີບແລ້ວ</button></div>`).join('')}</div>`:'<div class="empty">ບໍ່ມີລາຍການພ້ອມເສີບ</div>'}`;}
 function serveOrder(id){const i=state.orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;state.orders[i].status='served';state.servedToday=(state.servedToday||0)+1;save();render();}
-function histBills(){var all=[...state.bills].reverse();return histDate?all.filter(function(b){return ymd(b.ts)===histDate;}):all;}
+var histPay='';
+function histBillsDay(){var all=[...state.bills].reverse();return histDate?all.filter(function(b){return ymd(b.ts)===histDate;}):all;}
+function histBills(){var a=histBillsDay();return histPay?a.filter(function(b){return !b.voided&&billPayNet(b)[histPay]>0;}):a;}
+/* ເງິນທີ່ຮັບຕາມວິທີຈ່າຍ (ຫຼັງຄືນເງິນ: ຫັກຈາກເງິນສົດກ່ອນ ຄືກັບລີ້ນຊັກ) */
+function billPayNet(b){if(b.voided)return {};var m=billPayMap(b),out={};Object.keys(m).forEach(function(k){out[k]=m[k];});
+ if(b.credit){var k0=Object.keys(out)[0];if(k0&&k0!=='ຕິດໜີ້'){out['ຕິດໜີ້']=out[k0];delete out[k0];}}
+ var r=+b.refundAmt||0;if(r>0){var c=Math.min(r,out['ເງິນສົດ']||0);if(c){out['ເງິນສົດ']-=c;r-=c;}Object.keys(out).forEach(function(k){if(r>0&&out[k]>0){var d=Math.min(r,out[k]);out[k]-=d;r-=d;}});}
+ return out;}
+function payKind(t){t=String(t||'');return t==='ເງິນສົດ'?'cash':t==='ຕິດໜີ້'?'credit':t==='ກະເປົາລູກຄ້າ'?'wallet':'xfer';}
+function payCellHTML(b){if(b.voided)return '<span style="color:var(--muted)">'+cesc(b.pay)+'</span>';var m=billPayNet(b),ks=Object.keys(m).filter(function(k){return m[k]>0;});
+ if(!ks.length)return cesc(b.pay||'-');if(ks.length===1)return '<span class="pm '+payKind(ks[0])+'">'+cesc(ks[0])+'</span>';
+ return '<div class="pmlist">'+ks.map(function(k){return '<span class="pm '+payKind(k)+'">'+cesc(k)+' <b>'+KIP(m[k])+'</b></span>';}).join('')+'</div>';}
+function histPayStrip(){var tot={},cnt={},sum=0;histBillsDay().forEach(function(b){var m=billPayNet(b);Object.keys(m).forEach(function(k){if(m[k]>0){tot[k]=(tot[k]||0)+m[k];cnt[k]=(cnt[k]||0)+1;sum+=m[k];}});});
+ var order=(state.payTypes||PAYTYPES).concat(Object.keys(tot));var seen={},ks=order.filter(function(k){if(seen[k]||!tot[k])return false;seen[k]=1;return true;});
+ var xfer=ks.filter(function(k){return payKind(k)==='xfer';}).reduce(function(a,k){return a+tot[k];},0);
+ return '<div class="hps"><button class="hps-c all'+(histPay?'':' on')+'" onclick="histPay=\'\';render()"><small>ລວມທຸກວິທີ</small><b>'+KIP(sum)+'</b><span>ສົດ '+KIP(tot['ເງິນສົດ']||0)+' · ໂອນ '+KIP(xfer)+'</span></button>'+
+  ks.map(function(k){var q=k.replace(/'/g,"\\'");return '<button class="hps-c '+payKind(k)+(histPay===k?' on':'')+'" onclick="histPay=(histPay===\''+q+'\'?\'\':\''+q+'\');render()"><small>'+cesc(k)+'</small><b>'+KIP(tot[k])+'</b><span>'+cnt[k]+' ບິນ'+(histPay===k?' · ກົດເພື່ອເບິ່ງທັງໝົດ':'')+'</span></button>';}).join('')+'</div>';}
 function renderHistory(R){if(histDate===undefined)histDate=ymd(Date.now());
  var bills=histBills(),total=bills.reduce(function(s,b){return s+billNet(b);},0);var nVoid=bills.filter(function(b){return b.voided;}).length;
  var bar=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ປະຫວັດການຂາຍ</span>
    <label style="margin:0;font-weight:600">ວັນທີ:</label><input class="in" type="date" value="${histDate||''}" onchange="histDate=this.value;render()">
    <button class="btn-sm" onclick="histDate='';render()">ທັງໝົດ</button>
    ${['item','bill','table'].map(function(v){var lb={item:'ແຍກລາຍເມນູ',bill:'ຕາມບິນ',table:'ຕາມໂຕະ'}[v];return '<button class="btn-sm '+(histView===v?'green':'')+'" onclick="histView=\''+v+'\';render()">'+lb+'</button>';}).join('')}
-   <span style="margin-left:auto;color:var(--muted)">${bills.length} ບິນ${nVoid?' (void '+nVoid+')':''} · ${KIP(total)} ກີບ</span><button class="btn-sm btn-exp" onclick="exportHistory()"><svg class="dl" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export Excel</button></div>`;
+   <span style="margin-left:auto;color:var(--muted)">${histPay?'<b style="color:var(--tiff-deep)">ສະເພາະ '+cesc(histPay)+'</b> · ':''}${bills.length} ບິນ${nVoid?' (void '+nVoid+')':''} · ${KIP(total)} ກີບ</span><button class="btn-sm btn-exp" onclick="exportHistory()"><svg class="dl" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Export Excel</button></div>`+histPayStrip();
  if(histView==='item'){
   var irows=[];bills.forEach(function(b){(b.items||[]).forEach(function(it){irows.push({b:b,it:it});});});
-  R.innerHTML=bar+'<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>ເລກບິນ</th><th>ໂຕະ</th><th>ເມນູ</th><th>ຈຳນວນ</th><th>ລາຄາ/ໜ່ວຍ</th><th>ລວມ</th><th>ເວລາສັ່ງ</th><th>ເວລາຈ່າຍ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th></th></tr></thead><tbody>'+
-   (irows.length?irows.map(function(r){var it=r.it,b=r.b;return '<tr'+(b.voided?' style="opacity:.55;background:#fef2f2"':'')+'><td>'+b.receipt+(b.voided?' <span class="tag warn">VOID</span>':'')+'</td><td><b>'+cesc(b.table)+'</b></td><td>'+cesc(it.name)+'</td><td>'+it.qty+'</td><td>'+KIP(it.price+(it.modPrice||0))+'</td><td style="font-weight:700;color:var(--tiff-deep)">'+KIP(lineTotal(it))+'</td><td>'+(it.ts?new Date(it.ts).toLocaleTimeString('en-GB'):'-')+'</td><td>'+new Date(b.ts).toLocaleTimeString('en-GB')+'</td><td>'+cesc(b.pay)+'</td><td>'+cesc(b.cashier)+'</td><td><button class="btn-sm" onclick="previewReceipt(\''+b.receipt+'\')"> ພິມ</button></td></tr>';}).join(''):'<tr><td colspan="11" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>')+
+   var _pb=null;
+   R.innerHTML=bar+'<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>ເລກບິນ</th><th>ໂຕະ</th><th>ເມນູ</th><th>ຈຳນວນ</th><th>ລາຄາ/ໜ່ວຍ</th><th>ລວມ</th><th>ເວລາສັ່ງ</th><th>ເວລາຈ່າຍ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th></th></tr></thead><tbody>'+
+    (irows.length?irows.map(function(r){var it=r.it,b=r.b;var first=_pb!==b.receipt;_pb=b.receipt;return '<tr'+(b.voided?' style="opacity:.55;background:#fef2f2"':'')+'><td>'+b.receipt+(b.voided?' <span class="tag warn">VOID</span>':'')+'</td><td><b>'+cesc(b.table)+'</b></td><td>'+cesc(it.name)+'</td><td>'+it.qty+'</td><td>'+KIP(it.price+(it.modPrice||0))+'</td><td style="font-weight:700;color:var(--tiff-deep)">'+KIP(lineTotal(it))+'</td><td>'+(it.ts?new Date(it.ts).toLocaleTimeString('en-GB'):'-')+'</td><td>'+new Date(b.ts).toLocaleTimeString('en-GB')+'</td><td>'+(first?payCellHTML(b):'<span style="color:#cbd5d4">〃</span>')+'</td><td>'+cesc(b.cashier)+'</td><td>'+(first?'<button class="btn-sm" onclick="previewReceipt(\''+b.receipt+'\')"> ພິມ</button>':'')+'</td></tr>';}).join(''):'<tr><td colspan="11" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>')+
    '</tbody></table></div>';
  }else if(histView==='table'){
   var g={};bills.forEach(function(b){var k=b.table||'-';if(!g[k])g[k]={n:0,items:0,total:0};g[k].n++;g[k].total+=b.total;g[k].items+=(b.items||[]).reduce(function(s,i){return s+(i.qty||0);},0);});
   var keys=Object.keys(g).sort(function(a,b){return g[b].total-g[a].total;});
   R.innerHTML=bar+`<div style="padding:0 18px 18px"><table class="tbl"><thead><tr><th>ໂຕະ</th><th>ຈຳນວນບິນ</th><th>ຈຳນວນລາຍການ</th><th>ຍອດລວມ</th></tr></thead><tbody>${keys.length?keys.map(function(k){return `<tr><td><b>${k}</b></td><td>${g[k].n}</td><td>${g[k].items}</td><td>${KIP(g[k].total)}</td></tr>`;}).join(''):'<tr><td colspan="4" style="text-align:center;padding:30px;color:#94a3b8">ບໍ່ມີຂໍ້ມູນ</td></tr>'}</tbody></table></div>`;
  }else{
-  R.innerHTML=bar+`<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th>ເລກບິນ</th><th>ໂຕະ</th><th>ລາຍການ (ເມນູ)</th><th>ເວລາ</th><th>ຍອດ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th></th></tr></thead><tbody>${bills.length?bills.map(function(b,i){return `<tr${b.voided?' style="opacity:.55;background:#fef2f2"':''}><td>${i+1}</td><td>${b.receipt}${b.voided?'<br><span class="tag warn">VOID</span>':''}</td><td>${b.table}</td><td class="hbrief" title="${cesc(billBriefFull(b))}"><div><span class="hcount">${billQty(b)} ລາຍການ</span><span class="htxt">${cesc(billBrief(b))}</span></div>${b.voided?'<div style="color:var(--red);font-size:11px;font-weight:700">Void: '+cesc(b.voidReason||'')+' — '+cesc(b.voidBy||'')+'</div>':''}</td><td>${histDate?new Date(b.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):new Date(b.ts).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td${b.voided?' style="text-decoration:line-through"':''}>${KIP(b.total)}${b.refundAmt?'<br><small style="color:var(--orange)">ສຸດທິ '+KIP(billNet(b))+'</small>':''}</td><td>${b.pay}</td><td>${b.cashier}</td><td><button class="btn-sm" onclick="previewReceipt('${b.receipt}')"> ພິມບິນ</button>${b.voided?'':' <button class="btn-sm" style="background:var(--orange)" onclick="refundItems(\''+b.receipt+'\')">ຄືນ</button> <button class="btn-sm red" onclick="voidBill(\''+b.receipt+'\')">Void</button>'}${b.refundAmt?'<br><span class="tag warn" style="margin-top:3px;display:inline-block">ຄືນ '+KIP(b.refundAmt)+'</span>':''}</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>'}</tbody></table></div>`;
+  R.innerHTML=bar+`<div style="padding:0 18px 18px;overflow:auto"><table class="tbl"><thead><tr><th>#</th><th>ເລກບິນ</th><th>ໂຕະ</th><th>ລາຍການ (ເມນູ)</th><th>ເວລາ</th><th>ຍອດ</th><th>ວິທີຈ່າຍ</th><th>ແຄຊເຍຍ</th><th></th></tr></thead><tbody>${bills.length?bills.map(function(b,i){return `<tr${b.voided?' style="opacity:.55;background:#fef2f2"':''}><td>${i+1}</td><td>${b.receipt}${b.voided?'<br><span class="tag warn">VOID</span>':''}</td><td>${b.table}</td><td class="hbrief" title="${cesc(billBriefFull(b))}"><div><span class="hcount">${billQty(b)} ລາຍການ</span><span class="htxt">${cesc(billBrief(b))}</span></div>${b.voided?'<div style="color:var(--red);font-size:11px;font-weight:700">Void: '+cesc(b.voidReason||'')+' — '+cesc(b.voidBy||'')+'</div>':''}</td><td>${histDate?new Date(b.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):new Date(b.ts).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td${b.voided?' style="text-decoration:line-through"':''}>${KIP(b.total)}${b.refundAmt?'<br><small style="color:var(--orange)">ສຸດທິ '+KIP(billNet(b))+'</small>':''}</td><td>${payCellHTML(b)}</td><td>${cesc(b.cashier)}</td><td><button class="btn-sm" onclick="previewReceipt('${b.receipt}')"> ພິມບິນ</button>${b.voided?'':' <button class="btn-sm" style="background:var(--orange)" onclick="refundItems(\''+b.receipt+'\')">ຄືນ</button> <button class="btn-sm red" onclick="voidBill(\''+b.receipt+'\')">Void</button>'}${b.refundAmt?'<br><span class="tag warn" style="margin-top:3px;display:inline-block">ຄືນ '+KIP(b.refundAmt)+'</span>':''}</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;padding:30px;color:#94a3b8">ຍັງບໍ່ມີບິນ</td></tr>'}</tbody></table></div>`;
  }}
 function billQty(b){return (b.items||[]).reduce(function(s,i){return s+(+i.qty||0);},0);}
 function billBrief(b){var it=b.items||[],nm=it.slice(0,2).map(function(i){return i.name;}).join(', ');return nm+(it.length>2?' +'+(it.length-2):'')||'-';}
 function billBriefFull(b){return (b.items||[]).map(function(i){return i.qty+'× '+i.name;}).join('\n');}
 function exportHistory(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var bills=histBills();if(!bills.length){toast('ບໍ່ມີຂໍ້ມູນໃຫ້ export');return;}
   var rows=[];bills.forEach(function(b){(b.items||[]).forEach(function(it){rows.push({'ເລກບິນ':b.receipt,'ໂຕະ':b.table,'ເມນູ':it.name,'ຈຳນວນ':it.qty,'ລາຄາ/ໜ່ວຍ':(it.price+(it.modPrice||0)),'ລວມ(ກີບ)':Math.round(lineTotal(it)),'ເວລາສັ່ງ':it.ts?new Date(it.ts).toLocaleString('en-GB'):new Date(b.ts).toLocaleString('en-GB'),'ເວລາຈ່າຍ':new Date(b.ts).toLocaleString('en-GB'),'ວິທີຈ່າຍ':b.pay,'ແຄຊເຍຍ':b.cashier,'ສະຖານະ':b.voided?('VOID: '+(b.voidReason||'')):'ປົກກະຕິ'});});});
-  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ປະຫວັດການຂາຍ');XLSX.writeFile(wb,'ປະຫວັດການຂາຍ_'+(histDate||'ທັງໝົດ')+'.xlsx');toast('Export ສຳເລັດ');});}
+  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ປະຫວັດການຂາຍ');
+  var pts=[];bills.forEach(function(b){Object.keys(billPayNet(b)).forEach(function(k){if(pts.indexOf(k)<0)pts.push(k);});});
+  var brows=bills.map(function(b){var m=billPayNet(b),o={'ເລກບິນ':b.receipt,'ໂຕະ':b.table,'ເວລາ':new Date(b.ts).toLocaleString('en-GB'),'ຍອດ':Math.round(billNet(b)),'ສະຖານະ':b.voided?'VOID':(b.refundAmt?'ຄືນບາງສ່ວນ':'')};pts.forEach(function(k){o[k]=Math.round(m[k]||0);});o['ແຄຊເຍຍ']=b.cashier||'';return o;});
+  var tot={'ເລກບິນ':'ລວມ','ຍອດ':brows.reduce(function(a,r){return a+r['ຍອດ'];},0)};pts.forEach(function(k){tot[k]=brows.reduce(function(a,r){return a+(r[k]||0);},0);});brows.push(tot);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(brows),'ແຍກວິທີຈ່າຍ');XLSX.writeFile(wb,'ປະຫວັດການຂາຍ_'+(histDate||'ທັງໝົດ')+'.xlsx');toast('Export ສຳເລັດ');});}
 function ymd(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
  const bills=state.bills.filter(b=>ymd(b.ts)===dashDate&&!b.voided);const sales=bills.reduce((s,b)=>s+billNet(b),0),n=bills.length;
