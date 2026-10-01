@@ -1391,36 +1391,54 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 @media (max-width:700px){.ck-kpis{grid-template-columns:repeat(2,1fr)}.ck-head select,.ck-head input{flex:1}}
 /* ===== ຈອງໂຕະ ===== */
 .rv{max-width:980px}
-.rv-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.rv-bar input[type=date],.rv-q{height:44px;border:1px solid #d6e9e7;border-radius:12px;background:#fff;padding:0 12px;font:inherit;font-size:14.5px}
-.rv-q{flex:1;min-width:200px}
-.rv-nav{width:44px;height:44px;border-radius:12px;border:1px solid #cfe4e2;background:#fff;font-size:22px;font-weight:800;color:#0A5E5B;cursor:pointer}
-.rv-add{height:44px;padding:0 20px;border-radius:12px;border:0;background:#0A7E7A;color:#fff;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
-.rv-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
-.rv-week button{border:1px solid #e1ecea;background:#fff;border-radius:14px;padding:8px 4px;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px}
-.rv-week small{font-size:11.5px;color:var(--muted)}.rv-week b{font-size:18px;color:var(--ink)}.rv-week i{font-style:normal;font-size:12px;font-weight:800;color:#6d28d9;background:#ede9fe;border-radius:99px;padding:0 8px}.rv-week i.z{background:none;color:#cbd5d4}
-.rv-week button.td{border-color:#9fd6cf}.rv-week button.on{background:#062f2d;border-color:#062f2d}.rv-week button.on b,.rv-week button.on small{color:#fff}
-.rv-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.rv-k{background:#fff;border-radius:14px;box-shadow:var(--sh-1);padding:10px 12px}.rv-k small{display:block;color:var(--muted);font-size:12px}.rv-k b{font-size:19px}
-.rv-over{background:#fef2f2;color:#b91c1c;border-radius:12px;padding:10px 14px;font-weight:700;margin-bottom:10px}
-.rv-h{font-weight:800;margin:6px 0 8px}
-.rv-card{display:flex;gap:14px;background:#fff;border-radius:16px;box-shadow:var(--sh-1);padding:14px 16px;margin-top:10px;border-left:5px solid #8b5cf6}
-.rv-card.soon{border-left-color:#f59e0b}.rv-card.late{border-left-color:#dc2626}.rv-card.dim{opacity:.62;border-left-color:#cbd5d4}
-.rv-time{flex-shrink:0;width:64px;text-align:center}.rv-time b{display:block;font-size:20px;color:var(--ink)}.rv-time small{color:var(--muted);font-size:12px}
+.rv-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.rv-top .ttl{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2}.rv-top .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.rv-add{margin-left:auto;height:48px;padding:0 22px;border-radius:14px;border:0;background:#0A7E7A;color:#fff;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;box-shadow:0 6px 16px rgba(10,126,122,.28)}.rv-add:hover{background:#086b68}
+.rv-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.rv-dpick{display:flex;align-items:center;background:#fff;border:1px solid #d6e9e7;border-radius:12px;overflow:hidden;height:42px}
+.rv-dpick input{border:0;height:40px;padding:0 4px;font:inherit;font-size:14px;background:none;width:140px;color:var(--ink)}
+.rv-nav{width:38px;height:40px;border:0;background:none;font-size:20px;font-weight:800;color:#0A5E5B;cursor:pointer}.rv-nav:hover{background:#eef7f6}
+.rv-today{height:42px;padding:0 14px;border-radius:12px;border:1px solid #9fd6cf;background:#e6f6f4;color:#0A5E5B;font:inherit;font-weight:700;cursor:pointer}
+.rv-q{flex:1;min-width:180px;height:42px;border:1px solid #d6e9e7;border-radius:12px;background:#fff;padding:0 12px;font:inherit;font-size:14px}
+.rv-week{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto}
+.rv-week button{flex:1;min-width:52px;border:1px solid #e1ecea;background:#fff;border-radius:12px;padding:6px 4px;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center;position:relative}
+.rv-week small{font-size:11px;color:var(--muted)}.rv-week b{font-size:16px;color:var(--ink);line-height:1.3}
+.rv-week i{position:absolute;top:3px;right:5px;min-width:18px;height:18px;border-radius:9px;background:#8b5cf6;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.rv-week button.td small{color:#0A7E7A;font-weight:800}.rv-week button.on{background:#062f2d;border-color:#062f2d}.rv-week button.on b,.rv-week button.on small{color:#fff}
+.rv-sum{display:flex;gap:8px;flex-wrap:wrap}.rv-sum span{background:#fff;border-radius:99px;padding:6px 14px;font-size:13.5px;color:#3f6662;box-shadow:var(--sh-1)}.rv-sum b{color:var(--ink);font-size:15px;margin-right:3px}.rv-sum .ok b{color:#15803d}.rv-sum .warn b{color:#b45309}
+.rv-sec{margin-top:18px}.rv-sh{font-weight:800;font-size:14px;color:#3f6662;display:flex;align-items:center;gap:6px}.rv-sh i{font-style:normal;background:#e6f0ef;border-radius:99px;padding:0 8px;font-size:12px}
+.rv-sec.now .rv-sh{color:#b91c1c}.rv-sec.now .rv-sh i{background:#fee2e2}
+.rv-card{display:flex;align-items:center;gap:14px;background:#fff;border-radius:16px;box-shadow:var(--sh-1);padding:12px 16px;margin-top:8px;border-left:5px solid #8b5cf6}
+.rv-card.soon{border-left-color:#f59e0b}.rv-card.late{border-left-color:#dc2626}.rv-card.dim{opacity:.62;border-left-color:#cbd5d4;box-shadow:none}
+.rv-time{flex-shrink:0;width:62px;text-align:center}.rv-time b{display:block;font-size:21px;color:var(--ink);line-height:1.2}.rv-time small{color:var(--muted);font-size:12px}
 .rv-main{flex:1;min-width:0}.rv-r1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rv-r1>b{font-size:16.5px}
 .rv-st,.rv-mem{font-size:12px;font-weight:800;border-radius:99px;padding:2px 10px}.rv-mem{background:#e0f2fe;color:#075985}
-.rv-r2{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;font-size:14px;color:#3f6662}.rv-r2 a{color:#0A7E7A;text-decoration:none;font-weight:700}
-.rv-tb{font-weight:800;color:#0A5E5B}.rv-dep{font-weight:800;color:#6d28d9}
-.rv-note{margin-top:4px;font-size:13.5px;color:var(--muted)}
-.rv-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.rv-b{height:36px;padding:0 14px;border-radius:10px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
-.rv-b.pri{background:#0A7E7A;border-color:#0A7E7A;color:#fff}.rv-b.red{color:#b91c1c;border-color:#f8cccc}
+.rv-r2{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;font-size:14px;color:#3f6662;align-items:center}.rv-r2 a{color:#0A7E7A;text-decoration:none;font-weight:700}
+.rv-tb{font-weight:800;color:#0A5E5B;background:#e6f6f4;border-radius:8px;padding:1px 8px}.rv-tb.none{background:#f1f5f9;color:#64748b;font-weight:600}.rv-dep{font-weight:800;color:#6d28d9}
+.rv-note{margin-top:3px;font-size:13px;color:var(--muted)}
+.rv-acts{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.rv-b{height:42px;padding:0 16px;border-radius:12px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}.rv-b:hover{background:#f3f9f8}
+.rv-b.pri{background:#0A7E7A;border-color:#0A7E7A;color:#fff;font-weight:800;padding:0 20px}.rv-b.pri:hover{background:#086b68}
+.rv-b.warn{color:#b45309;border-color:#fcd9a8;background:#fffbeb}.rv-b.more{width:42px;padding:0;font-size:20px;color:#64748b;line-height:1}.rv-b.ghost{border-style:dashed}
+.rv-empty{background:#fff;border-radius:16px;padding:40px 16px;text-align:center;margin-top:6px;box-shadow:var(--sh-1)}.rv-empty b{font-size:16px}.rv-empty p{color:var(--muted);margin:6px 0 14px}.rv-empty .rv-add{margin:0 auto}
+.rv-ms{text-align:center;color:var(--muted);margin:-4px 0 12px}.rv-sheet{display:flex;flex-direction:column;gap:6px}
+.rv-sheet button,.rv-sheet a{height:50px;border-radius:12px;border:1px solid #e1ecea;background:#fff;font:inherit;font-weight:700;font-size:15px;text-align:left;padding:0 16px;cursor:pointer;color:var(--ink);text-decoration:none;display:flex;align-items:center}.rv-sheet button:hover,.rv-sheet a:hover{background:#f3f9f8}.rv-sheet .red{color:#b91c1c;border-color:#f8cccc}
+.rv-step{display:flex;align-items:center;gap:8px;font-weight:800;margin:16px 0 8px;font-size:14.5px;color:var(--ink)}.rv-step span{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:#0A7E7A;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}.rv-step small{font-weight:500;color:var(--muted);font-size:12px}
+.rv-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.rv-chip{height:40px;padding:0 14px;border-radius:12px;border:1.5px solid #d6e9e7;background:#fff;font:inherit;font-weight:700;font-size:14px;cursor:pointer;color:#0A5E5B}.rv-chip:hover{border-color:#9fd6cf}
+.rv-chip.on,.rv-din.on,.rv-tin.on{background:#062f2d!important;border-color:#062f2d!important;color:#fff!important;color-scheme:dark}
+input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e9e7;padding:0 10px;font:inherit;font-size:14px;width:auto!important;margin:0!important;background:#fff}
+.rv-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.rv-row label{margin-top:0}
+.rv-stp>div{display:flex;align-items:center;border:1.5px solid #d6e9e7;border-radius:12px;overflow:hidden;height:46px;background:#fff}.rv-stp button{width:46px;height:46px;flex-shrink:0;border:0;background:#f3f9f8;font-size:22px;font-weight:800;color:#0A5E5B;cursor:pointer}
+.rv-stp input{flex:1;border:0!important;text-align:center;font-size:18px;font-weight:800;height:44px;margin:0!important;min-width:0;padding:0!important;box-shadow:none!important}
 .rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rv-tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:6px;max-height:210px;overflow:auto;margin:4px 0 8px}
+.rv-tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px;max-height:220px;overflow:auto;margin:0 0 6px}
 .rv-tc{border:1.5px solid #d6e9e7;background:#fff;border-radius:12px;padding:7px 4px;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center}.rv-tc b{font-size:14.5px}.rv-tc small{font-size:11px;color:var(--muted)}
-.rv-tc.on{background:#062f2d;border-color:#062f2d;color:#fff}.rv-tc.on small{color:#cfe}.rv-tc.busy{background:#f5f3ff;border-color:#ddd6fe;color:#a78bfa;cursor:not-allowed}.rv-tc.small:not(.on){border-style:dashed}
+.rv-tc.on{background:#062f2d;border-color:#062f2d;color:#fff}.rv-tc.on small{color:#cfe}.rv-tc.busy{background:#f8fafc;border-color:#eef2f7;color:#b6c2c0;cursor:not-allowed}.rv-tc.small:not(.on){border-style:dashed;color:#64748b}
+.rv-nt{margin-top:10px}
 .rv-memb{font-size:13.5px;margin:4px 0}.rv-depbox{background:#f5f3ff;border-radius:12px;padding:10px 12px;margin-top:10px}.rv-depbox small{color:var(--muted);font-size:12px}
+.rv-go{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}.rv-go small{font-size:12px;font-weight:600;opacity:.9}.rv-go.dis{opacity:.45}
 .rv-warn{background:#fff7ed;color:#c2410c;border-radius:10px;padding:9px 11px;font-weight:700;margin-bottom:10px;text-align:center}.rv-warn.bad{background:#fef2f2;color:#b91c1c}
-@media (max-width:700px){.rv-kpis{grid-template-columns:repeat(3,1fr)}.rv-week{gap:3px}.rv-card{padding:12px}.rv-time{width:52px}}
+@media (max-width:700px){.rv-card{flex-wrap:wrap;padding:12px}.rv-acts{width:100%}.rv-acts .rv-b.pri{flex:1}.rv-time{width:52px}.rv-top .ttl{font-size:22px}.rv-add{height:44px;padding:0 16px}.rv-dpick{flex:1}.rv-dpick input{flex:1;width:auto}.rv-week{gap:4px}.rv-week button{min-width:0;padding:6px 2px}.rv-q{flex-basis:100%}.rv-week i{top:-5px;right:-3px;min-width:16px;height:16px;font-size:10px}.rv-week{padding-top:5px}.rv-grid{grid-template-columns:1fr}}
 .sa-note{margin-top:10px;padding:8px 12px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:12.5px;font-weight:600}
 .sa-wrap{padding:16px;max-width:980px}.sa-head{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between;margin-bottom:12px}.sa-head h2{margin:0;font-size:18px}.sa-head p{margin:2px 0 0;color:var(--muted);font-size:12.5px}.sa-chips{display:flex;gap:6px;flex-wrap:wrap}
 .sa-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(6,47,45,.05)}.sa-card.pend{border-left:4px solid #f59e0b}
@@ -2067,50 +2085,76 @@ function rvTick(){try{if(!state||!_loaded&&(HAS_GAS||HAS_API)||!curUser()||!canV
  state.resv.forEach(function(r){var m=rvMin(r.time);if(r.status!=='booked'||r.date!==td||m==null)return;if(m-now<=(+c.remind||15)&&m-now>=-5&&!window.__rvRem[r.id]){window.__rvRem[r.id]=1;toast('⏰ '+r.time+' ລູກຄ້າຈອງ: '+r.name+(r.guests?' ('+r.guests+' ຄົນ)':'')+(r.table?' · ໂຕະ '+r.table:'')+' — ກຽມໂຕະ');try{playReadyChime();}catch(e){}}});rvBadge();}catch(e){}}
 setInterval(rvTick,30000);
 /* ---- ໜ້າຈອງໂຕະ ---- */
+function rvDayLbl(ds){var t=Date.now(),m={};m[ymd(t)]='ມື້ນີ້';m[ymd(t+86400000)]='ມື້ອື່ນ';m[ymd(t-86400000)]='ມື້ວານ';if(m[ds])return m[ds];var d=new Date(ds+'T00:00:00');return ['ອາທິດ','ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ'][d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);}
 function renderResv(R){rvInit();if(!rvDate)rvDate=ymd(Date.now());var td=ymd(Date.now()),c=rvCfg(),now=rvNowMin(),q=rvQ.trim().toLowerCase(),mng=can('resvMng')||isOwner();
  var dayList=state.resv.filter(function(r){return r.date===rvDate;}).sort(function(a,b){return (rvMin(a.time)||0)-(rvMin(b.time)||0);});
  var active=dayList.filter(function(r){return r.status!=='cancelled';});
- var k=function(l,v,cl){return '<div class="rv-k"><small>'+l+'</small><b'+(cl?' style="color:'+cl+'"':'')+'>'+v+'</b></div>';};
- var dep=active.reduce(function(s,r){return s+(r.dep?+r.dep.amt||0:0);},0);
  var d0=new Date(rvDate+'T00:00:00');var week=[];for(var i=-1;i<6;i++){var dd=new Date(d0.getTime()+i*86400000),ds=ymd(dd.getTime());week.push({ds:ds,n:state.resv.filter(function(r){return r.date===ds&&r.status==='booked';}).length,dn:['ອາ','ຈ','ອ','ພ','ພຫ','ສ','ສ'][dd.getDay()],d:dd.getDate()});}
  var list=q?state.resv.filter(function(r){return (r.name+' '+r.phone+' '+(r.no||'')+' '+(r.table||'')).toLowerCase().indexOf(q)>=0;}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(rvMin(a.time)||0)-(rvMin(b.time)||0);}).slice(0,100):dayList;
- var over=rvDate===td?dayList.filter(function(r){var m=rvMin(r.time);return r.status==='booked'&&m!=null&&now-m>c.grace;}):[];
- R.innerHTML='<div class="pad rv"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ຈອງໂຕະ</div><div class="sub">ຈອງລ່ວງໜ້າ · ມັດຈຳ · ມາຮອດ / ບໍ່ມາ — ລູກຄ້າທົ່ວໄປຈອງໄດ້</div></div></div>'+
-  '<div class="rv-bar"><button class="rv-nav" onclick="rvShift(-1)">‹</button><input type="date" value="'+rvDate+'" onchange="rvDate=this.value||ymd(Date.now());render()"><button class="rv-nav" onclick="rvShift(1)">›</button>'+(rvDate!==td?'<button class="btn-sm" onclick="rvDate=null;render()">ມື້ນີ້</button>':'')+
-  '<input class="rv-q" placeholder="ຄົ້ນຫາ ຊື່ / ເບີໂທ / ໂຕະ (ທຸກມື້)" value="'+aesc(rvQ)+'" oninput="rvQ=this.value;clearTimeout(window.__rvq);window.__rvq=setTimeout(function(){render();var e=document.querySelector(\'.rv-q\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)">'+
-  (mng?'<button class="rv-add" onclick="rvModal(null)">+ ຈອງໂຕະ</button>':'')+'</div>'+
-  '<div class="rv-week">'+week.map(function(w){return '<button class="'+(w.ds===rvDate?'on':'')+(w.ds===td?' td':'')+'" onclick="rvDate=\''+w.ds+'\';render()"><small>'+w.dn+'</small><b>'+w.d+'</b>'+(w.n?'<i>'+w.n+'</i>':'<i class="z">—</i>')+'</button>';}).join('')+'</div>'+
-  (q?'<div class="rv-h">ຜົນຄົ້ນຫາ ('+list.length+')</div>':'<div class="rv-kpis">'+k('ການຈອງ',active.length)+k('ລູກຄ້າ',active.reduce(function(s,r){return s+(+r.guests||0);},0)+' ຄົນ')+k('ມັດຈຳ',KIP(dep)+' ₭','#6d28d9')+k('ມາຮອດ',dayList.filter(function(r){return r.status==='seated';}).length,'#15803d')+k('ບໍ່ມາ',dayList.filter(function(r){return r.status==='noshow';}).length,'#b45309')+'</div>')+
-  (over.length&&!q?'<div class="rv-over">⚠ ເລີຍເວລາ '+over.length+' ລາຍການ — ກົດ "ມາຮອດ" ຫຼື "ບໍ່ມາ"</div>':'')+
-  (list.length?list.map(function(r){return rvCard(r,q,mng);}).join(''):'<div class="empty">ບໍ່ມີການຈອງ'+(mng&&!q?' — ກົດ "+ ຈອງໂຕະ"':'')+'</div>')+'</div>';}
+ var urgent=function(r){var m=rvMin(r.time);return r.status==='booked'&&r.date===td&&m!=null&&m-now<=c.lead;};
+ var nowA=dayList.filter(urgent),nextA=dayList.filter(function(r){return r.status==='booked'&&!urgent(r);}),doneA=dayList.filter(function(r){return r.status!=='booked';});
+ var cnt=function(s){return dayList.filter(function(r){return r.status===s;}).length;};
+ var sec=function(t,cl,arr){return arr.length?'<div class="rv-sec '+cl+'"><div class="rv-sh">'+t+' <i>'+arr.length+'</i></div>'+arr.map(function(r){return rvCard(r,false,mng);}).join('')+'</div>':'';};
+ var addBtn=mng?'<button class="rv-add" onclick="rvModal(null)">＋ ຈອງໂຕະໃໝ່</button>':'';
+ R.innerHTML='<div class="pad rv"><div class="rv-top"><div><div class="ttl">ຈອງໂຕະ</div><div class="sub">'+rvDayLbl(rvDate)+(rvDayLbl(rvDate).indexOf('/')<0?' · '+cesc(procDay(d0.getTime())):'')+'</div></div>'+addBtn+'</div>'+
+  '<div class="rv-bar"><div class="rv-dpick"><button class="rv-nav" onclick="rvShift(-1)" title="ມື້ກ່ອນ">‹</button><input type="date" value="'+rvDate+'" onchange="rvDate=this.value||ymd(Date.now());render()"><button class="rv-nav" onclick="rvShift(1)" title="ມື້ຖັດໄປ">›</button></div>'+(rvDate!==td?'<button class="rv-today" onclick="rvDate=null;render()">ກັບມື້ນີ້</button>':'')+
+  '<input class="rv-q" placeholder="ຄົ້ນຫາ ຊື່ / ເບີໂທ / ໂຕະ" value="'+aesc(rvQ)+'" oninput="rvQ=this.value;clearTimeout(window.__rvq);window.__rvq=setTimeout(function(){render();var e=document.querySelector(\'.rv-q\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)"></div>'+
+  '<div class="rv-week">'+week.map(function(w){return '<button class="'+(w.ds===rvDate?'on':'')+(w.ds===td?' td':'')+'" onclick="rvDate=\''+w.ds+'\';render()"><small>'+(w.ds===td?'ມື້ນີ້':w.dn)+'</small><b>'+w.d+'</b>'+(w.n?'<i>'+w.n+'</i>':'')+'</button>';}).join('')+'</div>'+
+  (q?'<div class="rv-sh">ຜົນຄົ້ນຫາ <i>'+list.length+'</i></div>'+(list.length?list.map(function(r){return rvCard(r,true,mng);}).join(''):'<div class="rv-empty"><b>ບໍ່ພົບ</b></div>'):
+   (dayList.length?'<div class="rv-sum"><span><b>'+cnt('booked')+'</b> ລໍມາ</span><span><b>'+active.reduce(function(s,r){return s+(r.status!=='noshow'?(+r.guests||0):0);},0)+'</b> ຄົນ</span><span class="ok"><b>'+cnt('seated')+'</b> ມາແລ້ວ</span>'+(cnt('noshow')?'<span class="warn"><b>'+cnt('noshow')+'</b> ບໍ່ມາ</span>':'')+'</div>'+
+    sec(nowA.some(function(r){return rvMin(r.time)<now-c.grace;})?'⚠ ຕ້ອງຈັດການດຽວນີ້':'ໃກ້ຮອດເວລາ','now',nowA)+sec(rvDate===td?'ລໍລູກຄ້າມາ':'ການຈອງ','next',nextA)+sec('ສຳເລັດ / ຍົກເລີກ','done',doneA)
+   :'<div class="rv-empty"><b>ບໍ່ມີການຈອງ '+rvDayLbl(rvDate)+'</b>'+(mng?'<p>ລູກຄ້າໂທມາຈອງ? ກົດປຸ່ມນີ້</p>'+addBtn:'')+'</div>'))+'</div>';}
 function rvShift(d){var x=new Date((rvDate||ymd(Date.now()))+'T00:00:00');rvDate=ymd(x.getTime()+d*86400000);render();}
-function rvCard(r,showDate,mng){var td=ymd(Date.now()),m=rvMin(r.time),now=rvNowMin(),late=r.status==='booked'&&r.date===td&&m!=null&&now-m>rvCfg().grace,soon=r.status==='booked'&&r.date===td&&m!=null&&m-now<=rvCfg().lead&&!late;var st=RV_ST[r.status]||[r.status,'#475569','#eef2f7'];
- var acts='';if(mng){if(r.status==='booked')acts='<button class="rv-b pri"'+sKX(r.id)+' onclick="rvSeat(this.dataset.k)">✓ ມາຮອດ</button><button class="rv-b"'+sKX(r.id)+' onclick="rvModal(this.dataset.k)">ແກ້</button><button class="rv-b"'+sKX(r.id)+' onclick="rvAct(this.dataset.k,\'noshow\')">ບໍ່ມາ</button><button class="rv-b red"'+sKX(r.id)+' onclick="rvCancelModal(this.dataset.k)">ຍົກເລີກ</button>';
-  else if(r.status==='seated')acts=(r.table&&state.tables[r.table]?'<button class="rv-b"'+sKX(r.table)+' onclick="openTable(this.dataset.k)">ເປີດໂຕະ '+cesc(r.table)+'</button>':'');
-  else acts='<button class="rv-b"'+sKX(r.id)+' onclick="rvAct(this.dataset.k,\'reopen\')">↩ ກັບເປັນຈອງ</button>';}
- return '<div class="rv-card'+(late?' late':soon?' soon':'')+(r.status!=='booked'?' dim':'')+'"><div class="rv-time"><b>'+cesc(r.time||'—')+'</b>'+(showDate?'<small>'+cesc(r.date)+'</small>':'<small>'+((+r.dur||120)/60)+' ຊມ</small>')+'</div>'+
-  '<div class="rv-main"><div class="rv-r1"><b>'+cesc(r.name)+'</b>'+(r.memberId?'<span class="rv-mem">ສະມາຊິກ</span>':'')+'<span class="rv-st" style="color:'+st[1]+';background:'+st[2]+'">'+st[0]+'</span>'+(late?'<span class="rv-st" style="color:#b91c1c;background:#fee2e2">ເລີຍເວລາ</span>':soon?'<span class="rv-st" style="color:#c2410c;background:#ffedd5">ໃກ້ຮອດ</span>':'')+'</div>'+
-  '<div class="rv-r2">'+(r.phone?'<a href="tel:'+aesc(r.phone)+'">📞 '+cesc(r.phone)+'</a>':'')+(r.guests?'<span>👥 '+r.guests+' ຄົນ</span>':'')+'<span class="rv-tb">'+(r.table?'ໂຕະ '+cesc(r.table):'ຍັງບໍ່ກຳນົດໂຕະ')+'</span>'+(r.dep?'<span class="rv-dep">ມັດຈຳ '+KIP(r.dep.amt)+' ₭'+(r.depApplied?' · ຫັກແລ້ວ':'')+(r.dep.voided?' · ຄືນແລ້ວ':'')+'</span>':'')+'</div>'+
-  (r.note?'<div class="rv-note">'+cesc(r.note)+'</div>':'')+'<div class="rv-acts">'+acts+'</div></div></div>';}
-/* ---- ສ້າງ / ແກ້ການຈອງ ---- */
+function rvCard(r,showDate,mng){var td=ymd(Date.now()),m=rvMin(r.time),now=rvNowMin(),c=rvCfg(),isTd=r.date===td,bk=r.status==='booked';
+ var late=bk&&isTd&&m!=null&&now-m>c.grace,soon=bk&&isTd&&m!=null&&m-now<=c.lead&&!late;var st=RV_ST[r.status]||[r.status,'#475569','#eef2f7'];
+ var k=sKX(r.id),acts='',more=false;
+ if(mng){if(bk&&isTd){acts='<button class="rv-b pri"'+k+' onclick="rvSeat(this.dataset.k)">✓ ມາຮອດ'+(r.table?' · ໂຕະ '+cesc(r.table):'')+'</button>'+(late?'<button class="rv-b warn"'+k+' onclick="rvAct(this.dataset.k,\'noshow\')">ບໍ່ມາ</button>':'');more=true;}
+  else if(bk){acts='<button class="rv-b"'+k+' onclick="rvModal(this.dataset.k)">ແກ້ໄຂ</button>';more=true;}
+  else if(r.status==='seated'){if(r.table&&state.tables[r.table])acts='<button class="rv-b"'+sKX(r.table)+' onclick="openTable(this.dataset.k)">ເປີດໂຕະ '+cesc(r.table)+' →</button>';}
+  else acts='<button class="rv-b ghost"'+k+' onclick="rvAct(this.dataset.k,\'reopen\')">↩ ກັບເປັນຈອງ</button>';
+  if(more)acts+='<button class="rv-b more"'+k+' onclick="rvMore(this.dataset.k)" title="ເພີ່ມເຕີມ">⋯</button>';}
+ var mt=function(n){return n<60?n+' ນາທີ':Math.floor(n/60)+' ຊມ'+(n%60?' '+n%60+' ນາທີ':'');};var bd=late?['ເລີຍເວລາ '+mt(now-m),'#b91c1c','#fee2e2']:soon?(m>now?['ອີກ '+mt(m-now),'#c2410c','#ffedd5']:['ຮອດເວລາແລ້ວ','#c2410c','#ffedd5']):(bk?null:st);
+ return '<div class="rv-card'+(late?' late':soon?' soon':'')+(!bk?' dim':'')+'"><div class="rv-time"><b>'+cesc(r.time||'—')+'</b><small>'+(showDate?cesc(rvDayLbl(r.date)):((+r.dur||120)/60)+' ຊມ')+'</small></div>'+
+  '<div class="rv-main"><div class="rv-r1"><b>'+cesc(r.name)+'</b>'+(r.memberId?'<span class="rv-mem">ສະມາຊິກ</span>':'')+(bd?'<span class="rv-st" style="color:'+bd[1]+';background:'+bd[2]+'">'+bd[0]+'</span>':'')+'</div>'+
+  '<div class="rv-r2"><span class="rv-tb'+(r.table?'':' none')+'">'+(r.table?'ໂຕະ '+cesc(r.table):'ຍັງບໍ່ກຳນົດໂຕະ')+'</span>'+(r.guests?'<span>👥 '+r.guests+' ຄົນ</span>':'')+(r.phone?'<a href="tel:'+aesc(r.phone)+'">📞 '+cesc(r.phone)+'</a>':'')+(r.dep?'<span class="rv-dep">ມັດຈຳ '+KIP(r.dep.amt)+' ₭'+(r.depApplied?' · ຫັກແລ້ວ':'')+'</span>':'')+'</div>'+
+  (r.note?'<div class="rv-note">'+cesc(r.note)+'</div>':'')+'</div>'+(acts?'<div class="rv-acts">'+acts+'</div>':'')+'</div>';}
+function rvMore(id){var r=rvFind(id);if(!r)return;var k=sKX(id),isTd=r.date===ymd(Date.now());
+ openModal('<h2>'+cesc(r.name)+'</h2><p class="rv-ms">'+cesc(rvDayLbl(r.date))+' · '+cesc(r.time)+(r.table?' · ໂຕະ '+cesc(r.table):'')+(r.guests?' · '+r.guests+' ຄົນ':'')+'</p><div class="rv-sheet">'+
+  '<button'+k+' onclick="rvModal(this.dataset.k)">✏️ ແກ້ໄຂ ມື້ / ເວລາ / ໂຕະ</button>'+(r.phone?'<a href="tel:'+aesc(r.phone)+'">📞 ໂທຫາ '+cesc(r.phone)+'</a>':'')+
+  (isTd?'<button'+k+' onclick="closeModal();rvAct(this.dataset.k,\'noshow\')">🚫 ລູກຄ້າບໍ່ມາ</button>':'')+
+  '<button class="red"'+k+' onclick="rvCancelModal(this.dataset.k)">✕ ຍົກເລີກການຈອງ</button></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');}
+/* ---- ສ້າງ / ແກ້ການຈອງ: ລູກຄ້າ → ມື້ & ເວລາ → ໂຕະ → ຢືນຢັນ ---- */
 function reserveTable(name){rvModal(null,{table:name});}
-function rvModal(id,pre){if(!(can('resvMng')||isOwner())){toast('ບໍ່ມີສິດຈອງໂຕະ');return;}rvInit();var r=id?rvFind(id):null;var now=new Date(),c=rvCfg();
- var defT=('0'+((now.getHours()+1)%24)).slice(-2)+':00';
- rvEdit=r?JSON.parse(JSON.stringify(r)):{id:null,date:(pre&&pre.date)||rvDate||ymd(Date.now()),time:(pre&&pre.time)||defT,dur:c.dur,table:(pre&&pre.table)||'',guests:2,name:'',phone:'',memberId:null,note:''};rvRenderModal();}
-function rvRenderModal(){var d=rvEdit,canPay=can('pay')||isOwner(),pts=activePayTypes().filter(function(p){return p!=='ຕິດໜີ້'&&p!=='ກະເປົາລູກຄ້າ';});
- var mem=d.memberId?(state.customers||[]).find(function(m){return m.id===d.memberId;}):null;
- openModal('<h2>'+(d.id?'ແກ້ການຈອງ '+cesc(d.no||''):'ຈອງໂຕະ')+'</h2>'+
-  '<div class="rv-grid"><div><label>ວັນທີ</label><input type="date" value="'+d.date+'" onchange="rvEdit.date=this.value;rvTables()"></div><div><label>ເວລາມາ</label><input type="time" value="'+d.time+'" onchange="rvEdit.time=this.value;rvTables()"></div>'+
-  '<div><label>ຈຳນວນຄົນ</label><input type="number" min="1" value="'+(d.guests||'')+'" onchange="rvEdit.guests=+this.value||0;rvTables()"></div><div><label>ໃຊ້ເວລາ</label><select onchange="rvEdit.dur=+this.value;rvTables()">'+[[60,'1 ຊມ'],[90,'1.5 ຊມ'],[120,'2 ຊມ'],[180,'3 ຊມ'],[240,'4 ຊມ']].map(function(o){return '<option value="'+o[0]+'"'+((+d.dur||120)===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div></div>'+
-  '<label>ໂຕະ</label><div id="rv_tables" class="rv-tables"></div>'+
-  '<div class="rv-grid"><div><label>ຊື່ລູກຄ້າ *</label><input id="rv_nm" value="'+aesc(d.name)+'" oninput="rvEdit.name=this.value" placeholder="ເຊັ່ນ ທ້າວ ສົມໃຈ"></div><div><label>ເບີໂທ</label><input id="rv_ph" inputmode="tel" value="'+aesc(d.phone)+'" oninput="rvEdit.phone=this.value;rvMemLookup()" placeholder="020 …"></div></div>'+
+var RV_TIMES=['11:00','12:00','13:00','17:00','18:00','19:00','20:00'];
+function rvDefTime(ds){if(ds!==ymd(Date.now()))return '18:00';var m=Math.ceil((rvNowMin()+60)/30)*30;return m>=24*60?'18:00':('0'+Math.floor(m/60)).slice(-2)+':'+('0'+m%60).slice(-2);}
+function rvModal(id,pre){if(!(can('resvMng')||isOwner())){toast('ບໍ່ມີສິດຈອງໂຕະ');return;}rvInit();var r=id?rvFind(id):null,c=rvCfg(),td=ymd(Date.now());
+ var dt=(pre&&pre.date)||(rvDate&&rvDate>=td?rvDate:td);if(dt===td&&rvNowMin()+60>=23*60)dt=ymd(Date.now()+86400000);
+ rvEdit=r?JSON.parse(JSON.stringify(r)):{id:null,date:dt,time:(pre&&pre.time)||rvDefTime(dt),dur:c.dur,table:(pre&&pre.table)||'',guests:2,name:'',phone:'',memberId:null,note:''};rvRenderModal();}
+function rvWhenHTML(){var d=rvEdit,td=ymd(Date.now()),tm=ymd(Date.now()+86400000),now=rvNowMin();
+ var ch=function(k,v,l){return '<button type="button" class="rv-chip'+(d[k]===v?' on':'')+'" onclick="rvSet(\''+k+'\',\''+v+'\')">'+l+'</button>';};
+ var ts=RV_TIMES.filter(function(t){return d.date!==td||rvMin(t)>now;});
+ return '<div class="rv-chips">'+ch('date',td,'ມື້ນີ້')+ch('date',tm,'ມື້ອື່ນ')+'<input type="date" class="rv-din'+(d.date!==td&&d.date!==tm?' on':'')+'" value="'+d.date+'" min="'+td+'" onchange="rvSet(\'date\',this.value)"></div>'+
+  '<div class="rv-chips">'+ts.map(function(t){return ch('time',t,t);}).join('')+'<input type="time" class="rv-tin'+(ts.indexOf(d.time)<0?' on':'')+'" value="'+d.time+'" onchange="rvSet(\'time\',this.value)"></div>';}
+function rvSet(k,v){rvEdit[k]=v;if(k==='guests'){var g=document.getElementById('rv_g');if(g)g.value=v;}else{var w=document.getElementById('rv_when');if(w)w.innerHTML=rvWhenHTML();}rvTables();}
+function rvRenderModal(){var d=rvEdit;var mem=d.memberId?(state.customers||[]).find(function(m){return m.id===d.memberId;}):null;
+ openModal('<h2>'+(d.id?'ແກ້ການຈອງ '+cesc(d.no||''):'ຈອງໂຕະໃໝ່')+'</h2>'+
+  '<div class="rv-step"><span>1</span>ລູກຄ້າ</div><div class="rv-grid"><input id="rv_nm" value="'+aesc(d.name)+'" oninput="rvEdit.name=this.value;rvGo()" placeholder="ຊື່ລູກຄ້າ *"><input id="rv_ph" inputmode="tel" value="'+aesc(d.phone)+'" oninput="rvEdit.phone=this.value;rvMemLookup()" placeholder="ເບີໂທ"></div>'+
   '<div id="rv_mem" class="rv-memb">'+(mem?'✓ ສະມາຊິກ: <b>'+cesc(mem.name)+'</b> <button type="button" class="btn-sm" onclick="rvEdit.memberId=null;rvRenderModal()">ບໍ່ເຊື່ອມ</button>':'')+'</div>'+
-  '<label>ໝາຍເຫດ</label><input value="'+aesc(d.note)+'" oninput="rvEdit.note=this.value" placeholder="ເຊັ່ນ ວັນເກີດ / ຢາກໄດ້ໂຕະແຈ / ເດັກນ້ອຍ 2">'+
-  ((d.dep?'<div class="rv-depbox">ມັດຈຳ <b>'+KIP(d.dep.amt)+' ₭</b> ('+cesc(d.dep.pay)+' · ບິນ '+cesc(d.dep.receipt)+')</div>':''))+
-  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="rvSave()">'+(d.id?'ບັນທຶກ':'ຢືນຢັນການຈອງ')+'</button></div>');rvTables();}
+  '<div class="rv-step"><span>2</span>ມື້ & ເວລາມາ</div><div id="rv_when">'+rvWhenHTML()+'</div>'+
+  '<div class="rv-row"><div class="rv-stp"><label>ຈຳນວນຄົນ</label><div><button type="button" onclick="rvSet(\'guests\',Math.max(1,(+rvEdit.guests||1)-1))">−</button><input id="rv_g" type="number" min="1" value="'+(d.guests||'')+'" onchange="rvSet(\'guests\',Math.max(1,+this.value||1))"><button type="button" onclick="rvSet(\'guests\',(+rvEdit.guests||0)+1)">+</button></div></div>'+
+  '<div><label>ໃຊ້ເວລາ</label><select onchange="rvEdit.dur=+this.value;rvTables()">'+[[60,'1 ຊມ'],[90,'1.5 ຊມ'],[120,'2 ຊມ'],[180,'3 ຊມ'],[240,'4 ຊມ']].map(function(o){return '<option value="'+o[0]+'"'+((+d.dur||120)===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div></div>'+
+  '<div class="rv-step"><span>3</span>ໂຕະ <small>ບໍ່ບັງຄັບ — ເລືອກຕອນລູກຄ້າມາກໍ່ໄດ້</small></div><div id="rv_tables" class="rv-tables"></div>'+
+  '<input class="rv-nt" value="'+aesc(d.note)+'" oninput="rvEdit.note=this.value" placeholder="ໝາຍເຫດ (ຖ້າມີ) ເຊັ່ນ ວັນເກີດ / ຢາກໄດ້ໂຕະແຈ">'+
+  (d.dep?'<div class="rv-depbox">ມັດຈຳ <b>'+KIP(d.dep.amt)+' ₭</b> ('+cesc(d.dep.pay)+' · ບິນ '+cesc(d.dep.receipt)+')</div>':'')+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad rv-go" id="rv_go" onclick="rvSave()"></button></div>');rvTables();
+ if(!d.id&&!d.name)setTimeout(function(){var e=document.getElementById('rv_nm');if(e)e.focus();},60);}
+function rvGo(){var d=rvEdit,b=document.getElementById('rv_go');if(!b||!d)return;b.classList.toggle('dis',!String(d.name||'').trim());
+ b.innerHTML=d.id?'ບັນທຶກການແກ້ໄຂ':'ຢືນຢັນຈອງ <small>'+cesc(rvDayLbl(d.date))+' '+cesc(d.time||'')+' · '+(+d.guests||0)+' ຄົນ'+(d.table?' · ໂຕະ '+cesc(d.table):'')+'</small>';}
 function rvTables(){var d=rvEdit,el=document.getElementById('rv_tables');if(!el)return;var T=Object.values(state.tables||{}).filter(function(t){return t.status!=='merged';});
- el.innerHTML='<button type="button" class="rv-tc'+(!d.table?' on':'')+'" onclick="rvEdit.table=\'\';rvTables()">ຍັງບໍ່ກຳນົດ</button>'+T.map(function(t){var probe={id:d.id,table:t.name,date:d.date,time:d.time,dur:d.dur};var cf=rvConflict(probe),small=d.guests&&t.seats&&t.seats<d.guests;
-  return '<button type="button" class="rv-tc'+(d.table===t.name?' on':'')+(cf?' busy':'')+(small?' small':'')+'"'+sKX(t.name)+(cf?' title="ຈອງແລ້ວ '+aesc(cf.time+' '+cf.name)+'"':'')+' onclick="'+(cf?'toast(\'ໂຕະນີ້ຈອງແລ້ວ ຊ່ວງເວລານີ້\')':'rvEdit.table=this.dataset.k;rvTables()')+'"><b>'+cesc(t.name)+'</b><small>'+(cf?'ຈອງ '+cesc(cf.time):(t.seats?t.seats+' ບ່ອນ':''))+'</small></button>';}).join('');}
+ var info=T.map(function(t){var cf=rvConflict({id:d.id,table:t.name,date:d.date,time:d.time,dur:d.dur}),small=d.guests&&t.seats&&t.seats<d.guests;return {t:t,cf:cf,small:small,o:cf?2:small?1:0};});
+ info.sort(function(a,b){return a.o-b.o;});
+ el.innerHTML='<button type="button" class="rv-tc'+(!d.table?' on':'')+'" onclick="rvEdit.table=\'\';rvTables()"><b>—</b><small>ຍັງບໍ່ກຳນົດ</small></button>'+info.map(function(x){var t=x.t,cf=x.cf;
+  return '<button type="button" class="rv-tc'+(d.table===t.name?' on':'')+(cf?' busy':'')+(x.small?' small':'')+'"'+sKX(t.name)+(cf?' title="ຈອງແລ້ວ '+aesc(cf.time+' '+cf.name)+'"':'')+' onclick="'+(cf?'toast(\'ໂຕະນີ້ຈອງແລ້ວ ຊ່ວງເວລານີ້\')':'rvEdit.table=this.dataset.k;rvTables()')+'"><b>'+cesc(t.name)+'</b><small>'+(cf?'ຈອງ '+cesc(cf.time):(t.seats?t.seats+' ບ່ອນ'+(x.small?' · ນ້ອຍ':''):''))+'</small></button>';}).join('');rvGo();}
 function rvMemLookup(){var p=String(rvEdit.phone||'').replace(/\D/g,'');var el=document.getElementById('rv_mem');if(!el)return;if(p.length<6){if(!rvEdit.memberId)el.innerHTML='';return;}
  var m=(state.customers||[]).find(function(x){return String(x.phone||'').replace(/\D/g,'').slice(-8)===p.slice(-8);});
  if(m&&rvEdit.memberId!==m.id){el.innerHTML='ພົບສະມາຊິກ <b>'+cesc(m.name)+'</b> <button type="button" class="btn-sm green"'+sKX(m.id)+' data-n="'+aesc(m.name)+'" onclick="rvEdit.memberId=this.dataset.k;if(!rvEdit.name)rvEdit.name=this.dataset.n;rvRenderModal()">ເຊື່ອມ</button>';}}
