@@ -334,7 +334,7 @@ function stockHave_(st, code, loc) { var it = st.ingredients && st.ingredients[c
 /* ເມນູທີ່ໝົດ + (ຖ້າເປີດ "ກັນຂາຍເມື່ອສະຕ໋ອກບໍ່ພໍ") ເມນູທີ່ວັດຖຸດິບບໍ່ພໍເຮັດ 1 ຈານ */
 function qrSoldOut_(st) {
   var out = {}; var so = st.soldOut || {}; for (var k in so) out[k] = so[k];
-  if (st.stockBlock === false) return out;
+  if (st.stockBlock === false || (st.modules && st.modules.stock === false)) return out;
   var loc = qrLoc_(st), cat = st.catalog || {};
   for (var c in cat) for (var sub in cat[c]) (cat[c][sub] || []).forEach(function (m) {
     if ((m.bom || []).some(function (b) { return stockHave_(st, b[0], loc) < (+b[1] || 0) - 1e-9; })) out[m.c] = true; });
@@ -409,7 +409,7 @@ function custAction_(payload) {
       var def = map[String(it.code || '')];
       if (!def) { skipped++; return; }
       if (st.soldOut && st.soldOut[def.c]) { skipped++; return; }
-      if (st.stockBlock !== false && (def.bom || []).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * Math.max(1, Math.min(99, Math.round(+it.qty || 1))) - 1e-9; })) { skipped++; return; }
+      if (st.stockBlock !== false && !(st.modules && st.modules.stock === false) && (def.bom || []).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * Math.max(1, Math.min(99, Math.round(+it.qty || 1))) - 1e-9; })) { skipped++; return; }
       var qn = Math.max(1, Math.min(99, Math.round(+it.qty || 1)));
       var mods = (it.mods || []).slice(0, 12).map(function (m) { return clean(m, 60); });
       var mp = mods.reduce(function (a, m) { return a + (modP.hasOwnProperty(m) ? modP[m] : 0); }, 0);
