@@ -1563,6 +1563,7 @@ body.cc-lock{overflow:hidden}
 .srep-add{display:flex;gap:8px;padding:12px 0 6px}.srep-add .stxt{flex:1}.srep-reset{padding:2px 0 8px}
 .srow-chips{flex-wrap:wrap}.srow-chips .srow-c{flex:1 1 320px}.srow-chips.dim .stogs{opacity:.55}
 .cfree .stog{display:inline-flex;align-items:center}.cfree .stog.fixed{background:#e6f6f4;border-color:#bfe6e1;color:#0A5E5B;cursor:default}.cfree .stog:disabled{cursor:not-allowed;opacity:.6}
+.cfree-note{width:100%;text-align:right;font-size:12px;color:#92400e;margin-top:4px}
 </style>
 </head>
 <body>
@@ -5016,14 +5017,15 @@ function setSecOrder(){
   (state.chatReplies?'<div class="srep-reset">'+sBtn('ກັບໄປໃຊ້ຂໍ້ຄວາມຕັ້ງຕົ້ນ','chatRepReset()','sm ghost')+'</div>':'')):'');}
 /* ຂໍ້ຄວາມຕອບລູກຄ້າ ທີ່ Admin ກຳນົດ */
 function chatReplies(){var a=state&&Array.isArray(state.chatReplies)?state.chatReplies.filter(function(x){return String(x||'').trim();}):null;return a&&a.length?a:CHAT_QUICK.slice();}
-function chatFreeRoles(){return Object.keys(ROLE_LABELS).filter(function(r){return PERMS[r]&&roleView(r,'chat');});}
-function chatFreeChips(){var ed=isOwner()||can('userMng');
- return '<div class="stogs cfree"><span class="stog fixed" title="ທຸກສິດ">✓ ເຈົ້າຂອງ / Super Admin</span>'+chatFreeRoles().map(function(r){var on=roleCan(r,'chatFree');
-  return '<button type="button" class="stog'+(on?' on':'')+'"'+(ed?'':' disabled')+sKX(r)+' onclick="chatFreeToggle(this.dataset.k,'+(!on)+')">'+(on?'✓ ':'')+cesc(ROLE_LABELS[r])+'</button>';}).join('')+'</div>';}
-function chatFreeToggle(r,on){if(!(isOwner()||can('userMng'))){toast('ສະເພາະ Admin / ເຈົ້າຂອງ');return;}if(!PERMS[r])return;if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};
+function chatAdminUp(){var u=curUser();return !!u&&['superadmin','owner','admin'].indexOf(u.role)>=0;}
+function chatFreeRoles(){return Object.keys(ROLE_LABELS).filter(function(r){return PERMS[r]&&r!=='admin'&&roleView(r,'chat');});}
+function chatFreeChips(){var ed=chatAdminUp();
+ return '<div class="stogs cfree"><span class="stog fixed" title="Admin ຂຶ້ນໄປ ພິມໄດ້ສະເໝີ ແລະ ເປັນຜູ້ກຳນົດ">✓ Super Admin / ເຈົ້າຂອງ / Admin</span>'+chatFreeRoles().map(function(r){var on=roleCan(r,'chatFree');
+  return '<button type="button" class="stog'+(on?' on':'')+'"'+(ed?'':' disabled')+sKX(r)+' onclick="chatFreeToggle(this.dataset.k,'+(!on)+')">'+(on?'✓ ':'')+cesc(ROLE_LABELS[r])+'</button>';}).join('')+'</div>'+(ed?'':'<div class="cfree-note">🔒 ສະເພາະ Admin ຂຶ້ນໄປ ເປັນຜູ້ກຳນົດ</div>');}
+function chatFreeToggle(r,on){if(!chatAdminUp()){toast('ສະເພາະ Admin ຂຶ້ນໄປ ເປັນຜູ້ກຳນົດ');return;}if(!PERMS[r]||r==='admin')return;if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};
  var cur=roleDef(r),nd=state.roleDefs[r]||{view:cur.view.slice(),act:cur.act.slice()},i=nd.act.indexOf('chatFree');if(on&&i<0)nd.act.push('chatFree');if(!on&&i>=0)nd.act.splice(i,1);state.roleDefs[r]=nd;
  logOrder('ສິດບົດບາດ',(on?'ເປີດ':'ປິດ')+' "ພິມແຊັດຕອບລູກຄ້າເອງ" — '+ROLE_LABELS[r],'');save();render();sSaved();}
-function chatLocked(){return !!(state&&state.chatPresetOnly)&&!can('chatFree');}
+function chatLocked(){return !!(state&&state.chatPresetOnly)&&!chatAdminUp()&&!can('chatFree');}
 function chatRepSave(a){state.chatReplies=a;save();render();sSaved();}
 function chatRepAdd(){var i=document.getElementById('rep_new');var v=String(i&&i.value||'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim().slice(0,200);if(!v){toast('ພິມຂໍ້ຄວາມກ່ອນ');return;}var a=chatReplies();if(a.indexOf(v)>=0){toast('ມີຂໍ້ຄວາມນີ້ແລ້ວ');return;}if(a.length>=20){toast('ໄດ້ສູງສຸດ 20 ຂໍ້ຄວາມ');return;}a.push(v);chatRepSave(a);setTimeout(function(){var n=document.getElementById('rep_new');if(n)n.focus();},50);}
 function chatRepDel(i){var a=chatReplies();if(a.length<=1){toast('ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂໍ້ຄວາມ');return;}a.splice(i,1);chatRepSave(a);}
