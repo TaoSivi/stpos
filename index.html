@@ -1449,6 +1449,12 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 .sa-none{padding:40px;text-align:center;color:var(--muted);background:#fff;border-radius:14px}
 .sbento{display:grid;gap:16px;grid-template-columns:1fr}.sbento>.scard{margin:0}
 @media (min-width:1000px){.sbento.auto{grid-template-columns:1fr 1fr;align-items:stretch}.sbento.auto>.wide{grid-column:1/-1}.sbento.bpay{grid-template-columns:1fr 1fr;grid-template-areas:"fee pay" "qr pay" "rate pts";align-items:stretch}.bpay .bx-fee{grid-area:fee}.bpay .bx-pay{grid-area:pay}.bpay .bx-qr{grid-area:qr}.bpay .bx-rate{grid-area:rate}.bpay .bx-pts{grid-area:pts}}
+.mk-p{font-size:13px;color:var(--muted);margin:-4px 0 10px;line-height:1.6}
+.mk-list{max-height:34vh;overflow:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:4px}
+.modal label.mk-it,.mk-it{display:flex!important;align-items:center;gap:10px!important;padding:8px 10px;border-radius:10px;cursor:pointer;margin:0!important;font-weight:400}.mk-it:hover{background:#f3f9f8}.mk-it.on{background:#e6f6f4}
+.mk-it input{width:auto!important;margin:0!important}.mk-it b{width:84px;flex-shrink:0;font-size:13px}.mk-it span{flex:1;min-width:0}.mk-it small{color:var(--muted)}
+.modal label.mk-ck,.mk-ck{display:flex!important;align-items:center;gap:8px;font-weight:600;margin-top:4px}.mk-ck input{width:auto!important;margin:0!important}
+.mk-sum{background:#fef2f2;border-radius:12px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.7}.mk-ing{font-size:12px;color:var(--muted);max-height:120px;overflow:auto;margin-top:6px}.mk-none{padding:20px;text-align:center;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1614,7 +1620,8 @@ function stampUpd(){if(!state)return;var now=Date.now(),T=state.tables||{},S={t:
   t.dv=1;var s=_updKey(t);if(_updSnap.t[k]!==s)t.upd=now;S.t[k]=s;S.ti[k]=ids;});
  (state.orders||[]).forEach(function(o){var id=String(o.id),s=_updKey(o);if(_updSnap.o[id]!==s)o.upd=now;S.o[id]=s;});
  (state.customers||[]).forEach(function(c){var id=String(c.id),s=_updKey(c);if(_updSnap.c[id]!==s)c.upd=now;S.c[id]=s;});_updSnap=S;}
-let _booted=false;function ensureDefaults(){ensureDemoIng();try{migrateCancelLog();}catch(e){}const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
+let _booted=false;function ingTomb(){var d=state&&state.ingDel;if(!d||!state.ingredients)return;Object.keys(d).forEach(function(c){var it=state.ingredients[c];if(it&&!((+it.addTs||0)>d[c]))delete state.ingredients[c];});}
+function ensureDefaults(){ensureDemoIng();try{ingTomb();}catch(e){}try{migrateCancelLog();}catch(e){}const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
  if(!Array.isArray(state.shifts)||!state.shifts.length)state.shifts=["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"];
  if(!Array.isArray(state.staff)||!state.staff.length)state.staff=["Namfon","Pam","Nit"];
  if(!Array.isArray(state.floors)||!state.floors.length)state.floors=[...DEFAULT_FLOORS];
@@ -3059,7 +3066,7 @@ function doAddStock(code){const q=+document.getElementById('qty').value||0;const
 function addIngredient(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}openModal(`<h2> ເພີ່ມວັດຖຸດິບໃໝ່</h2><label>ລະຫັດ (ຫ້າມຊ້ຳ)</label><input id="ic" placeholder="ເຊັ່ນ HONEY"><label>ຊື່</label><input id="inm" placeholder="ນ້ຳເຜິ້ງ"><label>ຫົວໜ່ວຍ</label><input id="iu" value="g"><label>ສະຕ໋ອກເລີ່ມຕົ້ນ</label><input id="ist" type="number" value="1000"><label>ຈຸດສັ່ງຊື້</label><input id="ir" type="number" value="200"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddIngredient()">ເພີ່ມ</button></div>`);}
 function doAddIngredient(){const c=(document.getElementById('ic').value||'').trim().toUpperCase();if(!c){toast('ໃສ່ລະຫັດ');return;}if(state.ingredients[c]){toast('ລະຫັດຊ້ຳ');return;}
  var init=+document.getElementById('ist').value||0;var lc=stockViewLoc||curLoc();
- state.ingredients[c]={code:c,name:document.getElementById('inm').value||c,unit:document.getElementById('iu').value||'g',reorder:+document.getElementById('ir').value||0,locs:(init?{[lc]:init}:{})};
+ state.ingredients[c]={addTs:Date.now(),code:c,name:document.getElementById('inm').value||c,unit:document.getElementById('iu').value||'g',reorder:+document.getElementById('ir').value||0,locs:(init?{[lc]:init}:{})};
  if(init)logStock(c,init,'ເພີ່ມວັດຖຸດິບ','ເລີ່ມຕົ້ນ ['+locName(lc)+']',lc);
  save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c);}
 function resetStockAll(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ');return;}if(!confirm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?'))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
@@ -4594,7 +4601,7 @@ function applyCatalog(res){
  /* ນຳເຂົ້າຂໍ້ມູນຈິງ: ເອົາຂໍ້ມູນຕົວຢ່າງອອກ (ວັດຖຸດິບ TEA/CUP/RICE ທີ່ບໍ່ມີໃນໄຟລ໌ ແລະ ບໍ່ມີສູດໃດໃຊ້, ຕົວເລືອກຕົວຢ່າງ) */
  var used={};Object.keys(res.grouped).forEach(function(a){Object.keys(res.grouped[a]).forEach(function(b){res.grouped[a][b].forEach(function(m){(m.bom||[]).forEach(function(x){used[x[0]]=1;});});});});
  Object.keys(ING_DEF).forEach(function(c){if(state.ingredients[c]&&!res.ing[c]&&!used[c])delete state.ingredients[c];});
- var DEMO_MG={g1:'ຄວາມຫວານ',g2:'ຄວາມເຜັດ',g3:'Topping (ເພີ່ມ)'};if(Array.isArray(state.modGroups))state.modGroups=state.modGroups.filter(function(g){return DEMO_MG[g.id]!==g.title;});Object.keys(res.ing).forEach(function(code){var ex=state.ingredients[code];if(ex){ex.name=res.ing[code].name;ex.unit=res.ing[code].unit;ex.reorder=res.ing[code].reorder;ex.cat=res.ing[code].cat;if(res.ing[code].cost)ex.cost=res.ing[code].cost;}else{state.ingredients[code]=res.ing[code];}});var keys=Object.keys(state.catalog);if(keys.length){state.activeCat=keys[0];state.activeSub=null;}save();}
+ var DEMO_MG={g1:'ຄວາມຫວານ',g2:'ຄວາມເຜັດ',g3:'Topping (ເພີ່ມ)'};if(Array.isArray(state.modGroups))state.modGroups=state.modGroups.filter(function(g){return DEMO_MG[g.id]!==g.title;});Object.keys(res.ing).forEach(function(code){var ex=state.ingredients[code];if(ex){ex.name=res.ing[code].name;ex.unit=res.ing[code].unit;ex.reorder=res.ing[code].reorder;ex.cat=res.ing[code].cat;if(res.ing[code].cost)ex.cost=res.ing[code].cost;}else{state.ingredients[code]=Object.assign({addTs:Date.now()},res.ing[code]);}});var keys=Object.keys(state.catalog);if(keys.length){state.activeCat=keys[0];state.activeSub=null;}save();}
 /* ===== ນຳເຂົ້າສະເພາະສູດຕັດສະຕ໋ອກ (merge — ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກຄົງເຫຼືອ) ===== */
 function openImportBOM(){if(!state.catalog||!Object.keys(state.catalog).length){toast('ຍັງໃຊ້ເມນູຕົວຢ່າງ — ນຳເຂົ້າໄຟລ໌ເຕັມກ່ອນ');return;}
  openModal(`<h2> ນຳເຂົ້າສູດຕັດສະຕ໋ອກ (Excel)</h2><p style="font-size:13px;color:var(--muted);margin-bottom:6px">ອ່ານສະເພາະຊີດ <b>ສູດຕັດສະຕ໋ອກ</b> (ລະຫັດເມນູ, ລະຫັດສະຕ໋ອກ, ຈຳນວນຕັດ) ແລ້ວອັບເດດສູດໃສ່ເມນູທີ່ມີຢູ່ — <b>ບໍ່ແຕະ</b> ເມນູ/ລາຄາ/ສະຕ໋ອກຄົງເຫຼືອ. ວັດຖຸດິບໃໝ່ທີ່ຍັງບໍ່ມີ ຈະຖືກເພີ່ມ (ສະຕ໋ອກ 0)</p><input type="file" id="bomf" accept=".xlsx,.xls"><div id="bomprog" style="font-size:13px;margin-top:10px;font-weight:700;color:var(--tiff-deep)"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="doImportBOM()">ນຳເຂົ້າສູດ</button></div>`);}
@@ -4608,7 +4615,7 @@ function doImportBOM(){var f=document.getElementById('bomf').files[0];if(!f){toa
    var rec={},nRows=0;
    for(var i=1;i<rsr.length;i++){var rw=rsr[i];if(!rw)continue;var mc=(rw[0]==null?'':String(rw[0])).trim();var ic=(rw[1]==null?'':String(rw[1])).trim();if(!mc||!ic||/ລະຫັດ/.test(mc))continue;var q=Number(rw[2])||0;if(q<=0)continue;if(!rec[mc])rec[mc]=[];rec[mc].push([ic,q]);nRows++;}
    /* ເພີ່ມວັດຖຸດິບໃໝ່ຈາກຊີດວັດຖຸດິບ (ຖ້າມີ) — ບໍ່ທັບ stock ເກົ່າ */
-   var addedIng=0;[['ວັດຖຸດິບ','ວັດຖຸດິບ'],['ສິນຄ້າ','ສິນຄ້າ'],['ເຄື່ອງໃຊ້','ເຄື່ອງໃຊ້']].forEach(function(cf){var rs=rows(cf[0]);for(var i2=1;i2<rs.length;i2++){var r2=rs[i2];if(!r2)continue;var code=(r2[0]==null?'':String(r2[0])).trim();if(!code||/ລະຫັດ/.test(code))continue;if(!state.ingredients[code]){state.ingredients[code]={code:code,name:(r2[1]==null?code:String(r2[1])).trim()||code,unit:(r2[2]==null?'':String(r2[2])).trim()||'ອັນ',stock:0,reorder:Number(r2[4])||0,cat:cf[1]};addedIng++;}}});
+   var addedIng=0;[['ວັດຖຸດິບ','ວັດຖຸດິບ'],['ສິນຄ້າ','ສິນຄ້າ'],['ເຄື່ອງໃຊ້','ເຄື່ອງໃຊ້']].forEach(function(cf){var rs=rows(cf[0]);for(var i2=1;i2<rs.length;i2++){var r2=rs[i2];if(!r2)continue;var code=(r2[0]==null?'':String(r2[0])).trim();if(!code||/ລະຫັດ/.test(code))continue;if(!state.ingredients[code]){state.ingredients[code]={addTs:Date.now(),code:code,name:(r2[1]==null?code:String(r2[1])).trim()||code,unit:(r2[2]==null?'':String(r2[2])).trim()||'ອັນ',stock:0,reorder:Number(r2[4])||0,cat:cf[1]};addedIng++;}}});
    /* merge ເຂົ້າ catalog */
    var matched=0,unknownMenu=[];var codesInCat={};
    for(var cat in state.catalog)for(var sub in state.catalog[cat])state.catalog[cat][sub].forEach(function(p){codesInCat[p.c]=p;});
@@ -4897,7 +4904,7 @@ function setSecTable(){var T=Object.values(state.tables||{});
 function setSecMenu(){
  return '<section class="scard smenu">'+menuAdminHTML()+'</section>'+
  sCard('ນຳເຂົ້າ / ສົ່ງອອກ ສູດ','ໄຟລ໌ ST POS - Data.xlsx = ເມນູ + ລາຄາ + ສູດຕັດສະຕ໋ອກ + ວັດຖຸດິບ (ສະຕ໋ອກເລີ່ມ 0) · "ສະເພາະສູດ" ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກ',
-  sBtn('ກວດສູດ','showBomAudit()')+sBtn('Export ສູດ','exportBOM()')+sBtn('ນຳເຂົ້າສະເພາະສູດ','openImportBOM()')+sBtn('ນຳເຂົ້າທັງໝົດ','openImport()','pri'),
+  (isOwner()&&state.catalog?sBtn('ເກັບໄວ້ສະເພາະ…','menuKeepModal()','ghost-danger'):'')+sBtn('ກວດສູດ','showBomAudit()')+sBtn('Export ສູດ','exportBOM()')+sBtn('ນຳເຂົ້າສະເພາະສູດ','openImportBOM()')+sBtn('ນຳເຂົ້າທັງໝົດ','openImport()','pri'),
   sRow('ສະຖານະ','',state.catalog?sBadge('ນຳເຂົ້າແລ້ວ '+allMenu().length+' ເມນູ','ok'):sBadge('ຍັງໃຊ້ເມນູຕົວຢ່າງ','warn')))+
  sCard('ປະຫວັດການລຶບເມນູ ('+(state.menuLog||[]).length+')','',(state.menuLog||[]).length?sBtn('Export Excel','exportMenuLog()'):'',
   (state.menuLog||[]).length?'<div class="sscroll"><table class="tbl"><thead><tr><th>ວັນທີ</th><th>ລະຫັດ</th><th>ເມນູ</th><th>ເຫດຜົນ</th><th>ໂດຍ</th></tr></thead><tbody>'+(state.menuLog||[]).slice().reverse().map(function(l){return '<tr><td>'+new Date(l.ts).toLocaleString('en-GB')+'</td><td>'+cesc(l.code)+'</td><td>'+cesc(l.name)+'</td><td>'+cesc(l.reason)+'</td><td>'+cesc(l.by||'')+'</td></tr>';}).join('')+'</tbody></table></div>':sEmpty('ຍັງບໍ່ມີການລຶບເມນູ'));}
@@ -5283,6 +5290,38 @@ function doDelMenu(code){var rsn=(document.getElementById('delrsn').value||'').t
  state.menuLog.push({code:code,name:nm,reason:rsn,by:whoBy(),ts:Date.now()});
  if(state.menuImg)delete state.menuImg[code];
  save();closeModal();render();showSuccess('ລຶບເມນູແລ້ວ!',nm);}
+/* ===== ລ້າງເມນູ: ເກັບໄວ້ສະເພາະເມນູທີ່ເລືອກ + ລຶບວັດຖຸດິບທີ່ບໍ່ຢູ່ໃນສູດຂອງເມນູທີ່ເຫຼືອ (ເຈົ້າຂອງກົດເອງ) ===== */
+let _mk=null;
+function menuKeepModal(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ');return;}if(!state.catalog||!Object.keys(state.catalog).length){toast('ເມນູຕົວຢ່າງ ລຶບບໍ່ໄດ້ — ນຳເຂົ້າ Excel ກ່ອນ');return;}
+ _mk={keep:{},q:'',ing:true};
+ openModal('<h2 style="color:var(--red)">ເກັບໄວ້ສະເພາະເມນູທີ່ເລືອກ</h2><p class="mk-p">ຕິກເມນູທີ່ຈະ<b>ເກັບໄວ້</b> — ເມນູອື່ນທັງໝົດຈະຖືກລຶບ (ບັນທຶກໃນປະຫວັດການລຶບເມນູ). ແນະນຳ: ສຳຮອງຂໍ້ມູນກ່ອນ (ການຕັ້ງຄ່າ › ສຳຮອງ & ຂັ້ນສູງ)</p>'+
+  '<input id="mk_q" placeholder="ຄົ້ນຫາ ລະຫັດ / ຊື່ເມນູ" oninput="_mk.q=this.value;mkList()"><div id="mk_list" class="mk-list"></div>'+
+  '<label class="mk-ck"><input type="checkbox" checked onchange="_mk.ing=this.checked;mkSum()"> ລຶບວັດຖຸດິບ / ສະຕ໋ອກ ທີ່ບໍ່ຢູ່ໃນສູດຂອງເມນູທີ່ເຫຼືອ</label>'+
+  '<div id="mk_sum" class="mk-sum"></div>'+
+  '<label>ເຫດຜົນ (ຈຳເປັນ)</label><input id="mk_rsn" placeholder="ເຊັ່ນ ລ້າງເມນູທົດລອງ">'+
+  '<label>ພິມ <b>ລຶບ</b> ເພື່ອຢືນຢັນ</label><input id="mk_ok" placeholder="ລຶບ" autocomplete="off">'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" style="background:var(--red)" onclick="mkDo()">ລຶບເມນູທີ່ບໍ່ໄດ້ເລືອກ</button></div>');mkList();}
+function mkPlan(){var all=allMenu(),busy={};Object.values(state.tables||{}).forEach(function(t){(t.items||[]).forEach(function(i){busy[i.code]=t.name;});});
+ var keep=all.filter(function(m){return _mk.keep[m.c];}),del=all.filter(function(m){return !_mk.keep[m.c];}),blocked=del.filter(function(m){return busy[m.c];});
+ var stay=keep.concat(blocked),used={},mg=JSON.stringify(state.modGroups||[]);stay.forEach(function(m){(m.bom||[]).forEach(function(b){used[b[0]]=1;});});
+ var ings=_mk.ing?Object.keys(state.ingredients||{}).filter(function(c){return !used[c]&&mg.indexOf('"'+c+'"')<0;}):[];
+ return {all:all,keep:keep,del:del.filter(function(m){return !busy[m.c];}),blocked:blocked,ings:ings,kept:Object.keys(state.ingredients||{}).length-ings.length};}
+function mkList(){var el=document.getElementById('mk_list');if(!el||!_mk)return;var q=_mk.q.trim().toLowerCase();
+ var L=allMenu().filter(function(m){return !q||(m.c+' '+m.n).toLowerCase().indexOf(q)>=0;}).sort(function(a,b){return (_mk.keep[b.c]?1:0)-(_mk.keep[a.c]?1:0);});
+ el.innerHTML=L.slice(0,300).map(function(m){return '<label class="mk-it'+(_mk.keep[m.c]?' on':'')+'"><input type="checkbox"'+sKX(m.c)+(_mk.keep[m.c]?' checked':'')+' onchange="_mk.keep[this.dataset.k]=this.checked;this.parentNode.classList.toggle(\'on\',this.checked);mkSum()"><b>'+cesc(m.c)+'</b><span>'+cesc(m.n)+'</span><small>'+KIP(m.p||0)+' ₭</small></label>';}).join('')||'<div class="mk-none">ບໍ່ພົບ</div>';mkSum();}
+function mkSum(){var el=document.getElementById('mk_sum');if(!el||!_mk)return;var p=mkPlan();
+ el.innerHTML='<div><b>ເກັບ '+p.keep.length+'</b> ເມນູ · <b style="color:var(--red)">ລຶບ '+p.del.length+'</b> ເມນູ'+(p.blocked.length?' · ຂ້າມ '+p.blocked.length+' ເມນູທີ່ຄ້າງຢູ່ໂຕະ':'')+'</div>'+
+  (_mk.ing?'<div>ວັດຖຸດິບ: <b style="color:var(--red)">ລຶບ '+p.ings.length+'</b> · ເກັບ '+p.kept+'</div>'+(p.ings.length?'<details><summary>ເບິ່ງວັດຖຸດິບທີ່ຈະລຶບ</summary><div class="mk-ing">'+p.ings.map(function(c){var it=state.ingredients[c]||{};return cesc(c+' '+(it.name||''));}).join(' · ')+'</div></details>':''):'');}
+function mkDo(){if(!_mk||!isOwner())return;var p=mkPlan();if(!p.keep.length){toast('ເລືອກເມນູທີ່ຈະເກັບ ຢ່າງໜ້ອຍ 1');return;}
+ var rsn=((document.getElementById('mk_rsn')||{}).value||'').trim();if(!rsn){toast('ໃສ່ເຫດຜົນ');return;}
+ if(((document.getElementById('mk_ok')||{}).value||'').trim()!=='ລຶບ'){toast('ພິມ "ລຶບ" ເພື່ອຢືນຢັນ');return;}
+ var M=state.catalog,ds={},by=whoBy(),ts=Date.now();p.del.forEach(function(m){ds[m.c]=m;});
+ for(var cat in M){for(var sub in M[cat]){M[cat][sub]=M[cat][sub].filter(function(m){return !ds[m.c];});if(!M[cat][sub].length)delete M[cat][sub];}if(!Object.keys(M[cat]).length)delete M[cat];}
+ if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];state.activeSub=null;
+ if(!Array.isArray(state.menuLog))state.menuLog=[];p.del.forEach(function(m){state.menuLog.push({code:m.c,name:m.n,reason:rsn+' (ລ້າງເມນູ)',by:by,ts:ts});if(state.menuImg)delete state.menuImg[m.c];try{delete _thumbCache[m.c];}catch(e){}});
+ if(!state.ingDel||typeof state.ingDel!=='object')state.ingDel={};p.ings.forEach(function(c){delete state.ingredients[c];state.ingDel[c]=ts;});
+ logOrder('ລ້າງເມນູ','ເກັບ '+p.keep.length+' ເມນູ ('+p.keep.map(function(m){return m.c;}).join(', ')+') · ລຶບ '+p.del.length+' ເມນູ · ລຶບວັດຖຸດິບ '+p.ings.length+' — '+rsn,'');
+ _mk=null;save();closeModal();render();showSuccess('ລ້າງເມນູແລ້ວ','ເກັບ '+p.keep.length+' ເມນູ · ລຶບ '+p.del.length+' ເມນູ · ວັດຖຸດິບ '+p.ings.length);}
 /* ===== QR ໂອນທະນາຄານ (EMV/LAO QR ໃສ່ຈຳນວນຕາມບິນ) ===== */
 function _emvParse(s){var o=[],i=0;while(i+4<=s.length){var id=s.substr(i,2);var ln=parseInt(s.substr(i+2,2),10);if(isNaN(ln))break;o.push([id,s.substr(i+4,ln)]);i+=4+ln;}return o;}
 function _emvBuild(a){return a.map(function(t){return t[0]+String(t[1].length).padStart(2,'0')+t[1];}).join('');}

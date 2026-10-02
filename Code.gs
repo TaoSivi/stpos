@@ -133,13 +133,18 @@ function mergeBills_(curStr, inc) {
 function mergeStock_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object') return inc;
+    var cur = JSON.parse(curStr); if (!cur) return inc;
+    /* ວັດຖຸດິບທີ່ຖືກລຶບ (tombstone) — ລວມຈາກທຸກເຄື່ອງ ແລະ ບໍ່ເອົາກັບຄືນ */
+    if (cur.ingDel && typeof cur.ingDel === 'object') { if (!inc.ingDel || typeof inc.ingDel !== 'object') inc.ingDel = {}; Object.keys(cur.ingDel).forEach(function (c) { if (!(inc.ingDel[c] >= cur.ingDel[c])) inc.ingDel[c] = cur.ingDel[c]; }); }
+    var tomb = function (code, it) { return inc.ingDel && inc.ingDel[code] && !((it && +it.addTs || 0) > inc.ingDel[code]); };
+    if (inc.ingDel && inc.ingredients) Object.keys(inc.ingredients).forEach(function (c) { if (tomb(c, inc.ingredients[c])) delete inc.ingredients[c]; });
     var src = inc._srcLoc; if (!src) return inc;
-    var cur = JSON.parse(curStr); if (!cur || !cur.ingredients) return inc;
+    if (!cur.ingredients) return inc;
     if (!inc.ingredients) inc.ingredients = cur.ingredients;
     var incIng = inc.ingredients, curIng = cur.ingredients;
     Object.keys(curIng).forEach(function (code) {
       var ci = curIng[code], ii = incIng[code];
-      if (!ii) { incIng[code] = ci; return; }          /* ວັດຖຸດິບຫາຍໃນ incoming → ເກັບຂອງ server */
+      if (!ii) { if (tomb(code, ci)) return; incIng[code] = ci; return; }          /* ວັດຖຸດິບຫາຍໃນ incoming → ເກັບຂອງ server */
       if (!ci || !ci.locs) return;
       if (!ii.locs) ii.locs = {};
       Object.keys(ci.locs).forEach(function (loc) { if (loc !== src) ii.locs[loc] = ci.locs[loc]; }); /* ບ່ອນອື່ນ = ຂອງ server */
