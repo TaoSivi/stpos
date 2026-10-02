@@ -1555,6 +1555,12 @@ body.cc-lock{overflow:hidden}
 .sc-ack:active,.sc-done:active,.sc-qr button:active,.sc-in button:active,.sc-hb:active{transform:scale(.96)}
 @media (max-width:900px){.sc-wrap{grid-template-columns:1fr;height:calc(100vh - 300px);height:calc(100dvh - 300px);min-height:360px}.sc-top{margin-bottom:10px}.sc-wrap .sc-conv{display:none}.sc-wrap.has-sel .sc-list{display:none}.sc-wrap.has-sel .sc-conv{display:flex}.sc-back{display:block}.sc-ch .sc-tb{display:none}.sc-hb{padding:0 9px;font-size:12px}.sc-new{margin-left:0;width:100%}}
 @media (prefers-reduced-motion:reduce){.cc-sheet,.cc-row,.cc-wave{animation:none!important}}
+.sc-lock{margin:8px 12px 0;font-size:12.5px;font-weight:700;color:#92400e;background:#fef3c7;border-radius:10px;padding:6px 10px}
+.sc-preset{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:8px 12px 12px;max-height:190px;overflow-y:auto}
+.sc-preset button{min-height:46px;padding:8px 12px;border-radius:14px;border:1.5px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:14px;cursor:pointer;text-align:left;line-height:1.35;transition:transform .14s ease,background-color .15s ease,border-color .15s ease}
+.sc-preset button:hover{border-color:#0ABAB5;background:#f3fbfa}.sc-preset button:active{transform:scale(.97)}
+.srep .sitem{padding:9px 0}.srep-n{width:26px;height:26px;border-radius:8px;background:#e0f7f5;color:#0A5E5B;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px}
+.srep-add{display:flex;gap:8px;padding:12px 0 6px}.srep-add .stxt{flex:1}.srep-reset{padding:2px 0 8px}
 </style>
 </head>
 <body>
@@ -1616,7 +1622,7 @@ const PERMS={
  owner:null, /* null = ທຸກສິດ */
  admin:{view:[],act:[]}, /* ທຸກສິດ + ຕັ້ງຄ່າ — ເຕີມຫຼັງ PERM_VIEWS/PERM_ACTS */
  manager:{view:['tables','order','kitchen','bar','waiter','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk','resv','chat'],
-          act:['resvMng','chkDo','chkApprove','chkEdit','reqCreate','reqIssue','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
+          act:['resvMng','chkDo','chkApprove','chkEdit','reqCreate','reqIssue','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','chatFree','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
  cashier:{view:['tables','order','history','waiter','shift','members','debt','chk','resv','chat'],
           act:['resvMng','chkDo','pay','discount','soldout','shiftMng','expenseAdd','export','memberMng','debtCollect']},
  waiter: {view:['tables','order','waiter','chk','resv','chat'],act:['soldout','chkDo','resvMng']},
@@ -1643,7 +1649,7 @@ function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables'
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])return 'tables';var f=PERM_VIEWS.map(function(x){return x[0];}).filter(function(v){return canView(v);});var d=roleDef(u.role).view.filter(function(v){return canView(v);});return d[0]||f[0]||'tables';}
 var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
-var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ (ລໍອະນຸມັດ)'],['stockApprove','ອະນຸມັດ ເສຍ / ປັບ / ຕົ້ນທຶນ ສະຕ໋ອກ (ປັບໄດ້ທັນທີ)'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ຈອງໂຕະ',[['resvMng','ຈອງ / ແກ້ / ຍົກເລີກ ການຈອງໂຕະ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
+var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ'],['chatFree','ພິມແຊັດຕອບລູກຄ້າເອງ (ເມື່ອຮ້ານຈຳກັດຂໍ້ຄວາມ)']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ (ລໍອະນຸມັດ)'],['stockApprove','ອະນຸມັດ ເສຍ / ປັບ / ຕົ້ນທຶນ ສະຕ໋ອກ (ປັບໄດ້ທັນທີ)'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ຈອງໂຕະ',[['resvMng','ຈອງ / ແກ້ / ຍົກເລີກ ການຈອງໂຕະ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
 PERMS.admin={view:PERM_VIEWS.map(function(x){return x[0];}).concat(['order']),act:[].concat.apply([],PERM_ACTS.map(function(g){return g[1].map(function(x){return x[0];});}))};
 function permCount(u){if(!u||!u.perm)return 0;return Object.keys(u.perm.v||{}).length+Object.keys(u.perm.a||{}).length;}
 function permEffView(u,r,v){var o=u&&u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(r,v);}
@@ -1740,6 +1746,7 @@ function ensureUsers(){
  if(!state._roleMigr2){state.users.forEach(function(u){if(u.role==='kitchen'){if(!u.perm)u.perm={};if(!u.perm.v)u.perm.v={};if(!Object.prototype.hasOwnProperty.call(u.perm.v,'bar'))u.perm.v.bar=true;}});state._roleMigr2=1;}
  if(!state._saMigr){var _rd=state.roleDefs;if(_rd&&_rd.manager&&Array.isArray(_rd.manager.act)&&_rd.manager.act.indexOf('stockApprove')<0)_rd.manager.act.push('stockApprove');state._saMigr=1;}
  if(!state._chatMigr){var _rd2=state.roleDefs;if(_rd2)['manager','cashier','waiter'].forEach(function(r){var d=_rd2[r];if(d&&Array.isArray(d.view)&&d.view.indexOf('chat')<0)d.view.push('chat');});state._chatMigr=1;}
+ if(!state._chatMigr2){var _rd3=state.roleDefs;if(_rd3&&_rd3.manager&&Array.isArray(_rd3.manager.act)&&_rd3.manager.act.indexOf('chatFree')<0)_rd3.manager.act.push('chatFree');state._chatMigr2=1;}
  state.users.forEach(function(u){if(u.pin!==undefined&&u.pin!==null){u.pinH=pinHash(u.pin);delete u.pin;}if(!u.pinH)u.pinH=pinHash('0000');});
  if(typeof state.soldOut!=='object'||!state.soldOut)state.soldOut={};
  if(state.printKitchen===undefined)state.printKitchen=false;
@@ -4998,7 +5005,20 @@ function setSecOrder(){
  sCard('QR ສັ່ງເອງ (ລູກຄ້າ)','ລູກຄ້າສະແກນ QR ທີ່ໂຕະ ແລ້ວສັ່ງເອງ — ພິມ QR ໄດ້ທີ່ໜ້າ ໂຕະ','',
   sRow('ເປີດ QR ສັ່ງ ທັງຮ້ານ','',sSw('qrGlobal',!!state.qrGlobal))+
   sRow('ລູກຄ້າຕ້ອງໃສ່ PIN ໂຕະ ກ່ອນສັ່ງ','ກັນຄົນນອກຮ້ານສັ່ງມົ່ວ',sSw('qrPinRequired',state.qrPinRequired!==false))+
-  sRow('QR ໝົດອາຍຸ ພາຍໃນ 3 ຊົ່ວໂມງ','ປິດ = QR ໃຊ້ໄດ້ຕະຫຼອດ',sSw('qrExpires',state.qrExpires!==false)));}
+  sRow('QR ໝົດອາຍຸ ພາຍໃນ 3 ຊົ່ວໂມງ','ປິດ = QR ໃຊ້ໄດ້ຕະຫຼອດ',sSw('qrExpires',state.qrExpires!==false)))+
+ (modOn('chat')?sCard('ແຊັດລູກຄ້າ','ຂໍ້ຄວາມທີ່ພະນັກງານໃຊ້ຕອບລູກຄ້າ · ເປີດ/ປິດແຊັດທັງລະບົບ ໄດ້ທີ່ ໂມດູນ & ສິດບົດບາດ',sBadge(state.chatPresetOnly?'🔒 ຈຳກັດຂໍ້ຄວາມ':'ພິມໄດ້ອິດສະຫຼະ',state.chatPresetOnly?'warn':'ok'),
+  sRow('ຕອບໄດ້ສະເພາະຂໍ້ຄວາມທີ່ກຳນົດ','ພະນັກງານເລືອກຂໍ້ຄວາມຂ້າງລຸ່ມ ແທນການພິມເອງ — ກັນຄຳບໍ່ສຸພາບ · ຜູ້ມີສິດ "ພິມແຊັດຕອບລູກຄ້າເອງ" ຍັງພິມໄດ້',sSw('chatPresetOnly',!!state.chatPresetOnly))+
+  '<div class="srep">'+chatReplies().map(function(r,i){return sItem(cesc(r),'',(i?sBtn('↑','chatRepMove('+i+')','sm ghost'):'')+sBtn('ລຶບ','chatRepDel('+i+')','sm ghost-danger'),'<span class="srep-n">'+(i+1)+'</span>');}).join('')+'</div>'+
+  '<div class="srep-add"><input id="rep_new" class="stxt" maxlength="200" placeholder="ເພີ່ມຂໍ້ຄວາມຕອບ ເຊັ່ນ ກຳລັງກຽມໃຫ້ ລໍຖ້າບຶດໜຶ່ງເດີ" onkeydown="if(event.key===\'Enter\'){event.preventDefault();chatRepAdd();}">'+sBtn('+ ເພີ່ມ','chatRepAdd()','pri')+'</div>'+
+  (state.chatReplies?'<div class="srep-reset">'+sBtn('ກັບໄປໃຊ້ຂໍ້ຄວາມຕັ້ງຕົ້ນ','chatRepReset()','sm ghost')+'</div>':'')):'');}
+/* ຂໍ້ຄວາມຕອບລູກຄ້າ ທີ່ Admin ກຳນົດ */
+function chatReplies(){var a=state&&Array.isArray(state.chatReplies)?state.chatReplies.filter(function(x){return String(x||'').trim();}):null;return a&&a.length?a:CHAT_QUICK.slice();}
+function chatLocked(){return !!(state&&state.chatPresetOnly)&&!can('chatFree');}
+function chatRepSave(a){state.chatReplies=a;save();render();sSaved();}
+function chatRepAdd(){var i=document.getElementById('rep_new');var v=String(i&&i.value||'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim().slice(0,200);if(!v){toast('ພິມຂໍ້ຄວາມກ່ອນ');return;}var a=chatReplies();if(a.indexOf(v)>=0){toast('ມີຂໍ້ຄວາມນີ້ແລ້ວ');return;}if(a.length>=20){toast('ໄດ້ສູງສຸດ 20 ຂໍ້ຄວາມ');return;}a.push(v);chatRepSave(a);setTimeout(function(){var n=document.getElementById('rep_new');if(n)n.focus();},50);}
+function chatRepDel(i){var a=chatReplies();if(a.length<=1){toast('ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂໍ້ຄວາມ');return;}a.splice(i,1);chatRepSave(a);}
+function chatRepMove(i){var a=chatReplies();if(i<1)return;var t=a[i-1];a[i-1]=a[i];a[i]=t;chatRepSave(a);}
+function chatRepReset(){delete state.chatReplies;save();render();sSaved();}
 function setSecTable(){var T=Object.values(state.tables||{});
  return sCard('ຊັ້ນ & ໂຕະ',state.floors.length+' ຊັ້ນ · '+T.length+' ໂຕະ — ຈັດຕຳແໜ່ງໂຕະ ໄດ້ທີ່ໜ້າ ໂຕະ → ແກ້ຜັງ',sBtn('+ ເພີ່ມຊັ້ນ','addFloor()','pri'),
   state.floors.map(function(f){var tt=T.filter(function(t){return t.floor===f;});
@@ -5189,8 +5209,9 @@ function scPaint(full){var L=document.getElementById('scList'),C=document.getEle
  if(full||!B){var tbl=(state.tables||{})[tb];
   C.innerHTML='<div class="sc-ch"><button class="sc-back" onclick="scSel(null)" aria-label="ກັບ">‹</button><div class="sc-tb big">'+cesc(tb)+'</div><div class="sc-cht"><b>ໂຕະ '+cesc(tb)+'</b><small>'+(tbl?(tbl.customer?cesc(tbl.customer)+' · ':'')+((tbl.items||[]).length?(tbl.items||[]).length+' ລາຍການ':'ຍັງບໍ່ມີອໍເດີ'):'')+'</small></div>'+
    (tbl?'<button class="sc-hb" onclick="openTable(\''+String(tb).replace(/'/g,"\\'")+'\')">ເປີດໂຕະ</button>':'')+'<button class="sc-hb red"'+sKX(tb)+' onclick="scClose(this.dataset.k)">ປິດການສົນທະນາ</button></div>'+
-   '<div class="sc-body" id="scBody"></div><div class="sc-qr">'+CHAT_QUICK.map(function(q){return '<button type="button" data-t="'+aesc(q)+'" onclick="scSend(this.dataset.t)">'+cesc(q)+'</button>';}).join('')+'</div>'+
-   '<form class="sc-in" onsubmit="event.preventDefault();var i=document.getElementById(\'scIn\');var v=i.value.trim();if(v){i.value=\'\';scSend(v);}"><input id="scIn" maxlength="500" placeholder="ຕອບລູກຄ້າໂຕະ '+aesc(tb)+'..." autocomplete="off" value="'+aesc(_sc.draft[tb]||'')+'" oninput="_sc.draft[\''+String(tb).replace(/'/g,"\\'")+'\']=this.value"><button type="submit">ສົ່ງ</button></form>';
+   '<div class="sc-body" id="scBody"></div>'+(chatLocked()?'<div class="sc-lock">🔒 ຕອບໄດ້ສະເພາະຂໍ້ຄວາມທີ່ຮ້ານກຳນົດ — ແຕະເພື່ອສົ່ງ</div><div class="sc-preset">'+chatReplies().map(function(q){return '<button type="button" data-t="'+aesc(q)+'" onclick="scSend(this.dataset.t)">'+cesc(q)+'</button>';}).join('')+'</div>':
+   '<div class="sc-qr">'+chatReplies().map(function(q){return '<button type="button" data-t="'+aesc(q)+'" onclick="scSend(this.dataset.t)">'+cesc(q)+'</button>';}).join('')+'</div>'+
+   '<form class="sc-in" onsubmit="event.preventDefault();var i=document.getElementById(\'scIn\');var v=i.value.trim();if(v){i.value=\'\';scSend(v);}"><input id="scIn" maxlength="500" placeholder="ຕອບລູກຄ້າໂຕະ '+aesc(tb)+'..." autocomplete="off" value="'+aesc(_sc.draft[tb]||'')+'" oninput="_sc.draft[\''+String(tb).replace(/'/g,"\\'")+'\']=this.value"><button type="submit">ສົ່ງ</button></form>');
   B=document.getElementById('scBody');}
  var atEnd=full||B.scrollHeight-B.scrollTop-B.clientHeight<60;
  B.innerHTML=t.msgs.length?t.msgs.map(function(m){var me=m.from==='s';
@@ -5201,7 +5222,7 @@ function scPaint(full){var L=document.getElementById('scList'),C=document.getEle
   :'<div class="sc-ph sm"><p>ຍັງບໍ່ມີຂໍ້ຄວາມ — ພິມເພື່ອເລີ່ມ (ລູກຄ້າຈະເຫັນ ເມື່ອເປີດແຊັດຈາກ QR)</p></div>';
  if(atEnd)B.scrollTop=B.scrollHeight;}
 function scSel(tb){_sc.sel=tb||null;if(view!=='chat'){setView('chat');return;}var w=document.querySelector('.sc-wrap');if(w)w.classList.toggle('has-sel',!!_sc.sel);scPaint(true);if(_sc.sel){scMarkSeen(_sc.sel);var i=document.getElementById('scIn');if(i&&window.innerWidth>900)i.focus();}}
-function scSend(text){var tb=_sc.sel;if(!tb||!text)return;var u=curUser()||{};var tmp={id:'tmp'+Date.now(),tmp:true,ts:Date.now(),table:tb,ep:+_sc.ep[tb]||0,sess:'*',from:'s',name:u.name||'',kind:'msg',text:text};_sc.msgs.push(tmp);_sc.draft[tb]='';scPaint();
+function scSend(text){var tb=_sc.sel;if(!tb||!text)return;if(chatLocked()&&chatReplies().indexOf(text)<0){toast('ຕອບໄດ້ສະເພາະຂໍ້ຄວາມທີ່ຮ້ານກຳນົດ');return;}var u=curUser()||{};var tmp={id:'tmp'+Date.now(),tmp:true,ts:Date.now(),table:tb,ep:+_sc.ep[tb]||0,sess:'*',from:'s',name:u.name||'',kind:'msg',text:text};_sc.msgs.push(tmp);_sc.draft[tb]='';scPaint();
  chatRpc({a:'ssend',token:TOKEN,table:tb,text:text,name:u.name||''},function(r){_sc.msgs=_sc.msgs.filter(function(x){return x!==tmp;});if(r&&r.ok&&r.msg){chatMerge(_sc.msgs,[r.msg]);_sc.seen[tb]=Math.max(+_sc.seen[tb]||0,r.now||0);}else toast('ສົ່ງບໍ່ໄດ້ — ກວດອິນເຕີເນັດ');scPaint();});}
 function scSt(id,st){var m=_sc.msgs.find(function(x){return x.id===id;});if(!m)return;var u=curUser()||{};m.st=st;m.stBy=u.name||'';scPaint();scBadge();
  chatRpc({a:'sst',token:TOKEN,id:id,st:st,name:u.name||''},function(r){if(!(r&&r.ok))toast('ອັບເດດບໍ່ໄດ້ — ລອງໃໝ່');});
