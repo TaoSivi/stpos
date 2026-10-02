@@ -307,7 +307,7 @@ function mergeQr_(curStr, inc) {
           inc.orders.push(co || { id: line.id, table: k, code: line.code, name: line.name, qty: line.qty, k: line.k, mods: line.mods, note: line.note, status: 'wait', ts: line.ts, qr: true });
         }
         var def = map[line.code], loc = line.qrLoc || 'main';
-        if (def && !inc.__stkDelta && inc._srcLoc === loc && inc.ingredients) (def.bom || []).forEach(function (b) {
+        if (def && !inc.__stkDelta && inc._srcLoc === loc && inc.ingredients) lineBom_(def, line).forEach(function (b) {
           var ing = inc.ingredients[b[0]]; if (!ing) return; if (!ing.locs) ing.locs = {};
           ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
         });
@@ -358,6 +358,15 @@ function qrSoldOut_(st) {
   return out;
 }
 /* ---- ລູກຄ້າ QR: ຂໍ້ມູນສະເພາະໂຕະຕົນເອງ (ບໍ່ມີ ບິນ/ລາຍຈ່າຍ/ຜູ້ໃຊ້/ສະຕ໋ອກ/ກະ) ---- */
+/* ຂະໜາດ & Topping: ລາຄາ/ສູດ ຈາກກຸ່ມທີ່ໃຊ້ກັບເມນູນີ້ເທົ່ານັ້ນ (ກັນຊື່ຊ້ຳຂ້າມກຸ່ມ) */
+function mgApplies_(g, def) { if (g.scope === 'items') return (g.codes || []).indexOf(def.c) >= 0; return !g.scope || g.scope === 'all' || g.scope === def.k; }
+function modInfo_(st, def, mods) {
+  var pick = {}; mods.forEach(function (m) { pick[m] = 1; }); var price = 0, bm = 1, xb = [];
+  (st.modGroups || []).forEach(function (g) { if (!mgApplies_(g, def)) return; var t = g.type || (g.multi ? 'topping' : 'choice');
+    (g.opts || []).forEach(function (o) { if (!o || o.n == null || !pick[String(o.n)]) return; price += +o.p || 0; if (t === 'size' && +o.bm > 0) bm *= +o.bm; if (o.ing && +o.iq > 0) xb.push([o.ing, +o.iq]); }); });
+  return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb };
+}
+function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
 function custFilter_(st, table) {
   var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
     soldOut: qrSoldOut_(st), modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
@@ -421,23 +430,23 @@ function custAction_(payload) {
     var promo = activePromo_(st);
     var cnt = 0, skipped = 0;
     var clean = function (x, n) { return String(x == null ? '' : x).replace(/[<>]/g, '').slice(0, n); };
-    var modP = {}; (st.modGroups || []).forEach(function (g) { (g.opts || []).forEach(function (o) { if (o && o.n != null) modP[String(o.n)] = +o.p || 0; }); });
     items.forEach(function (it) {
       var def = map[String(it.code || '')];
       if (!def) { skipped++; return; }
       if (st.soldOut && st.soldOut[def.c]) { skipped++; return; }
-      if (st.stockBlock !== false && !(st.modules && st.modules.stock === false) && (def.bom || []).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * Math.max(1, Math.min(99, Math.round(+it.qty || 1))) - 1e-9; })) { skipped++; return; }
       var qn = Math.max(1, Math.min(99, Math.round(+it.qty || 1)));
       var mods = (it.mods || []).slice(0, 12).map(function (m) { return clean(m, 60); });
-      var mp = mods.reduce(function (a, m) { return a + (modP.hasOwnProperty(m) ? modP[m] : 0); }, 0);
+      var mi = modInfo_(st, def, mods), mp = mi.price;
+      if (st.stockBlock !== false && !(st.modules && st.modules.stock === false) && lineBom_(def, mi).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * qn - 1e-9; })) { skipped++; return; }
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
         mods: mods,
         modPrice: mp, disc: 0, k: def.k, note: clean(it.note, 120), ts: now, qr: true, qrLoc: qrLoc };
+      if (mi.bm !== 1) line.bm = mi.bm; if (mi.xb.length) line.xb = mi.xb;
       if (rid) line.qrRid = rid;
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
       st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true, upd: now });
-      (def.bom || []).forEach(function (b) {
+      lineBom_(def, line).forEach(function (b) {
         var ing = st.ingredients && st.ingredients[b[0]];
         if (ing) {
           if (!ing.locs) { ing.locs = {}; if (typeof ing.stock === 'number') ing.locs['main'] = ing.stock; }
