@@ -1599,6 +1599,21 @@ body.cc-lock{overflow:hidden}
 .sk-tbl tr.low{background:#fffaf3;box-shadow:inset 4px 0 0 #f59e0b,var(--sh-1)}.sk-tbl td{display:block;padding:0!important;border:0!important;background:none!important;text-align:left!important}
 .sk-tbl td:first-child{grid-column:1/-1;padding-right:86px!important}.sk-tbl td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);font-weight:700}
 .sk-tbl td.sk-st{position:absolute;top:12px;right:12px}.sk-tbl td.sk-actc{grid-column:1/-1;margin-top:6px}.sk-ra{display:flex;width:100%}.sk-ra .sk-in{flex:1}.sk-none{display:block}}
+.ws-top{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}.ws-top .ttl{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2}.ws-top .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.ws-add{margin-left:auto;height:48px;padding:0 22px;border-radius:14px;border:0;background:#b91c1c;color:#fff;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;box-shadow:0 6px 16px rgba(185,28,28,.25)}.ws-add:hover{background:#991b1b}
+.ws-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}.ws-kpis .kpi{text-align:left;cursor:pointer;border:0;font:inherit}
+.ws-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.ws-q{margin-left:auto;min-width:240px;height:42px;padding:0 12px;border:1px solid #d6e9e7;border-radius:12px;font:inherit;background:#fff}
+.ws-body{overflow:auto}
+.ws-route{background:#fef2f2;color:#991b1b;border-radius:10px;padding:8px 12px;font-size:13px;margin:-4px 0 10px;text-align:center}
+.ws-add-row{display:flex;gap:6px}.ws-add-row input{flex:1;margin:0}
+.ws-lines{margin:10px 0 4px;max-height:36vh;overflow:auto}.ws-empty{color:#94a3b8;font-size:14px;text-align:center;padding:14px;border:1px dashed #e2e8f0;border-radius:12px}
+.ws-line{border:1px solid #e3efed;border-radius:14px;padding:10px;margin-bottom:8px;background:#fff}.ws-line.over{border-color:#fca5a5;background:#fff5f5}
+.ws-ln{display:flex;align-items:center;gap:10px}.ws-ln>div{flex:0 0 auto}.ws-ln>div:nth-child(2){flex:1;min-width:0}.ws-ln b{display:block;font-size:14.5px}.ws-ln small{color:var(--muted);font-size:12px}.ws-line.over small{color:#b91c1c;font-weight:700}
+.ws-lf{display:flex;gap:8px;margin-top:8px}.ws-qty{display:flex;align-items:center;border:1.5px solid #d6e9e7;border-radius:10px;overflow:hidden;flex:1}.ws-qty input{border:0!important;margin:0!important;height:40px;font-size:17px;font-weight:800;text-align:right;flex:1;min-width:0;box-shadow:none!important}.ws-qty span{padding:0 10px;color:var(--muted);font-size:13px;background:#f3f9f8;align-self:stretch;display:flex;align-items:center}
+.ws-lf select{flex:1;height:44px;border-radius:10px;margin:0}
+.ws-ph{display:flex;align-items:center;gap:10px}.ws-ph img{width:90px;height:90px;object-fit:cover;border-radius:12px;border:1px solid #e3efed}
+.ws-phbtn{display:inline-flex!important;align-items:center;gap:6px;height:42px;padding:0 16px;border-radius:12px;border:1.5px dashed #9fd6cf;background:#f0faf9;color:#0A5E5B;font-weight:700;cursor:pointer;margin:0!important}
+.ws-photo{margin:12px 0}.ws-photo img{max-width:260px;max-height:220px;border-radius:8px;border:1px solid #ddd;display:block;margin-top:4px}
 </style>
 </head>
 <body>
@@ -1628,6 +1643,7 @@ body.cc-lock{overflow:hidden}
     <button class="navitem" data-v="stock"><span class="ic"></span> ສະຕ໋ອກວັດຖຸດິບ <span class="live" id="stockBadge" style="display:none;background:#e03131"></span></button>
     <button class="navitem" data-v="req"><span class="ic"></span> ເບີກເຄື່ອງ <span class="live" id="rqBadge" style="display:none"></span></button>
     <button class="navitem" data-v="count"><span class="ic"></span> ນັບສາງ</button>
+    <button class="navitem" data-v="waste"><span class="ic"></span> ແຈ້ງເສຍ <span class="live" id="wsBadge" style="display:none"></span></button>
     <button class="navitem" data-v="purchase"><span class="ic"></span> ຈັດຊື້ (PR/PO) <span class="live" id="procBadge" style="display:none"></span></button>
     <div class="navsec">ລະບົບ</div>
     <button class="navitem" data-v="admin"><span class="ic"></span> ການຕັ້ງຄ່າ</button>
@@ -1659,14 +1675,14 @@ const PERMS={
  superadmin:null, /* ເຈົ້າຂອງລະບົບ: ທຸກສິດ + ເປີດ/ປິດໂມດູນ + ກຳນົດສິດບົດບາດ */
  owner:null, /* null = ທຸກສິດ */
  admin:{view:[],act:[]}, /* ທຸກສິດ + ຕັ້ງຄ່າ — ເຕີມຫຼັງ PERM_VIEWS/PERM_ACTS */
- manager:{view:['tables','order','kitchen','bar','waiter','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk','resv','chat'],
-          act:['resvMng','chkDo','chkApprove','chkEdit','reqCreate','reqIssue','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','chatFree','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
+ manager:{view:['tables','order','kitchen','bar','waiter','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk','resv','chat','waste'],
+          act:['resvMng','chkDo','chkApprove','chkEdit','reqCreate','reqIssue','wasteCreate','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','override','memberMng','promoMng','chatFree','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
  cashier:{view:['tables','order','history','waiter','shift','members','debt','chk','resv','chat'],
           act:['resvMng','chkDo','pay','discount','soldout','shiftMng','expenseAdd','export','memberMng','debtCollect']},
  waiter: {view:['tables','order','waiter','chk','resv','chat'],act:['soldout','chkDo','resvMng']},
- kitchen:{view:['kitchen','waiter','req','chk','purchase'],act:['chkDo','reqCreate','prCreate','grnReceive']},
- bar:{view:['bar','waiter','req','chk','purchase'],act:['chkDo','reqCreate','prCreate','grnReceive']},
- storekeeper:{view:['stock','req','count','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','countDo','prCreate','grnReceive']},
+ kitchen:{view:['kitchen','waiter','req','waste','chk','purchase'],act:['chkDo','reqCreate','wasteCreate','prCreate','grnReceive']},
+ bar:{view:['bar','waiter','req','waste','chk','purchase'],act:['chkDo','reqCreate','wasteCreate','prCreate','grnReceive']},
+ storekeeper:{view:['stock','req','count','waste','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','wasteCreate','countDo','prCreate','grnReceive']},
  purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng']}
 };
 /* hash PIN — ບໍ່ເກັບ PIN ແບບອ່ານໄດ້ໃນ Google Sheet */
@@ -1679,15 +1695,15 @@ function roleCan(r,a){var p=roleDef(r);if(!p)return true;return p.act.indexOf(a)
 function roleView(r,v){var p=roleDef(r);if(!p)return true;return p.view.indexOf(v)>=0;}
 function isSuper(){var u=curUser();return !!u&&u.role==='superadmin';}
 /* ໂມດູນ: ປິດແລ້ວ ໜ້າທີ່ກ່ຽວຂ້ອງຖືກເຊື່ອງ ສຳລັບທຸກຄົນ */
-var MODULES=[['kds','ຈໍຄົວ / ບາ / ເສີບ','ສົ່ງອໍເດີເຂົ້າຈໍ ແລະ ຕິດຕາມການເສີບ',['kitchen','bar','waiter']],['resv','ຈອງໂຕະ','ຈອງລ່ວງໜ້າ · ມາຮອດ / ບໍ່ມາ',['resv']],['chat','ແຊັດລູກຄ້າ','ລູກຄ້າສະແກນ QR ແຊັດ / ຂໍບ່ວງ ຈານ ກັບພະນັກງານ',['chat']],['chk','ເຊັກລິດປະຈຳກະ','ພະນັກງານຕິກ ຜ່ານ/ບໍ່ຜ່ານ → ຫົວໜ້າອະນຸມັດ',['chk']],['shift','ກະ & ລີ້ນຊັກເງິນ','ປິດ = ຮັບເງິນໄດ້ ໂດຍບໍ່ຕ້ອງເປີດກະ',['shift']],['members','ສະມາຊິກ & ສ່ວນລົດພະນັກງານ','ແຕ້ມ, ກະເປົາເງິນ ແລະ ສ່ວນລົດພະນັກງານ',['members']],['debt','ໜີ້ຄ້າງ (ຕິດໜີ້)','ປິດ = ບໍ່ມີວິທີຈ່າຍ "ຕິດໜີ້"',['debt']],['expense','ລາຍຈ່າຍ','',['expense']],['stock','ສະຕ໋ອກ & ໂອນສາຂາ','ປິດ = ບໍ່ກັນຂາຍຕາມສະຕ໋ອກ',['stock','transfer']],['purchase','ຈັດຊື້ (PR / PO)','',['purchase']],['req','ເບີກເຄື່ອງ (ສາງ)','ໃບເບີກ → ອະນຸມັດ → ນາຍສາງຈ່າຍ',['req']],['count','ນັບສາງ','ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ',['count']],['dash','Dashboard','',['dash']],['reports','ລາຍງານ','',['reports']]];
+var MODULES=[['kds','ຈໍຄົວ / ບາ / ເສີບ','ສົ່ງອໍເດີເຂົ້າຈໍ ແລະ ຕິດຕາມການເສີບ',['kitchen','bar','waiter']],['resv','ຈອງໂຕະ','ຈອງລ່ວງໜ້າ · ມາຮອດ / ບໍ່ມາ',['resv']],['chat','ແຊັດລູກຄ້າ','ລູກຄ້າສະແກນ QR ແຊັດ / ຂໍບ່ວງ ຈານ ກັບພະນັກງານ',['chat']],['chk','ເຊັກລິດປະຈຳກະ','ພະນັກງານຕິກ ຜ່ານ/ບໍ່ຜ່ານ → ຫົວໜ້າອະນຸມັດ',['chk']],['shift','ກະ & ລີ້ນຊັກເງິນ','ປິດ = ຮັບເງິນໄດ້ ໂດຍບໍ່ຕ້ອງເປີດກະ',['shift']],['members','ສະມາຊິກ & ສ່ວນລົດພະນັກງານ','ແຕ້ມ, ກະເປົາເງິນ ແລະ ສ່ວນລົດພະນັກງານ',['members']],['debt','ໜີ້ຄ້າງ (ຕິດໜີ້)','ປິດ = ບໍ່ມີວິທີຈ່າຍ "ຕິດໜີ້"',['debt']],['expense','ລາຍຈ່າຍ','',['expense']],['stock','ສະຕ໋ອກ & ໂອນສາຂາ','ປິດ = ບໍ່ກັນຂາຍຕາມສະຕ໋ອກ',['stock','transfer','waste']],['purchase','ຈັດຊື້ (PR / PO)','',['purchase']],['req','ເບີກເຄື່ອງ (ສາງ)','ໃບເບີກ → ອະນຸມັດ → ນາຍສາງຈ່າຍ',['req']],['count','ນັບສາງ','ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ',['count']],['dash','Dashboard','',['dash']],['reports','ລາຍງານ','',['reports']]];
 var MOD_OF={};MODULES.forEach(function(m){m[3].forEach(function(v){MOD_OF[v]=m[0];});});
 function modOn(k){return !(state&&state.modules&&state.modules[k]===false);}
 function can(a){var u=curUser();if(!u)return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.a;if(o&&Object.prototype.hasOwnProperty.call(o,a))return !!o[a];return roleCan(u.role,a);}
 function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';if(v==='cancellog')v='reports';if(MOD_OF[v]&&!modOn(MOD_OF[v]))return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(u.role,v);}
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])return 'tables';var f=PERM_VIEWS.map(function(x){return x[0];}).filter(function(v){return canView(v);});var d=roleDef(u.role).view.filter(function(v){return canView(v);});return d[0]||f[0]||'tables';}
-var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
-var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ແຊັດລູກຄ້າ',[['chatFree','ພິມແຊັດຕອບລູກຄ້າເອງ (ເມື່ອຮ້ານຈຳກັດຂໍ້ຄວາມ)']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ (ລໍອະນຸມັດ)'],['stockApprove','ອະນຸມັດ ເສຍ / ປັບ / ຕົ້ນທຶນ ສະຕ໋ອກ (ປັບໄດ້ທັນທີ)'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ຈອງໂຕະ',[['resvMng','ຈອງ / ແກ້ / ຍົກເລີກ ການຈອງໂຕະ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
+var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['waste','ແຈ້ງເສຍຫາຍ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
+var PERM_ACTS=[['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ແຊັດລູກຄ້າ',[['chatFree','ພິມແຊັດຕອບລູກຄ້າເອງ (ເມື່ອຮ້ານຈຳກັດຂໍ້ຄວາມ)']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ (ລໍອະນຸມັດ)'],['stockApprove','ອະນຸມັດ ເສຍ / ປັບ / ຕົ້ນທຶນ ສະຕ໋ອກ (ປັບໄດ້ທັນທີ)'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ຈອງໂຕະ',[['resvMng','ຈອງ / ແກ້ / ຍົກເລີກ ການຈອງໂຕະ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['wasteCreate','ແຈ້ງເສຍຫາຍ (ສ້າງໃບແຈ້ງເສຍ)'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
 PERMS.admin={view:PERM_VIEWS.map(function(x){return x[0];}).concat(['order']),act:[].concat.apply([],PERM_ACTS.map(function(g){return g[1].map(function(x){return x[0];});}))};
 function permCount(u){if(!u||!u.perm)return 0;return Object.keys(u.perm.v||{}).length+Object.keys(u.perm.a||{}).length;}
 function permEffView(u,r,v){var o=u&&u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(r,v);}
@@ -1785,6 +1801,7 @@ function ensureUsers(){
  if(!state._saMigr){var _rd=state.roleDefs;if(_rd&&_rd.manager&&Array.isArray(_rd.manager.act)&&_rd.manager.act.indexOf('stockApprove')<0)_rd.manager.act.push('stockApprove');state._saMigr=1;}
  if(!state._chatMigr){var _rd2=state.roleDefs;if(_rd2)['manager','cashier','waiter'].forEach(function(r){var d=_rd2[r];if(d&&Array.isArray(d.view)&&d.view.indexOf('chat')<0)d.view.push('chat');});state._chatMigr=1;}
  if(!state._chatMigr2){var _rd3=state.roleDefs;if(_rd3&&_rd3.manager&&Array.isArray(_rd3.manager.act)&&_rd3.manager.act.indexOf('chatFree')<0)_rd3.manager.act.push('chatFree');state._chatMigr2=1;}
+ if(!state._wsMigr){var _rd4=state.roleDefs;if(_rd4)['manager','storekeeper','kitchen','bar'].forEach(function(r){var d=_rd4[r];if(!d||!Array.isArray(d.view)||!Array.isArray(d.act))return;if(d.view.indexOf('waste')<0)d.view.push('waste');if(d.act.indexOf('wasteCreate')<0)d.act.push('wasteCreate');});state._wsMigr=1;}
  state.users.forEach(function(u){if(u.pin!==undefined&&u.pin!==null){u.pinH=pinHash(u.pin);delete u.pin;}if(!u.pinH)u.pinH=pinHash('0000');});
  if(typeof state.soldOut!=='object'||!state.soldOut)state.soldOut={};
  if(state.printKitchen===undefined)state.printKitchen=false;
@@ -1974,12 +1991,12 @@ function render(){if(!state)return;if(state.ingredients)syncStockView();document
  if(!curUser()){showLogin();return;}
  var el=document.getElementById('loginScreen');if(el)el.remove();
  renderUserChip();try{tickClock();}catch(e){}
- document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});renderBottomNav();procBadge();try{rqBadge();}catch(e){}try{chkBadge();}catch(e){}try{rvInit();rvBadge();}catch(e){}try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
+ document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});renderBottomNav();procBadge();try{rqBadge();}catch(e){}try{wsBadge();}catch(e){}try{chkBadge();}catch(e){}try{rvInit();rvBadge();}catch(e){}try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
  else if(view==='kitchen')renderKDS(R,'food',' ຈໍຄົວ');else if(view==='bar')renderKDS(R,'drink',' ຈໍບາຣ໌ນ້ຳ');
- else if(view==='waiter')renderWaiter(R);else if(view==='history')renderHistory(R);else if(view==='dash')renderDash(R);else if(view==='stock')renderStock(R);else if(view==='transfer')renderTransfers(R);else if(view==='purchase')renderPurchase(R);else if(view==='req')renderReq(R);else if(view==='chk')renderChk(R);else if(view==='resv')renderResv(R);else if(view==='chat')renderChat(R);else if(view==='count')renderCount(R);else if(view==='expense')renderExpense(R);else if(view==='reports')renderReports(R);else if(view==='shift')renderShift(R);else if(view==='members')renderMembers(R);else if(view==='debt')renderDebt(R);}
+ else if(view==='waiter')renderWaiter(R);else if(view==='history')renderHistory(R);else if(view==='dash')renderDash(R);else if(view==='stock')renderStock(R);else if(view==='transfer')renderTransfers(R);else if(view==='purchase')renderPurchase(R);else if(view==='req')renderReq(R);else if(view==='chk')renderChk(R);else if(view==='resv')renderResv(R);else if(view==='chat')renderChat(R);else if(view==='waste')renderWaste(R);else if(view==='count')renderCount(R);else if(view==='expense')renderExpense(R);else if(view==='reports')renderReports(R);else if(view==='shift')renderShift(R);else if(view==='members')renderMembers(R);else if(view==='debt')renderDebt(R);}
 function tableTotal(t){return t.items.reduce((s,i)=>s+lineTotal(i),0);}
 function lineUnit(i){var d=Math.min(100,(+i.disc||0)+(+i.promoPct||0));return (i.price+(i.modPrice||0))*(1-d/100);}
 function lineTotal(i){var paid=Math.max(0,(i.qty||0)-(+i.promoFree||0));return lineUnit(i)*paid;}
@@ -3083,11 +3100,8 @@ function insightHTML(a){var used=a.rows.filter(function(r){return r.used||r.sum1
   list.slice(0,150).map(function(r){var c=String(r.code).replace(/'/g,"\\'");var ed=can('stockAdjust');var inp=function(f,v,ph){return ed?'<input class="sp-in" type="number" min="0" value="'+v+'" placeholder="'+ph+'" onchange="setIngMeta(\''+c+'\',\''+f+'\',this.value)">':v;};
    return '<tr><td><b>'+cesc(r.name)+'</b> <small class="sp-mut">'+cesc(r.code)+' · '+cesc(r.unit)+'</small></td><td>'+(r.avg>0?fmtQ(r.avg,r.unit):'—')+'</td><td>'+inp('yield',r.meta.yld,'100')+'</td><td>'+inp('shelf',r.meta.shelf||'','ບໍ່ຈຳກັດ')+'</td><td>'+inp('lead',r.meta.lead,'1')+'</td><td>'+(r.trim?KIP(r.trim):'—')+'</td><td>'+(r.waste?fmtQ(r.waste,r.unit)+' <small class="sp-mut">'+(Math.round(r.wastePct*10)/10)+'%</small>':'—')+'</td></tr>';}).join('')+'</tbody></table></div>'+(list.length>150?'<p class="sp-foot">ສະແດງ 150 ຈາກ '+list.length+' — ໃຊ້ຊ່ອງຄົ້ນຫາ</p>':'')+'</section></div>';}
 /* ===== ບັນທຶກເສຍຫາຍ (waste) ===== */
-function wasteStock(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];
- openModal('<h2 style="color:var(--orange)"> ບັນທຶກເສຍຫາຍ — '+cesc(it.name)+'</h2><p style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px">ບ່ອນເກັບ: <b>'+cesc(locName(stockViewLoc))+'</b></p><div class="paysummary"><div class="row"><span>ຄົງເຫຼືອ:</span><b>'+KIP(stockAt(code,stockViewLoc))+' '+cesc(it.unit)+'</b></div></div>'+
-  '<label style="margin-top:8px">ຈຳນວນທີ່ເສຍ ('+cesc(it.unit)+')</label><input id="ws_q" type="number" inputmode="decimal" value="0">'+
-  '<label style="margin-top:8px">ເຫດຜົນ (ຈຳເປັນ)</label><input id="ws_rsn" placeholder="ເຊັ່ນ ເນົ່າເສຍ / ຕົກແຕກ / ໝົດອາຍຸ">'+
-  saNote()+'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--orange)" onclick="doWasteStock(\''+code+'\')">ບັນທຶກເສຍ</button></div>');}
+/* ເສຍ → ໃບແຈ້ງເສຍ (ເອກະສານອະນຸມັດ) ແທນການຕັດສະຕ໋ອກທັນທີ */
+function wasteStock(code){wsModal(null,code);}
 function doWasteStock(code){var q=+document.getElementById('ws_q').value||0;var rsn=(document.getElementById('ws_rsn').value||'').trim();
  if(q<=0){toast('ໃສ່ຈຳນວນ > 0');return;}if(!rsn){toast('ໃສ່ເຫດຜົນ');return;}
  var it=state.ingredients[code];if(!can('stockApprove')){saReq('waste',stockViewLoc,[{code:code,name:it.name,unit:it.unit,qty:q,cost:+it.cost||0}],rsn);return;}addStockAt(code,stockViewLoc,-q,'ເສຍຫາຍ',rsn+' ['+locName(stockViewLoc)+']');
@@ -3273,6 +3287,7 @@ const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 
  resv:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 15h2M14 15h2"/>',
  chk:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
  req:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M9 12h6M9 16h4"/>',
+ waste:'<path d="M4 7h16M10 11v6M14 11v6"/><path d="M5 7l1 13h12l1-13M9 7V4h6v3"/>',
  count:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M8.5 13l2 2 4-4"/>',
  cancellog:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>',
  stock:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
@@ -3283,7 +3298,7 @@ const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 
 function navSvg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(NAV_IC[k]||'')+'</svg>';}
 function toggleDrawer(on){var a=document.getElementById('app');if(!a)return;if(on===undefined)on=!a.classList.contains('drawer');a.classList.toggle('drawer',!!on);}
 function renderBottomNav(){var el=document.getElementById('bnav');if(!el)return;if(isCust()||!curUser()){el.innerHTML='';return;}
- var cand=[['tables','ໂຕະ'],['kitchen','ຄົວ'],['history','ປະຫວັດ'],['dash','ພາບລວມ'],['stock','ສະຕ໋ອກ'],['members','ສະມາຊິກ'],['bar','ບາ'],['waiter','ເສີບ'],['resv','ຈອງ'],['chk','ເຊັກລິດ'],['req','ເບີກ'],['count','ນັບສາງ'],['transfer','ໂອນ'],['purchase','ຈັດຊື້']].filter(function(x){return canView(x[0]);}).slice(0,4);
+ var cand=[['tables','ໂຕະ'],['kitchen','ຄົວ'],['history','ປະຫວັດ'],['dash','ພາບລວມ'],['stock','ສະຕ໋ອກ'],['members','ສະມາຊິກ'],['bar','ບາ'],['waiter','ເສີບ'],['resv','ຈອງ'],['chk','ເຊັກລິດ'],['req','ເບີກ'],['count','ນັບສາງ'],['waste','ແຈ້ງເສຍ'],['transfer','ໂອນ'],['purchase','ຈັດຊື້']].filter(function(x){return canView(x[0]);}).slice(0,4);
  var cur=(view==='order')?'tables':(view==='transfer'?'stock':view);if(curUser()&&curUser().role==='purchasing')cand=[['purchase','ຈັດຊື້'],['stock','ສະຕ໋ອກ']];
  el.innerHTML=cand.map(function(x){return '<button class="'+(cur===x[0]?'on':'')+'" onclick="setView(\''+x[0]+'\')"><span class="bi">'+navSvg(x[0])+'</span>'+x[1]+'</button>';}).join('')+'<button onclick="toggleDrawer(true)"><span class="bi">'+navSvg('more')+'</span>ເພີ່ມເຕີມ</button>';}
 function tickClock(){var el=document.getElementById('tbDate');if(!el)return;var d=new Date();var dn=['ວັນອາທິດ','ວັນຈັນ','ວັນອັງຄານ','ວັນພຸດ','ວັນພະຫັດ','ວັນສຸກ','ວັນເສົາ'];
@@ -3520,12 +3535,13 @@ function apDoc(kind,id){var d=null,steps=null,cur=0,edit=false,label='';
   else{steps=d.wf.po;cur=0;edit=!d.poId&&['CANCELLED'].indexOf(d.status)<0;label='PO (ແມ່ແບບ)';}}
  else if(kind==='po'){d=findPO(id);if(!d)return null;if(!Array.isArray(d.steps))d.steps=[];steps=d.steps;cur=d.status==='PENDING_APPROVAL'?(d.step||0):(d.status==='REJECTED'?(d.step||0):steps.length);edit=d.status==='PENDING_APPROVAL';label='PO';}
  else if(kind==='rq'){d=findRQ(id);if(!d)return null;if(!Array.isArray(d.steps))d.steps=[];steps=d.steps;cur=d.status==='PENDING_APPROVAL'?(d.step||0):(['DRAFT','REJECTED'].indexOf(d.status)>=0?0:steps.length);edit=['DRAFT','PENDING_APPROVAL','REJECTED'].indexOf(d.status)>=0;label='ໃບເບີກ';}
+ else if(kind==='ws'){d=findWS(id);if(!d)return null;if(!Array.isArray(d.steps))d.steps=[];steps=d.steps;cur=d.status==='PENDING_APPROVAL'?(d.step||0):(['DRAFT','REJECTED'].indexOf(d.status)>=0?0:steps.length);edit=['DRAFT','PENDING_APPROVAL','REJECTED'].indexOf(d.status)>=0;label='ໃບແຈ້ງເສຍ';}
  else if(kind==='tf'){d=(state.transfers||[]).find(function(x){return x.id===id;});if(!d)return null;if(!Array.isArray(d.steps))d.steps=[];steps=d.steps;cur=d.status==='pending'?(d.step||0):steps.length;edit=d.status==='pending';label='ໃບໂອນ';}
  return d?{doc:d,steps:steps,cur:cur,edit:edit&&isOwner(),kind:kind,label:label}:null;}
 function apNote(a,txt){var d=a.doc;if(a.kind==='tf'){d.upd=Date.now();(d.hist=d.hist||[]).push({ts:d.upd,by:whoBy(),act:'ປ່ຽນຜູ້ອະນຸມັດ',note:txt});}else procHist(d,'ປ່ຽນຜູ້ອະນຸມັດ',txt);logOrder('ຜູ້ອະນຸມັດ',(d.no||'')+' · '+txt,'');}
 function apAfter(kind,id){save();if(kind==='tf'&&document.querySelector('#modalRoot .tfdoc-wrap')){tfView(id,'tfo');}render();}
 function apSet(kind,id,i,sp){var a=apDoc(kind,id);if(!a||!a.edit||i<a.cur){toast('ປ່ຽນບໍ່ໄດ້ — ຂັ້ນນີ້ຜ່ານແລ້ວ');return;}var old=a.steps[i];if(old===sp)return;a.steps[i]=sp;apNote(a,a.label+' ຂັ້ນ '+(i+1)+': '+stepName(old)+' → '+stepName(sp));apAfter(kind,id);toast('ປ່ຽນເປັນ '+stepName(sp));}
-function apDel(kind,id,i){var a=apDoc(kind,id);if(!a||!a.edit||i<a.cur)return;var pending=((kind==='pr'||kind==='rq')&&a.doc.status==='PENDING_APPROVAL')||kind==='po'||kind==='tf';
+function apDel(kind,id,i){var a=apDoc(kind,id);if(!a||!a.edit||i<a.cur)return;var pending=((kind==='pr'||kind==='rq'||kind==='ws')&&a.doc.status==='PENDING_APPROVAL')||kind==='po'||kind==='tf';
  if(pending&&a.steps.length-1<=a.cur){toast('ຕ້ອງເຫຼືອຢ່າງໜ້ອຍ 1 ຂັ້ນທີ່ຍັງລໍ — ຖ້າບໍ່ຕ້ອງການແລ້ວ ໃຫ້ກົດອະນຸມັດແທນ');return;}
  var old=a.steps.splice(i,1)[0];apNote(a,'ລຶບ '+a.label+' ຂັ້ນ '+(i+1)+' ('+stepName(old)+')');apAfter(kind,id);}
 function apAdd(kind,id,sp){var a=apDoc(kind,id);if(!a||!a.edit)return;if(!sp)return;a.steps.push(sp);apNote(a,'ເພີ່ມ '+a.label+' ຂັ້ນ '+a.steps.length+': '+stepName(sp));apAfter(kind,id);}
@@ -3815,6 +3831,121 @@ function rqDoIssue(id){var r=findRQ(id);if(!r||!rqCanIssue(r))return;var qs=[],r
  r.status='ISSUED';r.issTs=Date.now();r.issUid=u.id;r.issBy=u.name||'';r.issNote=((document.getElementById('rq_issnote')||{}).value||'').trim();
  var short=r.lines.filter(function(l){return (+l.iss||0)<(+l.qty||0);}).length,over=r.lines.filter(function(l){return (+l.iss||0)>(+l.qty||0);}).length;procHist(r,'ຈ່າຍເຄື່ອງ',(short?'ຈ່າຍບໍ່ຄົບ '+short+' ລາຍການ':'ຈ່າຍຄົບ')+(over?' · ຈ່າຍເກີນ '+over+' ລາຍການ':'')+r.lines.filter(function(l){return l.issRsn;}).map(function(l){return ' · '+l.name+': '+l.issRsn;}).join('')+(r.issNote?' · '+r.issNote:''));
  logOrder('ໃບເບີກ',r.no+' ຈ່າຍແລ້ວ · '+r.lines.filter(function(l){return l.iss>0;}).length+' ລາຍການ','');save();closeModal();render();showSuccess('ຈ່າຍເຄື່ອງແລ້ວ',r.no+' · ຕັດສະຕ໋ອກ '+locName(r.from));}
+
+/* ===================== ໃບແຈ້ງເສຍຫາຍ (Waste report) — ເອກະສານອະນຸມັດ ແບບດຽວກັບໃບເບີກ =====================
+   ແຈ້ງເສຍ (ລາຍການ + ສາເຫດ + ຮູບ) → ອະນຸມັດຕາມຂັ້ນ (ຢ່າງໜ້ອຍ 1 ຂັ້ນ · ອະນຸມັດຂອງຕົນເອງບໍ່ໄດ້) → ຕັດສະຕ໋ອກອັດຕະໂນມັດ
+   ກັນການລັກຂອງ ແລ້ວອ້າງວ່າເສຍ ໂດຍບໍ່ມີໃຜຮັບຮູ້ */
+PDOC.ws={bg:'#FDE4E4',fg:'#9B1C1C',line:'#9B1C1C',lao:'ໃບແຈ້ງເສຍຫາຍ',en:'WASTE REPORT'};
+var WS_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍອະນຸມັດ','#b45309','#fef3c7'],POSTED:['ອະນຸມັດ · ຕັດສະຕ໋ອກແລ້ວ','#15803d','#dcfce7'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
+var WS_RSN=['ເນົ່າ / ບູດ','ໝົດອາຍຸ','ຕົກ / ແຕກ / ຫົກ','ເຮັດຜິດ / ລູກຄ້າຄືນ','ອື່ນໆ'];
+let wsTab='all',wsQ='',wsDetail=null;
+function wsInit(){if(!Array.isArray(state.wastes))state.wastes=[];if(!state.wsFlow||typeof state.wsFlow!=='object')state.wsFlow={steps:['r:manager']};if(!Array.isArray(state.wsFlow.steps)||!state.wsFlow.steps.length)state.wsFlow.steps=['r:manager'];}
+function findWS(id){return (state.wastes||[]).find(function(x){return x.id===id;});}
+function wsSteps(w){return w.steps||[];}
+function wsCanApprove(w){return w.status==='PENDING_APPROVAL'&&canStep(w,wsSteps(w)[w.step||0]);}
+function wsCost(l){return +l.cost||+((state.ingredients[l.code]||{}).cost)||0;}
+function wsValue(w){return (w.lines||[]).reduce(function(s,l){return s+(+l.qty||0)*wsCost(l);},0);}
+function wsSeeCost(){return procSeeCost()||can('stockApprove')||isOwner();}
+function wsPendingForMe(){if(!state||!curUser()||!canView('waste'))return 0;wsInit();return state.wastes.filter(wsCanApprove).length;}
+function wsBadge(){var el=document.getElementById('wsBadge');if(!el)return;var n=wsPendingForMe();el.textContent=n||'';el.style.display=n?'':'none';}
+function wsFlowSet(k,v,i){if(!isOwner())return;wsInit();var f=state.wsFlow;
+ if(k==='add'&&v)f.steps.push(v);else if(k==='del'){if(f.steps.length<=1){toast('ຕ້ອງມີຜູ້ອະນຸມັດຢ່າງໜ້ອຍ 1 ຂັ້ນ — ກັນການແຈ້ງເສຍໂດຍບໍ່ມີໃຜຮູ້');return;}f.steps.splice(i,1);}else if(k==='set')f.steps[i]=v;
+ f.upd=Date.now();logOrder('ຕັ້ງຂັ້ນຕອນໃບແຈ້ງເສຍ',f.steps.map(stepName).join(' → '),'');save();render();}
+function wsFlowHTML(){wsInit();var f=state.wsFlow,own=isOwner();var opt=function(sel,js){return '<select class="ap-sel" onchange="'+js+'">'+wfOptions().map(function(o){return '<option value="'+o[0]+'"'+(o[0]===sel?' selected':'')+'>'+cesc(o[1])+'</option>';}).join('')+'</select>';};
+ var rows=f.steps.map(function(sp,i){return '<div class="ap-row"><i>'+(i+1)+'</i><div class="ap-who">'+(own?opt(sp,"wsFlowSet('set',this.value,"+i+")"):'<b>'+cesc(stepName(sp))+'</b>')+'</div>'+(own&&f.steps.length>1?'<button class="ap-x" onclick="wsFlowSet(\'del\',null,'+i+')">✕</button>':'')+'</div>';}).join('');
+ return '<div class="ap-card tfflow"><div class="pd-ctitle">ຂັ້ນຕອນອະນຸມັດໃບແຈ້ງເສຍ (ຄ່າເລີ່ມຕົ້ນຂອງໃບໃໝ່)</div><div class="ap-flowrow"><div class="ap-box" style="flex:2;min-width:260px"><div class="ap-t">ຜູ້ອະນຸມັດ (ຕາມລຳດັບ) — ອະນຸມັດຄົບ = ຕັດສະຕ໋ອກທັນທີ</div>'+rows+
+  (own?'<div class="ap-add">'+opt('','')+'<button class="btn-sm" onclick="wsFlowSet(\'add\',this.previousElementSibling.value)">+ ເພີ່ມຂັ້ນ</button></div>':'')+'</div></div>'+
+  '<div class="ap-note">'+(own?'ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂັ້ນ · ຜູ້ແຈ້ງ ອະນຸມັດໃບຂອງຕົນເອງບໍ່ໄດ້ · ມີຜົນກັບໃບໃໝ່':'ເຈົ້າຂອງຮ້ານເປັນຜູ້ກຳນົດ')+'</div></div>';}
+function renderWaste(R){wsInit();if(wsDetail&&findWS(wsDetail)){renderWsDetail(R);return;}wsDetail=null;
+ var cost=wsSeeCost(),me=SESSION.uid,q=wsQ.toLowerCase(),all=state.wastes.slice().sort(function(a,b){return b.ts-a.ts;}),cr=can('wasteCreate')||isOwner();
+ var mo=new Date();mo=new Date(mo.getFullYear(),mo.getMonth(),1).getTime();var pm=all.filter(function(w){return w.status==='POSTED'&&(w.postTs||0)>=mo;});
+ var todo=all.filter(wsCanApprove).length;
+ var kp=[['ລໍອະນຸມັດ',all.filter(function(w){return w.status==='PENDING_APPROVAL';}).length,'all'],['ລໍທ່ານອະນຸມັດ',todo,'todo'],['ເສຍເດືອນນີ້',pm.length+' ໃບ'+(cost?' · '+KIP(pm.reduce(function(s,w){return s+wsValue(w);},0))+' ກີບ':''),'all']];
+ var tabs=[['all','ທັງໝົດ'],['todo','ລໍທ່ານ'+(todo?' ('+todo+')':'')],['mine','ໃບຂອງຂ້ອຍ'],['flow','ຂັ້ນຕອນອະນຸມັດ']];
+ var list=all.filter(function(w){if(wsTab==='todo')return wsCanApprove(w);if(wsTab==='mine')return w.uid===me;return true;}).filter(function(w){return !q||(w.no||'').toLowerCase().indexOf(q)>=0||(w.byName||'').toLowerCase().indexOf(q)>=0||(w.lines||[]).some(function(l){return (l.name||'').toLowerCase().indexOf(q)>=0;});});
+ var body=wsTab==='flow'?wsFlowHTML():'<table class="tbl"><thead><tr><th>ໃບແຈ້ງເສຍ</th><th>ຜູ້ແຈ້ງ</th><th>ບ່ອນເກັບ</th><th>ລາຍການ / ສາເຫດ</th>'+(cost?'<th style="text-align:right">ມູນຄ່າ (ກີບ)</th>':'')+'<th>ສະຖານະ</th></tr></thead><tbody>'+
+  (list.slice(0,200).map(function(w){var wait=w.status==='PENDING_APPROVAL'?'⏳ ລໍ: '+cesc(procWaiting(w,wsSteps(w))):'';
+   return '<tr style="cursor:pointer" onclick="openWS(\''+w.id+'\')"><td><b>'+cesc(w.no)+'</b><br><small style="color:var(--muted)">'+procD(w.ts)+'</small></td><td>'+cesc(w.byName||'')+'</td><td style="font-size:14px">'+cesc(locName(w.loc))+'</td><td style="font-size:14px">'+cesc(w.lines.slice(0,3).map(function(l){return l.name+' '+KIP(l.qty)+' '+(l.unit||'');}).join(', '))+(w.lines.length>3?' +'+(w.lines.length-3):'')+'<br><small style="color:var(--muted)">'+cesc(Array.from(new Set(w.lines.map(function(l){return l.rsn;}))).join(' · '))+'</small></td>'+(cost?'<td style="text-align:right">'+KIP(Math.round(wsValue(w)))+'</td>':'')+'<td>'+procChip(WS_ST,w.status)+(wait?'<br><small style="color:#b45309;font-weight:700">'+wait+'</small>':'')+'</td></tr>';}).join('')||'<tr><td colspan="6" class="empty" style="padding:30px">ຍັງບໍ່ມີໃບແຈ້ງເສຍ'+(cr?' — ກົດ "+ ແຈ້ງເສຍ"':'')+'</td></tr>')+'</tbody></table>';
+ R.innerHTML='<div class="pad ws"><div class="ws-top"><div><div class="ttl">ແຈ້ງເສຍຫາຍ</div><div class="sub">ແຈ້ງ → ອະນຸມັດ → ຕັດສະຕ໋ອກອັດຕະໂນມັດ · ທຸກການເສຍມີເອກະສານ ແລະ ຜູ້ຮັບຮູ້</div></div>'+(cr?'<button class="ws-add" onclick="wsModal()">＋ ແຈ້ງເສຍ</button>':'')+'</div>'+
+  '<div class="ws-kpis">'+kp.map(function(k){return '<button class="kpi" onclick="wsTab=\''+k[2]+'\';render()"><div class="lbl">'+k[0]+'</div><div class="val">'+k[1]+'</div></button>';}).join('')+'</div>'+
+  '<div class="ws-bar">'+tabs.map(function(t){return '<button class="chip '+(wsTab===t[0]?'active':'')+'" onclick="wsTab=\''+t[0]+'\';render()">'+t[1]+'</button>';}).join('')+
+  '<input id="wsq" class="ws-q" placeholder="ຄົ້ນຫາ ເລກທີ / ຊື່ / ລາຍການ" value="'+aesc(wsQ)+'" oninput="wsQ=this.value;clearTimeout(window.__wsq);window.__wsq=setTimeout(function(){render();var e=document.getElementById(\'wsq\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)"></div>'+
+  '<div class="ws-body">'+body+'</div></div>';}
+function openWS(id){wsDetail=id;closeModal();if(view!=='waste')setView('waste');else render();}
+function wsStepList(w){var out=[],add=function(l,s){out.push({label:l,state:s});};add('ແຈ້ງເສຍ',w.status==='DRAFT'?'cur':'done');
+ wsSteps(w).forEach(function(sp,i){var k=w.step||0,st='todo';if(w.status==='POSTED')st='done';else if(w.status==='PENDING_APPROVAL')st=i<k?'done':(i===k?'cur':'todo');else if(w.status==='REJECTED')st=i<k?'done':(i===k?'bad':'todo');add('ອະນຸມັດ: '+stepName(sp),st);});
+ add('ຕັດສະຕ໋ອກ',w.status==='POSTED'?'done':'todo');if(w.status==='CANCELLED')out.forEach(function(s){if(s.state==='cur')s.state='todo';});return out;}
+function wsDocHTML(w){var cost=wsSeeCost(),ap=curRound(w),steps=wsSteps(w),tot=0;
+ var rows=w.lines.map(function(l,i){var c=wsCost(l);tot+=c*(+l.qty||0);return '<tr><td>'+(i+1)+'</td><td>'+cesc(l.name||l.code)+'<div class="pd-sub">'+cesc(l.code)+'</div></td><td class="r">'+KIP(l.qty)+' '+cesc(l.unit||'')+'</td><td>'+cesc(l.rsn||'')+(l.note?'<div class="pd-sub">'+cesc(l.note)+'</div>':'')+'</td>'+(cost?'<td class="r">'+KIP(c)+'</td><td class="r"><b>'+KIP(Math.round(c*(+l.qty||0)))+'</b></td>':'')+'</tr>';}).join('');
+ var tbl='<table class="pd-tbl"><thead><tr><th style="width:44px">ລຳດັບ</th><th>ລາຍການ</th><th class="r">ຈຳນວນທີ່ເສຍ</th><th>ສາເຫດ</th>'+(cost?'<th class="r">ຕົ້ນທຶນ/ໜ່ວຍ</th><th class="r">ມູນຄ່າ</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table>'+(cost?'<div style="display:flex;justify-content:flex-end;margin:12px 0 4px"><div class="pd-tot"><div><span>ມູນຄ່າເສຍຫາຍ</span><span>'+KIP(Math.round(tot))+' ກີບ</span></div></div></div>':'');
+ var sigs=[{name:w.byName,role:ROLE_LABELS[(userById(w.uid)||{}).role]||'',label:'ຜູ້ແຈ້ງເສຍ',date:procDay(w.subTs||w.ts),ok:w.status!=='DRAFT',okText:'ແຈ້ງ'}];
+ steps.forEach(function(sp,i){var a=ap.filter(function(x){return x.step===i;}).slice(-1)[0];sigs.push({name:a?a.name:stepName(sp),role:a?a.role:stepRole(sp),label:'ຜູ້ອະນຸມັດ ຂັ້ນ '+(i+1),date:a?procDay(a.ts):'',ok:a&&a.act==='approve',bad:a&&a.act==='reject'});});
+ return docShell('ws',w.no,[['ເລກທີ',cesc(w.no)],['ວັນທີ',procDay(w.ts)],['ຜູ້ແຈ້ງ',cesc(w.byName||'')],['ຈຳນວນ',w.lines.length+' ລາຍການ']],[['ບ່ອນເກັບ',cesc(locName(w.loc))],['ຕັດສະຕ໋ອກ',w.postTs?procDay(w.postTs):'-'],['ສະຖານະ',WS_ST[w.status][0]]],
+  (w.note?'<div class="pd-note"><span>ລາຍລະອຽດ:</span> '+cesc(w.note)+'</div>':'')+(w.voidReason?'<div class="pd-note" style="background:#fee2e2;color:#991b1b"><span>ຍົກເລີກ (ຄືນສະຕ໋ອກ):</span> '+cesc(w.voidReason)+'</div>':'')+tbl+
+  (w.photo?'<div class="ws-photo"><div class="pd-sub">ຮູບຫຼັກຖານ</div><img src="'+w.photo+'" alt="ຮູບຫຼັກຖານ"></div>':'')+docSigs(sigs)+docApprTable(steps,ap,w.step||0,w.status),
+  w.status==='CANCELLED'?'ຍົກເລີກ':(w.status==='REJECTED'?'ບໍ່ອະນຸມັດ':''));}
+function renderWsDetail(R){var w=findWS(wsDetail);var st=wsStepList(w),done=st.filter(function(s){return s.state==='done';}).length,pct=st.length>1?Math.min(100,Math.round(done/(st.length-1)*100)):0;
+ var stepper='<div class="pd-stepper"><div class="pd-track"></div><div class="pd-fill" style="width:calc('+pct+'% - '+(pct/100*52)+'px)"></div><div class="pd-dots">'+st.map(function(s){return '<div class="pd-step '+s.state+'"><i></i><span>'+cesc(s.label)+'</span></div>';}).join('')+'</div></div>';
+ var ban='';if(w.status==='PENDING_APPROVAL')ban='<div class="pd-ban wait">⏳ ກຳລັງລໍຖ້າ: <b>'+cesc(procWaiting(w,wsSteps(w)))+'</b> ອະນຸມັດ — ສະຕ໋ອກຍັງບໍ່ຖືກຕັດ</div>';else if(w.status==='REJECTED')ban='<div class="pd-ban bad">✖ ບໍ່ອະນຸມັດ: '+cesc(w.rejectReason||'')+'</div>';
+ var D=PDOC.ws;
+ R.innerHTML='<div class="pd-wrap"><div class="pd-top"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><button class="pd-back" onclick="wsDetail=null;render()">← ກັບໄປລາຍການ</button><div class="pd-tabs"><div class="pd-tab on" style="background:'+D.bg+';color:'+D.fg+'"><span>ໃບແຈ້ງເສຍຫາຍ</span><button title="ພິມ" onclick="wsPrint()">'+navSvgPrint()+'</button></div></div></div>'+stepper+'</div>'+ban+
+  '<div class="pd-body"><div style="flex:3 1 560px;min-width:0">'+wsDocHTML(w)+'</div><div class="pd-side">'+wsActionsHTML(w)+'<div class="pd-card ap-card"><div class="pd-ctitle">ຜູ້ອະນຸມັດແຕ່ລະຂັ້ນ</div>'+apEditorHTML('ws',w.id,'ອະນຸມັດໃບແຈ້ງເສຍ',w.appr)+'<div class="ap-note">'+(isOwner()?'ປ່ຽນໄດ້ສະເພາະຂັ້ນທີ່ຍັງບໍ່ຜ່ານ · ມີຜົນສະເພາະໃບນີ້':'ເຈົ້າຂອງຮ້ານເປັນຜູ້ກຳນົດຜູ້ອະນຸມັດ')+'</div></div>'+rqTimelineHTML(w)+'</div></div></div>';}
+function wsActionsHTML(w){var b=[],mine=w.uid===SESSION.uid,own=isOwner(),note='',id=w.id;
+ if(['DRAFT','REJECTED'].indexOf(w.status)>=0&&(mine||own)){b.push(procBtn('main','ສົ່ງຂໍອະນຸມັດ',"wsAct('"+id+"','submit')"));b.push(procBtn('sec','✎ ແກ້ໄຂ',"wsModal('"+id+"')"));}
+ if(w.status==='PENDING_APPROVAL'){var sp=wsSteps(w)[w.step||0],last=(w.step||0)+1>=wsSteps(w).length;
+  if(wsCanApprove(w)){if(own&&!specMatch(sp))note='ທ່ານເປັນເຈົ້າຂອງຮ້ານ — ກົດອະນຸມັດແທນ "'+stepName(sp)+'" ໄດ້';b.push(procBtn('ok','✔ ອະນຸມັດ'+(last?' ແລະ ຕັດສະຕ໋ອກ':' (ຂັ້ນ '+((w.step||0)+1)+'/'+wsSteps(w).length+')'),"wsAct('"+id+"','approve')"));b.push(procBtn('no','✖ ບໍ່ອະນຸມັດ',"procReason('ເຫດຜົນທີ່ບໍ່ອະນຸມັດ',function(x){wsAct('"+id+"','reject',x)})"));}
+  else note=(mine?'ອະນຸມັດໃບແຈ້ງເສຍຂອງຕົນເອງບໍ່ໄດ້ (ແຍກໜ້າທີ່)':'ຂັ້ນນີ້ບໍ່ແມ່ນຄິວຂອງທ່ານ')+' — ລໍຖ້າ '+stepName(sp);
+  if(mine||own)b.push(procBtn('sec','↩ ດຶງຄືນມາແກ້',"wsAct('"+id+"','recall')"));}
+ if(w.status==='POSTED'&&own)b.push(procBtn('danger','ຍົກເລີກ (ຄືນສະຕ໋ອກ)',"procReason('ເຫດຜົນທີ່ຍົກເລີກ',function(x){wsAct('"+id+"','void',x)})"));
+ if(['DRAFT','PENDING_APPROVAL','REJECTED'].indexOf(w.status)>=0&&(mine||own))b.push(procBtn('danger','ຍົກເລີກໃບແຈ້ງເສຍ',"procReason('ເຫດຜົນທີ່ຍົກເລີກ',function(x){wsAct('"+id+"','cancel',x)})"));
+ return '<div class="pd-card"><div class="pd-ctitle">ສະຖານະ</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+procChip(WS_ST,w.status)+'</div>'+(note?'<div class="pd-hint'+(own?' own':'')+'">'+cesc(note)+'</div>':'')+(b.length?'<div class="pd-ctitle" style="margin-top:14px">ດຳເນີນການ</div>'+b.join(''):'<div style="color:var(--muted);margin-top:10px">ບໍ່ມີຫຍັງໃຫ້ທ່ານດຳເນີນການໃນຂັ້ນນີ້</div>')+'</div>';}
+function wsPrint(){var w=findWS(wsDetail);if(w)printDocA4(wsDocHTML(w),PDOC.ws.lao+' '+w.no);}
+/* ---- ສ້າງ / ແກ້ໄຂ ໃບແຈ້ງເສຍ ---- */
+function wsModal(id,preCode){if(!can('wasteCreate')&&!isOwner()){toast('ບໍ່ມີສິດແຈ້ງເສຍ');return;}wsInit();var w=id?findWS(id):null;
+ var loc=(typeof stockViewLoc!=='undefined'&&stockViewLoc)||curLoc();
+ window.__ws=w?{id:w.id,loc:w.loc,note:w.note||'',photo:w.photo||'',lines:JSON.parse(JSON.stringify(w.lines))}:{id:null,loc:loc,note:'',photo:'',lines:[]};
+ if(preCode&&state.ingredients[preCode]){var it=state.ingredients[preCode];window.__ws.lines.push({code:preCode,name:it.name,unit:it.unit,qty:0,rsn:WS_RSN[0]});}
+ renderWsModal();if(preCode)setTimeout(function(){var e=document.querySelector('#wslist input[type=number]');if(e){e.focus();e.select();}},80);}
+function renderWsModal(){var d=window.__ws,L=state.locations||[];
+ openModal('<h2>'+(d.id?'ແກ້ໄຂໃບແຈ້ງເສຍ':'ແຈ້ງເສຍຫາຍ')+'</h2>'+
+  '<div class="ws-route">ອະນຸມັດ: <b>'+cesc(state.wsFlow.steps.map(stepName).join(' → '))+'</b> → ຕັດສະຕ໋ອກອັດຕະໂນມັດ</div>'+
+  (L.length>1?'<label>ບ່ອນເກັບ</label><select style="width:100%" onchange="window.__ws.loc=this.value;renderWsModal()">'+L.map(function(l){return '<option value="'+aesc(l.id)+'"'+(d.loc===l.id?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')+'</select>':'')+
+  '<label>ເພີ່ມລາຍການທີ່ເສຍ</label><div class="ws-add-row"><input id="ws_code" list="wsdl" placeholder="ລະຫັດ / ຊື່ວັດຖຸດິບ" onkeydown="if(event.key===\'Enter\'){event.preventDefault();wsAddLine();}"><button type="button" class="btn-sm green" onclick="wsAddLine()">ເພີ່ມ</button></div>'+
+  '<datalist id="wsdl">'+Object.values(state.ingredients).map(function(i){return '<option value="'+aesc(i.code)+'">'+cesc(i.name)+' ('+cesc(i.unit)+') ຄົງ '+KIP(stockAt(i.code,d.loc))+'</option>';}).join('')+'</datalist>'+
+  '<div id="wslist" class="ws-lines"></div>'+
+  '<label>ລາຍລະອຽດ (ເກີດຫຍັງຂຶ້ນ)</label><input value="'+aesc(d.note)+'" oninput="window.__ws.note=this.value" placeholder="ເຊັ່ນ ຕູ້ເຢັນເສຍ ກາງຄືນ / ພະນັກງານເຮັດຕົກ">'+
+  '<label>ຮູບຫຼັກຖານ (ແນະນຳ)</label><div class="ws-ph">'+(d.photo?'<img src="'+d.photo+'" alt=""><button type="button" class="btn-sm" onclick="window.__ws.photo=\'\';renderWsModal()">ລຶບຮູບ</button>':'<label class="ws-phbtn">📷 ຖ່າຍ / ເລືອກຮູບ<input type="file" accept="image/*" capture="environment" onchange="wsPhoto(this)" hidden></label>')+'</div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-cancel" onclick="saveWS(false)">ບັນທຶກຮ່າງ</button><button class="btn-ok grad" onclick="saveWS(true)">ສົ່ງຂໍອະນຸມັດ</button></div>');wsLines();}
+function wsAddLine(){var c=rqFindCode(document.getElementById('ws_code').value);if(!c){toast('ບໍ່ພົບວັດຖຸດິບ');return;}var it=state.ingredients[c];
+ if(!window.__ws.lines.some(function(x){return x.code===c;}))window.__ws.lines.push({code:c,name:it.name,unit:it.unit,qty:0,rsn:WS_RSN[0]});
+ document.getElementById('ws_code').value='';wsLines();var ins=document.querySelectorAll('#wslist input[type=number]');var e=ins[ins.length-1];if(e){e.focus();e.select();}}
+function wsLines(){var d=window.__ws,el=document.getElementById('wslist');if(!el)return;
+ el.innerHTML=d.lines.length?d.lines.map(function(l,i){var s=stockAt(l.code,d.loc),over=(+l.qty||0)>s+1e-9;
+  return '<div class="ws-line'+(over?' over':'')+'"><div class="ws-ln">'+ingThumb(l.code,32)+'<div><b>'+cesc(l.name)+'</b><small>ຄົງ '+KIP(s)+' '+cesc(l.unit||'')+(over?' · ⚠ ເກີນທີ່ມີ':'')+'</small></div><button type="button" class="trash" onclick="window.__ws.lines.splice('+i+',1);wsLines()">✕</button></div>'+
+   '<div class="ws-lf"><div class="ws-qty"><input type="number" inputmode="decimal" min="0" value="'+(l.qty||'')+'" placeholder="0" oninput="window.__ws.lines['+i+'].qty=+this.value||0" onchange="wsLines()"><span>'+cesc(l.unit||'')+'</span></div>'+
+   '<select onchange="window.__ws.lines['+i+'].rsn=this.value">'+WS_RSN.map(function(r){return '<option'+(l.rsn===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div></div>';}).join('')
+  :'<div class="ws-empty">ຍັງບໍ່ມີລາຍການ — ພິມຊື່ວັດຖຸດິບດ້ານເທິງ</div>';}
+function wsPhoto(inp){var f=inp.files&&inp.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(e){var img=new Image();img.onload=function(){var mx=520,sc=Math.min(1,mx/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);window.__ws.photo=c.toDataURL('image/jpeg',0.6);renderWsModal();};img.src=e.target.result;};rd.readAsDataURL(f);}
+function saveWS(submit){var d=window.__ws;wsInit();d.lines=d.lines.filter(function(l){return (+l.qty||0)>0;});if(!d.lines.length){toast('ໃສ່ຈຳນວນທີ່ເສຍ ຢ່າງໜ້ອຍ 1 ລາຍການ');wsLines();return;}
+ var over=d.lines.find(function(l){return l.qty>stockAt(l.code,d.loc)+1e-9;});if(over){toast(over.name+' ເສຍເກີນທີ່ມີໃນສະຕ໋ອກ ('+KIP(stockAt(over.code,d.loc))+')');wsLines();return;}
+ if(submit&&!String(d.note||'').trim()&&!d.photo&&d.lines.some(function(l){return l.rsn==='ອື່ນໆ';})){toast('ສາເຫດ "ອື່ນໆ" — ໃສ່ລາຍລະອຽດ ຫຼື ຮູບ');return;}
+ var u=curUser()||{},w;
+ if(d.id){w=findWS(d.id);if(!w||['DRAFT','REJECTED'].indexOf(w.status)<0){toast('ແກ້ໄຂບໍ່ໄດ້ໃນສະຖານະນີ້');return;}w.loc=d.loc;w.note=d.note;w.photo=d.photo;w.lines=d.lines;w.status='DRAFT';procHist(w,'ແກ້ໄຂໃບແຈ້ງເສຍ',d.lines.length+' ລາຍການ');}
+ else{w={id:procId('ws'),no:procNo('WS',state.wastes),ts:Date.now(),uid:SESSION.uid,byName:u.name||'',loc:d.loc,note:d.note,photo:d.photo,lines:d.lines,status:'DRAFT',steps:state.wsFlow.steps.slice(),step:0,round:0,appr:[],hist:[]};procHist(w,'ສ້າງໃບແຈ້ງເສຍ',d.lines.length+' ລາຍການ · '+locName(d.loc));state.wastes.push(w);}
+ closeModal();wsDetail=w.id;if(submit)wsAct(w.id,'submit');else{logOrder('ໃບແຈ້ງເສຍ',w.no+' ບັນທຶກຮ່າງ','');save();}if(view!=='waste')setView('waste');else render();if(!submit)toast('ບັນທຶກຮ່າງ '+w.no);}
+function wsPost(w){var by=(curUser()||{}).name||'';var short=w.lines.find(function(l){return l.qty>stockAt(l.code,w.loc)+1e-9;});if(short){toast(short.name+' ສະຕ໋ອກບໍ່ພໍຕັດ ('+KIP(stockAt(short.code,w.loc))+') — ໃຫ້ຜູ້ແຈ້ງແກ້ຈຳນວນ');return false;}
+ w.lines.forEach(function(l){l.cost=wsCost(l);addStockAt(l.code,w.loc,-l.qty,'ເສຍຫາຍ',(l.rsn||'')+' · '+w.no+' · ອະນຸມັດ '+by);});w.status='POSTED';w.postTs=Date.now();return true;}
+function wsAct(id,act,reason){var w=findWS(id);if(!w)return;var ok=false,msg='';
+ if(act==='submit'&&['DRAFT','REJECTED'].indexOf(w.status)>=0){if(!wsSteps(w).length)w.steps=state.wsFlow.steps.slice();w.round=(w.round||0)+1;w.step=0;w.rejectReason=null;w.subTs=Date.now();w.status='PENDING_APPROVAL';procHist(w,'ສົ່ງຂໍອະນຸມັດ','ຮອບ '+w.round);ok=true;msg='ລໍ '+stepName(wsSteps(w)[0])+' ອະນຸມັດ';}
+ else if(act==='approve'&&w.status==='PENDING_APPROVAL'){var sp=wsSteps(w)[w.step||0];if(!canStep(w,sp)){toast(w.uid===SESSION.uid?'ອະນຸມັດໃບຂອງຕົນເອງບໍ່ໄດ້':'ຂັ້ນນີ້ບໍ່ແມ່ນຄິວຂອງທ່ານ ('+stepName(sp)+')');return;}
+  if((w.step||0)+1>=wsSteps(w).length){if(!wsPost(w))return;var bh=procApprRec(w,'approve','',sp);procHist(w,'ອະນຸມັດ ຂັ້ນ '+((w.step||0)+1)+' · ຕັດສະຕ໋ອກ',bh?'ເຈົ້າຂອງຮ້ານອະນຸມັດແທນ '+stepName(sp):'');msg='ອະນຸມັດຄົບ — ຕັດສະຕ໋ອກແລ້ວ';}
+  else{var bh2=procApprRec(w,'approve','',sp);procHist(w,'ອະນຸມັດ ຂັ້ນ '+((w.step||0)+1),bh2?'ເຈົ້າຂອງຮ້ານອະນຸມັດແທນ '+stepName(sp):'');w.step=(w.step||0)+1;msg='ສົ່ງຕໍ່ໃຫ້ '+stepName(wsSteps(w)[w.step]);}ok=true;}
+ else if(act==='reject'&&w.status==='PENDING_APPROVAL'){var sp2=wsSteps(w)[w.step||0];if(!canStep(w,sp2)){toast('ບໍ່ມີສິດ');return;}procApprRec(w,'reject',reason,sp2);w.status='REJECTED';w.rejectReason=reason;procHist(w,'ບໍ່ອະນຸມັດ ຂັ້ນ '+((w.step||0)+1),reason);ok=true;}
+ else if(act==='recall'&&w.status==='PENDING_APPROVAL'){w.status='DRAFT';procHist(w,'ດຶງຄືນມາແກ້','');ok=true;}
+ else if(act==='cancel'&&['DRAFT','PENDING_APPROVAL','REJECTED'].indexOf(w.status)>=0){w.status='CANCELLED';procHist(w,'ຍົກເລີກໃບແຈ້ງເສຍ',reason||'');ok=true;}
+ else if(act==='void'&&w.status==='POSTED'&&isOwner()){w.lines.forEach(function(l){addStockAt(l.code,w.loc,+l.qty||0,'ຄືນ-ເສຍຫາຍ',w.no+' (ຍົກເລີກ) '+(reason||''));});w.status='CANCELLED';w.voidReason=reason||'';procHist(w,'ຍົກເລີກ — ຄືນສະຕ໋ອກ',reason||'');ok=true;}
+ if(!ok){toast('ເຮັດບໍ່ໄດ້ໃນສະຖານະນີ້');return;}
+ logOrder('ໃບແຈ້ງເສຍ',w.no+' → '+WS_ST[w.status][0]+(msg?' ('+msg+')':'')+(reason?' ('+reason+')':''),'');save();closeModal();render();try{wsBadge();}catch(e){}toast(w.no+' · '+(msg||WS_ST[w.status][0]));}
 
 /* ===================== ນັບສາງ (Stock count) — ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ ===================== */
 var SC_ST={COUNTING:['ກຳລັງນັບ','#b45309','#fef3c7'],SUBMITTED:['ລໍອະນຸມັດ','#0369a1','#e0f2fe'],POSTED:['ປັບສະຕ໋ອກແລ້ວ','#15803d','#dcfce7'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
