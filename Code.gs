@@ -197,7 +197,7 @@ function mergeDocs_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object') return inc;
     var cur = JSON.parse(curStr); if (!cur) return inc;
-    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts', 'chkSubs', 'resv', 'stockAdj', 'wastes'].forEach(function (k) {
+    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts', 'chkSubs', 'resv', 'stockAdj', 'wastes', 'dlSettles'].forEach(function (k) {
       if (!Array.isArray(cur[k])) return;
       if (!Array.isArray(inc[k])) inc[k] = [];
       var byId = {}; inc[k].forEach(function (d, i) { byId[d.id] = i; });
@@ -242,7 +242,7 @@ function mergeTables_(curStr, inc) {
     var fromCur = {}, itemLvl = false;
     Object.keys(cur.tables).forEach(function (k) {
       var ct = cur.tables[k], it = inc.tables[k];
-      if (!it) return;
+      if (!it) { if (ct && ct.dl && !ct.dl.closed) { inc.tables[k] = ct; fromCur[k] = 1; } return; } /* ອໍເດີ Delivery ທີ່ເຄື່ອງອື່ນຫາກໍເປີດ — ບໍ່ໃຫ້ຫາຍ */
       var win = U(ct) > U(it) ? ct : it, lose = win === ct ? it : ct;
       if (win === ct) { inc.tables[k] = ct; fromCur[k] = 1; }
       /* ທັງສອງເຄື່ອງເປັນເວີຊັນໃໝ່ (dv) → ລວມລາຍການ: ຂອງຝັ່ງທີ່ໃໝ່ກວ່າ + ລາຍການຂອງອີກຝັ່ງທີ່ບໍ່ໄດ້ຖືກລຶບ/ຈ່າຍ/ຍ້າຍ */
