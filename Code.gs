@@ -31,6 +31,9 @@ function doGet(e) {
     } else if (p.action && p.payload) {                    /* ລູກຄ້າ QR: ສັ່ງ/ຂໍເຊັກບິນ ຜ່ານ JSONP */
       var res; try { res = custAction_(JSON.parse(p.payload)); } catch (err) { res = { ok: false, err: 'payload' }; }
       payload = res;
+    } else if (p.chat == '1' && p.p) {                    /* ແຊັດ ລູກຄ້າ ↔ ພະນັກງານ (ລູກຄ້າໃຊ້ token ແຊັດ, ພະນັກງານໃຊ້ API token) */
+      var cr; try { cr = chatApi_(JSON.parse(p.p)); } catch (err) { cr = { ok: false, err: 'payload' }; }
+      payload = cr;
     } else if (p.arch) {                                   /* ຍ້າຍບິນເກົ່າເຂົ້າຄັງ */
       payload = tokenOk_(p.token) ? archiveNow_(p.arch) : { ok: false, err: 'token' };
     } else if (p.sum == '1') {                             /* ສະຫຼຸບຫຍໍ້ ສຳລັບລວມສາຂາ */
@@ -359,7 +362,7 @@ function custFilter_(st, table) {
   var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
     soldOut: qrSoldOut_(st), modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
     billDiscPct: st.billDiscPct || 0, qrGlobal: st.qrGlobal, qrPinRequired: st.qrPinRequired,
-    qrExpires: st.qrExpires, activeTable: table, orderNo: st.orderNo || 1, tables: {}, qr: {}, orders: [], _v: st._v || 0 };
+    qrExpires: st.qrExpires, chatOn: !(st.modules && st.modules.chat === false), activeTable: table, orderNo: st.orderNo || 1, tables: {}, qr: {}, orders: [], _v: st._v || 0 };
   var t = (st.tables || {})[table];
   if (t) out.tables[table] = { name: t.name, floor: t.floor, status: t.status, items: t.items || [], customer: t.customer || null };
   var q = (st.qr || {})[table];
@@ -889,3 +892,125 @@ function getLineLens() {
   for (var i = 0; i < L.length; i++) a.push(L[i].length);
   return a.join(',');
 }
+
+/* ===================== ແຊັດ ລູກຄ້າ ↔ ພະນັກງານ =====================
+ * ເກັບແຍກຈາກ STATE (ບໍ່ຊົນກັບການ save ທັງ state): CacheService = ຂໍ້ຄວາມສົດ (ໄວ), ຊີດ CHAT = ປະຫວັດ + ກູ້ຄືນເມື່ອ cache ຫາຍ
+ * ລູກຄ້າ: join (ກວດ QR/PIN ເທື່ອດຽວ) → token HMAC → poll/send ດ້ວຍ token (ບໍ່ຕ້ອງອ່ານ state ໃຫຍ່)
+ * ພະນັກງານ: ກວດ API token ຄືການອ່ານ state
+ * ຍ້າຍຂຶ້ນ cloud: ຮູບແບບຂໍ້ຄວາມ ແລະ action ດຽວກັນ (join/cpoll/csend/spoll/ssend/sst/seen/close)
+ */
+var CHAT_MAX = 400, CHAT_TTL = 21600, CHAT_AGE = 24 * 3600 * 1000;
+function chatSecret_() { var s = PROP.getProperty('CHAT_SECRET'); if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); PROP.setProperty('CHAT_SECRET', s); } return s; }
+function chatSign_(v) { return Utilities.base64EncodeWebSafe(Utilities.computeHmacSha256Signature(v, chatSecret_())).replace(/=+$/, ''); }
+function chatTok_(o) { var v = Utilities.base64EncodeWebSafe(JSON.stringify(o), Utilities.Charset.UTF_8).replace(/=+$/, ''); return v + '.' + chatSign_(v); }
+function chatUntok_(tk) {
+  tk = String(tk || ''); var i = tk.lastIndexOf('.'); if (i < 1) return null;
+  var v = tk.slice(0, i); if (chatSign_(v) !== tk.slice(i + 1)) return null;
+  try { var pad = v + '===='.slice(0, (4 - v.length % 4) % 4); var o = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(pad)).getDataAsString('UTF-8')); return (o && o.exp > Date.now()) ? o : null; } catch (e) { return null; }
+}
+function chatJson_(k) { try { return JSON.parse(PROP.getProperty(k) || '{}') || {}; } catch (e) { return {}; } }
+function chatSheet_() {
+  var ss = getSS_(); if (!ss) return null; var sh = ss.getSheetByName('CHAT');
+  if (!sh) { sh = ss.insertSheet('CHAT'); sh.appendRow(['ts', 'id', 'table', 'ep', 'sess', 'from', 'name', 'kind', 'req', 'text', 'st', 'ref']); sh.setFrozenRows(1); }
+  return sh;
+}
+function chatCell_(x) { x = String(x == null ? '' : x); return /^[=+\-@]/.test(x) ? "'" + x : x; }
+function chatRow_(m, st, ref) { try { var sh = chatSheet_(); if (sh) sh.appendRow([m.upd || m.ts, m.id, chatCell_(m.table), m.ep, m.sess, m.from, chatCell_(st ? (m.stBy || '') : m.name), st ? 'st' : m.kind, m.req || '', st ? '' : chatCell_(m.text), st || m.st || '', ref || '']); } catch (e) {} }
+function chatLoad_() {
+  var c = CacheService.getScriptCache(), j = c.get('CHAT_LIVE');
+  if (j) { try { return JSON.parse(j); } catch (e) {} }
+  var out = [], byId = {}, sh = chatSheet_();
+  if (sh) {
+    var n = sh.getLastRow();
+    if (n > 1) {
+      var start = Math.max(2, n - 1500), rows = sh.getRange(start, 1, n - start + 1, 12).getValues(), lim = Date.now() - CHAT_AGE;
+      rows.forEach(function (r) {
+        var ts = +r[0] || 0; if (ts < lim) return;
+        if (r[7] === 'st') { var x = byId[String(r[11])]; if (x) { x.st = String(r[10]); x.upd = ts; x.stBy = String(r[6] || ''); } return; }
+        var m = { id: String(r[1]), ts: ts, upd: ts, table: String(r[2]), ep: +r[3] || 0, sess: String(r[4]), from: String(r[5]), name: String(r[6]), kind: String(r[7]), req: String(r[8] || ''), text: String(r[9] || ''), st: String(r[10] || '') };
+        byId[m.id] = m; out.push(m);
+      });
+    }
+  }
+  return chatPut_(out);
+}
+function chatPut_(arr) {
+  var lim = Date.now() - CHAT_AGE; arr = arr.filter(function (m) { return (m.upd || m.ts) >= lim; }).slice(-CHAT_MAX);
+  var j = JSON.stringify(arr); while (j.length > 95000 && arr.length > 40) { arr = arr.slice(Math.floor(arr.length / 4)); j = JSON.stringify(arr); }
+  try { CacheService.getScriptCache().put('CHAT_LIVE', j, CHAT_TTL); } catch (e) {}
+  return arr;
+}
+function chatBump_() { PROP.setProperty('CHAT_V', String(Date.now())); }
+function chatAdd_(m) {
+  var lk = LockService.getUserLock();
+  try { lk.waitLock(10000); var arr = chatLoad_(); arr.push(m); chatPut_(arr); chatBump_(); } catch (e) { return false; } finally { try { lk.releaseLock(); } catch (e2) {} }
+  chatRow_(m); return true;
+}
+function chatUpd_(id, st, by) {
+  var lk = LockService.getUserLock(), hit = null;
+  try { lk.waitLock(10000); var arr = chatLoad_(); hit = arr.filter(function (m) { return m.id === id; })[0]; if (hit) { hit.st = st; hit.stBy = by || ''; hit.upd = Date.now(); chatPut_(arr); chatBump_(); } } catch (e) { return false; } finally { try { lk.releaseLock(); } catch (e2) {} }
+  if (hit) chatRow_(hit, st, id); return !!hit;
+}
+function chatApi_(p) {
+  p = p || {}; var a = String(p.a || ''), now = Date.now();
+  var clean = function (x, n) { return String(x == null ? '' : x).replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, n); };
+  var nid = function (f) { return f + now.toString(36) + Math.floor(Math.random() * 1e6).toString(36); };
+  if (a === 'join') {                                     /* ລູກຄ້າ: ກວດ QR ຄືການສັ່ງອາຫານ ແລ້ວອອກ token */
+    var s = getState_(); if (!s) return { ok: false, err: 'ບໍ່ມີຂໍ້ມູນຮ້ານ' };
+    var st = JSON.parse(s), table = String(p.table || ''), t = st.tables && st.tables[table];
+    if (!t) return { ok: false, err: 'ບໍ່ພົບໂຕະ ' + table };
+    if (st.modules && st.modules.chat === false) return { ok: false, err: 'ຮ້ານປິດການແຊັດ' };
+    var q = st.qr && st.qr[table];
+    if (st.qrGlobal === false || (q && q.enabled === false)) return { ok: false, err: 'QR ຖືກປິດ' };
+    if (st.qrPinRequired !== false) {
+      if (!q || (st.qrExpires !== false && q.expiry < now)) return { ok: false, err: 'QR ໝົດອາຍຸ — ຂໍ QR ໃໝ່ຈາກພະນັກງານ' };
+      if (String(p.pin || '') !== String(q.pin)) return { ok: false, err: 'ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ' };
+    }
+    var ep = +chatJson_('CHAT_EP')[table] || 0;
+    return { ok: true, tk: chatTok_({ t: table, e: ep, s: (q ? String(q.pin) : 'o') + '-' + ep, exp: now + 12 * 3600 * 1000 }), now: now };
+  }
+  if (a === 'cpoll' || a === 'csend') {
+    var o = chatUntok_(p.tk); if (!o) return { ok: false, err: 'tk' };
+    if ((+chatJson_('CHAT_EP')[o.t] || 0) !== o.e) return { ok: true, closed: true, now: now };
+    if (a === 'csend') {
+      var text = clean(p.text, 300), kind = p.kind === 'req' ? 'req' : 'msg'; if (!text) return { ok: false, err: 'empty' };
+      var ck = CacheService.getScriptCache(), rid = clean(p.rid, 60);
+      if (rid && ck.get('CHATRID_' + rid)) { /* ສົ່ງຊ້ຳ (retry) */ } else {
+        var rk = 'CHATRL_' + o.t, n = +(ck.get(rk) || 0); if (n >= 20) return { ok: false, err: 'ສົ່ງຖີ່ເກີນໄປ — ລໍຖ້າ 1 ນາທີ' }; ck.put(rk, String(n + 1), 60);
+        var m = { id: nid('c'), ts: now, upd: now, table: o.t, ep: o.e, sess: o.s, from: 'c', name: 'ໂຕະ ' + o.t, kind: kind, req: kind === 'req' ? clean(p.req, 20) : '', text: text, st: kind === 'req' ? 'new' : '' };
+        if (!chatAdd_(m)) return { ok: false, err: 'ລະບົບບໍ່ຫວ່າງ — ລອງໃໝ່' };
+        if (rid) ck.put('CHATRID_' + rid, '1', 600);
+      }
+    }
+    var since = +p.since || 0;
+    return { ok: true, msgs: chatLoad_().filter(function (m) { return m.table === o.t && m.ep === o.e && (m.sess === o.s || m.sess === '*') && (m.upd || m.ts) > since; }), seen: +chatJson_('CHAT_SEEN')[o.t] || 0, now: now };
+  }
+  if (!tokenOk_(p.token)) return { ok: false, err: 'token' };
+  if (a === 'spoll') {
+    var sn = +p.since || 0;
+    if (sn && sn >= +(PROP.getProperty('CHAT_V') || 0)) return { ok: true, msgs: [], now: now };
+    return { ok: true, msgs: chatLoad_().filter(function (m) { return (m.upd || m.ts) > sn; }), ep: chatJson_('CHAT_EP'), seen: chatJson_('CHAT_SEEN'), now: now };
+  }
+  if (a === 'ssend') {
+    var tb = clean(p.table, 40), tx = clean(p.text, 500); if (!tb || !tx) return { ok: false, err: 'empty' };
+    var m2 = { id: nid('s'), ts: now, upd: now, table: tb, ep: +chatJson_('CHAT_EP')[tb] || 0, sess: '*', from: 's', name: clean(p.name, 40) || 'ພະນັກງານ', kind: 'msg', req: '', text: tx, st: '' };
+    if (!chatAdd_(m2)) return { ok: false, err: 'busy' };
+    var sm = chatJson_('CHAT_SEEN'); sm[tb] = now; PROP.setProperty('CHAT_SEEN', JSON.stringify(sm));
+    return { ok: true, msg: m2, now: now };
+  }
+  if (a === 'sst') return { ok: chatUpd_(String(p.id || ''), p.st === 'done' ? 'done' : 'ack', clean(p.name, 40)), now: now };
+  if (a === 'seen' || a === 'close') {
+    var tb2 = clean(p.table, 40); if (!tb2) return { ok: false, err: 'table' };
+    var lk = LockService.getUserLock(), res = { ok: true };
+    try {
+      lk.waitLock(10000);
+      if (a === 'seen') { var sm2 = chatJson_('CHAT_SEEN'); sm2[tb2] = Math.max(+sm2[tb2] || 0, +p.ts || now); PROP.setProperty('CHAT_SEEN', JSON.stringify(sm2)); }
+      else { var epm = chatJson_('CHAT_EP'); epm[tb2] = (+epm[tb2] || 0) + 1; PROP.setProperty('CHAT_EP', JSON.stringify(epm)); res.ep = epm[tb2]; }
+      chatBump_();
+    } catch (e) { return { ok: false, err: 'busy' }; } finally { try { lk.releaseLock(); } catch (e2) {} }
+    return res;
+  }
+  return { ok: false, err: 'action' };
+}
+/* google.script.run (ເປີດແອັບຜ່ານ GAS ໂດຍກົງ) */
+function chatRpc(json) { try { return JSON.stringify(chatApi_(JSON.parse(json))); } catch (e) { return JSON.stringify({ ok: false, err: 'payload' }); } }
