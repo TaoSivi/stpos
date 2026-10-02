@@ -525,15 +525,15 @@ body{background:var(--bg)}
 #viewRoot{background:var(--bg)}
 /* ແຖບເມນູລອຍ */
 #sidebar{background:transparent!important;border-right:none!important;padding:14px 0 14px 14px;width:252px}
-#sidebar>*{position:relative}
+#sidebar>*{position:relative}#sidebar{overflow:hidden!important}#sidebar .brand{flex-shrink:0}#sidebar .navscroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}#sidebar .navscroll::-webkit-scrollbar{width:6px}#sidebar .navscroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:6px}
 #sidebar::before{content:'';position:absolute;inset:14px 0 14px 14px;background:#062f2d;border-radius:26px;z-index:0}
 @media (min-width:901px){#sidebar{position:relative}}
 #sidebar .brand{background:transparent!important;padding:22px 18px 14px;box-shadow:none}
 #sidebar .brand .logo{background:#0ABAB5!important;color:#062f2d;border-radius:14px!important;border:none!important;box-shadow:none!important;font-family:inherit!important;font-weight:800;width:42px;height:42px;font-size:16px}
 #sidebar .brand b{font-family:inherit;font-weight:800;font-size:17px;letter-spacing:-.2px;color:#fff}
 #sidebar .brand small{color:#7fbdb9;text-transform:none;letter-spacing:0;font-size:11px}
-#sidebar .navsec{color:#6fb3ae!important;padding:12px 26px 2px;line-height:1.9;letter-spacing:.3px;font-size:12px;text-transform:none}
-#sidebar .navitem{color:#cdebe8!important;background:transparent;margin:2px 12px 2px 24px;border-radius:14px;height:44px;padding:0 12px;box-shadow:none}
+#sidebar .navsec{color:#6fb3ae!important;padding:14px 26px 4px;line-height:2;min-height:2.6em;height:auto;letter-spacing:0;font-size:12px;text-transform:none;overflow:visible;white-space:normal;text-overflow:clip;flex-shrink:0}
+#sidebar .navitem{flex-shrink:0;color:#cdebe8!important;background:transparent;margin:2px 12px 2px 24px;border-radius:14px;height:44px;padding:0 12px;box-shadow:none}
 #sidebar .navitem:hover{background:rgba(255,255,255,.07)!important}
 #sidebar .navitem.active{background:#5FD9D2!important;color:#062f2d!important;font-weight:700;box-shadow:none!important}
 #sidebar .navitem.active::before{display:none}
@@ -1456,6 +1456,7 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 <div id="app" class="hidden">
   <aside id="sidebar">
     <div class="brand"><div class="logo">ST</div><div><b>ST POS</b><small>Smart Restaurant POS</small></div></div>
+    <div class="navscroll">
     <div class="navsec">ຂາຍໜ້າຮ້ານ</div>
     <button class="navitem" data-v="tables"><span class="ic"></span> ສັ່ງອາຫານ <span class="live">LIVE</span></button>
     <button class="navitem" data-v="resv"><span class="ic"></span> ຈອງໂຕະ <span class="live" id="rvBadge" style="display:none;background:#8b5cf6"></span></button>
@@ -1479,6 +1480,7 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
     <button class="navitem" data-v="purchase"><span class="ic"></span> ຈັດຊື້ (PR/PO) <span class="live" id="procBadge" style="display:none"></span></button>
     <div class="navsec">ລະບົບ</div>
     <button class="navitem" data-v="admin"><span class="ic"></span> ການຕັ້ງຄ່າ</button>
+    </div>
   </aside>
   <div id="drawerMask" onclick="toggleDrawer(false)"></div>
   <div id="main">
@@ -2102,7 +2104,7 @@ function renderResv(R){rvInit();if(!rvDate)rvDate=ymd(Date.now());var td=ymd(Dat
  R.innerHTML='<div class="pad rv"><div class="rv-top"><div><div class="ttl">ຈອງໂຕະ</div><div class="sub">'+rvDayLbl(rvDate)+(rvDayLbl(rvDate).indexOf('/')<0?' · '+cesc(procDay(d0.getTime())):'')+'</div></div>'+addBtn+'</div>'+
   '<div class="rv-bar"><div class="rv-dpick"><button class="rv-nav" onclick="rvShift(-1)" title="ມື້ກ່ອນ">‹</button><input type="date" value="'+rvDate+'" onchange="rvDate=this.value||ymd(Date.now());render()"><button class="rv-nav" onclick="rvShift(1)" title="ມື້ຖັດໄປ">›</button></div>'+(rvDate!==td?'<button class="rv-today" onclick="rvDate=null;render()">ກັບມື້ນີ້</button>':'')+
   '<input class="rv-q" placeholder="ຄົ້ນຫາ ຊື່ / ເບີໂທ / ໂຕະ" value="'+aesc(rvQ)+'" oninput="rvQ=this.value;clearTimeout(window.__rvq);window.__rvq=setTimeout(function(){render();var e=document.querySelector(\'.rv-q\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},250)"></div>'+
-  '<div class="rv-week">'+week.map(function(w){return '<button class="'+(w.ds===rvDate?'on':'')+(w.ds===td?' td':'')+'" onclick="rvDate=\''+w.ds+'\';render()"><small>'+(w.ds===td?'ມື້ນີ້':w.dn)+'</small><b>'+w.d+'</b>'+(w.n?'<i>'+w.n+'</i>':'')+'</button>';}).join('')+'</div>'+
+  
   (q?'<div class="rv-sh">ຜົນຄົ້ນຫາ <i>'+list.length+'</i></div>'+(list.length?list.map(function(r){return rvCard(r,true,mng);}).join(''):'<div class="rv-empty"><b>ບໍ່ພົບ</b></div>'):
    (dayList.length?'<div class="rv-sum"><span><b>'+cnt('booked')+'</b> ລໍມາ</span><span><b>'+active.reduce(function(s,r){return s+(r.status!=='noshow'?(+r.guests||0):0);},0)+'</b> ຄົນ</span><span class="ok"><b>'+cnt('seated')+'</b> ມາແລ້ວ</span>'+(cnt('noshow')?'<span class="warn"><b>'+cnt('noshow')+'</b> ບໍ່ມາ</span>':'')+'</div>'+
     sec(nowA.some(function(r){return rvMin(r.time)<now-c.grace;})?'⚠ ຕ້ອງຈັດການດຽວນີ້':'ໃກ້ຮອດເວລາ','now',nowA)+sec(rvDate===td?'ລໍລູກຄ້າມາ':'ການຈອງ','next',nextA)+sec('ສຳເລັດ / ຍົກເລີກ','done',doneA)
