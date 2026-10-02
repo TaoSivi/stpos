@@ -364,9 +364,15 @@ function modInfo_(st, def, mods) {
   var pick = {}; mods.forEach(function (m) { pick[m] = 1; }); var price = 0, bm = 1, xb = [];
   (st.modGroups || []).forEach(function (g) { if (!mgApplies_(g, def)) return; var t = g.type || (g.multi ? 'topping' : 'choice');
     (g.opts || []).forEach(function (o) { if (!o || o.n == null || !pick[String(o.n)]) return; var own = def.op && def.op[g.id]; price += (own && own[o.n] != null && own[o.n] !== '') ? +own[o.n] : (+o.p || 0); if (t === 'size' && +o.bm > 0) bm *= +o.bm; if (o.ing && +o.iq > 0) xb.push([o.ing, +o.iq]); }); });
-  return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb };
+  var pk = [];
+  if (mods.indexOf('ກັບບ້ານ') >= 0) { /* ບັນຈຸພັນກັບບ້ານ: ເມນູກຳນົດເອງ > ຕາມປະເພດ · ຂະໜາດປ່ຽນພາຊະນະຫຼັກໄດ້ */
+    var cfg = st.pkg || {}; pk = (Array.isArray(def.pk) ? def.pk : (cfg[def.k === 'drink' ? 'drink' : 'food'] || [])).filter(function (x) { return x && x[0] && +x[1] > 0; }).map(function (x) { return [x[0], +x[1]]; });
+    (st.modGroups || []).forEach(function (g) { var t = g.type || (g.multi ? 'topping' : 'choice'); if (t !== 'size' || !mgApplies_(g, def)) return; (g.opts || []).forEach(function (o) { if (o.pc && pick[String(o.n)]) { var cq = +o.pcq > 0 ? +o.pcq : 1; if (pk.length) pk[0] = [o.pc, cq]; else pk.push([o.pc, cq]); } }); });
+    pk = pk.filter(function (x) { return st.ingredients && st.ingredients[x[0]]; });
+  }
+  return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb, pk: pk };
 }
-function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
+function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).concat(line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
 function custFilter_(st, table) {
   var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
     soldOut: qrSoldOut_(st), modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
@@ -441,7 +447,7 @@ function custAction_(payload) {
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
         mods: mods,
         modPrice: mp, disc: 0, k: def.k, note: clean(it.note, 120), ts: now, qr: true, qrLoc: qrLoc };
-      if (mi.bm !== 1) line.bm = mi.bm; if (mi.xb.length) line.xb = mi.xb;
+      if (mi.bm !== 1) line.bm = mi.bm; if (mi.xb.length) line.xb = mi.xb; if (mi.pk && mi.pk.length) line.pk = mi.pk;
       if (rid) line.qrRid = rid;
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
