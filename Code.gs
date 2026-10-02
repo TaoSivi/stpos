@@ -363,7 +363,7 @@ function mgApplies_(g, def) { if (g.scope === 'items') return (g.codes || []).in
 function modInfo_(st, def, mods) {
   var pick = {}; mods.forEach(function (m) { pick[m] = 1; }); var price = 0, bm = 1, xb = [];
   (st.modGroups || []).forEach(function (g) { if (!mgApplies_(g, def)) return; var t = g.type || (g.multi ? 'topping' : 'choice');
-    (g.opts || []).forEach(function (o) { if (!o || o.n == null || !pick[String(o.n)]) return; price += +o.p || 0; if (t === 'size' && +o.bm > 0) bm *= +o.bm; if (o.ing && +o.iq > 0) xb.push([o.ing, +o.iq]); }); });
+    (g.opts || []).forEach(function (o) { if (!o || o.n == null || !pick[String(o.n)]) return; var own = def.op && def.op[g.id]; price += (own && own[o.n] != null && own[o.n] !== '') ? +own[o.n] : (+o.p || 0); if (t === 'size' && +o.bm > 0) bm *= +o.bm; if (o.ing && +o.iq > 0) xb.push([o.ing, +o.iq]); }); });
   return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb };
 }
 function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }

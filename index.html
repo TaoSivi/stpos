@@ -1648,6 +1648,12 @@ body.cc-lock{overflow:hidden}
 .mg-list{max-height:200px;overflow:auto}.mg-list label{display:flex!important;align-items:center;gap:8px;padding:5px 2px;font-size:13.5px;cursor:pointer;margin:0!important;font-weight:500}.mg-list input{width:auto!important;margin:0!important}.mg-list small{color:var(--muted)}
 .me-mg{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.me-mgi{display:flex!important;align-items:center;gap:10px;border:1px solid #e3efed;border-radius:12px;padding:8px 12px;cursor:pointer;margin:0!important;font-weight:500}.me-mgi input{width:auto!important;margin:0!important}.me-mgi b{display:block;font-size:14px}.me-mgi small{color:var(--muted);font-size:12px}.me-mgi:has(input:checked){border-color:#0A7E7A;background:#f0faf9}.me-mg0{font-size:13px;color:var(--muted);padding:6px 0}
 @media (max-width:600px){.mg-r.tp,.mg-rh:has(+.mg-r.tp){grid-template-columns:1fr 1fr 36px}.mg-r.tp .mg-ing{grid-column:1/3;grid-row:2}}
+.mg-own{color:#0A7E7A}
+.mg-pp{border:1px solid #e3efed;border-radius:14px;padding:10px 12px;margin-top:10px;background:#fbfefe}.mg-pp summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;list-style:none}.mg-pp summary::-webkit-details-marker{display:none}.mg-pp summary b{color:#0A5E5B}.mg-pp summary span{font-size:12.5px;color:var(--muted)}.mg-pp summary::before{content:'▸';color:#0A7E7A}.mg-pp[open] summary::before{content:'▾'}
+.mg-ppw{max-height:260px;overflow:auto;margin-top:8px}.mg-ppw table{width:100%;border-collapse:collapse}.mg-ppw th{position:sticky;top:0;background:#eef7f6;font-size:12.5px;padding:6px;text-align:center}.mg-ppw th:first-child{text-align:left}
+.mg-ppw td{padding:4px;border-bottom:1px solid #eef2f1}.mg-ppw td b{display:block;font-size:13px}.mg-ppw td small{color:var(--muted);font-size:11px}.mg-ppw input{width:100%;min-width:76px;margin:0!important;height:36px;text-align:right;padding:0 8px!important}.mg-ppw input:not(:placeholder-shown){border-color:#0A7E7A!important;background:#f0faf9;font-weight:800}
+.me-mgw{display:flex;flex-direction:column;gap:4px}.me-szp{display:none;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 12px 8px 36px}.me-mgw:has(.me-mgi input:checked) .me-szp{display:flex}
+.me-szh{width:100%;font-size:12px;color:var(--muted)}.me-szp label{display:flex!important;align-items:center;gap:6px;margin:0!important;font-weight:700}.me-szp input{width:110px;margin:0!important;height:38px;text-align:right}.me-szp input:not(:placeholder-shown){border-color:#0A7E7A!important;background:#f0faf9}
 </style>
 </head>
 <body>
@@ -2492,6 +2498,8 @@ function renderProducts(){const q=(document.getElementById('search')?.value||'')
 function emojiFor(p){var s=(p.n||p.c||'').replace(/^[\s\d]+/,'').slice(0,2);return '<span style="font-size:26px;font-weight:800;color:#0A7E7A;opacity:.5">'+s+'</span>';}
 function mgApplies(g,p){if(!g||!p)return false;if(g.scope==='items')return (g.codes||[]).indexOf(p.c)>=0;return !g.scope||g.scope==='all'||g.scope===p.k;}
 function mgType(g){return g.type||(g.multi?'topping':'choice');}
+/* ລາຄາເພີ່ມຂອງຕົວເລືອກ — ເມນູກຳນົດເອງໄດ້ (item.op) ຖ້າບໍ່ມີ ໃຊ້ລາຄາຂອງກຸ່ມ */
+function optP(g,o,p){var t=p&&p.op&&p.op[g.id];return (t&&t[o.n]!=null&&t[o.n]!=='')?+t[o.n]:(+o.p||0);}
 function modGroupsFor(p){return (state.modGroups||[]).filter(function(g){return g.opts&&g.opts.length&&mgApplies(g,p);});}
 function addItem(p){if(state.soldOut&&state.soldOut[p.c]){toast('"'+p.n+'" ໝົດ / ງົດຂາຍຊົ່ວຄາວ');return;}
  if(p.mod||modGroupsFor(p).length){openModifier(p);return;}pushToDraft(p,[state.dineType],0);if(!isCust())toast('ເພີ່ມ '+p.n+' ('+state.dineType+')');}
@@ -2508,15 +2516,15 @@ function openModifier(p){var ord={size:0,choice:1,topping:2};var G=modGroupsFor(
  modState={p:p,groups:G,sel:{},qty:1};G.forEach(function(g,gi){var t=mgType(g);modState.sel[gi]=t==='topping'?[]:(t==='size'?(g.opts[+g.def||0]?(+g.def||0):0):null);});renderModifier();}
 function modCalc(){var p=modState.p,mods=[state.dineType],extra=0,bm=1,xb=[];
  modState.groups.forEach(function(g,gi){var t=mgType(g),sv=modState.sel[gi],ix=t==='topping'?sv:(sv==null?[]:[sv]);
-  ix.forEach(function(oi){var o=g.opts[oi];if(!o)return;mods.push(o.n);extra+=(+o.p||0);if(t==='size'&&+o.bm>0)bm*=+o.bm;if(o.ing&&+o.iq>0)xb.push([o.ing,+o.iq]);});});
+  ix.forEach(function(oi){var o=g.opts[oi];if(!o)return;mods.push(o.n);extra+=optP(g,o,p);if(t==='size'&&+o.bm>0)bm*=+o.bm;if(o.ing&&+o.iq>0)xb.push([o.ing,+o.iq]);});});
  return {mods:mods,extra:extra,bm:Math.round(bm*1000)/1000,xb:xb,unit:(+p.p||0)+extra};}
 function modalSet(h,cls){var m=document.querySelector('#modalRoot .modal.'+cls);if(m){var st=m.scrollTop;m.innerHTML=h;m.scrollTop=st;return;}openModal(h);m=document.querySelector('#modalRoot .modal');if(m)m.classList.add(cls);}
 function renderModifier(){var p=modState.p,G=modState.groups,c=modCalc(),img=(state.menuImg||{})[p.c]||'';
  var h='<div class="md-head">'+(img?'<img class="md-img" src="'+img+'" alt="">':'')+'<div><h2>'+cesc(p.n)+'</h2><div class="md-sub">'+KIP(p.p)+' ₭'+(isCust()?'':' · '+cesc(state.dineType))+'</div></div></div>';
  G.forEach(function(g,gi){var t=mgType(g),sv=modState.sel[gi],req=t==='size'||!!g.req,mx=t==='topping'&&+g.max>0?+g.max:0;
   h+='<div class="md-g"><div class="md-gt"><b>'+cesc(g.title)+'</b>'+(req?'<span class="md-req">ຕ້ອງເລືອກ</span>':'<span class="md-opt">'+(t==='topping'?(mx?'ເລືອກໄດ້ສູງສຸດ '+mx:'ເລືອກໄດ້ຫຼາຍອັນ'):'ບໍ່ບັງຄັບ')+'</span>')+'</div>';
-  if(t==='size')h+='<div class="md-size">'+g.opts.map(function(o,oi){return '<button type="button" class="md-sz'+(sv===oi?' on':'')+'" onclick="toggleMod('+gi+','+oi+')"><b>'+cesc(o.n)+'</b><span>'+KIP((+p.p||0)+(+o.p||0))+' ₭</span></button>';}).join('')+'</div>';
-  else h+='<div class="md-chips">'+g.opts.map(function(o,oi){var on=t==='topping'?sv.indexOf(oi)>=0:sv===oi;return '<button type="button" class="md-chip'+(on?' on':'')+'" onclick="toggleMod('+gi+','+oi+')">'+(on&&t==='topping'?'✓ ':'')+cesc(o.n)+(+o.p?' <em>+'+KIP(o.p)+'</em>':'')+'</button>';}).join('')+'</div>';
+  if(t==='size')h+='<div class="md-size">'+g.opts.map(function(o,oi){return '<button type="button" class="md-sz'+(sv===oi?' on':'')+'" onclick="toggleMod('+gi+','+oi+')"><b>'+cesc(o.n)+'</b><span>'+KIP((+p.p||0)+optP(g,o,p))+' ₭</span></button>';}).join('')+'</div>';
+  else h+='<div class="md-chips">'+g.opts.map(function(o,oi){var on=t==='topping'?sv.indexOf(oi)>=0:sv===oi;return '<button type="button" class="md-chip'+(on?' on':'')+'" onclick="toggleMod('+gi+','+oi+')">'+(on&&t==='topping'?'✓ ':'')+cesc(o.n)+(optP(g,o,p)?' <em>+'+KIP(optP(g,o,p))+'</em>':'')+'</button>';}).join('')+'</div>';
   h+='</div>';});
  h+='<div class="md-foot"><div class="md-qty"><button type="button" onclick="modQty(-1)" aria-label="ຫຼຸດ">−</button><b>'+modState.qty+'</b><button type="button" onclick="modQty(1)" aria-label="ເພີ່ມ">+</button></div>'+
   '<button type="button" class="md-add" onclick="confirmMod()">ເພີ່ມ'+(modState.qty>1?' '+modState.qty+' ລາຍການ':'')+' · '+KIP(c.unit*modState.qty)+' ₭</button></div><button type="button" class="md-x" onclick="closeModal()">ຍົກເລີກ</button>';
@@ -5310,7 +5318,7 @@ function mgScopeTxt(g){var n=allMenu().filter(function(p){return mgApplies(g,p);
 function setSecOpts(){var G=state.modGroups||[];
  return '<div class="mg-quick"><div class="mg-qh"><b>ເພີ່ມໃໝ່</b><span>ເລືອກແບບ — ມີຕົວຢ່າງໃສ່ໃຫ້ແລ້ວ ແກ້ຊື່/ລາຄາໄດ້</span></div><div class="mg-qb">'+['size','topping','choice'].map(function(t){return '<button type="button" class="mg-q" onclick="editModGroup(-1,\''+t+'\')"><i>'+MG_T[t][2]+'</i><b>+ '+MG_T[t][0]+'</b><small>'+MG_T[t][1]+'</small></button>';}).join('')+'</div></div>'+
   (G.length?G.map(function(g,gi){var t=mgType(g);
-   return sCard(cesc(g.title)+' <span class="mg-tb '+t+'">'+MG_T[t][0]+'</span>','ໃຊ້ກັບ '+mgScopeTxt(g)+(t==='topping'&&+g.max>0?' · ສູງສຸດ '+g.max:'')+(t==='choice'&&g.req?' · ຕ້ອງເລືອກ':''),sBtn('ແກ້ໄຂ','editModGroup('+gi+')','sm')+sBtn('ລຶບ','delModGroup('+gi+')','sm ghost-danger'),
+   return sCard(cesc(g.title)+' <span class="mg-tb '+t+'">'+MG_T[t][0]+'</span>','ໃຊ້ກັບ '+mgScopeTxt(g)+(function(){var n=allMenu().filter(function(p){return mgApplies(g,p)&&p.op&&p.op[g.id]&&Object.keys(p.op[g.id]).length;}).length;return n?' · <b class="mg-own">'+n+' ເມນູ ລາຄາສະເພາະ</b>':'';})()+(t==='topping'&&+g.max>0?' · ສູງສຸດ '+g.max:'')+(t==='choice'&&g.req?' · ຕ້ອງເລືອກ':''),sBtn('ແກ້ໄຂ','editModGroup('+gi+')','sm')+sBtn('ລຶບ','delModGroup('+gi+')','sm ghost-danger'),
     '<div class="mg-ol">'+(g.opts||[]).map(function(o){return '<span class="mg-o"><b>'+cesc(o.n)+'</b>'+(+o.p?'<em>+'+KIP(o.p)+'</em>':'<em class="z">ຟຣີ</em>')+(t==='size'&&+o.bm>0&&+o.bm!==1?'<small>ສູດ ×'+o.bm+'</small>':'')+(o.ing?'<small>ຕັດ '+cesc(o.ing)+' '+KIP(o.iq||0)+'</small>':'')+'</span>';}).join('')+'</div>');}).join('')
   :sCard('','','',sEmpty('ຍັງບໍ່ມີ — ກົດ "+ ຂະໜາດ" ຫຼື "+ Topping" ດ້ານເທິງ')));}
 function setSecPromo(){var P=state.promos||[],ap=activePromo();
@@ -5586,7 +5594,8 @@ function cdsPushIdle(){pushCDS({type:'idle'});}
 /* ===== ຈັດການ ຕົວເລືອກ/Topping ===== */
 let _mgEdit=null;
 function editModGroup(gi,preset){if(!can('menuEdit')){toast('ບໍ່ມີສິດ');return;}var g=gi>=0?state.modGroups[gi]:null,t=g?mgType(g):(preset||'choice'),pr=MG_PRESET[t];
- _mgEdit={gi:gi,type:t,title:g?g.title:pr.title,req:g?!!g.req:false,max:g?(+g.max||0):0,scope:g?(g.scope||'all'):(t==='size'||t==='topping'?'drink':'all'),codes:g?(g.codes||[]).slice():[],opts:JSON.parse(JSON.stringify(g?g.opts||[]:pr.opts)),q:''};renderModGroupEdit();}
+ var _pp={};if(g)allMenu().forEach(function(m){var o=m.op&&m.op[g.id];if(o&&Object.keys(o).length){_pp[m.c]={};Object.keys(o).forEach(function(n){_pp[m.c][n]=String((+m.p||0)+(+o[n]||0));});}});
+ _mgEdit={pp:_pp,gi:gi,type:t,title:g?g.title:pr.title,req:g?!!g.req:false,max:g?(+g.max||0):0,scope:g?(g.scope||'all'):(t==='size'||t==='topping'?'drink':'all'),codes:g?(g.codes||[]).slice():[],opts:JSON.parse(JSON.stringify(g?g.opts||[]:pr.opts)),q:''};renderModGroupEdit();}
 function mgSetType(t){var e=_mgEdit;e.type=t;if(t==='size')e.opts.forEach(function(o){if(!(+o.bm>0))o.bm=1;});renderModGroupEdit();}
 function mgOpt(i,k,v){var o=_mgEdit.opts[i];if(!o)return;if(k==='n'||k==='ing')o[k]=String(v||'').trim();else o[k]=v===''?'':Math.max(0,+v||0);}
 function mgTogItem(code){var a=_mgEdit.codes;var i=a.indexOf(code);if(i>=0)a.splice(i,1);else a.push(code);var s=document.getElementById('mg_cnt');if(s)s.textContent=a.length;}
@@ -5603,6 +5612,7 @@ function renderModGroupEdit(){var e=_mgEdit,t=e.type,M=MSRC();
   '<button type="button" class="mg-addr" onclick="_mgEdit.opts.push({n:\'\',p:0'+(t==='size'?',bm:1':'')+'});renderModGroupEdit();setTimeout(function(){var r=document.querySelectorAll(\'.mg-r input\');var x=document.querySelectorAll(\'.mg-r\');var l=x[x.length-1];if(l)l.querySelector(\'input\').focus();},30)">+ ເພີ່ມຕົວເລືອກ</button></div>'+
   (t==='topping'?'<datalist id="mg_ingl">'+Object.values(state.ingredients||{}).map(function(i){return '<option value="'+aesc(i.code)+'">'+cesc(i.name)+' ('+cesc(i.unit||'')+')</option>';}).join('')+'</datalist>':'')+
   (t==='size'?'<div class="mg-hint">ລາຄາເພີ່ມ ຄິດຈາກລາຄາເມນູ · ຄູນສູດ ×1.5 = ຕັດວັດຖຸດິບ 1.5 ເທົ່າຂອງສູດເມນູ</div>':t==='topping'?'<div class="mg-rule"><label>ເລືອກໄດ້ສູງສຸດ</label><input type="number" min="0" value="'+(e.max||'')+'" placeholder="ບໍ່ຈຳກັດ" oninput="_mgEdit.max=Math.max(0,+this.value||0)"></div>':'<label class="mg-chk"><input type="checkbox"'+(e.req?' checked':'')+' onchange="_mgEdit.req=this.checked"> ລູກຄ້າຕ້ອງເລືອກ</label>')+
+  (t==='size'?mgPriceGrid():'')+
   '<label>ໃຊ້ກັບເມນູ</label><div class="mg-seg sm">'+[['all','ທຸກເມນູ'],['food','ອາຫານ'],['drink','ເຄື່ອງດື່ມ'],['items','ເລືອກເມນູ']].map(function(o){return '<button type="button" class="'+(e.scope===o[0]?'on':'')+'" onclick="_mgEdit.scope=\''+o[0]+'\';renderModGroupEdit()">'+o[1]+'</button>';}).join('')+'</div>';
  if(e.scope==='items'){var all=allMenu();
   h+='<div class="mg-pick"><div class="mg-ph"><span>ເລືອກແລ້ວ <b id="mg_cnt">'+e.codes.length+'</b> ເມນູ</span><input placeholder="ຄົ້ນຫາເມນູ..." value="'+aesc(e.q)+'" oninput="_mgEdit.q=this.value;promoFilterPick(\'mgpick\',this.value)"></div>'+
@@ -5610,6 +5620,17 @@ function renderModGroupEdit(){var e=_mgEdit,t=e.type,M=MSRC();
    '<div id="mgpick" class="mg-list">'+all.map(function(p){var on=e.codes.indexOf(p.c)>=0;return '<label data-t="'+aesc((p.n+' '+p.c).toLowerCase())+'"><input type="checkbox" '+(on?'checked':'')+' onchange="mgTogItem(\''+String(p.c).replace(/'/g,"\\'")+'\')"> '+cesc(p.n)+' <small>'+cesc(p.c)+' · '+KIP(p.p)+'</small></label>';}).join('')+'</div></div>';}
  h+='<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="saveModGroup()">ບັນທຶກ</button></div>';
  modalSet(h,'mg-ed');if(e.scope==='items'&&e.q)promoFilterPick('mgpick',e.q);}
+function mgPriceGrid(){var e=_mgEdit,tg={scope:e.scope,codes:e.codes},ms=allMenu().filter(function(p){return mgApplies(tg,p);}),os=e.opts.filter(function(o){return String(o.n||'').trim();});
+ var own=ms.filter(function(m){return e.pp[m.c]&&Object.keys(e.pp[m.c]).some(function(k){return e.pp[m.c][k]!=='';});}).length;
+ return '<details class="mg-pp"'+(own?' open':'')+'><summary><b>ລາຄາແຕ່ລະເມນູ</b><span>'+(own?own+' ເມນູ ລາຄາສະເພາະ':'ຖ້າຂະໜາດດຽວກັນ ແຕ່ລາຄາບໍ່ເທົ່າກັນ — ໃສ່ລາຄາເຕັມຂອງເມນູນັ້ນ · ວ່າງ = ໃຊ້ລາຄາກຸ່ມ')+'</span></summary>'+
+  (ms.length&&os.length?'<div class="mg-ppw"><table><thead><tr><th>ເມນູ</th>'+os.map(function(o){return '<th>'+cesc(o.n)+'</th>';}).join('')+'</tr></thead><tbody>'+ms.slice(0,200).map(function(m){var q=String(m.c).replace(/'/g,"\\'");
+   return '<tr><td><b>'+cesc(m.n)+'</b><small>'+cesc(m.c)+'</small></td>'+os.map(function(o){var v=(e.pp[m.c]||{})[o.n];v=v==null?'':v;var nq=String(o.n).replace(/'/g,"\\'");
+    return '<td><input type="number" inputmode="numeric" min="0" value="'+aesc(v)+'" placeholder="'+KIP((+m.p||0)+(+o.p||0))+'" oninput="mgPP(\''+q+'\',\''+nq+'\',this.value)"></td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div><div class="mg-hint">ລາຄາເຕັມ ລວມລາຄາເມນູແລ້ວ · ແກ້ໄດ້ອີກທີ່ ໜ້າແກ້ໄຂເມນູ</div>':'<div class="mg-hint">ເລືອກ "ໃຊ້ກັບເມນູ" ກ່ອນ</div>')+'</details>';}
+function mgPP(code,n,v){var e=_mgEdit;if(!e.pp[code])e.pp[code]={};e.pp[code][n]=String(v||'').trim();}
+/* ຂຽນລາຄາສະເພາະເມນູ ລົງ catalog (ເກັບເປັນລາຄາເພີ່ມ ທຽບກັບລາຄາເມນູ) */
+function mgWritePP(g,pp){_ensureCatalog();var names={};(g.opts||[]).forEach(function(o){names[o.n]=o;});
+ allMenu().forEach(function(m){var row=pp[m.c],keep={};if(row&&mgApplies(g,m))Object.keys(row).forEach(function(n){var v=row[n];if(v===''||v==null||!names[n])return;var d=Math.round((+v||0)-(+m.p||0));if(d!==(+names[n].p||0))keep[n]=d;});
+  if(Object.keys(keep).length){if(!m.op)m.op={};m.op[g.id]=keep;}else if(m.op&&m.op[g.id]){delete m.op[g.id];if(!Object.keys(m.op).length)delete m.op;}});}
 function saveModGroup(){var e=_mgEdit,t=(e.title||'').trim();if(!t){toast('ໃສ່ຊື່ກຸ່ມ');return;}
  var opts=e.opts.map(function(o){var x={n:String(o.n||'').replace(/[<>]/g,'').trim(),p:Math.max(0,+o.p||0)};if(e.type==='size')x.bm=+o.bm>0?Math.round(+o.bm*1000)/1000:1;if(e.type==='topping'&&o.ing){var c=String(o.ing).trim().toUpperCase();if(state.ingredients[c]&&+o.iq>0){x.ing=c;x.iq=+o.iq;}}return x;}).filter(function(o){return o.n;});
  if(!opts.length){toast('ໃສ່ຕົວເລືອກຢ່າງໜ້ອຍ 1 ອັນ');return;}
@@ -5618,7 +5639,7 @@ function saveModGroup(){var e=_mgEdit,t=(e.title||'').trim();if(!t){toast('ໃ�
  if(e.scope==='items'&&!e.codes.length){toast('ເລືອກເມນູຢ່າງໜ້ອຍ 1 ຫຼືປ່ຽນ "ໃຊ້ກັບ"');return;}
  if(!Array.isArray(state.modGroups))state.modGroups=[];
  var g=e.gi>=0?state.modGroups[e.gi]:{id:'g'+Date.now()};g.title=t;g.type=e.type;g.multi=e.type==='topping';g.req=e.type==='size'?true:(e.type==='choice'&&!!e.req);g.max=e.type==='topping'?(+e.max||0):0;g.scope=e.scope;g.codes=e.scope==='items'?e.codes.slice():[];g.opts=opts;
- if(e.gi<0)state.modGroups.push(g);logOrder('ແກ້ໄຂຕົວເລືອກ',MG_T[e.type][0]+': '+t+' ('+opts.map(function(o){return o.n;}).join(', ')+')','');save();closeModal();render();sSaved();}
+ if(e.gi<0)state.modGroups.push(g);if(e.type==='size')mgWritePP(g,e.pp||{});logOrder('ແກ້ໄຂຕົວເລືອກ',MG_T[e.type][0]+': '+t+' ('+opts.map(function(o){return o.n;}).join(', ')+')','');save();closeModal();render();sSaved();}
 /* ເປີດ/ປິດ ກຸ່ມ ສຳລັບເມນູດຽວ (ຈາກໜ້າແກ້ໄຂເມນູ) */
 function mgSetFor(g,p,on){if(mgApplies(g,p)===on)return;if(g.scope==='items'){var a=g.codes||(g.codes=[]),i=a.indexOf(p.c);if(on&&i<0)a.push(p.c);if(!on&&i>=0)a.splice(i,1);return;}
  var cur=allMenu().filter(function(x){return mgApplies(g,x);}).map(function(x){return x.c;});g.scope='items';g.codes=on?cur.concat([p.c]):cur.filter(function(c){return c!==p.c;});}
@@ -5820,7 +5841,8 @@ function menuEditModal(code){if(!can('menuEdit')){toast('ບໍ່ມີສິ�
   '<label>ລາຄາຂາຍ (ກີບ)</label><input id="me_p" type="number" inputmode="numeric" value="'+(p?p.p:'')+'">'+
   '<label>ໝວດຫຼັກ</label><input id="me_cat" list="me_catl" value="'+cesc(L?L.cat:(cats[0]||''))+'" placeholder="ພິມໃໝ່ ຫຼື ເລືອກ"><datalist id="me_catl">'+cats.map(opt).join('')+'</datalist>'+
   '<label>ໝວດຍ່ອຍ</label><input id="me_sub" list="me_subl" value="'+cesc(L?L.sub:'')+'" placeholder="ວ່າງ = ໃຊ້ຊື່ໝວດຫຼັກ"><datalist id="me_subl">'+Object.keys(subs).map(opt).join('')+'</datalist>'+
-  '<label>ຂະໜາດ & Topping ຂອງເມນູນີ້</label><div class="me-mg">'+((state.modGroups||[]).length?(state.modGroups||[]).map(function(g){var t=mgType(g),on=mgApplies(g,p||{c:'__new__',k:k});return '<label class="me-mgi"><input type="checkbox" data-g="'+aesc(g.id)+'"'+(on?' checked':'')+'><span><b>'+cesc(g.title)+'</b><small>'+MG_T[t][0]+' · '+cesc((g.opts||[]).map(function(o){return o.n;}).slice(0,5).join(', '))+'</small></span></label>';}).join(''):'<div class="me-mg0">ຍັງບໍ່ມີ — ສ້າງໄດ້ທີ່ ການຕັ້ງຄ່າ › ຕົວເລືອກ & Topping</div>')+'</div>'+
+  '<label>ຂະໜາດ & Topping ຂອງເມນູນີ້</label><div class="me-mg">'+((state.modGroups||[]).length?(state.modGroups||[]).map(function(g){var t=mgType(g),on=mgApplies(g,p||{c:'__new__',k:k});var own=p&&p.op&&p.op[g.id]||{},bp=p?+p.p||0:0;return '<div class="me-mgw"><label class="me-mgi"><input type="checkbox" data-g="'+aesc(g.id)+'"'+(on?' checked':'')+'><span><b>'+cesc(g.title)+'</b><small>'+MG_T[t][0]+' · '+cesc((g.opts||[]).map(function(o){return o.n;}).slice(0,5).join(', '))+'</small></span></label>'+
+   (t==='size'?'<div class="me-szp" data-g="'+aesc(g.id)+'"><span class="me-szh">ລາຄາຂອງເມນູນີ້ (ວ່າງ = ໃຊ້ລາຄາກຸ່ມ)</span>'+(g.opts||[]).map(function(o){var v=own[o.n]!=null?bp+(+own[o.n]):'';return '<label><span>'+cesc(o.n)+'</span><input type="number" inputmode="numeric" min="0" data-o="'+aesc(o.n)+'" value="'+v+'" placeholder="'+(p?KIP(bp+(+o.p||0)):'+'+KIP(+o.p||0))+'"></label>';}).join('')+'</div>':'')+'</div>';}).join(''):'<div class="me-mg0">ຍັງບໍ່ມີ — ສ້າງໄດ້ທີ່ ການຕັ້ງຄ່າ › ຕົວເລືອກ & Topping</div>')+'</div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="saveMenuItem('+(p?'\''+String(code).replace(/'/g,"\'")+'\'':'null')+')">'+(p?'ບັນທຶກ':'ບັນທຶກ → ໃສ່ສູດຕັດສະຕ໋ອກ')+'</button></div>');}
 function meKind(k){var e=document.getElementById('me_c');if(e&&!e.readOnly&&/^(BEV|FOOD)\d+$/.test(e.value))e.value=_nextMenuCode(k);}
 function saveMenuItem(code){var g=function(id){return (document.getElementById(id).value||'').trim();};
@@ -5828,6 +5850,7 @@ function saveMenuItem(code){var g=function(id){return (document.getElementById(i
  var c=code||g('me_c').toUpperCase(),n=g('me_n'),pr=Number(g('me_p')),cat=g('me_cat')||'ອື່ນໆ',sub=g('me_sub')||cat;
  if(!c){toast('ໃສ່ລະຫັດເມນູ');return;}if(!n){toast('ໃສ່ຊື່ເມນູ');return;}if(!(pr>0)){toast('ລາຄາຕ້ອງ > 0');return;}
  [].forEach.call(document.querySelectorAll('#modalRoot .me-mgi input'),function(cb){var g=(state.modGroups||[]).find(function(x){return x.id===cb.dataset.g;});if(g)mgSetFor(g,{c:c,k:k},cb.checked);});
+ var _szp=[].map.call(document.querySelectorAll('#modalRoot .me-szp'),function(d){var r={};[].forEach.call(d.querySelectorAll('input'),function(i){r[i.dataset.o]=i.value.trim();});return {g:d.dataset.g,row:r};});
  if(!code&&findMenu(c)){toast('ລະຫັດ '+c+' ມີແລ້ວ');return;}
  var M=_ensureCatalog();var L=code?_menuLoc(code):null,item;
  if(L){item=M[L.cat][L.sub][L.idx];var old={n:item.n,p:item.p,k:item.k,cat:L.cat,sub:L.sub};
@@ -5835,6 +5858,7 @@ function saveMenuItem(code){var g=function(id){return (document.getElementById(i
   item.n=n;item.p=pr;item.k=k;var ch=[];if(old.n!==n)ch.push('ຊື່ '+old.n+' → '+n);if(old.p!==pr)ch.push('ລາຄາ '+KIP(old.p)+' → '+KIP(pr));if(old.k!==k)ch.push('ປະເພດ '+old.k+' → '+k);if(old.cat!==cat||old.sub!==sub)ch.push('ໝວດ '+old.cat+'/'+old.sub+' → '+cat+'/'+sub);
   logOrder('ແກ້ໄຂເມນູ',c+': '+(ch.join(' · ')||'ບໍ່ມີການປ່ຽນ'),'');}
  else{item={c:c,n:n,p:pr,k:k,bom:[],man:1};if(!M[cat])M[cat]={};if(!M[cat][sub])M[cat][sub]=[];M[cat][sub].push(item);logOrder('ເພີ່ມເມນູ',c+' '+n+' · '+KIP(pr)+' ກີບ · '+cat+'/'+sub,'');}
+ _szp.forEach(function(x){var g=(state.modGroups||[]).find(function(y){return y.id===x.g;});if(!g)return;var names={};(g.opts||[]).forEach(function(o){names[o.n]=o;});var keep={};if(mgApplies(g,item))Object.keys(x.row).forEach(function(n){var v=x.row[n];if(v===''||!names[n])return;var d=Math.round((+v||0)-pr);if(d!==(+names[n].p||0))keep[n]=d;});if(Object.keys(keep).length){if(!item.op)item.op={};item.op[g.id]=keep;}else if(item.op&&item.op[g.id]){delete item.op[g.id];if(!Object.keys(item.op).length)delete item.op;}});
  delete _thumbCache[c];save();closeModal();render();toast(code?'ບັນທຶກແລ້ວ':'ເພີ່ມເມນູແລ້ວ — ໃສ່ສູດຕັດສະຕ໋ອກຕໍ່');if(!code)showMenuBom(c);}
 function askDelMenu(code){if(!can('menuEdit')){toast('ບໍ່ມີສິດລຶບເມນູ — ສະເພາະຜູ້ຈັດການ/ເຈົ້າຂອງ');return;}var m=findMenu(code);var nm=m?m.n:code;openModal('<h2 style="color:var(--red)"> ລຶບເມນູ "'+cesc(nm)+'"</h2><p style="font-size:13px;color:var(--muted)">ການລຶບຈະຖືກບັນທຶກໄວ້ໃນ Log. ກະລຸນາໃສ່ເຫດຜົນ.</p><label>ເຫດຜົນທີ່ລຶບ (ຈຳເປັນ)</label><textarea id="delrsn" rows="2" placeholder="ເຊັ່ນ ເລີກຂາຍ / ຂໍ້ມູນຊ້ຳ" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit"></textarea><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--red)" onclick="doDelMenu(\''+String(code).replace(/'/g,"\\'")+'\')">ລຶບ</button></div>');}
 function doDelMenu(code){var rsn=(document.getElementById('delrsn').value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
