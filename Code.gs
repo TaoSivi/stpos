@@ -927,6 +927,7 @@ function chatLoad_() {
       rows.forEach(function (r) {
         var ts = +r[0] || 0; if (ts < lim) return;
         if (r[7] === 'st') { var x = byId[String(r[11])]; if (x) { x.st = String(r[10]); x.upd = ts; x.stBy = String(r[6] || ''); } return; }
+        if (r[7] === 'clr') { var ct = String(r[2]); out = out.filter(function (m) { if (m.table === ct) { delete byId[m.id]; return false; } return true; }); return; }
         var m = { id: String(r[1]), ts: ts, upd: ts, table: String(r[2]), ep: +r[3] || 0, sess: String(r[4]), from: String(r[5]), name: String(r[6]), kind: String(r[7]), req: String(r[8] || ''), text: String(r[9] || ''), st: String(r[10] || '') };
         byId[m.id] = m; out.push(m);
       });
@@ -1005,7 +1006,13 @@ function chatApi_(p) {
     try {
       lk.waitLock(10000);
       if (a === 'seen') { var sm2 = chatJson_('CHAT_SEEN'); sm2[tb2] = Math.max(+sm2[tb2] || 0, +p.ts || now); PROP.setProperty('CHAT_SEEN', JSON.stringify(sm2)); }
-      else { var epm = chatJson_('CHAT_EP'); epm[tb2] = (+epm[tb2] || 0) + 1; PROP.setProperty('CHAT_EP', JSON.stringify(epm)); res.ep = epm[tb2]; }
+      else {
+        var epm = chatJson_('CHAT_EP'); epm[tb2] = (+epm[tb2] || 0) + 1; PROP.setProperty('CHAT_EP', JSON.stringify(epm)); res.ep = epm[tb2];
+        /* ເຊັກບິນ / ຍ້າຍໂຕະ → ລຶບຂໍ້ຄວາມຂອງໂຕະນີ້ອອກຈາກລະບົບທັນທີ */
+        var arr = chatLoad_(), n0 = arr.length; arr = arr.filter(function (m) { return m.table !== tb2; }); if (arr.length !== n0) chatPut_(arr); res.removed = n0 - arr.length;
+        var sm3 = chatJson_('CHAT_SEEN'); if (sm3[tb2]) { delete sm3[tb2]; PROP.setProperty('CHAT_SEEN', JSON.stringify(sm3)); }
+        try { var sh = chatSheet_(); if (sh) sh.appendRow([now, 'clr' + now.toString(36), chatCell_(tb2), epm[tb2], '', 's', '', 'clr', '', '', '', '']); } catch (e3) {}
+      }
       chatBump_();
     } catch (e) { return { ok: false, err: 'busy' }; } finally { try { lk.releaseLock(); } catch (e2) {} }
     return res;
