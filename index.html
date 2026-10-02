@@ -159,7 +159,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 .loginbox{background:#fff;border-radius:20px;padding:26px;width:400px;max-width:94vw;box-shadow:0 20px 60px rgba(7,46,44,.18);text-align:center}
 .loginbox h2{font-size:22px;margin-bottom:4px;background:var(--grad-deep);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .loginbox .lsub{font-size:13px;color:var(--muted);margin-bottom:14px}
-.usersgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:9px;max-height:250px;overflow:auto;margin-bottom:8px}
+.usersgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;max-height:250px;overflow:auto;margin-bottom:8px;padding:3px}.usersgrid .ucard{flex:0 0 104px;box-sizing:border-box}
 .ucard{background:#f3fbfb;border:2px solid var(--line);border-radius:14px;padding:12px 6px;cursor:pointer;transition:.13s}
 .ucard:hover{border-color:var(--tiff);transform:translateY(-2px)}
 .ucard.sel{border-color:var(--tiff);background:#eafbfa;box-shadow:0 4px 12px rgba(10,186,181,.25)}
