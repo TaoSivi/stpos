@@ -1455,6 +1455,38 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 .mk-it input{width:auto!important;margin:0!important}.mk-it b{width:84px;flex-shrink:0;font-size:13px}.mk-it span{flex:1;min-width:0}.mk-it small{color:var(--muted)}
 .modal label.mk-ck,.mk-ck{display:flex!important;align-items:center;gap:8px;font-weight:600;margin-top:4px}.mk-ck input{width:auto!important;margin:0!important}
 .mk-sum{background:#fef2f2;border-radius:12px;padding:10px 12px;margin:10px 0;font-size:14px;line-height:1.7}.mk-ing{font-size:12px;color:var(--muted);max-height:120px;overflow:auto;margin-top:6px}.mk-none{padding:20px;text-align:center;color:var(--muted)}
+/* ===== Motion & depth — ອ່ອນ ໄວ ບໍ່ລົບກວນສາຍຕາ (ປິດທັງໝົດ ຖ້າເຄື່ອງຕັ້ງ reduce motion) ===== */
+:root{--ease-out:cubic-bezier(.2,.8,.2,1);--sh-hover:0 10px 26px rgba(6,47,45,.12);--sh-pri:0 6px 16px rgba(10,126,122,.26)}
+@keyframes uiFade{from{opacity:0}to{opacity:1}}
+@keyframes mdIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+@keyframes tstIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes dotPop{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+/* ເຂົ້າໜ້າ: ໜ້າໃໝ່ໆ ຂຶ້ນແບບດຽວກັບໜ້າເກົ່າ */
+#viewRoot.ui-enter .scard,#viewRoot.ui-enter .rv-card,#viewRoot.ui-enter .sa-card,#viewRoot.ui-enter .ck-item,#viewRoot.ui-enter .pd-card,#viewRoot.ui-enter .ap-card,#viewRoot.ui-enter .rv-sum,#viewRoot.ui-enter .rv-empty,#viewRoot.ui-enter .sp-sec,#viewRoot.ui-enter .ck-head{animation:uiUp .38s var(--ease-out) both}
+#viewRoot.ui-enter .sethead,#viewRoot.ui-enter .rv-top,#viewRoot.ui-enter .tv-head,#viewRoot.ui-enter .rv-bar{animation:uiFade .3s ease both}
+/* ໜ້າຕ່າງ & toast */
+.overlay{animation:ovIn .18s ease}
+.modal{animation:mdIn .24s var(--ease-out)!important;box-shadow:0 2px 6px rgba(6,40,38,.08),0 28px 70px rgba(6,40,38,.28)!important}
+.toast{animation:tstIn .22s var(--ease-out);box-shadow:0 10px 30px rgba(6,40,38,.28)!important}
+/* ປຸ່ມ: ກົດແລ້ວຍຸບເລັກນ້ອຍ · hover ປ່ຽນສີນຸ້ມໆ */
+.btn-ok,.btn-cancel,.btn-sm,.sb,.rv-b,.rv-add,.rv-chip,.rv-tc,.rv-today,.rv-nav,.chip,.ck-tabs button,.ck-pf button,.ck-all,.sp-tabs button,.ucard,.numpad button,.rv-sheet button,.rv-sheet a,.ck-submit,.sa-act button,.mk-it{transition:transform .14s var(--ease-out),box-shadow .2s ease,background-color .18s ease,border-color .18s ease,color .18s ease,opacity .18s ease}
+.btn-ok:active:not(:disabled),.btn-cancel:active,.btn-sm:active,.sb:active,.rv-b:active,.rv-add:active,.rv-chip:active,.rv-tc:active:not(.busy),.rv-today:active,.chip:active,.ck-tabs button:active,.ck-pf button:active,.ck-all:active,.sp-tabs button:active,.numpad button:active,.ck-submit:active,.sa-act button:active{transform:scale(.97)}
+.btn-ok:hover,.rv-b.pri:hover,.ck-submit:hover{box-shadow:var(--sh-pri)}
+.rv-add:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(10,126,122,.32)}
+.navitem{transition:background-color .18s ease,color .18s ease,transform .14s var(--ease-out)!important}.navitem:active{transform:scale(.98)}
+/* ກ່ອງທີ່ກົດໄດ້: ຍົກຂຶ້ນເລັກນ້ອຍຕອນ hover */
+.rv-card,.sa-card,.ck-item,.ucard,.rv-tc{transition:transform .18s var(--ease-out),box-shadow .2s ease,background-color .18s ease,border-color .18s ease,opacity .18s ease}
+@media (hover:hover){.rv-card:not(.dim):hover,.sa-card:hover{transform:translateY(-1px);box-shadow:var(--sh-hover)}.ucard:hover{transform:translateY(-2px);box-shadow:var(--sh-hover)}.rv-tc:not(.busy):not(.on):hover{border-color:#9fd6cf;transform:translateY(-1px)}}
+.scard{transition:box-shadow .25s ease}
+/* PIN */
+.pindots span{transition:background-color .15s ease,border-color .15s ease}.pindots span.f{animation:dotPop .22s var(--ease-out)}
+.pindots.shake{animation:shake .38s ease}.pindots.shake span{border-color:#dc2626}
+.ucard.sel{box-shadow:0 8px 20px rgba(10,126,122,.18)}
+/* ຕິກເຊັກລິດ */
+.ck-pf .on{animation:dotPop .22s var(--ease-out)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -1804,7 +1836,7 @@ function loginKey(k){if(k==='C')_loginPin='';else if(k==='⌫')_loginPin=_loginP
    var el=document.getElementById('loginScreen');if(el)el.remove();_loginSel=null;_loginPin='';
    logOrder('ເຂົ້າສູ່ລະບົບ',u.name+' ('+(ROLE_LABELS[u.role]||u.role)+')','');save();
    if(!canView(view))view=homeView();setView(view);toast('ສະບາຍດີ '+u.name);return;}
-  _loginPin='';toast('PIN ບໍ່ຖືກຕ້ອງ');}
+  _loginPin='';toast('PIN ບໍ່ຖືກຕ້ອງ');showLogin();var pd=document.querySelector('#loginScreen .pindots');if(pd&&!UI_CALM){pd.classList.add('shake');}return;}
  showLogin();}
 function logout(){var u=curUser();if(u)logOrder('ອອກຈາກລະບົບ',u.name,'');SESSION.uid=null;try{localStorage.removeItem('stpos_uid');}catch(e){}save();closeModal();render();}
 function requireOverride(action,label,cb){if(can(action)){cb();return;}
@@ -4964,7 +4996,7 @@ function renderAdmin(R){
  if(!items.some(function(x){return x[0]===adminSec;}))adminSec='shop';
  var cur=items.find(function(x){return x[0]===adminSec;});
  var rail='<h2>ການຕັ້ງຄ່າ</h2>'+SET_NAV.map(function(g){var its=g[1].filter(function(x){return setGate(x[4]);});if(!its.length)return '';
-  return '<div class="sg">'+g[0]+'</div>'+its.map(function(x){return '<button type="button" class="'+(x[0]===adminSec?'on':'')+'" onclick="adminSec=\''+x[0]+'\';render();var m=document.querySelector(\'.setmain\');if(m)m.scrollIntoView({block:\'start\'})">'+sIco(x[2])+'<span>'+x[1]+'</span></button>';}).join('');}).join('');
+  return '<div class="sg">'+g[0]+'</div>'+its.map(function(x){return '<button type="button" class="'+(x[0]===adminSec?'on':'')+'" onclick="adminSec=\''+x[0]+'\';render();uiEnter();var m=document.querySelector(\'.setmain\');if(m)m.scrollIntoView({block:\'start\'})">'+sIco(x[2])+'<span>'+x[1]+'</span></button>';}).join('');}).join('');
  var F={shop:setSecShop,pay:setSecPay,order:setSecOrder,table:setSecTable,menu:setSecMenu,opts:setSecOpts,promo:setSecPromo,cds:setSecCds,users:setSecUsers,staff:setSecStaff,loc:setSecLoc,conn:setSecConn,adv:setSecAdv,perm:setSecPerm};
  R.innerHTML='<div class="adminbox setpage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain"><div class="sethead"><div><h2>'+cur[1]+'</h2><p>'+cur[3]+'</p></div><span id="setSaved" class="ssaved">✓ ບັນທຶກແລ້ວ</span></div>'+(adminSec==='pay'?F.pay():'<div class="sbento auto">'+F[adminSec]()+'</div>')+'</div></div></div>';setBento(R);
  var on=R.querySelector('.setrail button.on');if(on&&on.scrollIntoView&&window.innerWidth<900){try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}}
