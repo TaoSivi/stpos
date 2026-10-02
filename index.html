@@ -2824,7 +2824,7 @@ function finishPayment(){const t=state.tables[state.activeTable];
  if(credit){bill.credit=true;bill.creditMemberId=mem?mem.id:null;bill.creditName=mem?mem.name:('ໂຕະ '+t.name+(t.customer?' · '+t.customer:''));var cpEl=document.getElementById('pay_crphone');bill.creditPhone=mem?(mem.phone||''):String(cpEl?cpEl.value:(payState.crPhone||'')).trim().slice(0,40);
   var crEl=document.getElementById('pay_crnote');var crn=String(crEl?crEl.value:(payState.crNote||'')).trim().slice(0,300);if(crn)bill.creditNote=crn;bill.creditOwed=goodsNet+(payState.tip||0)+fee;bill.creditPaid=0;
   if(!mem)logOrder('ຕິດໜີ້',bill.creditName+' +'+KIP(bill.creditOwed)+' ກີບ'+(crn?' — '+crn:''),t.name);}
- state.bills.push(bill);
+ pkoToBill(t,bill);state.bills.push(bill);
  logOrder(credit?'ຕິດໜີ້':'ຮັບເງິນ','ບິນ '+rno+' · '+KIP(bill.total)+' ກີບ · '+payLabel+(payState.partial?' (ແບ່ງບິນ '+billItems.length+' ລາຍການ)':'')+(redeemVal?' (ໃຊ້ '+redeemPts+' ແຕ້ມ −'+KIP(redeemVal)+')':'')+(payState.recvCurr&&payState.recvCurr!=='LAK'&&!mixed&&!credit?' (ຮັບ '+payState.recvCurr+')':''),t.name);
  var ptsMsg='';
  if(mem){if(!Array.isArray(mem.ledger))mem.ledger=[];if(!Array.isArray(mem.debtLedger))mem.debtLedger=[];
@@ -2877,15 +2877,16 @@ function openMoveTable(){const list=Object.values(state.tables).filter(t=>!t.dl&
 function moveTo(name){if(name===state.activeTable){closeModal();return;}const from=state.tables[state.activeTable],to=state.tables[name];
  var mvQty=from.items.reduce(function(a,i){return a+(i.qty||0);},0),mvAmt=tableTotal(from),mvNames=from.items.map(function(i){return i.qty+'× '+i.name;}).join(', ');
  logCancel('ຍ້າຍໂຕະ','',mvNames,mvQty,mvAmt,from.name+' → '+name,'',{from:from.name,to:name,bill:(from.billTs||from.status==='bill')?'after':'before'});to.billTs=from.billTs||null;
- to.items=from.items;to.status=from.status==='free'?'busy':from.status;to.customer=from.customer;to.memberId=from.memberId||null;from.memberId=null;to.sd=from.sd||null;from.sd=null;state.orders.forEach(o=>{if(o.table===from.name)o.table=name;});
+ to.items=from.items;to.status=from.status==='free'?'busy':from.status;to.customer=from.customer;to.memberId=from.memberId||null;from.memberId=null;to.sd=from.sd||null;from.sd=null;to.pkO=from.pkO||null;from.pkO=null;state.orders.forEach(o=>{if(o.table===from.name)o.table=name;});
  logOrder('ຍ້າຍໂຕະ',from.name+' → '+name,from.name);from.items=[];from.status='free';from.billTs=null;from.customer=null;from.main=false;try{chatClear(from.name);}catch(e){}state.activeTable=name;state.draft=[];save();closeModal();render();showSuccess('ຍ້າຍໂຕະສຳເລັດ!','ໄປໂຕະ '+name);}
 function mergeTable(){const list=Object.values(state.tables).filter(t=>!t.dl&&t.status!=='free'&&t.status!=='merged'&&t.name!==state.activeTable);if(!list.length){toast('ບໍ່ມີໂຕະອື່ນໃຫ້ລວມ');return;}
  openModal(`<h2> ລວມໂຕະເຂົ້າ ${state.activeTable}</h2><p style="font-size:12px;color:var(--muted)">${state.activeTable} ຈະເປັນ "ໂຕະຫຼັກ"</p><div class="tableselect">${list.map(t=>`<div class="ts busy" onclick="mergeFrom('${t.name.replace(/'/g,"\\'")}')">${t.name}<br><small>${KIP(tableTotal(t))}</small></div>`).join('')}</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>`);}
 function mergeFrom(name){const main=state.tables[state.activeTable],other=state.tables[name];logOrder('ລວມໂຕະ',name+' → '+main.name,name);logCancel('ລວມໂຕະ','',other.items.map(function(i){return i.qty+'× '+i.name;}).join(', '),other.items.reduce(function(a,i){return a+(i.qty||0);},0),tableTotal(other),name+' → '+main.name,'',{from:name,to:main.name,bill:(other.billTs||other.status==='bill')?'after':'before'});main.items=main.items.concat(other.items);main.status='main';main.main=true;state.orders.forEach(o=>{if(o.table===name)o.table=main.name;});
- if(!main.sd&&other.sd)main.sd=other.sd;other.sd=null;other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;try{chatClear(other.name);}catch(e){}save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
+ if(!main.sd&&other.sd)main.sd=other.sd;other.sd=null;if((other.pkO||[]).length){main.pkO=(main.pkO||[]).concat(other.pkO);other.pkO=null;}other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;try{chatClear(other.name);}catch(e){}save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
 function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ) — ສະຕ໋ອກທີ່ຫັກໄປຈະຄືນໃຫ້</p>${rsnBox('ct_rsn')}<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
 function doCancelTable(){const t=state.tables[state.activeTable];var _rsn=((document.getElementById('ct_rsn')||{}).value||'').trim();if(!_rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');var _e=document.getElementById('ct_rsn');if(_e)_e.focus();return;}logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ — '+_rsn,t.name);t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ: '+_rsn,{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen,id:line.id});lineBomOf(line).forEach(([ing,q])=>{if(state.ingredients[ing])addStockAt(ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
+ pkoReturn(t.pkO,curLoc(),'ຄືນ-ຍົກເລີກໂຕະ','ບັນຈຸພັນຕໍ່ອໍເດີ (ໂຕະ '+t.name+')');t.pkO=null;
  state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.status='free';if(t.dl)t.dl.closed=Date.now();try{chatClear(t.name);}catch(e){}t.billTs=null;t.customer=null;t.memberId=null;t.sd=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name);}
 function openCustomer(){var t=state.tables[state.activeTable];
  openModal('<h2> ເລືອກລູກຄ້າ</h2>'+
@@ -5655,7 +5656,7 @@ function dlClose(){var t=state.tables[state.activeTable];if(!t||!t.dl||!(t.items
  var items=JSON.parse(JSON.stringify(t.items)),tot=Math.round(items.reduce(function(s,i){return s+lineTotal(i);},0)),cm=Math.round(tot*(+ch.comm||0)/100),now=Date.now();
  state.receiptSeq++;var rno=String(state.receiptSeq).padStart(10,'0');
  state.bills.push({receipt:rno,table:t.name,items:items,total:tot,pay:ch.name,cashier:whoBy(),by:(curUser()?curUser().name:''),sub:tot,discAmt:0,cogs:billCOGS(items),shiftId:state.curShift?state.curShift.id:null,loc:curLoc(),ts:now,
-  dl:{ch:ch.id,name:ch.name,ref:t.dl.ref||'',cust:t.dl.cust||'',comm:+ch.comm||0,commAmt:cm,net:tot-cm}});
+  dl:{ch:ch.id,name:ch.name,ref:t.dl.ref||'',cust:t.dl.cust||'',comm:+ch.comm||0,commAmt:cm,net:tot-cm}});pkoToBill(t,state.bills[state.bills.length-1]);
  state.orders=(state.orders||[]).filter(function(o){return o.table!==t.name;});t.items=[];t.status='free';t.dl.closed=now;delete t.dl.closing;t.upd=now;try{chatClear(t.name);}catch(e){}
  logOrder('Delivery ປິດອໍເດີ',ch.name+(t.dl.ref?' #'+t.dl.ref:'')+' · '+KIP(tot)+' ກີບ (ຄ້າງຮັບ '+KIP(tot-cm)+')',t.name);curFloor='__dl';save();closeModal();setView('tables');showSuccess('ປິດອໍເດີແລ້ວ',ch.name+(t.dl.ref?' #'+t.dl.ref:'')+' · '+KIP(tot)+' ກີບ');}
 /* ---- ໜ້າ Delivery: ສະຫຼຸບ / ຄ້າງຮັບ / ຮັບເງິນ ---- */
@@ -5718,7 +5719,11 @@ function pkgCfg(){if(!state.pkg||typeof state.pkg!=='object')state.pkg={food:[],
 function pkgFor(p,mods){var m=findMenu(p.c)||p,c=pkgCfg(),base=Array.isArray(m.pk)?m.pk:(c[m.k==='drink'?'drink':'food']||[]);base=base.filter(function(x){return x&&x[0]&&+x[1]>0;}).map(function(x){return [x[0],+x[1]];});
  (state.modGroups||[]).forEach(function(g){if(mgType(g)!=='size'||!mgApplies(g,m))return;(g.opts||[]).forEach(function(o){if(o.pc&&(mods||[]).indexOf(o.n)>=0){var cq=+o.pcq>0?+o.pcq:1;if(base.length)base[0]=[o.pc,cq];else base.push([o.pc,cq]);}});});
  return base.filter(function(x){return state.ingredients[x[0]];});}
-function pkgOrderCut(tb){var L=pkgCfg().order.filter(function(x){return x&&state.ingredients[x[0]]&&+x[1]>0;});L.forEach(function(x){addStockAt(x[0],curLoc(),-(+x[1]),'ບັນຈຸພັນ (ຕໍ່ອໍເດີ)','ກັບບ້ານ · ໂຕະ '+(tb||''));});}
+function pkgOrderCut(tb){var L=pkgCfg().order.filter(function(x){return x&&state.ingredients[x[0]]&&+x[1]>0;}),t=state.tables&&state.tables[tb];L.forEach(function(x){addStockAt(x[0],curLoc(),-(+x[1]),'ບັນຈຸພັນ (ຕໍ່ອໍເດີ)','ກັບບ້ານ · ໂຕະ '+(tb||''));if(t)t.pkO=(t.pkO||[]).concat([[x[0],+x[1]]]);});}
+/* ບັນຈຸພັນຕໍ່ອໍເດີ (ຖົງ) ທີ່ຕັດໄປແລ້ວຂອງໂຕະ: ຄືນເມື່ອຍົກເລີກ · ຍ້າຍໄປກັບບິນເມື່ອຮັບເງິນ (Void ຄືນໄດ້ · ຄິດເຂົ້າຕົ້ນທຶນບິນ) */
+function pkoCost(L){return (L||[]).reduce(function(s,x){var g=state.ingredients[x[0]];return s+(g?(+g.cost||0)*(+x[1]||0):0);},0);}
+function pkoToBill(t,b){if(!t||!(t.pkO||[]).length)return;b.pkO=t.pkO;b.cogs=Math.round(((+b.cogs||0)+pkoCost(t.pkO))*100)/100;t.pkO=null;}
+function pkoReturn(L,loc,reason,ref){(L||[]).forEach(function(x){if(state.ingredients[x[0]]&&+x[1]>0)addStockAt(x[0],loc||curLoc(),+x[1],reason,ref);});}
 function pkgTxt(L){return (L||[]).filter(function(x){return x&&x[0];}).map(function(x){var it=state.ingredients[x[0]];return cesc(it?it.name:x[0])+(+x[1]!==1?' ×'+x[1]:'');}).join(' · ');}
 function pkgCost(L){return (L||[]).reduce(function(s,x){var it=state.ingredients[x&&x[0]];return s+((it&&+it.cost)||0)*(+x[1]||0);},0);}
 function setSecPkgCard(){var c=pkgCfg(),row=function(k,t,h){var L=c[k];return sRow(t,h+(L.length&&pkgCost(L)?' · ຕົ້ນທຶນ ~'+KIP(Math.round(pkgCost(L)))+' ₭':''),'<div class="pk-sum">'+(L.length?pkgTxt(L):'<span class="pk-none">ຍັງບໍ່ໄດ້ຕັ້ງ</span>')+'</div>'+sBtn('ແກ້','pkgEdit(\''+k+'\')','sm'));};
@@ -6256,6 +6261,7 @@ function doVoidBill(rno){var b=(state.bills||[]).find(function(x){return x.recei
  var rsn=(document.getElementById('vd_rsn').value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
  var retStk=(document.getElementById('vd_stk')||{}).checked;if(b.deposit&&b.resvId){var _rr=rvFind(b.resvId);if(_rr&&_rr.dep)_rr.dep.voided=true;}
  if(retStk)(b.items||[]).forEach(function(line){lineBomOf(line).forEach(function(bm){if(state.ingredients[bm[0]])addStockAt(bm[0],b.loc||curLoc(),bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);});});
+ if(retStk)pkoReturn(b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ',rno+' ບັນຈຸພັນຕໍ່ອໍເດີ');
  b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();
  var memMsg=billMemberReverse(b,1,rno+' Void');
  (b.items||[]).forEach(function(line){logCancel('Void ບິນ',line.code,line.name,line.qty,lineTotal(line),b.table,rno+' — '+rsn);});
