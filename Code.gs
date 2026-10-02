@@ -156,12 +156,14 @@ function mergeStock_(curStr, inc) {
     if (Array.isArray(cur.stockLog) && cur.stockLog.length && Array.isArray(inc.stockLog)) {
       var lk = function (l) { return l.ts + '|' + l.code + '|' + l.delta + '|' + (l.loc || '') + '|' + (l.reason || ''); };
       var have0 = {}, minTs = Infinity; cur.stockLog.forEach(function (l) { have0[lk(l)] = 1; if ((l.ts || 0) < minTs) minTs = l.ts || 0; });
-      var dsum = {}; inc.stockLog.forEach(function (l) { if (!l || have0[lk(l)] || (l.ts || 0) < minTs) return; if ((l.loc || src) !== src) return; dsum[l.code] = (dsum[l.code] || 0) + (+l.delta || 0); });
+      var dsum = {}, dsx = {}; inc.stockLog.forEach(function (l) { if (!l || have0[lk(l)] || (l.ts || 0) < minTs) return; var lc = l.loc || src; if (lc !== src) { if (l.uc) { if (!dsx[l.code]) dsx[l.code] = {}; dsx[l.code][lc] = (dsx[l.code][lc] || 0) + (+l.delta || 0); } return; } dsum[l.code] = (dsum[l.code] || 0) + (+l.delta || 0); });
       Object.keys(incIng).forEach(function (code) {
         var ci = curIng[code], ii = incIng[code]; if (!ci || !ci.locs || ci.locs[src] === undefined || !ii) return;
         if (!ii.locs) ii.locs = {};
         ii.locs[src] = Math.round(((+ci.locs[src] || 0) + (dsum[code] || 0)) * 1000) / 1000;
       });
+      /* ປ່ຽນຫົວໜ່ວຍ (log.uc): ແປງສະຕ໋ອກທຸກບ່ອນເກັບ ບໍ່ສະເພາະບ່ອນຂອງເຄື່ອງນີ້ */
+      Object.keys(dsx).forEach(function (code) { var ci = curIng[code], ii = incIng[code]; if (!ci || !ci.locs || !ii) return; if (!ii.locs) ii.locs = {}; Object.keys(dsx[code]).forEach(function (lc) { ii.locs[lc] = Math.round(((+ci.locs[lc] || 0) + dsx[code][lc]) * 1000) / 1000; }); });
       inc.__stkDelta = 1;
     }
     if (Array.isArray(cur.stockLog)) {                   /* ລວມ ledger ຂ້າມບ່ອນ (ກັນເສຍ log) */

@@ -1682,6 +1682,11 @@ body.cc-lock{overflow:hidden}
 .pk-r .pk-i{grid-area:i;font-size:12px;color:var(--muted);font-weight:700}.pk-r input:first-of-type{grid-area:c}.pk-r input[type=number]{grid-area:q}.pk-r .pk-n{grid-area:n;font-size:12px;color:var(--muted)}.pk-r .mg-del{grid-area:x}.pk-r input{margin:0!important;height:40px}
 .pk-acts{display:flex;gap:8px}.pk-acts .mg-addr{flex:1;margin-top:0}.pk-new{border-color:#c4b5fd!important;color:#5b21b6!important}
 .me-pk{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.me-pk select{width:100%;margin:0}
+.iu-row{display:flex;align-items:center;gap:12px;background:#f3f9f8;border-radius:14px;padding:10px 12px;margin-bottom:12px}.iu-row.warn{background:#fff6e8;box-shadow:inset 0 0 0 1.5px #f3c67a}
+.iu-t{flex:1;min-width:0}.iu-t span{display:block;font-size:12px;color:var(--muted)}.iu-t b{font-size:17px}.iu-t small{display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}.iu-row.warn .iu-t small{color:#9a5b00}
+.iu-btn{border:0;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:13px;border-radius:10px;padding:8px 12px;box-shadow:var(--sh-1);cursor:pointer;white-space:nowrap}
+.uc-hint{display:block;color:var(--muted);font-size:12px;margin-top:4px}.uc-pv{margin-top:12px;background:#f8fbfb;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.8}.uc-pv b{color:#0A5E5B}.uc-pv .w{color:#9a5b00;font-size:12px}
+.sk-upk{font-style:normal;color:#9a5b00;background:#fff3dc;border-radius:6px;padding:0 5px;font-size:11px;margin-left:5px}
 </style>
 </head>
 <body>
@@ -3081,7 +3086,7 @@ function renderStockList(R){var all=Object.values(state.ingredients||{});const c
    '<button class="chip sk-lowchip'+(stockLow?' active':'')+'" onclick="stockLow=!stockLow;render()">ຕ້ອງສັ່ງຊື້ ('+nLow+')</button></div></div>'+
   '<div class="sk-wrap"><table class="tbl sk-tbl"><thead><tr><th>ລາຍການ</th><th class="r">ຄົງເຫຼືອ</th><th class="r">ຈຸດສັ່ງຊື້</th><th class="r">ຕົ້ນທຶນ / ໜ່ວຍ</th><th>ສະຖານະ</th>'+(ed?'<th class="r">ຈັດການ</th>':'')+'</tr></thead><tbody>'+
    (ings.length?ings.map(function(i){var sv=stockAt(i.code,stockViewLoc),lw=sv<=(+i.reorder||0),k=sKX(i.code),u=cesc(i.unit||'');
-    return '<tr class="'+(lw?'low':'')+'"><td><div class="sk-it">'+ingThumb(i.code,40,true)+'<div><b>'+cesc(i.name||i.code)+'</b><small>'+cesc(i.code)+' · '+cesc(i.cat||'ວັດຖຸດິບ')+'</small></div></div></td>'+
+    return '<tr class="'+(lw?'low':'')+'"><td><div class="sk-it">'+ingThumb(i.code,40,true)+'<div><b>'+cesc(i.name||i.code)+'</b><small>'+cesc(i.code)+' · '+cesc(i.cat||'ວັດຖຸດິບ')+(unitIsPack(i.unit)?'<i class="sk-upk" title="ຫົວໜ່ວຍບັນຈຸ — ກົດ ແກ້ໄຂ › ປ່ຽນຫົວໜ່ວຍ">⚠ '+u+'</i>':'')+'</small></div></div></td>'+
      '<td class="r" data-l="ຄົງເຫຼືອ"><b class="sk-qty">'+KIP(sv)+'</b> <small>'+u+'</small></td><td class="r" data-l="ຈຸດສັ່ງຊື້">'+KIP(+i.reorder||0)+' <small>'+u+'</small></td>'+
      '<td class="r" data-l="ຕົ້ນທຶນ">'+(+i.cost>0?KIP(i.cost)+' <small>₭/'+u+'</small>':'<span class="sk-miss">ຍັງບໍ່ໃສ່</span>')+'</td>'+
      '<td class="sk-st">'+(lw?'<span class="tag warn">ຕ້ອງສັ່ງຊື້</span>':'<span class="tag ok">ປົກກະຕິ</span>')+'</td>'+
@@ -3093,7 +3098,7 @@ function ingEdit(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ')
  try{row=stockAnalysis(stockViewLoc).rows.find(function(r){return r.code===code;});}catch(e){}
  var lead=row&&row.meta?row.meta.lead:1,sug=row&&row.avg>0&&isFinite(row.avg)?Math.ceil(row.avg*(lead+2)):0,q=String(code).replace(/'/g,"\\'");
  openModal('<h2>ແກ້ໄຂ — '+cesc(it.name||code)+'</h2><p class="ie-sub">'+cesc(code)+' · ຄົງເຫຼືອ <b>'+KIP(stockAt(code,stockViewLoc))+' '+u+'</b>'+(row&&row.avg>0&&isFinite(row.avg)?' · ໃຊ້ປະມານ '+fmtQ(row.avg,it.unit)+' / ມື້':'')+'</p>'+
-  '<div class="ie-grid"><div class="ie-f"><label for="ie_cost">ຕົ້ນທຶນ / ໜ່ວຍ</label><div class="ie-in"><input id="ie_cost" type="number" inputmode="decimal" min="0" value="'+(+it.cost||'')+'" placeholder="0"><span>ກີບ / '+u+'</span></div><small>ໃຊ້ຄິດຕົ້ນທຶນອາຫານ ແລະ ກຳໄລ</small></div>'+
+  unitRowHTML(code)+'<div class="ie-grid"><div class="ie-f"><label for="ie_cost">ຕົ້ນທຶນ / ໜ່ວຍ</label><div class="ie-in"><input id="ie_cost" type="number" inputmode="decimal" min="0" value="'+(+it.cost||'')+'" placeholder="0"><span>ກີບ / '+u+'</span></div><small>ໃຊ້ຄິດຕົ້ນທຶນອາຫານ ແລະ ກຳໄລ</small></div>'+
   '<div class="ie-f"><label for="ie_re">ຈຸດສັ່ງຊື້</label><div class="ie-in"><input id="ie_re" type="number" inputmode="decimal" min="0" value="'+(+it.reorder||0)+'"><span>'+u+'</span></div><small>ຄົງເຫຼືອ ≤ ຈຸດນີ້ → ຂຶ້ນ "ຕ້ອງສັ່ງຊື້"</small>'+
    (sug?'<button type="button" class="ie-sug" onclick="document.getElementById(\'ie_re\').value='+sug+'">ໃຊ້ຄ່າແນະນຳ '+KIP(sug)+' '+u+'<small>ການໃຊ້ '+(lead+2)+' ມື້ (ສົ່ງ '+lead+' + ສຳຮອງ 2)</small></button>':'')+'</div></div>'+
   (ap?'':'<div class="ie-rsn"><label for="ie_rsn">ເຫດຜົນ (ຖ້າປ່ຽນຕົ້ນທຶນ)</label><input id="ie_rsn" placeholder="ເຊັ່ນ ລາຄາຜູ້ສະໜອງຂຶ້ນ"><div class="sa-note">🔒 ການປ່ຽນຕົ້ນທຶນ ຈະສົ່ງໃຫ້ຜູ້ຈັດການອະນຸມັດກ່ອນ · ຈຸດສັ່ງຊື້ ບັນທຶກທັນທີ</div></div>')+
@@ -3109,6 +3114,49 @@ function ingEditSave(code){var it=state.ingredients[code];if(!it)return;var cv=d
  if(rChg){it.reorder=nr;logOrder('ແກ້ຈຸດສັ່ງຊື້',it.name+' '+KIP(or)+' → '+KIP(nr)+' '+(it.unit||''),'');msg.push('ຈຸດສັ່ງຊື້ '+KIP(nr));}
  if(cChg){it.cost=nc;logOrder('ແກ້ຕົ້ນທຶນ',it.name+' '+KIP(oc)+' → '+KIP(nc)+' ₭/'+(it.unit||''),'');msg.push('ຕົ້ນທຶນ '+KIP(nc)+' ₭');}
  save();closeModal();render();toast('ບັນທຶກແລ້ວ: '+cesc(it.name)+' · '+msg.join(' · '));}
+/* ===== ຫົວໜ່ວຍມາດຕະຖານ — ສະຕ໋ອກ ຮັບເຂົ້າ ນັບ ເບີກ ແລະ ສູດ ໃຊ້ຫົວໜ່ວຍດຽວກັນ (g / ml / ອັນ ...) ===== */
+var STD_UNITS=[['g','g — ກຣາມ (ຂອງແຫ້ງ ຊັ່ງນ້ຳໜັກ)'],['ml','ml — ມິລລິລິດ (ຂອງແຫຼວ)'],['ອັນ','ອັນ — ນັບເປັນຊິ້ນ (ກ່ອງ ຈອກ ຝາ ຖົງ ...)'],['ຂວດ','ຂວດ'],['ກະປ໋ອງ','ກະປ໋ອງ'],['ຟອງ','ຟອງ (ໄຂ່)'],['ແຜ່ນ','ແຜ່ນ'],['ໃບ','ໃບ']];
+var PACK_U=/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ|l|lt|ລິດ|ແພັກ|ແພກ|ແພັກ|pack|pk|ກ່ອງ|box|ແກັດ|ລັງ|ໂຫຼ|ໂຫລ|ມັດ|ຫໍ່|ຖັງ|ກະສອບ|ແກລອນ|ແກເລີນ)$/i;
+function unitIsPack(u){return PACK_U.test(String(u||'').trim());}
+function unitSel(id,cur,on,noCur){var has=STD_UNITS.some(function(u){return u[0]===cur;});
+ return '<select id="'+id+'"'+(on?' onchange="'+on+'"':'')+'>'+(cur&&!has&&!noCur?'<option value="'+aesc(cur)+'" selected>'+cesc(cur)+' (ປັດຈຸບັນ)</option>':'')+STD_UNITS.map(function(u){return '<option value="'+u[0]+'"'+(u[0]===cur?' selected':'')+'>'+cesc(u[1])+'</option>';}).join('')+'</select>';}
+function unitRowHTML(code){var it=state.ingredients[code]||{},u=it.unit||'',pk=unitIsPack(u),q=String(code).replace(/'/g,"\\'");
+ return '<div class="iu-row'+(pk?' warn':'')+'"><div class="iu-t"><span>ຫົວໜ່ວຍສະຕ໋ອກ</span><b>'+cesc(u||'—')+'</b><small>'+(pk?'⚠ ເປັນຫົວໜ່ວຍບັນຈຸ — ສູດຕັດເປັນ g / ml / ອັນ ຈະບໍ່ກົງກັນ. ຄວນປ່ຽນເປັນຫົວໜ່ວຍນ້ອຍສຸດທີ່ໃຊ້ໃນສູດ':'ຮັບເຂົ້າ · ນັບ · ເບີກ · ສູດ ໃຊ້ຫົວໜ່ວຍນີ້ທັງໝົດ')+'</small></div>'+
+  (can('stockApprove')?'<button type="button" class="iu-btn" onclick="unitConv(\''+q+'\')">ປ່ຽນຫົວໜ່ວຍ</button>':'')+'</div>';}
+function unitGuess(ou,nu){ou=String(ou||'').trim().toLowerCase();if(/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ)$/.test(ou)&&nu==='g')return 1000;if(/^(l|lt|ລິດ)$/.test(ou)&&nu==='ml')return 1000;return '';}
+function unitUses(code){var m=0,pk=0,tp=0,has=function(L){return (L||[]).some(function(x){return x&&x[0]===code;});};
+ allMenu().forEach(function(p){if(has(p.bom))m++;if(has(p.pk))pk++;});var P=state.pkg||{};['food','drink','order'].forEach(function(k){if(has(P[k]))pk++;});
+ (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code)tp++;if(o.pc===code)pk++;});});return {m:m,pk:pk,tp:tp};}
+function unitConv(code){if(!can('stockApprove')){toast('ປ່ຽນຫົວໜ່ວຍໄດ້ສະເພາະຜູ້ອະນຸມັດສະຕ໋ອກ');return;}var it=state.ingredients[code];if(!it)return;
+ var ou=it.unit||'',nu=/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ)$/i.test(ou)?'g':/^(l|lt|ລິດ)$/i.test(ou)?'ml':(ou==='ອັນ'?'g':'ອັນ'),q=String(code).replace(/'/g,"\\'");
+ openModal('<h2>ປ່ຽນຫົວໜ່ວຍ — '+cesc(it.name||code)+'</h2><p class="ie-sub">'+cesc(code)+' · ປັດຈຸບັນ <b>'+cesc(ou||'—')+'</b></p>'+
+  '<label for="uc_u">ຫົວໜ່ວຍໃໝ່ (ໃຫ້ກົງກັບສູດ)</label>'+unitSel('uc_u',nu,"document.getElementById('uc_f').value=unitGuess('"+aesc(ou).replace(/'/g,"\\'")+"',this.value);ucPv('"+q+"')",true)+
+  '<label for="uc_f">ແປງ</label><div class="ie-in"><span>1 '+cesc(ou||'ໜ່ວຍເກົ່າ')+' =</span><input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+unitGuess(ou,nu)+'" placeholder="?" oninput="ucPv(\''+q+'\')"><span id="uc_ul">'+cesc(nu)+'</span></div>'+
+  '<small class="uc-hint">ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າຂອງນັບເປັນ ອັນ ຢູ່ແລ້ວ ແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ → ໃສ່ 1</small>'+
+  '<div id="uc_pv" class="uc-pv"></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="ingEdit(\''+q+'\')">ກັບຄືນ</button><button class="btn-ok grad" onclick="unitConvApply(\''+q+'\')">ປ່ຽນຫົວໜ່ວຍ</button></div>');
+ ucPv(code);setTimeout(function(){var e=document.getElementById('uc_f');if(e&&!e.value)e.focus();},60);}
+function ucPv(code){var it=state.ingredients[code],el=document.getElementById('uc_pv');if(!it||!el)return;var nu=document.getElementById('uc_u').value,f=+document.getElementById('uc_f').value,ou=it.unit||'';
+ var ul=document.getElementById('uc_ul');if(ul)ul.textContent=nu;ensLocs(it);var tot=Object.keys(it.locs).reduce(function(s,l){return s+(+it.locs[l]||0);},0),U=unitUses(code);
+ if(!(f>0)){el.innerHTML='<span class="w">ໃສ່ຈຳນວນ: 1 '+cesc(ou)+' ເທົ່າກັບຈັກ '+cesc(nu)+'</span>';return;}
+ var r2=function(v){return KIP(Math.round(v*100)/100);};
+ el.innerHTML='ສະຕ໋ອກ (ທຸກບ່ອນເກັບ) <b>'+r2(tot)+' '+cesc(ou)+'</b> → <b>'+r2(tot*f)+' '+cesc(nu)+'</b><br>'+
+  (+it.cost>0?'ຕົ້ນທຶນ <b>'+r2(+it.cost)+' ₭/'+cesc(ou)+'</b> → <b>'+r2(it.cost/f)+' ₭/'+cesc(nu)+'</b><br>':'')+
+  (+it.reorder>0?'ຈຸດສັ່ງຊື້ '+r2(+it.reorder)+' → '+r2(it.reorder*f)+' '+cesc(nu)+'<br>':'')+
+  ((U.m||U.pk||U.tp)?'ຈຳນວນຕັດໃນ'+(U.m?' ສູດ '+U.m+' ເມນູ':'')+(U.pk?' · ບັນຈຸພັນ '+U.pk+' ຈຸດ':'')+(U.tp?' · Topping '+U.tp:'')+' ຈະ ×'+r2(f)+' ໃຫ້ອັດຕະໂນມັດ (ຕົ້ນທຶນເມນູເທົ່າເກົ່າ)<br>':'')+
+  '<span class="w">ປະຫວັດເກົ່າຍັງເປັນຫົວໜ່ວຍເດີມ · ໃບຈັດຊື້/ໂອນ/ເບີກ ທີ່ຍັງຄ້າງ ໃຫ້ກວດຈຳນວນຄືນ</span>';}
+function unitConvApply(code){if(!can('stockApprove')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];if(!it)return;
+ var nu=(document.getElementById('uc_u').value||'').trim(),f=+document.getElementById('uc_f').value,ou=it.unit||'';
+ if(!nu){toast('ເລືອກຫົວໜ່ວຍ');return;}if(!(f>0)){toast('ໃສ່ຈຳນວນ 1 '+ou+' = ? '+nu);return;}if(nu===ou&&f===1){ingEdit(code);return;}
+ var R=function(v){return Math.round(v*10000)/10000;},n=0;it.unit=nu;ensLocs(it);
+ if(f!==1){Object.keys(it.locs).forEach(function(l){var o=+it.locs[l]||0;if(!o)return;var d=Math.round((Math.round(o*f*100)/100-o)*100)/100;it.locs[l]=R(o+d);if(l===curLoc())it.stock=it.locs[l];
+   logStock(code,d,'ປ່ຽນຫົວໜ່ວຍ','1 '+ou+' = '+f+' '+nu+' ['+locName(l)+']',l);var lg=state.stockLog[state.stockLog.length-1];if(lg&&lg.code===code)lg.uc=1;});
+  if(+it.cost>0)it.cost=R(it.cost/f);if(+it.reorder>0)it.reorder=Math.round(it.reorder*f*100)/100;
+  var sc=function(L){(L||[]).forEach(function(x){if(x&&x[0]===code){x[1]=R((+x[1]||0)*f);n++;}});};
+  allMenu().forEach(function(p){sc(p.bom);sc(p.pk);});var P=state.pkg||{};['food','drink','order'].forEach(function(k){sc(P[k]);});
+  (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code&&+o.iq>0){o.iq=R(o.iq*f);n++;}});});}
+ logOrder('ປ່ຽນຫົວໜ່ວຍ',(it.name||code)+': 1 '+ou+' = '+f+' '+nu+(n?' · ແປງຈຳນວນຕັດ '+n+' ຈຸດ':''),'');
+ save();render();ingEdit(code);toast('ປ່ຽນເປັນ '+nu+' ແລ້ວ'+(n?' · ແປງສູດ/ບັນຈຸພັນ '+n+' ຈຸດ':''));}
 
 /* ===== ແຜນຈັດຊື້ອັດຕະໂນມັດ + ວິເຄາະການໃຊ້ວັດຖຸດິບ =====
    ການໃຊ້ຕໍ່ມື້ = ບິນຂາຍຈິງ 14 ມື້ຫຼ້າສຸດ × ສູດ (ຫັກ void/ຄືນເງິນ) — ບໍ່ອີງ stockLog (ມີເພດານ)
@@ -3275,20 +3323,21 @@ function exportStockLog(){loadXLSX(function(err){if(err||!window.XLSX){toast('�
  var rows=logs.map(function(l){return {'ວັນທີ':ymd(l.ts),'ເວລາ':new Date(l.ts).toLocaleTimeString('en-GB'),'ບ່ອນເກັບ':l.locName||l.loc||'','ລະຫັດ':l.code,'ຊື່':l.name,'ຈຳນວນ(+/-)':l.delta,'ຫົວໜ່ວຍ':l.unit,'ຄົງເຫຼືອຫຼັງ':l.after!=null?l.after:'','ເຫດຜົນ':l.reason,'ອ້າງອີງ':l.ref||'','ໂດຍ(ກະ-ຜູ້ໃຊ້)':l.by||''};});
  var ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ເຄື່ອນໄຫວສະຕ໋ອກ');XLSX.writeFile(wb,'ເຄື່ອນໄຫວສະຕ໋ອກ_'+ymd(Date.now())+'.xlsx');toast('Export ສຳເລັດ');});}
 /* ===== ກວດສູດຕັດສະຕ໋ອກ (BOM audit) ===== */
-function bomAudit(){var noBom=[],badIng=[],badQty=[],numUnit=[];
+function bomAudit(){var noBom=[],badIng=[],badQty=[],numUnit=[],packU=[];
  allMenu().forEach(function(p){
   if(!p.bom||!p.bom.length){noBom.push(p);return;}
   p.bom.forEach(function(b){
    if(!state.ingredients[b[0]])badIng.push({menu:p,ing:b[0]});
    if(!(+b[1]>0))badQty.push({menu:p,ing:b[0],q:b[1]});});});
- Object.values(state.ingredients).forEach(function(i){if(/^[\d.]+$/.test(String(i.unit||'').trim()))numUnit.push(i);});
- return {noBom:noBom,badIng:badIng,badQty:badQty,numUnit:numUnit};}
+ Object.values(state.ingredients).forEach(function(i){if(/^[\d.]+$/.test(String(i.unit||'').trim()))numUnit.push(i);if(unitIsPack(i.unit))packU.push(i);});
+ return {noBom:noBom,badIng:badIng,badQty:badQty,numUnit:numUnit,packU:packU};}
 function showBomAudit(){var a=bomAudit();var n=allMenu().length;
  function sec(title,arr,fmt,cls){return '<div class="lbl" style="font-weight:700;margin:10px 0 4px">'+title+' — <b style="color:'+(arr.length?'var(--red)':'var(--green)')+'">'+arr.length+'</b></div>'+(arr.length?'<div style="max-height:130px;overflow:auto;font-size:12px;line-height:1.8;background:#f8fafc;border-radius:8px;padding:8px">'+arr.slice(0,80).map(fmt).join('<br>')+(arr.length>80?'<br>… ອີກ '+(arr.length-80)+' ລາຍການ':'')+'</div>':'');}
  openModal('<h2> ກວດສູດຕັດສະຕ໋ອກ</h2><p style="font-size:13px;text-align:center;color:var(--muted)">ເມນູທັງໝົດ '+n+' · ມີສູດ '+(n-a.noBom.length)+'</p>'+
   sec('ເມນູທີ່ບໍ່ມີສູດ (ຂາຍແລ້ວບໍ່ຕັດສະຕ໋ອກ)',a.noBom,function(p){return cesc(p.c)+' — '+cesc(p.n);})+
   sec('ສູດຊີ້ຫາລະຫັດວັດຖຸດິບທີ່ບໍ່ມີ (ຈະບໍ່ຕັດ)',a.badIng,function(x){return cesc(x.menu.c)+' ('+cesc(x.menu.n)+') → <b>'+cesc(x.ing)+'</b>';})+
   sec('ຈຳນວນຕັດ ≤ 0',a.badQty,function(x){return cesc(x.menu.c)+' → '+cesc(x.ing)+' = '+cesc(String(x.q));})+
+  sec('ຫົວໜ່ວຍບັນຈຸ (ແພັກ / ກ່ອງ / kg ...) — ຄວນປ່ຽນເປັນ g / ml / ອັນ ໃຫ້ກົງກັບສູດ',a.packU,function(i){return cesc(i.code)+' — '+cesc(i.name)+' (<b>'+cesc(String(i.unit))+'</b>) <a href="#" onclick="event.preventDefault();ingEdit(\''+String(i.code).replace(/'/g,'')+'\')">ແກ້</a>';})+
   sec('ວັດຖຸດິບທີ່ຫົວໜ່ວຍເປັນຕົວເລກ (ຄວນແກ້ເປັນ ອັນ/ຊອງ/ແກັດ...)',a.numUnit,function(i){return cesc(i.code)+' — '+cesc(i.name)+' (ຫົວໜ່ວຍ: '+cesc(String(i.unit))+')';})+
   ((a.noBom.length||a.badIng.length||a.badQty.length)?'':'<div style="text-align:center;color:var(--green);font-weight:700;margin-top:10px"> ສູດຄົບຖ້ວນ — ທຸກເມນູຕັດສະຕ໋ອກໄດ້ຖືກຕ້ອງ</div>')+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" onclick="showBomViewer()"> ເບິ່ງສູດແຕ່ລະເມນູ</button></div>');}
@@ -3362,7 +3411,7 @@ function doAddStock(code){const q=+document.getElementById('qty').value||0;const
  if(cost>0&&q>0)it.cost=Math.round((cost/q)*100)/100;
  if(cost>0){if(!Array.isArray(state.expenses))state.expenses=[];state.expenses.push({id:Date.now()+Math.random(),ts:Date.now(),cat:EXP_CATS[0],note:'ຊື້ '+it.name+' '+KIP(q)+' '+it.unit,amount:cost,by:whoBy()});}
  save();closeModal();render();showSuccess('ຮັບສະຕ໋ອກສຳເລັດ!',it.name+' +'+KIP(q)+' '+it.unit+(cost>0?'  ບັນທຶກລາຍຈ່າຍ '+KIP(cost)+' ກີບ':''));}
-function addIngredient(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}openModal(`<h2> ເພີ່ມວັດຖຸດິບໃໝ່</h2><label>ລະຫັດ (ຫ້າມຊ້ຳ)</label><input id="ic" placeholder="ເຊັ່ນ HONEY"><label>ຊື່</label><input id="inm" placeholder="ນ້ຳເຜິ້ງ"><label>ຫົວໜ່ວຍ</label><input id="iu" value="g"><label>ສະຕ໋ອກເລີ່ມຕົ້ນ</label><input id="ist" type="number" value="1000"><label>ຈຸດສັ່ງຊື້</label><input id="ir" type="number" value="200"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddIngredient()">ເພີ່ມ</button></div>`);}
+function addIngredient(){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ');return;}openModal(`<h2> ເພີ່ມວັດຖຸດິບໃໝ່</h2><label>ລະຫັດ (ຫ້າມຊ້ຳ)</label><input id="ic" placeholder="ເຊັ່ນ HONEY"><label>ຊື່</label><input id="inm" placeholder="ນ້ຳເຜິ້ງ"><label>ຫົວໜ່ວຍ (ໃຫ້ກົງກັບສູດ — ຮັບເຂົ້າ ແລະ ນັບ ກໍໃຊ້ຫົວໜ່ວຍນີ້)</label>${unitSel('iu','g')}<label>ສະຕ໋ອກເລີ່ມຕົ້ນ</label><input id="ist" type="number" value="1000"><label>ຈຸດສັ່ງຊື້</label><input id="ir" type="number" value="200"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddIngredient()">ເພີ່ມ</button></div>`);}
 function doAddIngredient(){const c=(document.getElementById('ic').value||'').trim().toUpperCase();if(!c){toast('ໃສ່ລະຫັດ');return;}if(state.ingredients[c]){toast('ລະຫັດຊ້ຳ');return;}
  var init=+document.getElementById('ist').value||0;var lc=stockViewLoc||curLoc();
  state.ingredients[c]={addTs:Date.now(),code:c,name:document.getElementById('inm').value||c,unit:document.getElementById('iu').value||'g',reorder:+document.getElementById('ir').value||0,locs:(init?{[lc]:init}:{})};
