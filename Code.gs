@@ -363,11 +363,12 @@ function qrSoldOut_(st) {
 /* ຂະໜາດ & Topping: ລາຄາ/ສູດ ຈາກກຸ່ມທີ່ໃຊ້ກັບເມນູນີ້ເທົ່ານັ້ນ (ກັນຊື່ຊ້ຳຂ້າມກຸ່ມ) */
 function mgApplies_(g, def) { if (g.scope === 'items') return (g.codes || []).indexOf(def.c) >= 0; return !g.scope || g.scope === 'all' || g.scope === def.k; }
 function modInfo_(st, def, mods) {
+  var mo = st.modules || {}; if (mo.opts === false) { var st2 = {}; for (var kk in st) st2[kk] = st[kk]; st2.modGroups = []; st = st2; }
   var pick = {}; mods.forEach(function (m) { pick[m] = 1; }); var price = 0, bm = 1, xb = [];
   (st.modGroups || []).forEach(function (g) { if (!mgApplies_(g, def)) return; var t = g.type || (g.multi ? 'topping' : 'choice');
     (g.opts || []).forEach(function (o) { if (!o || o.n == null || !pick[String(o.n)]) return; var own = def.op && def.op[g.id]; price += (own && own[o.n] != null && own[o.n] !== '') ? +own[o.n] : (+o.p || 0); if (t === 'size' && +o.bm > 0) bm *= +o.bm; if (o.ing && +o.iq > 0) xb.push([o.ing, +o.iq]); }); });
   var pk = [];
-  if (mods.indexOf('ກັບບ້ານ') >= 0) { /* ບັນຈຸພັນກັບບ້ານ: ເມນູກຳນົດເອງ > ຕາມປະເພດ · ຂະໜາດປ່ຽນພາຊະນະຫຼັກໄດ້ */
+  if (mods.indexOf('ກັບບ້ານ') >= 0 && mo.pkg !== false) { /* ບັນຈຸພັນກັບບ້ານ: ເມນູກຳນົດເອງ > ຕາມປະເພດ · ຂະໜາດປ່ຽນພາຊະນະຫຼັກໄດ້ */
     var cfg = st.pkg || {}; pk = (Array.isArray(def.pk) ? def.pk : (cfg[def.k === 'drink' ? 'drink' : 'food'] || [])).filter(function (x) { return x && x[0] && +x[1] > 0; }).map(function (x) { return [x[0], +x[1]]; });
     (st.modGroups || []).forEach(function (g) { var t = g.type || (g.multi ? 'topping' : 'choice'); if (t !== 'size' || !mgApplies_(g, def)) return; (g.opts || []).forEach(function (o) { if (o.pc && pick[String(o.n)]) { var cq = +o.pcq > 0 ? +o.pcq : 1; if (pk.length) pk[0] = [o.pc, cq]; else pk.push([o.pc, cq]); } }); });
     pk = pk.filter(function (x) { return st.ingredients && st.ingredients[x[0]]; });
@@ -377,7 +378,7 @@ function modInfo_(st, def, mods) {
 function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).concat(line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
 function custFilter_(st, table) {
   var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
-    soldOut: qrSoldOut_(st), modGroups: st.modGroups || [], serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
+    soldOut: qrSoldOut_(st), modGroups: (st.modules && st.modules.opts === false) ? [] : (st.modGroups || []), serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
     billDiscPct: st.billDiscPct || 0, qrGlobal: st.qrGlobal, qrPinRequired: st.qrPinRequired,
     qrExpires: st.qrExpires, chatOn: !(st.modules && st.modules.chat === false), activeTable: table, orderNo: st.orderNo || 1, tables: {}, qr: {}, orders: [], _v: st._v || 0 };
   var t = (st.tables || {})[table];
