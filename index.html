@@ -1721,6 +1721,9 @@ body.cc-lock{overflow:hidden}
 .xp4 .a4t th{padding:5px 5px}.xp4 .a4t td{padding:4px 5px;line-height:1.35}.xp4 .a4t tr:nth-child(even) td{background:#f8fafb}.xp4 .a4t tr.xp-void td{color:#9aa6a4;text-decoration:line-through}.xp4 .a4t tr.xp-sum td{border-top:1.5px solid #1D3F6E;background:#eef3f8;font-weight:800;text-decoration:none;color:#1c2b2a}
 .xp4m{font-size:10px;color:#6a7b78;margin:8px 0 10px}
 .a4p,.a4p *,.pdf-box,.pdf-box *{font-variant-numeric:normal!important;font-feature-settings:normal!important;letter-spacing:normal}
+.su-card{background:rgba(255,255,255,.14);border-radius:16px;padding:14px 18px;max-width:360px;text-align:center;line-height:1.6}.su-card b{font-size:16px}.su-card p{margin:6px 0;font-size:14px}.su-card small{display:block;font-size:12px;opacity:.85}
+.su-adm{background:none;border:0;color:inherit;opacity:.75;text-decoration:underline;font:inherit;font-size:12.5px;cursor:pointer;margin-top:6px}
+.sl-url{font-size:11.5px;color:var(--muted);word-break:break-all;background:#f4f8f8;border-radius:10px;padding:8px 10px;margin:8px 0;text-align:left}.sl-acts{display:flex;gap:8px;justify-content:center}
 </style>
 </head>
 <body>
@@ -1828,7 +1831,8 @@ const HAS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
    2) ລູກຄ້າ QR: URL ຕິດມາໃນລິ້ງ QR ເອງ (&api=...) ທີ່ພະນັກງານສ້າງ */
 const API_DEFAULT='';
 const API_QP=(function(){try{var m=/[?&]api=([^&#]+)/.exec(location.search);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}})();
-if(API_QP){try{localStorage.setItem('stpos_api',API_QP);}catch(e){}}
+if(API_QP){try{localStorage.setItem('stpos_api',API_QP);}catch(e){}
+ try{if(!/[?&]table=/.test(location.search)&&history.replaceState){var _q=location.search.replace(/[?&]api=[^&#]*/,'').replace(/^&/,'?');history.replaceState(null,'',location.pathname+(_q==='?'?'':_q)+location.hash);}}catch(e){}}
 const API_URL=(API_QP||((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_api'))||API_DEFAULT)).trim();
 const HAS_API=(!HAS_GAS && !!API_URL);
 const TOKEN=(((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_token'))||'')+'').trim();
@@ -1989,13 +1993,24 @@ function saveWatch(){if(!HAS_API||_svChk||!window.__sentV||_offline)return;if(Da
   _svFail++;setSaveWarn(true);_doSaveApi();},20000);}
 function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.classList.remove('hidden');
  if(getQ('table')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:15px;max-width:340px;text-align:center;line-height:1.7">QR ນີ້ໝົດອາຍຸ ຫຼື ບໍ່ສົມບູນ<br>ກະລຸນາຂໍລະຫັດ QR ໃໝ່ຈາກພະນັກງານ</div>';return;}
- b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:360px;text-align:center;line-height:1.7">ຕັ້ງຄ່າຄັ້ງທຳອິດ — ໃສ່ລິ້ງ GAS (/exec) ຂອງຮ້ານ</div>'
-  +'<input id="apiIn" placeholder="https://script.google.com/macros/s/..../exec" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px;margin-top:4px">'
-  +'<input id="tokIn" placeholder="API Token (ຖ້າຕັ້ງໄວ້ໃນ Code.gs)" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'
-  +'<button onclick="apiSetupSave()" style="padding:11px 24px;border-radius:11px;border:none;font-weight:700;font-family:inherit;background:#0ABAB5;color:#fff;margin-top:2px">ບັນທຶກ & ເລີ່ມ</button>'
-  +'<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center;margin-top:4px">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'
-  +'<div onclick="localStorage.setItem(\'stpos_local\',\'1\');location.reload()" style="font-size:12px;color:#0A7E7A;text-decoration:underline;cursor:pointer;margin-top:8px">ໃຊ້ແບບເຄື່ອງດຽວ (ບໍ່ເຊື່ອມ server)</div>';
- var i=document.getElementById('apiIn');if(i)i.focus();}
+ b.innerHTML='<div class="lg">ST POS</div>'+
+  '<div class="su-card"><b>ເຂົ້າລະບົບຂອງຮ້ານ</b><p>ເປີດແອັບຈາກ <b>ລິ້ງ</b> ຫຼື <b>QR ເຂົ້າລະບົບ</b> ທີ່ຮ້ານສົ່ງໃຫ້ — ແອັບຈະໄປໜ້າເຂົ້າລະບົບ (PIN) ເລີຍ</p><small>ຍັງບໍ່ມີ? ຂໍຈາກຜູ້ຈັດການ: ການຕັ້ງຄ່າ › ການເຊື່ອມຕໍ່ › ລິ້ງເຂົ້າລະບົບສຳລັບພະນັກງານ</small></div>'+
+  '<button type="button" class="su-adm" onclick="var x=document.getElementById(\'suAdm\');x.style.display=x.style.display===\'none\'?\'flex\':\'none\';var i=document.getElementById(\'apiIn\');if(i)i.focus()">ຂ້ອຍເປັນຜູ້ດູແລລະບົບ — ຕັ້ງຄ່າ server ເອງ</button>'+
+  '<div id="suAdm" style="display:none;flex-direction:column;align-items:center;gap:8px">'+
+   '<input id="apiIn" placeholder="https://script.google.com/macros/s/..../exec" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'+
+   '<input id="tokIn" placeholder="API Token (ຖ້າຕັ້ງໄວ້ໃນ Code.gs)" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'+
+   '<button onclick="apiSetupSave()" style="padding:11px 24px;border-radius:11px;border:none;font-weight:700;font-family:inherit;background:#0ABAB5;color:#fff">ບັນທຶກ & ເລີ່ມ</button>'+
+   '<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'+
+   '<div onclick="localStorage.setItem(\'stpos_local\',\'1\');location.reload()" style="font-size:12px;color:#0A7E7A;text-decoration:underline;cursor:pointer">ໃຊ້ແບບເຄື່ອງດຽວ (ບໍ່ເຊື່ອມ server)</div></div>';}
+/* ລິ້ງ / QR ເຂົ້າລະບົບສຳລັບພະນັກງານ: ເປີດແລ້ວຈື່ server ໃນເຄື່ອງ ແລະ ໄປໜ້າເຂົ້າລະບົບເລີຍ (ບໍ່ມີ token / PIN ໃນລິ້ງ) */
+function staffLink(){return API_URL?QR_BASE+'?api='+encodeURIComponent(API_URL):'';}
+function staffLinkModal(){var u=staffLink();if(!u){toast('ຍັງບໍ່ໄດ້ເຊື່ອມ server');return;}
+ openModal('<div style="text-align:center"><h2>ລິ້ງເຂົ້າລະບົບ ສຳລັບພະນັກງານ</h2><p class="ie-sub">ສົ່ງລິ້ງ ຫຼື ໃຫ້ສະແກນ QR → ເປີດແລ້ວໄປໜ້າເຂົ້າລະບົບ (ໃສ່ PIN ຂອງຕົນເອງ)</p><div id="slqr" style="display:inline-block;padding:14px;background:#fff;border:2px solid var(--line);border-radius:14px;margin:6px"></div>'+
+  '<div class="sl-url">'+cesc(u)+'</div><div class="sl-acts"><button type="button" class="btn-sm" onclick="staffLinkCopy()">ສຳເນົາລິ້ງ</button>'+(navigator.share?'<button type="button" class="btn-sm" onclick="navigator.share({title:\'ST POS\',text:\'ລິ້ງເຂົ້າລະບົບ ST POS ('+aesc(state.shopName||'')+')\',url:staffLink()}).catch(function(){})">ແຊຣ໌</button>':'')+'</div>'+
+  '<p class="me-note" style="text-align:left">⚠ ລິ້ງນີ້ມີທີ່ຢູ່ server ຂອງຮ້ານ — ສົ່ງໃຫ້ສະເພາະພະນັກງານ. ຄົນທີ່ບໍ່ມີ PIN ເຂົ້າລະບົບບໍ່ໄດ້ · ເປີດເທື່ອດຽວ ເຄື່ອງນັ້ນຈະຈື່ໄວ້ (ຄັ້ງຕໍ່ໄປເປີດ taosivi.github.io/stpos ໄດ້ເລີຍ)</p></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');
+ var box=document.getElementById('slqr');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});else box.textContent='ໂຫຼດ QR ບໍ່ໄດ້';});}
+function staffLinkCopy(){var u=staffLink();var done=function(){toast('ສຳເນົາລິ້ງແລ້ວ');};try{navigator.clipboard.writeText(u).then(done,function(){prompt('ສຳເນົາລິ້ງນີ້',u);});}catch(e){prompt('ສຳເນົາລິ້ງນີ້',u);}}
 function apiSetupSave(){var u=((document.getElementById('apiIn')||{}).value||'').trim();var t=((document.getElementById('tokIn')||{}).value||'').trim();
  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)){alert('ລິ້ງບໍ່ຖືກຮູບແບບ — ຕ້ອງລົງທ້າຍດ້ວຍ /exec');return;}
  try{localStorage.setItem('stpos_api',u);if(t)localStorage.setItem('stpos_token',t);}catch(e){}
@@ -5759,6 +5774,7 @@ function setSecConn(){var gas=HAS_GAS||HAS_API;
  return sCard('ສະຖານະ','','',
   sRow('ບ່ອນເກັບຂໍ້ມູນ','',gas?sBadge('✓ ເຊື່ອມ Google Sheet ແລ້ວ','ok'):sBadge('Local (ທົດລອງ — ບໍ່ເຊື່ອມ server)','warn'))+
   sRow('ຂໍ້ມູນໃນລະບົບ','','<div class="sstat"><span><b>'+state.floors.length+'</b>ຊັ້ນ</span><span><b>'+Object.keys(state.tables).length+'</b>ໂຕະ</span><span><b>'+allMenu().length+'</b>ເມນູ</span><span><b>'+Object.keys(state.ingredients||{}).length+'</b>ວັດຖຸດິບ</span><span><b>'+(state.bills||[]).length+'</b>ບິນ</span></div>','stack'))+
+ (HAS_API&&can('userMng')?sCard('ລິ້ງເຂົ້າລະບົບສຳລັບພະນັກງານ','ສົ່ງລິ້ງ ຫຼື QR ໃຫ້ພະນັກງານ — ເປີດແລ້ວໄປໜ້າເຂົ້າລະບົບເລີຍ ບໍ່ຕ້ອງໃສ່ລິ້ງ server ເອງ',sBtn('ລິ້ງ / QR','staffLinkModal()','pri'),''):'')+
  (HAS_GAS?'':sCard('ເຊື່ອມ Google Sheet','ສຳລັບຮ້ານໃໝ່ ຫຼື ປ່ຽນ server — ບັນທຶກແລ້ວແອັບຈະໂຫຼດໃໝ່','',
   sRow('ລິ້ງ Apps Script (/exec)','','<input id="ad_api" class="stxt" value="'+aesc(API_URL)+'" placeholder="https://script.google.com/…/exec">'+sBtn('ບັນທຶກ','setApiUrl()','pri'),'stack')+
   sRow('API Token','ກັນຄົນນອກຂຽນທັບຂໍ້ມູນ · ຕ້ອງກົງກັບ server · '+(TOKEN?'<b class="sgreen">ໃສ່ແລ້ວ</b>':'<b class="sorange">ຍັງບໍ່ໃສ່</b>'),'<input id="ad_tok" class="stxt" type="password" autocomplete="off" value="'+aesc(TOKEN)+'">'+sBtn('ບັນທຶກ','setApiToken()'),'stack')+
