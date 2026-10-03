@@ -2467,7 +2467,7 @@ function rvDoCancel(id){var r=rvFind(id);if(!r)return;var rs=((document.getEleme
 
 const QR_BASE=location.origin+location.pathname;
 function ensureQR(name){const now=Date.now(),q=state.qr[name];const noexp=(state.qrExpires===false);const ttl=noexp?(100*365*24*3600*1000):(3*3600*1000);
- if(!q||(!noexp&&q.expiry<now)){state.qr[name]={pin:String(Math.floor(100000+Math.random()*900000)),expiry:now+ttl,enabled:(q?q.enabled:true)};save();}
+ if(!q||(!noexp&&q.expiry<now)){if(q){try{chatClear(name);}catch(e){}}state.qr[name]={pin:String(Math.floor(100000+Math.random()*900000)),expiry:now+ttl,enabled:(q?q.enabled:true)};save();}
  else if(noexp&&q.expiry<now+ttl-86400000){q.expiry=now+ttl;save();}
  return state.qr[name];}
 function openTableQR(name){const q=ensureQR(name),needPin=(state.qrPinRequired!==false),url=QR_BASE+"?table="+encodeURIComponent(name)+(needPin?"&pin="+q.pin:"")+(API_URL?"&api="+encodeURIComponent(API_URL):"")+"&v="+APPVER,exp=new Date(q.expiry).toLocaleString('en-GB');
@@ -2478,7 +2478,7 @@ function openTableQR(name){const q=ensureQR(name),needPin=(state.qrPinRequired!=
   <div style="font-size:11px;color:var(--muted);word-break:break-all;background:#f3fbfb;padding:7px;border-radius:8px;margin-top:8px">${url}</div>
   <div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" onclick="regenQR('${name.replace(/'/g,"\\'")}')"> ສ້າງ QR ໃໝ່</button></div></div>`);
  const box=document.getElementById('qrbox');box.innerHTML='<div style="padding:40px;color:#94a3b8"></div>';loadQRLib(function(){box.innerHTML='';if(window.QRCode)new QRCode(box,{text:url,width:210,height:210,correctLevel:QRCode.CorrectLevel.H});else box.innerHTML='<div style="padding:40px;color:#94a3b8">ໂຫຼດ QR ບໍ່ໄດ້</div>';});}
-function regenQR(name){delete state.qr[name];ensureQR(name);openTableQR(name);}
+function regenQR(name){try{chatClear(name);}catch(e){}delete state.qr[name];ensureQR(name);openTableQR(name);}
 function renderOrder(R){const t=state.tables[state.activeTable];
  R.innerHTML=`<div id="orderWrap"><div class="menupane"><div class="ordbar"><div class="cats">${Object.keys(MSRC()).map(cat=>`<button class="cat ${cat===state.activeCat?'active':''}" data-cat="${cat.replace(/"/g,'&quot;')}" onclick="setCat(this.getAttribute('data-cat'))"><span class="ci">${catIcon(cat,22)}</span><span class="ct"><b>${cat}</b><small>${catCount(cat)} ເມນູ</small></span></button>`).join('')}</div><div class="ordtools" id="ordTools"></div></div>
   <div class="subcats" id="subcats"></div><div class="products" id="products"></div></div>
@@ -5686,7 +5686,7 @@ function scOn(){return !!(state&&!isCust()&&curUser()&&modOn('chat')&&canView('c
 function scLoop(){clearTimeout(_sc.t);var d=!scOn()?15000:document.hidden?20000:(view==='chat'?3000:7000);_sc.t=setTimeout(function(){if(scOn())scPoll(scLoop);else scLoop();},d);}
 function scPoll(cb){if(_sc.busy){cb&&cb();return;}_sc.busy=true;chatRpc({a:'spoll',token:TOKEN,since:_sc.since},function(r){_sc.busy=false;scApply(r);cb&&cb();});}
 function scApply(r){if(!r||!r.ok)return;var before={};_sc.msgs.forEach(function(m){before[m.id]=1;});chatMerge(_sc.msgs,r.msgs);if(_sc.msgs.length>600)_sc.msgs=_sc.msgs.slice(-600);
- if(r.ep)_sc.ep=r.ep;if(r.seen){Object.keys(r.seen).forEach(function(k){_sc.seen[k]=Math.max(+_sc.seen[k]||0,+r.seen[k]||0);});}_sc.since=Math.max(0,(r.now||0)-5000);
+ if(r.ep)_sc.ep=r.ep;try{setTimeout(chatSweep,0);}catch(e){}if(r.seen){Object.keys(r.seen).forEach(function(k){_sc.seen[k]=Math.max(+_sc.seen[k]||0,+r.seen[k]||0);});}_sc.since=Math.max(0,(r.now||0)-5000);
  var fresh=(r.msgs||[]).filter(function(m){return m.from==='c'&&!before[m.id]&&scCur(m);});
  if(!_sc.first&&fresh.length){var m=fresh[fresh.length-1];if(!(view==='chat'&&_sc.sel===m.table&&!document.hidden)){toast('💬 ໂຕະ '+cesc(m.table)+': '+cesc(m.kind==='req'?chatReqDef(m.req)[1]+' '+m.text:m.text));}try{playReadyChime();}catch(e){}}
  _sc.first=false;if(view==='chat'&&_sc.sel&&!document.hidden)scMarkSeen(_sc.sel);scBadge();if(view==='chat')scPaint();
@@ -5738,6 +5738,11 @@ function scClose(tb,silent){if(!silent&&!confirm('ປິດ ແລະ ລຶບ�
 function chatClear(tb){if(!tb||!state||isCust()||!curUser()||!modOn('chat'))return;_sc.msgs=_sc.msgs.filter(function(m){return m.table!==tb;});if(_sc.sel===tb)_sc.sel=null;_sc.draft[tb]='';scBadge();
  chatRpc({a:'close',token:TOKEN,table:tb},function(r){if(r&&r.ok&&r.ep!=null)_sc.ep[tb]=r.ep;_sc.msgs=_sc.msgs.filter(function(m){return m.table!==tb;});scBadge();if(view==='chat')scPaint(true);});}
 function chatAutoClose(tb){chatClear(tb);}
+/* ກວາດແຊັດຄ້າງ: ໂຕະວ່າງແລ້ວ ແຕ່ຍັງມີຂໍ້ຄວາມຂອງລູກຄ້າຊຸດກ່ອນ (ຈ່າຍເງິນແລ້ວ ຫຼື ເກົ່າເກີນ 3 ຊົ່ວໂມງ) → ລຶບ ບໍ່ໃຫ້ລູກຄ້າໃໝ່ສັບສົນ */
+function chatSweep(){if(!state||isCust()||!curUser()||!modOn('chat'))return;var last={};_sc.msgs.forEach(function(m){if(!scCur(m))return;last[m.table]=Math.max(last[m.table]||0,m.ts||0);});var tbs=Object.keys(last);if(!tbs.length)return;
+ var paid={};(state.bills||[]).slice(-400).forEach(function(b){if(b&&!b.voided&&b.table)paid[b.table]=Math.max(paid[b.table]||0,b.ts||0);});if(!_sc.swept)_sc.swept={};var now=Date.now();
+ tbs.forEach(function(tb){var t=state.tables&&state.tables[tb];if(!t||(t.items||[]).length||(t.status&&t.status!=='free'))return;var ep=+_sc.ep[tb]||0;if(_sc.swept[tb]===ep)return;
+  if((paid[tb]||0)>last[tb]||now-last[tb]>3*3600000){_sc.swept[tb]=ep;chatClear(tb);}});}
 function chatTag(name){if(!scOn())return '';var n=scAttn(name);return n?'<div class="calltag" style="background:#ef4444;top:auto;bottom:8px">💬 '+n+'</div>':'';}
 setTimeout(scLoop,3000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden){if(isCust()&&_cc.init)ccPoll(ccLoop);else if(scOn())scPoll(scLoop);}});
