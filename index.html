@@ -1706,8 +1706,8 @@ body.cc-lock{overflow:hidden}
 .dlp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}.dlp-c{background:#f7fbfb;border-radius:14px;padding:12px}.dlp-c.ref{background:#f1f5f9}.dlp-c>b{display:block;font-size:15px}.dlp-c>small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .dlp-row{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}.dlp-row.tot{font-weight:800;border-top:1px dashed #cfe3e0;margin-top:4px;padding-top:6px;color:#0A5E5B}.dlp-row.tot.neg{color:#dc2626}
 @media (max-width:900px){.me-quad{grid-template-columns:1fr 1fr}.me-tfc{margin-left:0}}
-#xpFab{position:fixed;right:18px;bottom:18px;z-index:880;display:flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:11px 16px;background:#062f2d;color:#fff;font:inherit;font-weight:800;font-size:13px;box-shadow:0 10px 26px rgba(6,47,45,.32);cursor:pointer}
-#xpFab:hover{background:#0A5E5B}@media (max-width:900px){#xpFab{bottom:84px;right:14px;padding:10px 14px}}
+#xpFab{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:9px 15px;margin-right:10px;background:#0A7E7A;color:#fff;font:inherit;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(10,126,122,.28);cursor:pointer;white-space:nowrap;flex-shrink:0}
+#xpFab:hover{background:#086b68}@media (max-width:900px){#xpFab{padding:9px 11px;margin-right:6px}#xpFab span{display:none}}
 .xp-rg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.xp-rg em{font-style:normal;color:var(--muted);font-size:12.5px;margin-left:4px}.xp-cd{display:inline-flex;gap:6px;align-items:center}.xp-cd input{height:34px;margin:0;width:150px}
 .xp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}.xp-grid.one{grid-template-columns:1fr}
 .xp-row{display:flex;align-items:center;gap:8px;background:#f7fbfb;border-radius:12px;padding:9px 10px}.xp-row>div{flex:1;min-width:0}.xp-row b{display:block;font-size:14px}.xp-row small{display:block;color:var(--muted);font-size:12px;line-height:1.45}
@@ -1732,10 +1732,10 @@ body.cc-lock{overflow:hidden}
 .ai-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ai-two label{margin-top:10px}.ai-h{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:3px}@media (max-width:640px){.ai-two{grid-template-columns:1fr}}
 .sk-add{height:44px;padding:0 18px;border-radius:12px;border:0;background:#10b981;color:#fff;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(16,185,129,.28)}.sk-add b{font-size:20px;line-height:1}.sk-add:hover{background:#0da673}
 .tag.warn2{background:#ede9fe;color:#5b21b6}
-body.has-xpfab #viewRoot{padding-bottom:92px}
 .fd-tabs{display:flex;gap:8px;padding:0 18px 8px}.fd-lg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:0 18px 10px;font-size:12px;color:var(--muted)}.fd-lg span{white-space:nowrap}.fd-lg .w:before,.fd-lg .c:before,.fd-lg .h:before,.fd-lg .t:before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}.fd-lg .w:before{background:#f59e0b}.fd-lg .c:before{background:#3b82f6}.fd-lg .h:before{background:#10b981}.fd-lg .t:before{background:#111827}
 .fd-tbl th.fd-w,.fd-sum th.fd-w{color:#b45309}.fd-tbl th.fd-c,.fd-sum th.fd-c{color:#1d4ed8}.fd-tbl th.fd-h,.fd-sum th.fd-h{color:#047857}.fd-tbl th.fd-t,.fd-sum th.fd-t{color:#111827}
 .fd-tbl{font-size:12.5px}.fd-tbl td,.fd-tbl th{white-space:nowrap;padding:8px 6px}.fd-tbl td.fd-nm{white-space:normal;min-width:130px;max-width:210px}.fd-q{color:#0A5E5B}.fd-tbl .stbadge{font-size:11.5px;padding:2px 7px}.fd-tm{font-variant-numeric:tabular-nums}.fd-n{font-weight:700;font-variant-numeric:tabular-nums}.fd-n.cur{background:#fff7e0;box-shadow:inset 0 0 0 1.5px #f3c67a;border-radius:6px}.fd-n.late{color:#dc2626}.fd-by{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.sk-wrap{overflow:visible!important;flex-shrink:0}.sk-top,.sp-tabs,.sp-alerts,.sk-filter,.sk-locs{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -5362,9 +5362,11 @@ var XI_PAGE={stock:['ing'],count:['count'],purchase:['vendor','pr'],members:['me
 function xpModal(keys){window.__xpModal=keys;var ks=keys.filter(xpAllowed),xi=(XI_PAGE[view]||[]).filter(xiAllowed);
  openModal('<h2>Export / Import</h2>'+(ks.some(function(k){return XP[k][3];})?xpRangeHTML():'')+'<div class="xp-grid one">'+ks.map(xpRow).join('')+'</div>'+(xi.length?'<div class="lbl" style="font-weight:700;margin:12px 0 6px">Import ຈາກ Excel</div><div class="xp-grid one">'+xi.map(xiRow).join('')+'</div>':'')+
   '<div class="modal-btns"><button class="btn-cancel" onclick="window.__xpModal=null;closeModal()">ປິດ</button>'+(canView('reports')&&can('export')?'<button class="btn-ok" onclick="window.__xpModal=null;closeModal();reportTab=\'data\';setView(\'reports\')">ສູນຂໍ້ມູນທັງໝົດ</button>':'')+'</div>');}
-function xpFab(){var old=document.getElementById('xpFab');document.body.classList.toggle('has-xpfab',!!old||false);var ks=(XP_PAGE[view]||[]).filter(xpAllowed),xi=(XI_PAGE[view]||[]).filter(xiAllowed);
- if(isCust()||(!ks.length&&!xi.length)){if(old)old.remove();document.body.classList.remove('has-xpfab');return;}if(!old){old=document.createElement('button');old.id='xpFab';old.type='button';document.body.appendChild(old);}
- old.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Export'+(xi.length?' / Import':'')+'</span>';old.onclick=function(){xpModal(XP_PAGE[view]||[]);};document.body.classList.add('has-xpfab');}
+function xpFab(){var old=document.getElementById('xpFab');var ks=(XP_PAGE[view]||[]).filter(xpAllowed),xi=(XI_PAGE[view]||[]).filter(xiAllowed);
+ if(isCust()||(!ks.length&&!xi.length)){if(old)old.remove();return;}
+ var host=document.getElementById('userChip');if(!host||!host.parentNode)return;
+ if(!old){old=document.createElement('button');old.id='xpFab';old.type='button';}if(old.parentNode!==host.parentNode||old.nextSibling!==host)host.parentNode.insertBefore(old,host);
+ old.title='Export / Import ຂໍ້ມູນ';old.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Export'+(xi.length?' / Import':'')+'</span>';old.onclick=function(){xpModal(XP_PAGE[view]||[]);};}
 
 function renderRepProfit(b){if(repDate===null)repDate=ymd(Date.now());
  var bills=(state.bills||[]).filter(function(x){return !x.voided&&(!repDate||ymd(x.ts)===repDate);});
