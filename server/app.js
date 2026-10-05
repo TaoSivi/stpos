@@ -98,18 +98,21 @@ function sessKey() { return crypto.createHmac('sha256', apiToken() || String(pro
 function sessSign(v) { return crypto.createHmac('sha256', sessKey()).update(v).digest('base64url'); }
 function sessMake(u) { const v = Buffer.from(JSON.stringify({ u: u.id, b: CURBR.id, e: Date.now() + 180 * 86400000, p: userPinH(u).slice(-6) })).toString('base64url'); return 's1.' + v + '.' + sessSign(v); }
 function stateUsers() { try { const s = G.getState_(); return s ? (JSON.parse(s).users || []) : []; } catch (e) { return []; } }
-/* session ໃຊ້ໄດ້ສະເພາະສາຂາທີ່ເຂົ້າລະບົບ (b) — ຍົກເວັ້ນ superadmin ທີ່ມີບັນຊີ (PIN ດຽວກັນ) ໃນສາຂານັ້ນ · ຄືນ {id, role} ຫຼື null */
-function sessUser(tk) {
+/* session ຂອງສາຂາໃດກໍ່ໄດ້ ໃຊ້ໄດ້ໃນສາຂາທີ່ຜູ້ໃຊ້ນັ້ນມີບັນຊີ (id ດຽວກັນ) ທີ່ເປີດຢູ່ ແລະ PIN ດຽວກັນ (ໄລຍະ 4: ພະນັກງານກາງ — 1 ບັນຊີ ຫຼາຍສາຂາ)
+ * ສາຂາທີ່ບໍ່ມີບັນຊີຂອງຜູ້ນັ້ນ / ບັນຊີຖືກປິດ / ປ່ຽນ PIN = ໃຊ້ບໍ່ໄດ້ · ຄືນ {id, role} ຫຼື null */
+function sessDecode(tk) {
   tk = String(tk || ''); if (tk.indexOf('s1.') !== 0) return null;
   const parts = tk.split('.'); if (parts.length !== 3) return null;
   const a = Buffer.from(sessSign(parts[1])), b = Buffer.from(parts[2]); if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   let o; try { o = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')); } catch (e) { return null; }
-  if (!o || !(o.e > Date.now())) return null;
-  const other = (o.b || 'b1') !== CURBR.id;
-  const cache = CacheService.getScriptCache(), ck = 'sessu2_' + o.u + '_' + o.p + '_' + stateV(), hit = cache.get(ck);
-  if (hit === '0') return null; if (hit) { const h0 = JSON.parse(hit); return (other && h0.role !== 'superadmin') ? null : h0; }
-  const u = stateUsers().filter(function (x) { return x && x.id === o.u; })[0], ok = !!u && userPinH(u).slice(-6) === o.p;
-  const r = ok ? { id: u.id, role: u.role || '' } : null; cache.put(ck, r ? JSON.stringify(r) : '0', 300); return (r && other && r.role !== 'superadmin') ? null : r;
+  return (o && o.e > Date.now()) ? o : null;
+}
+function sessUser(tk) {
+  const o = sessDecode(tk); if (!o) return null;
+  const cache = CacheService.getScriptCache(), ck = 'sessu3_' + o.u + '_' + o.p + '_' + stateV(), hit = cache.get(ck);
+  if (hit === '0') return null; if (hit) return JSON.parse(hit);
+  const u = stateUsers().filter(function (x) { return x && x.id === o.u; })[0], ok = !!u && u.active !== false && userPinH(u).slice(-6) === o.p;
+  const r = ok ? { id: u.id, role: u.role || '' } : null; cache.put(ck, r ? JSON.stringify(r) : '0', 300); return r;
 }
 function sessOk(tk) { return !!sessUser(tk); }
 /* ແປ session → API_TOKEN ກ່ອນສົ່ງໃຫ້ Code.gs (Code.gs ບໍ່ຕ້ອງແກ້) */
@@ -190,6 +193,7 @@ function hqApi(q, req) {
       out.sort(function (x, y) { return (x.ts || 0) - (y.ts || 0); });
       return { ok: true, id: b.id, name: b.name, bills: out.slice(0, 30000).map(function (x) { return { receipt: x.receipt, ts: x.ts, table: x.table, total: x.total, net: rNet(x), cogs: x.cogs || 0, pay: x.pay, voided: !!x.voided, refund: x.refundAmt || 0, cashier: x.cashier || x.by || '', items: (x.items || []).map(function (i) { return (i.qty || 0) + 'x ' + (i.name || i.code); }).join('; ') }; }) }; });
   }
+  if (a === 'staff') return staffView(); /* ໄລຍະ 4 */
   if (a === 'menuPush') { const ids = q.ids && q.ids !== 'all' ? String(q.ids).split(',') : null; return menuPush(ids, String(q.by || '').slice(0, 60)); }
   return { ok: false, err: 'hq' };
 }
@@ -208,6 +212,7 @@ function hqPost(q, req, res, body) {
     const hq = hqRead(); if (!hq.rules) hq.rules = {}; hq.rules[b.id] = { mode: mode, off: off, price: price, ts: Date.now() }; hqWrite(hq);
     return done(Object.assign(menuStatus(req), { saved: b.id }));
   }
+  if (q.hq === 'staffSave') return done(staffSave(o, String(q.by || '').slice(0, 60)));
   return done({ ok: false, err: 'hq' });
 }
 function jsonpOut(res, cb, payload) { send(res, 200, String(cb).replace(/[^\w$.]/g, '') + '(' + JSON.stringify(payload) + ')', 'application/javascript'); }
@@ -221,14 +226,16 @@ function expandDelta(body) {
   } catch (e) { return null; }
 }
 /* ກ່ອນລວມຂໍ້ມູນ: (1) delta — ສ່ວນທີ່ເຄື່ອງບໍ່ໄດ້ແກ້ ໃຊ້ຂອງ server (ບໍ່ດຶງຂໍ້ມູນເກົ່າກັບຄືນ ເຊັ່ນ ເມນູທີ່ HQ ຫາກໍສົ່ງ)
- * (2) ເມນູ: ເຄື່ອງທີ່ຖືເມນູເວີຊັນເກົ່າກວ່າ server (menuV) ຂຽນທັບເມນູບໍ່ໄດ້ */
+ * (2) ເມນູ: ເຄື່ອງທີ່ຖືເມນູເວີຊັນເກົ່າກວ່າ server (menuV) ຂຽນທັບເມນູບໍ່ໄດ້ · ຜູ້ໃຊ້ຄືກັນ (usersV ຈາກ HQ) */
 const MENU_KEYS = ['catalog', 'menuImg', 'modGroups', 'menuHQ', 'menuV'];
+const USER_KEYS = ['users', 'usersV'];
 function prepIncoming(inc, p, cur) {
   if (!cur || !inc || typeof inc !== 'object') return inc;
   if (p) {
     Object.keys(cur).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(p.s, k) && p.d.indexOf(k) < 0) inc[k] = cur[k]; });
     Object.keys(inc).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(cur, k) && !Object.prototype.hasOwnProperty.call(p.s, k)) delete inc[k]; });
   }
+  if ((+cur.usersV || 0) > (+inc.usersV || 0)) USER_KEYS.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(cur, k)) inc[k] = cur[k]; else delete inc[k]; }); /* ໄລຍະ 4 */
   if ((+cur.menuV || 0) > (+inc.menuV || 0)) MENU_KEYS.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(cur, k)) inc[k] = cur[k]; else delete inc[k]; });
   const ai = archIndex(); /* ບິນທີ່ຍ້າຍໄປຄັງແລ້ວ ບໍ່ໃຫ້ເຄື່ອງເກົ່າເອົາກັບຄືນ */
   if (ai.count && Array.isArray(inc.bills)) inc.bills = inc.bills.filter(function (b) { return !ai.keys[billKey(b)]; });
@@ -296,6 +303,75 @@ function menuPush(ids, by) {
   });
   hq.push = { ts: mv, by: by || '', h: h, res: res }; hqWrite(hq);
   return { ok: true, push: hq.push };
+}
+/* ===== ໄລຍະ 4: ພະນັກງານກາງ — ບັນຊີ ແລະ PIN ດຽວ ໃຊ້ໄດ້ຫຼາຍສາຂາ =====
+ * ບໍ່ມີທະບຽນແຍກ: ຜູ້ໃຊ້ id ດຽວກັນໃນຫຼາຍສາຂາ = ຄົນດຽວກັນ (ສາຂາໃໝ່ສຳເນົາຜູ້ໃຊ້ພ້ອມ id ຈາກສາຂາແມ່ແບບ) · HQ ເບິ່ງລວມ ແລະ ແກ້ເທື່ອດຽວ ມີຜົນທຸກສາຂາ
+ * ແກ້ = ຊື່/PIN/ເປີດ-ປິດ ທຸກສາຂາທີ່ມີ · ບົດບາດລາຍສາຂາ (ໃສ່ = ເພີ່ມ/ປ່ຽນ, null = ເອົາອອກຈາກສາຂານັ້ນ) · Super Admin ແກ້ໄດ້ສະເພາະຊື່ ແລະ PIN
+ * ແຕ່ລະສາຂາທີ່ປ່ຽນ ໄດ້ usersV ໃໝ່ → ເຄື່ອງທີ່ຖືລາຍຊື່ຜູ້ໃຊ້ເກົ່າ ຂຽນທັບບໍ່ໄດ້ (prepIncoming) */
+const STAFF_ROLES = ['owner', 'admin', 'manager', 'cashier', 'waiter', 'kitchen', 'bar', 'storekeeper', 'purchasing'];
+function staffView() {
+  const L = branches(), map = {}, order = [];
+  L.forEach(function (b) { const st = branchState(b) || {}; (st.users || []).forEach(function (u) { if (!u || !u.id) return;
+    let m = map[u.id]; if (!m) { m = map[u.id] = { id: u.id, name: u.name || '', at: {}, pins: {} }; order.push(u.id); }
+    m.at[b.id] = { role: u.role || '', active: u.active !== false, name: u.name || '', perm: u.perm ? 1 : 0 }; m.pins[userPinH(u) || '-'] = 1; }); });
+  return { ok: true, roles: STAFF_ROLES, branches: L.map(function (b) { return { id: b.id, name: b.name || b.id }; }), log: (hqRead().staffLog || []).slice(-20),
+    staff: order.map(function (id) { const m = map[id], ps = Object.keys(m.pins), bs = Object.keys(m.at);
+      return { id: id, name: m.name, at: m.at, pin: ps.indexOf('-') >= 0 ? 'none' : (ps.length === 1 ? 'same' : 'diff'), sup: bs.some(function (b) { return m.at[b].role === 'superadmin'; }), active: bs.some(function (b) { return m.at[b].active; }) }; }) };
+}
+function staffSave(o, by) {
+  o = o || {}; const L = branches(), isNew = !o.id, uid = isNew ? 'u' + Date.now() : String(o.id).slice(0, 80);
+  const name = String(o.name || '').replace(/[<>]/g, '').trim().slice(0, 40), pin = o.pin == null ? '' : String(o.pin).trim(), active = o.active !== false;
+  if (!name) return { ok: false, err: 'ໃສ່ຊື່' };
+  if (pin && !/^\d{4}$/.test(pin)) return { ok: false, err: 'PIN ຕ້ອງເປັນເລກ 4 ຕົວ' };
+  if (isNew && !pin) return { ok: false, err: 'ຜູ້ໃຊ້ໃໝ່ຕ້ອງມີ PIN' };
+  const roles = {}; Object.keys(o.roles || {}).forEach(function (k) { if (!brFind(k)) return; const r = o.roles[k]; roles[k] = STAFF_ROLES.indexOf(r) >= 0 ? r : null; });
+  const sts = {}; L.forEach(function (b) { sts[b.id] = branchState(b); });
+  const mine = function (b) { return ((sts[b.id] || {}).users || []).filter(function (x) { return x && x.id === uid; })[0] || null; };
+  const has = L.filter(mine), sup = has.some(function (b) { return mine(b).role === 'superadmin'; });
+  if (!isNew && !has.length) return { ok: false, err: 'ບໍ່ພົບຜູ້ໃຊ້' };
+  if (sup && !active) return { ok: false, err: 'ປິດບັນຊີ Super Admin ບໍ່ໄດ້' };
+  const want = function (b) { if (sup) return !!mine(b); return roles[b.id] !== undefined ? !!roles[b.id] : !!mine(b); };
+  if (!L.some(want)) return { ok: false, err: 'ເລືອກຢ່າງໜ້ອຍ 1 ສາຂາ' };
+  const ph = pin ? pinHash(pin) : '', anyPh = ph || (has.map(function (b) { return userPinH(mine(b)); }).filter(Boolean)[0] || '');
+  for (let i = 0; i < L.length; i++) {
+    const b = L[i]; if (!want(b)) continue;
+    if (!sts[b.id]) return { ok: false, err: (b.name || b.id) + ': ສາຂາບໍ່ມີຂໍ້ມູນ' };
+    const fin = ph || userPinH(mine(b)) || anyPh, others = (sts[b.id].users || []).filter(function (x) { return x && x.id !== uid; });
+    if (!fin) return { ok: false, err: 'ໃສ່ PIN (ສາຂາ ' + (b.name || b.id) + ' ຍັງບໍ່ມີ PIN ຂອງຜູ້ນີ້)' };
+    if (others.some(function (x) { return (x.name || '') === name; })) return { ok: false, err: 'ຊື່ຊ້ຳກັບຄົນອື່ນໃນ ' + (b.name || b.id) };
+    if (others.some(function (x) { return userPinH(x) === fin; })) return { ok: false, err: 'PIN ຊ້ຳກັບຄົນອື່ນໃນ ' + (b.name || b.id) + ' — ໃຊ້ PIN ອື່ນ' };
+  }
+  const uv = Date.now(), res = [];
+  L.forEach(function (b) {
+    const w = want(b); if (!w && !mine(b)) return;
+    withBranch(b, function () {
+      const lock = LockService.getScriptLock(); lock.waitLock(30000); let act = '';
+      try {
+        const s = G.getState_(); if (!s) return; const st = JSON.parse(s); if (!Array.isArray(st.users)) st.users = [];
+        const i = st.users.findIndex(function (x) { return x && x.id === uid; }), before = JSON.stringify(st.users[i] || null);
+        if (!w) { if (i >= 0) { st.users.splice(i, 1); act = 'removed'; } }
+        else {
+          let u = st.users[i]; if (!u) { u = { id: uid, name: name, role: roles[b.id], pinH: ph || anyPh }; st.users.push(u); act = 'added'; }
+          u.name = name; if (ph) u.pinH = ph; delete u.pin;
+          if (!sup) { if (roles[b.id] && u.role !== roles[b.id]) { u.role = roles[b.id]; delete u.perm; } if (active) delete u.active; else u.active = false; }
+          if (!act) act = JSON.stringify(u) === before ? '' : 'updated';
+        }
+        if (act) { st.usersV = uv; st._v = Math.max(Date.now(), (+st._v || 0) + 1); G.saveStateRaw_(JSON.stringify(st), true, true); }
+      } finally { lock.releaseLock(); }
+      if (act) { shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} res.push({ id: b.id, name: b.name, act: act }); }
+    });
+  });
+  const hq = hqRead(); hq.staffLog = (hq.staffLog || []).concat([{ ts: uv, by: by || '', uid: uid, name: name, pin: !!pin, active: active, res: res }]).slice(-200); hqWrite(hq);
+  return Object.assign(staffView(), { saved: uid, res: res });
+}
+/* ສາຂາທີ່ຜູ້ໃຊ້ຂອງ session ນີ້ເຂົ້າໄດ້ (ຜູ້ຈັດການເຂດ ສະຫຼັບສາຂາ) · token ຫຼັກ = ທຸກສາຂາ */
+function myBranches(tk, req) {
+  const t = apiToken(), all = brList(req);
+  if (!t || tk === t) return { ok: true, login: 1, cur: CURBR.id, branches: all };
+  const o = sessDecode(tk); if (!o) return { ok: false, err: 'token' };
+  const ok = all.filter(function (b) { const st = branchState(brFind(b.id)) || {}, u = (st.users || []).filter(function (x) { return x && x.id === o.u; })[0]; return u && u.active !== false && userPinH(u).slice(-6) === o.p; });
+  if (!ok.some(function (b) { return b.id === CURBR.id; })) return { ok: false, err: 'token' };
+  return { ok: true, login: 1, cur: CURBR.id, branches: ok };
 }
 /* ===== ໄລຍະ 3: ຄັງບິນເກົ່າ + ລາຍງານລວມທຸກສາຂາ =====
  * ຄັງ: <ສາຂາ>/archive/bills-YYYY-MM.json.gz (ບິນເຕັມ) + index.json {keys: {receipt|ts: 1}} — ບິນເກົ່າກວ່າ N ວັນ ອອກຈາກຂໍ້ມູນທີ່ເຄື່ອງຖື (ຕິດໜີ້ຍັງບໍ່ຈ່າຍ ບໍ່ຍ້າຍ)
@@ -446,6 +522,7 @@ function handle(req, res, body) {
     return send(res, 400, 'unknown admin');
   }
   if (q.callback && q.hq !== undefined) return jsonpOut(res, q.callback, hqApi(q, req));
+  if (q.callback && q.login === 'mybr') return jsonpOut(res, q.callback, myBranches(q.token, req)); /* ກ່ອນ liftToken (ຕ້ອງການ session ເດີມ) */
   liftToken(q);
   if (q.callback && q.login !== undefined) return jsonpOut(res, q.callback, loginApi(q, req));
   if (req.method === 'POST') {

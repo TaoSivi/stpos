@@ -50,10 +50,12 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       const a = await st('b1'), b = await st(b2);
       assert.deepStrictEqual(a.bills.map(function (x) { return x.receipt; }), ['119', '120']); assert.deepStrictEqual(b.bills.map(function (x) { return x.receipt; }), ['1']);
     });
-    await test('device session belongs to its branch only', async function () {
+    await test('device session works only in branches where the same user (same PIN) exists', async function () {
       const l2 = await jp(b2, 'login=pin&uid=u2&pin=2222'); assert.ok(l2.ok);
       assert.strictEqual((await st(b2, l2.tk)).shopName, 'LaoFe ສາຂາ 2');
-      assert.strictEqual((await jp('b1', 'gz=1&token=' + encodeURIComponent(l2.tk))).err, 'token', 'b2 session refused on b1');
+      const s2 = await st(b2); s2.users.push({ id: 'u7', name: 'Only b2', role: 'cashier', pinH: ph('7777') }); assert.strictEqual(await save(b2, s2), 'ok');
+      const l7 = await jp(b2, 'login=pin&uid=u7&pin=7777'); assert.ok(l7.ok);
+      assert.strictEqual((await jp('b1', 'gz=1&token=' + encodeURIComponent(l7.tk))).err, 'token', 'b2-only user refused on b1');
       const o2 = await jp(b2, 'login=pin&uid=u1&pin=1111'); assert.ok(o2.ok);
       assert.strictEqual((await st('b1', o2.tk)).shopName, 'LaoFe Cafe & Beer', 'superadmin session works in other branch');
       assert.ok((await jp('b1', 'sum=1&token=' + encodeURIComponent(o2.tk))).ok, 'branch summary with owner session');

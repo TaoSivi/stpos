@@ -1201,6 +1201,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .srow-c{flex-shrink:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:62%}
 .srow.stack{align-items:flex-start}.srow.stack .srow-c{flex-direction:column;align-items:flex-end;flex-shrink:1;min-width:0}
 .srow.stack .srow-c>.stxt{width:360px}
+.hsbox{border:1px solid #d6e9e7;border-radius:12px;padding:4px 12px;max-height:46vh;overflow:auto}.hsrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:9px 0;border-bottom:1px solid #eef5f4}.hsrow:last-child{border-bottom:none}.hsrow span{flex:1 1 140px;font-size:14px;font-weight:600;line-height:1.4}.hsrow b{font-size:14px}.modal .hsrow select{flex:1 1 150px;width:auto;min-width:0;height:40px;margin:0;padding:0 8px;font-size:14px}.hschk{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:14px;line-height:1.5}.hschk input{width:18px;height:18px;flex:none;margin:2px 0 0}.hschk small{color:var(--muted)}
 .setmain .stxt,.setmain .ssel{width:340px;max-width:100%;height:42px;padding:0 13px;border:1px solid #d6e9e7;border-radius:12px;background:#fbfefe;font:inherit;font-size:14.5px;color:var(--ink);box-sizing:border-box}
 .setmain textarea.stxt{height:auto;padding:10px 13px;width:100%;margin:0 0 12px;font-size:12.5px}
 .setmain .stxt:focus,.setmain .ssel:focus,.snum:focus-within{outline:none;border-color:var(--tiff);box-shadow:0 0 0 3px rgba(10,186,181,.16)}
@@ -1919,7 +1920,9 @@ function jsonp_(params,cb){jsonpUrl_(API_URL,params,cb);}
 /* ຫຼາຍສາຂາໃນ server ຂອງຮ້ານ: ລາຍຊື່ສາຂາຈາກ server (HQ) ແທນລາຍຊື່ທີ່ພິມເອງ. ສາຂາອື່ນ (ບໍ່ລວມສາຂາຂອງເຄື່ອງນີ້) ໃຊ້ token ຂອງເຄື່ອງນີ້ */
 var HQ={list:null,cur:null,loading:false,err:''};
 function hqMode(){return !!(HAS_API&&!/script\.google/.test(API_URL)&&/\/api(\/[a-z0-9_-]+)?\/?$/i.test(API_URL));}
-function hqLoad(cb){if(!hqMode()||HQ.loading){if(cb)cb();return;}HQ.loading=true;jsonpUrl_(API_URL,'hq=list&token='+encodeURIComponent(TOKEN),function(r){HQ.loading=false;if(r&&r.ok&&r.hq){HQ.list=r.branches||[];HQ.cur=r.cur;HQ.err='';}else HQ.err=(r&&r.err)||'net';if(cb)cb();},20000);}
+function hqLoad(cb){if(!hqMode()||HQ.loading){if(cb)cb();return;}HQ.loading=true;jsonpUrl_(API_URL,'hq=list&token='+encodeURIComponent(TOKEN),function(r){
+ if(r&&r.err==='token'&&/^s1\./.test(TOKEN)){jsonpUrl_(API_URL,'login=mybr&token='+encodeURIComponent(TOKEN),function(m){HQ.loading=false;if(m&&m.ok&&m.branches&&m.branches.length>1){HQ.list=m.branches;HQ.cur=m.cur;HQ.mine=1;HQ.err='';}else HQ.err='token';if(cb)cb();},20000);return;} /* ຜູ້ຈັດການເຂດ: ສາຂາທີ່ຕົນມີສິດ */
+ HQ.loading=false;if(r&&r.ok&&r.hq){HQ.list=r.branches||[];HQ.cur=r.cur;HQ.err='';}else HQ.err=(r&&r.err)||'net';if(cb)cb();},20000);}
 function getBranches(){if(HQ.list)return HQ.list.filter(function(b){return b.id!==HQ.cur;}).map(function(b){return {id:b.id,name:b.name,url:b.url,type:b.type,token:TOKEN,hq:1};});try{return JSON.parse(localStorage.getItem('stpos_branches')||'[]');}catch(e){return [];}}
 function saveBranches(a){try{localStorage.setItem('stpos_branches',JSON.stringify(a||[]));}catch(e){}}
 /* ບີບອັດ gzip (ຂໍ້ມູນນ້ອຍລົງ ~5 ເທົ່າ → ໂຫຼດ/ບັນທຶກໄວຂຶ້ນ). ສົ່ງແບບບີບອັດ ສະເພາະເມື່ອ server ຢືນຢັນວ່າຮອງຮັບແລ້ວ (__srvGz) */
@@ -2264,7 +2267,7 @@ function startSync(){
    var done=function(ms){setTimeout(function(){_polling=false;},ms||0);};
    jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){
     if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;dzOnVer(r);saveConfirmed(r.v);if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
-    if(r&&r.ok&&r.state){applyRemote(r.state);done(8000);return;}done(8000);},30000);},4000);}
+    if(r&&r.ok&&r.state){applyRemote(r.state);done(8000);return;}if(r&&!r.ok&&r.err==='token'&&/^s1\./.test(TOKEN)){tokenErr_();return;}done(8000);},30000);},4000);} /* ບັນຊີຖືກປິດ / ປ່ຽນ PIN → ໜ້າເຂົ້າລະບົບ */
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
 function setView(v){if(v==='cancellog'){reportTab='cancel';repDate=ymd(Date.now());cxFrom=cxTo=ymd(Date.now());cancelFilter='all';v='reports';}if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
@@ -6078,7 +6081,7 @@ function setSecLoc(){var L=state.locations||[],LT={branch:'ສາຂາ',warehou
   sRow('ບ່ອນເກັບຂອງເຄື່ອງນີ້','','<select class="ssel" onchange="setTerminalLoc(this.value)">'+L.map(function(l){return '<option value="'+aesc(l.id)+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')+'</select>'))+
  sCard('ບ່ອນເກັບ (ສະຕ໋ອກ)','ຄົວກາງ, ສາງ, ສາຂາ — ສະຕ໋ອກແຍກຕາມບ່ອນ ໃນ server ດຽວກັນ',sBtn('+ ເພີ່ມບ່ອນເກັບ','addLocation()','pri'),
   L.map(function(l){return sItem(cesc(l.name)+(l.id===curLoc()?sBadge('ເຄື່ອງນີ້','ok'):''),LT[l.type]||l.type||'',sBtn('ແກ້','editLocation(this.dataset.k)','sm',sKX(l.id))+(L.length>1?sBtn('ລຶບ','delLocation(this.dataset.k)','sm ghost-danger',sKX(l.id)):''));}).join(''))+
- (hqMode()?hqCard()+hqMenuCard()+hqArchCard():sCard('ສາຂາທີ່ມີ server ແຍກ','ແຕ່ລະສາຂາ = 1 Apps Script + 1 Google Sheet · ເບິ່ງຍອດລວມ: ລາຍງານ → ສາຂາ · ສະຫຼັບ = ປ່ຽນລິ້ງຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່',sBtn('+ ເພີ່ມສາຂາ','addBranchModal()','pri'),
+ (hqMode()?hqCard()+hqStaffCard()+hqMenuCard()+hqArchCard():sCard('ສາຂາທີ່ມີ server ແຍກ','ແຕ່ລະສາຂາ = 1 Apps Script + 1 Google Sheet · ເບິ່ງຍອດລວມ: ລາຍງານ → ສາຂາ · ສະຫຼັບ = ປ່ຽນລິ້ງຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່',sBtn('+ ເພີ່ມສາຂາ','addBranchModal()','pri'),
   B.map(function(b,i){return sItem(cesc(b.name),'',sBtn('ສະຫຼັບໄປ','switchBranch('+i+')','sm')+sBtn('ລຶບ','delBranch('+i+')','sm ghost-danger'));}).join('')||sEmpty('ຍັງບໍ່ມີສາຂາອື່ນ')));}
 /* ສາຂາໃນ server ດຽວກັນ: ທຸກສາຂາ + QR ພະນັກງານຂອງແຕ່ລະສາຂາ + ສະຫຼັບ + ເພີ່ມສາຂາ (ພິມແຕ່ຊື່) */
 function hqCard(){if(!HQ.list&&!HQ.loading&&!HQ.err)hqLoad(render);var TL={branch:'ສາຂາ',warehouse:'ສາງ / ຄົວກາງ'},sup=!!(curUser()&&curUser().role==='superadmin');
@@ -6086,6 +6089,39 @@ function hqCard(){if(!HQ.list&&!HQ.loading&&!HQ.err)hqLoad(render);var TL={branc
  return sCard('ສາຂາ ('+HQ.list.length+')','ທຸກສາຂາຢູ່ server ດຽວກັນ · ສາຂາໃໝ່ສຳເນົາເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ຜູ້ໃຊ້ ຈາກສາຂານີ້ (ສະຕ໋ອກເລີ່ມ 0, ບິນເລີ່ມວ່າງ) · ໃຫ້ພະນັກງານສາຂາສະແກນ QR ຂອງສາຂາຕົນ',sup?sBtn('+ ເພີ່ມສາຂາ','hqAddModal()','pri'):'',
   HQ.list.map(function(b){var me=b.id===HQ.cur;return sItem(cesc(b.name)+(me?sBadge('ເຄື່ອງນີ້','ok'):''),(TL[b.type]||b.type)+' · '+b.id,
    sBtn('QR ພະນັກງານ','staffLinkModal(this.dataset.u,this.dataset.n)','sm',' data-u="'+aesc(b.url)+'" data-n="'+aesc(b.name)+'"')+(me?'':sBtn('ສະຫຼັບໄປ','hqSwitch(this.dataset.k)','sm',sKX(b.id)))+(sup?sBtn('ປ່ຽນຊື່','hqRename(this.dataset.k)','sm ghost',sKX(b.id)):''));}).join(''));}
+/* ===== ໄລຍະ 4: ພະນັກງານກາງ — ບັນຊີ ແລະ PIN ດຽວ ໃຊ້ໄດ້ຫຼາຍສາຂາ · ແກ້/ປິດ ເທື່ອດຽວ ມີຜົນທຸກສາຂາ (Super Admin) ===== */
+function hqStaffLoad(){if(HQ.staffLoading)return;HQ.staffLoading=true;jsonpUrl_(API_URL,'hq=staff&token='+encodeURIComponent(TOKEN),function(r){HQ.staffLoading=false;if(r&&r.ok&&r.staff){HQ.staff=r;HQ.staffErr='';}else HQ.staffErr=(r&&r.err)||'net';render();},60000);}
+function hqStaffCard(){var sup=!!(curUser()&&curUser().role==='superadmin');if(!sup||!HQ.list)return '';if(!HQ.staff&&!HQ.staffLoading&&!HQ.staffErr)hqStaffLoad();var S=HQ.staff;
+ if(!S)return sCard('ພະນັກງານກາງ','',sBtn('ລອງໃໝ່','HQ.staffErr=String();hqStaffLoad()','sm'),sEmpty(HQ.staffErr?'ໂຫຼດບໍ່ໄດ້':'ກຳລັງໂຫຼດ…'));
+ var BN={};S.branches.forEach(function(b){BN[b.id]=b.name;});
+ return sCard('ພະນັກງານກາງ ('+S.staff.length+')','1 ຄົນ = 1 ບັນຊີ + PIN ດຽວ ໃຊ້ໄດ້ທຸກສາຂາທີ່ໃຫ້ສິດ (ຜູ້ຈັດການເຂດ ສະຫຼັບສາຂາໄດ້ໂດຍບໍ່ຕ້ອງເຂົ້າລະບົບໃໝ່) · ແກ້ຊື່ / PIN / ປິດບັນຊີ ຢູ່ນີ້ເທື່ອດຽວ ມີຜົນທຸກສາຂາທັນທີ',
+  sBtn('+ ເພີ່ມພະນັກງານ','hqStaffEdit(String())','pri'),
+  S.staff.map(function(u){var at=Object.keys(u.at);
+   return sItem(cesc(u.name)+(u.sup?sBadge('Super Admin','role'):'')+(!u.active?sBadge('ປິດຢູ່','off'):'')+(u.pin==='diff'?sBadge('PIN ບໍ່ຄືກັນທຸກສາຂາ','warn'):''),
+    at.map(function(b){var x=u.at[b];return cesc(BN[b]||b)+' · '+cesc(ROLE_LABELS[x.role]||x.role)+(x.active?'':' (ປິດ)');}).join('<br>'),
+    sBtn('ແກ້','hqStaffEdit(this.dataset.k)','sm',sKX(u.id)));}).join('')||sEmpty('ຍັງບໍ່ມີຜູ້ໃຊ້'));}
+var _hs=null;
+function hqStaffEdit(id){var S=HQ.staff;if(!S)return;var u=id?S.staff.find(function(x){return x.id===id;}):null;if(id&&!u)return;_hs={id:id||'',sup:!!(u&&u.sup)};
+ var rows=S.branches.map(function(b){var cur=u&&u.at[b.id]?u.at[b.id].role:'';
+  if(_hs.sup)return '<div class="hsrow"><span>'+cesc(b.name)+'</span><b>'+(cur?cesc(ROLE_LABELS[cur]||cur):'—')+'</b></div>';
+  return '<div class="hsrow"><span>'+cesc(b.name)+'</span><select class="hs_br" data-b="'+aesc(b.id)+'"><option value="">ບໍ່ມີສິດ</option>'+S.roles.map(function(r){return '<option value="'+r+'"'+(r===cur?' selected':'')+'>'+cesc(ROLE_LABELS[r]||r)+'</option>';}).join('')+'</select></div>';}).join('');
+ openModal('<h2>'+(u?'ແກ້ພະນັກງານ (ທຸກສາຂາ)':'ເພີ່ມພະນັກງານ')+'</h2><label>ຊື່</label><input id="hs_nm" maxlength="40" value="'+aesc(u?u.name:'')+'">'+
+  '<label style="margin-top:10px">PIN 4 ຕົວ</label><input id="hs_pin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="'+(u?'ປະຫວ່າງ = ບໍ່ປ່ຽນ':'ເລກ 4 ຕົວ')+'">'+
+  (u&&!_hs.sup?'<label class="hschk"><input type="checkbox" id="hs_on"'+(u.active?' checked':'')+'> ເປີດໃຊ້ບັນຊີ <small>(ປິດ = ເຂົ້າລະບົບບໍ່ໄດ້ທຸກສາຂາ, ເຄື່ອງທີ່ເຂົ້າຢູ່ຈະຖືກອອກ)</small></label>':'')+
+  '<label style="margin-top:12px">ສິດລາຍສາຂາ</label><div class="hsbox">'+rows+'</div>'+
+  '<p style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.6">'+(_hs.sup?'Super Admin ເຂົ້າໄດ້ທຸກສາຂາທີ່ມີບັນຊີ — ຢູ່ນີ້ແກ້ໄດ້ສະເພາະຊື່ ແລະ PIN':'ປ່ຽນບົດບາດໃນສາຂາໃດ = ສິດລາຍຄົນທີ່ເຄີຍປັບໃນສາຂານັ້ນ ຄືນຕາມບົດບາດ · "ບໍ່ມີສິດ" = ເອົາອອກຈາກສາຂານັ້ນ')+'</p>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" id="hs_go" onclick="hqStaffSave()">ບັນທຶກ</button></div>');
+ setTimeout(function(){var e=document.getElementById('hs_nm');if(e&&!u)e.focus();},60);}
+function hqStaffSave(){var H=_hs;if(!H)return;var nm=((document.getElementById('hs_nm')||{}).value||'').trim(),pin=((document.getElementById('hs_pin')||{}).value||'').trim(),on=document.getElementById('hs_on');
+ if(!nm){toast('ໃສ່ຊື່');return;}if(pin&&!/^\d{4}$/.test(pin)){toast('PIN ຕ້ອງເປັນເລກ 4 ຕົວ');return;}if(!H.id&&!pin){toast('ໃສ່ PIN 4 ຕົວ');return;}
+ var o={id:H.id,name:nm,pin:pin||null,active:on?on.checked:true};
+ if(!H.sup){o.roles={};var n=0;document.querySelectorAll('.hs_br').forEach(function(s){o.roles[s.dataset.b]=s.value||null;if(s.value)n++;});if(!n){toast('ເລືອກສິດຢ່າງໜ້ອຍ 1 ສາຂາ');return;}}
+ if(H.id&&H.id===SESSION.uid&&o.active===false){toast('ປິດບັນຊີຂອງຕົນເອງບໍ່ໄດ້');return;}
+ var bt=document.getElementById('hs_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງບັນທຶກ…';}
+ fetch(API_URL+(API_URL.indexOf('?')<0?'?':'&')+'hq=staffSave&by='+encodeURIComponent((curUser()||{}).name||'')+'&token='+encodeURIComponent(TOKEN),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)})
+  .then(function(x){return x.json();}).then(function(r){if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ບັນທຶກ';}toast(r&&r.err?(r.err==='token'?'ສະເພາະ Super Admin':r.err):'ບັນທຶກບໍ່ໄດ້');return;}
+   HQ.staff=r;var n=(r.res||[]).length;logOrder(H.id?'ແກ້ພະນັກງານກາງ':'ເພີ່ມພະນັກງານກາງ',nm+(pin?' · ປ່ຽນ PIN':'')+(o.active===false?' · ປິດບັນຊີ':'')+' · '+n+' ສາຂາ','');_hs=null;closeModal();render();toast(n?'ບັນທຶກແລ້ວ — ມີຜົນ '+n+' ສາຂາ':'ບໍ່ມີຫຍັງປ່ຽນ');})
+  .catch(function(){if(bt){bt.disabled=false;bt.textContent='ບັນທຶກ';}toast('ເຊື່ອມ server ບໍ່ໄດ້ — ລອງໃໝ່');});}
 /* ===== ໄລຍະ 2: ເມນູ ແລະ ລາຄາກາງ — ແກ້ເມນູໃນ "ສາຂາແມ່" ແລ້ວສົ່ງໄປສາຂາອື່ນຕາມກົດຂອງແຕ່ລະສາຂາ ===== */
 var MENU_MODE={hq:'ຄືສາຂາແມ່ທັງໝົດ',except:'ຄືສາຂາແມ່ + ຍົກເວັ້ນ',own:'ເມນູຂອງຕົນເອງ (ບໍ່ຮັບການສົ່ງ)'};
 function hqMenuBanner(){var m=state.menuHQ;if(!m||!m.ts||m.mode==='own')return '';
