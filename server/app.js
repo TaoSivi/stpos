@@ -173,6 +173,23 @@ function hqApi(q, req) {
     const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], st = branchState(src) || {};
     return { ok: true, src: src.id, rule: q.id ? ruleOf(hq, String(q.id)) : null, items: menuItems(st.catalog).map(function (x) { return { c: x.m.c, n: x.m.n, p: x.m.p, k: x.m.k, cat: x.c, sub: x.s }; }) };
   }
+  /* ໄລຍະ 3: ລາຍງານລວມ + ຄັງບິນ */
+  if (a === 'report') return hqReport(String(q.from || ''), String(q.to || ''));
+  if (a === 'archInfo' || a === 'archCfg' || a === 'archive') {
+    const hq = hqRead();
+    if (a === 'archCfg') { const d = +q.days; hq.archDays = (d === 0) ? 0 : Math.max(30, d || ARCH_DAYS_DEFAULT); hqWrite(hq); }
+    const days = hq.archDays === undefined ? ARCH_DAYS_DEFAULT : hq.archDays, ran = (a === 'archive' && days) ? archiveAll(days) : null;
+    const info = branches().map(function (b) { return withBranch(b, function () { const s = G.getState_(), st = s ? JSON.parse(s) : {}; return { id: b.id, name: b.name, hot: (st.bills || []).length, archived: archIndex().count || 0, before: st.archInfo ? st.archInfo.before : 0 }; }); });
+    return { ok: true, days: days, ran: ran, branches: info };
+  }
+  if (a === 'archBills') {
+    const b = brFind(String(q.id || '')), from = String(q.from || ''), to = String(q.to || ''); if (!b || !/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) return { ok: false, err: 'args' };
+    return withBranch(b, function () { const out = [], seen = {}, inR = function (x) { const d = dayKey(x.ts || 0); return d >= from && d <= to; };
+      const s = G.getState_(); (s ? JSON.parse(s).bills || [] : []).forEach(function (x) { if (x && inR(x)) { seen[billKey(x)] = 1; out.push(x); } });
+      try { fs.readdirSync(path.join(shim.dir(), 'archive')).forEach(function (f) { const mm = /^bills-(\d{4}-\d{2})\.json\.gz$/.exec(f); if (!mm || mm[1] < from.slice(0, 7) || mm[1] > to.slice(0, 7)) return; archMonth(mm[1]).forEach(function (x) { if (x && inR(x) && !seen[billKey(x)]) { seen[billKey(x)] = 1; out.push(x); } }); }); } catch (e) {}
+      out.sort(function (x, y) { return (x.ts || 0) - (y.ts || 0); });
+      return { ok: true, id: b.id, name: b.name, bills: out.slice(0, 30000).map(function (x) { return { receipt: x.receipt, ts: x.ts, table: x.table, total: x.total, net: rNet(x), cogs: x.cogs || 0, pay: x.pay, voided: !!x.voided, refund: x.refundAmt || 0, cashier: x.cashier || x.by || '', items: (x.items || []).map(function (i) { return (i.qty || 0) + 'x ' + (i.name || i.code); }).join('; ') }; }) }; });
+  }
   if (a === 'menuPush') { const ids = q.ids && q.ids !== 'all' ? String(q.ids).split(',') : null; return menuPush(ids, String(q.by || '').slice(0, 60)); }
   return { ok: false, err: 'hq' };
 }
@@ -213,6 +230,9 @@ function prepIncoming(inc, p, cur) {
     Object.keys(inc).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(cur, k) && !Object.prototype.hasOwnProperty.call(p.s, k)) delete inc[k]; });
   }
   if ((+cur.menuV || 0) > (+inc.menuV || 0)) MENU_KEYS.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(cur, k)) inc[k] = cur[k]; else delete inc[k]; });
+  const ai = archIndex(); /* ບິນທີ່ຍ້າຍໄປຄັງແລ້ວ ບໍ່ໃຫ້ເຄື່ອງເກົ່າເອົາກັບຄືນ */
+  if (ai.count && Array.isArray(inc.bills)) inc.bills = inc.bills.filter(function (b) { return !ai.keys[billKey(b)]; });
+  if (cur.archInfo && (!inc.archInfo || (+inc.archInfo.ts || 0) < (+cur.archInfo.ts || 0))) inc.archInfo = cur.archInfo;
   return inc;
 }
 
@@ -277,6 +297,79 @@ function menuPush(ids, by) {
   hq.push = { ts: mv, by: by || '', h: h, res: res }; hqWrite(hq);
   return { ok: true, push: hq.push };
 }
+/* ===== ໄລຍະ 3: ຄັງບິນເກົ່າ + ລາຍງານລວມທຸກສາຂາ =====
+ * ຄັງ: <ສາຂາ>/archive/bills-YYYY-MM.json.gz (ບິນເຕັມ) + index.json {keys: {receipt|ts: 1}} — ບິນເກົ່າກວ່າ N ວັນ ອອກຈາກຂໍ້ມູນທີ່ເຄື່ອງຖື (ຕິດໜີ້ຍັງບໍ່ຈ່າຍ ບໍ່ຍ້າຍ)
+ * ເຄື່ອງເກົ່າທີ່ຍັງຖືບິນເຫຼົ່ານັ້ນ ບັນທຶກແລ້ວ ບິນບໍ່ກັບມາ (prepIncoming ກັ່ນອອກຕາມ index) · ລາຍງານລວມອ່ານທັງຂໍ້ມູນປັດຈຸບັນ ແລະ ຄັງ */
+const ARCH_DAYS_DEFAULT = 180;
+function archDir() { const d = path.join(shim.dir(), 'archive'); if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); return d; }
+function billKey(b) { return String(b && b.receipt) + '|' + (+(b && b.ts) || 0); }
+const _archIdx = {};
+function archIndex() {
+  const f = path.join(shim.dir(), 'archive', 'index.json'); let m = 0; try { m = fs.statSync(f).mtimeMs; } catch (e) { return { keys: {}, count: 0 }; }
+  const c = _archIdx[f]; if (c && c.m === m) return c.v;
+  let v; try { v = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { v = { keys: {}, count: 0 }; } _archIdx[f] = { m: m, v: v }; return v;
+}
+function monthKey(ts) { return shim.formatDate(new Date(ts), 'GMT+7', 'yyyy-MM'); }
+function dayKey(ts) { return shim.formatDate(new Date(ts), 'GMT+7', 'yyyy-MM-dd'); }
+function archMonth(mk) { try { return JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(archDir(), 'bills-' + mk + '.json.gz'))).toString('utf8')); } catch (e) { return []; } }
+function archiveBills(days) {
+  days = Math.max(30, +days || ARCH_DAYS_DEFAULT);
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    const s = G.getState_(); if (!s) return { ok: true, archived: 0 };
+    const st = JSON.parse(s), cutoff = Date.now() - days * 86400000, keep = [], byM = {};
+    (st.bills || []).forEach(function (b) { if (!b || !(b.ts < cutoff) || (b.credit && !b.creditSettled)) { keep.push(b); return; } const mk = monthKey(b.ts); (byM[mk] = byM[mk] || []).push(b); });
+    const n = Object.keys(byM).reduce(function (a, k) { return a + byM[k].length; }, 0); if (!n) return { ok: true, archived: 0, kept: keep.length };
+    const idx = archIndex(), keys = Object.assign({}, idx.keys || {});
+    Object.keys(byM).forEach(function (mk) { const have = archMonth(mk), seen = {}; have.forEach(function (b) { seen[billKey(b)] = 1; });
+      byM[mk].forEach(function (b) { const k = billKey(b); if (!seen[k]) { have.push(b); seen[k] = 1; } keys[k] = 1; });
+      have.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); }); atomicWrite(path.join(archDir(), 'bills-' + mk + '.json.gz'), zlib.gzipSync(JSON.stringify(have))); });
+    atomicWrite(path.join(archDir(), 'index.json'), JSON.stringify({ keys: keys, count: Object.keys(keys).length, ts: Date.now() }));
+    st.bills = keep; st.archInfo = { before: cutoff, days: days, count: Object.keys(keys).length, ts: Date.now() }; st._v = Math.max(Date.now(), (+st._v || 0) + 1);
+    G.saveStateRaw_(JSON.stringify(st), true, true);
+    return { ok: true, archived: n, kept: keep.length, total: Object.keys(keys).length };
+  } finally { lock.releaseLock(); }
+}
+function archiveAll(days) { const out = []; branches().forEach(function (b) { withBranch(b, function () { const r = archiveBills(days); shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} out.push(Object.assign({ id: b.id, name: b.name }, r)); }); }); return out; }
+/* ສູດດຽວກັບແອັບ: billNet = ຍອດ − ຄືນເງິນ (Void = 0) · lineTotal ຕາມສ່ວນຫຼຸດ/ໂປຣ */
+function rLine(i) { const d = Math.min(100, (+i.disc || 0) + (+i.promoPct || 0)); return ((+i.price || 0) + (+i.modPrice || 0)) * (1 - d / 100) * Math.max(0, (+i.qty || 0) - (+i.promoFree || 0)); }
+function rNet(b) { return b.voided ? 0 : (+b.total || 0) - (+b.refundAmt || 0); }
+function branchReport(b, from, to) {
+  return withBranch(b, function () {
+    const s = G.getState_(), st = s ? JSON.parse(s) : {}, seen = {}, bills = [];
+    const inR = function (x) { const d = dayKey(x.ts || 0); return d >= from && d <= to; };
+    (st.bills || []).forEach(function (x) { if (x && inR(x)) { seen[billKey(x)] = 1; bills.push(x); } });
+    const m0 = from.slice(0, 7), m1 = to.slice(0, 7);
+    try { fs.readdirSync(path.join(shim.dir(), 'archive')).forEach(function (f) { const mm = /^bills-(\d{4}-\d{2})\.json\.gz$/.exec(f); if (!mm || mm[1] < m0 || mm[1] > m1) return;
+      archMonth(mm[1]).forEach(function (x) { if (x && inR(x) && !seen[billKey(x)]) { seen[billKey(x)] = 1; bills.push(x); } }); }); } catch (e) {}
+    const R = { id: b.id, name: b.name, type: b.type || 'branch', sales: 0, bills: 0, cogs: 0, disc: 0, voids: 0, voidAmt: 0, refunds: 0, expenses: 0, waste: 0, shortage: 0, pay: {}, days: {}, items: {} };
+    bills.forEach(function (x) {
+      if (x.voided) { R.voids++; R.voidAmt += +x.total || 0; return; }
+      const net = rNet(x), d = dayKey(x.ts); R.sales += net; R.bills++; R.cogs += +x.cogs || 0; R.disc += +x.discAmt || 0; R.refunds += +x.refundAmt || 0; R.days[d] = (R.days[d] || 0) + net;
+      const tot = +x.total || 0, parts = Array.isArray(x.payParts) && x.payParts.length ? x.payParts.map(function (p) { return [p.type, +p.amt || 0]; }) : [[x.pay || '-', tot]];
+      const sum = parts.reduce(function (a, p) { return a + p[1]; }, 0) || 1; parts.forEach(function (p) { R.pay[p[0]] = (R.pay[p[0]] || 0) + p[1] / sum * net; });
+      (x.items || []).forEach(function (i) { const k = i.code || i.name; if (!k) return; const a = R.items[k] || (R.items[k] = { c: i.code || '', n: i.name || k, q: 0, v: 0 }); a.q += +i.qty || 0; a.v += rLine(i); });
+    });
+    (st.expenses || []).forEach(function (e) { if (e && inR(e)) R.expenses += +e.amount || 0; });
+    const ing = st.ingredients || {};
+    (st.stockLog || []).forEach(function (l) { if (!l || !inR(l)) return; const c = +(ing[l.code] && ing[l.code].cost) || 0, d = +l.delta || 0;
+      if (l.reason === 'ເສຍຫາຍ' && d < 0) R.waste += -d * c; else if (l.reason === 'ນັບປັບສະຕ໋ອກ' && d < 0) R.shortage += -d * c; });
+    R.gp = R.sales - R.cogs; R.avg = R.bills ? R.sales / R.bills : 0; R.archived = (archIndex().count || 0); R.archBefore = st.archInfo ? st.archInfo.before : 0;
+    return R;
+  });
+}
+function hqReport(from, to) {
+  const ok = function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(String(d || '')); }; if (!ok(from) || !ok(to) || from > to) return { ok: false, err: 'date' };
+  const L = branches().map(function (b) { return branchReport(b, from, to); }), T = { sales: 0, bills: 0, cogs: 0, disc: 0, voids: 0, voidAmt: 0, refunds: 0, expenses: 0, waste: 0, shortage: 0, pay: {}, days: {} }, items = {};
+  L.forEach(function (r) {
+    ['sales', 'bills', 'cogs', 'disc', 'voids', 'voidAmt', 'refunds', 'expenses', 'waste', 'shortage'].forEach(function (k) { T[k] += r[k]; });
+    Object.keys(r.pay).forEach(function (k) { T.pay[k] = (T.pay[k] || 0) + r.pay[k]; }); Object.keys(r.days).forEach(function (k) { T.days[k] = (T.days[k] || 0) + r.days[k]; });
+    Object.keys(r.items).forEach(function (k) { const a = r.items[k], t = items[k] || (items[k] = { c: a.c, n: a.n, q: 0, v: 0, by: {} }); t.q += a.q; t.v += a.v; t.by[r.id] = { q: a.q, v: a.v }; });
+    r.top = Object.keys(r.items).map(function (k) { return r.items[k]; }).sort(function (a, b) { return b.v - a.v; }).slice(0, 20); delete r.items;
+  });
+  T.gp = T.sales - T.cogs; T.avg = T.bills ? T.sales / T.bills : 0;
+  return { ok: true, from: from, to: to, at: Date.now(), branches: L, total: T, top: Object.keys(items).map(function (k) { return items[k]; }).sort(function (a, b) { return b.v - a.v; }).slice(0, 50) };
+}
 function menuStatus(req) {
   const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], srcSt = branchState(src) || {};
   const h = hashOf(menuOf(srcSt)), L = branches().map(function (b) { const r = ruleOf(hq, b.id); return { id: b.id, name: b.name, type: b.type, src: b.id === src.id, mode: r.mode, off: Object.keys(r.off).length, price: Object.keys(r.price).length }; });
@@ -313,7 +406,11 @@ function handle(req, res, body) {
   if (q.cron !== undefined) {                       /* cron: ແລ່ນວຽກຕາມເວລາ ທຸກສາຂາ */
     if (!keyOk(q.cron, 'CRON_KEY')) return send(res, 403, 'denied');
     const ran = [];
-    branches().forEach(function (b) { try { useBranch(b); shim.beginRequest(); shim.runDue(G).forEach(function (x) { x.b = b.id; ran.push(x); }); shim.sweepCache(); } catch (e) { ran.push({ b: b.id, err: String(e && e.message || e) }); } finally { shim.endRequest(); } });
+    const hq0 = hqRead(), adays = hq0.archDays === undefined ? ARCH_DAYS_DEFAULT : hq0.archDays, today = dayKey(Date.now());
+    branches().forEach(function (b) { try { useBranch(b); shim.beginRequest(); shim.runDue(G).forEach(function (x) { x.b = b.id; ran.push(x); }); shim.sweepCache();
+        if (adays && shim.props.getProperty('ARCH_DAY') !== today && +shim.formatDate(new Date(), 'GMT+7', 'HH') >= 3) { /* ຍ້າຍບິນເກົ່າເຂົ້າຄັງ ມື້ລະເທື່ອ (ຫຼັງ 03:00) */
+          shim.props.setProperty('ARCH_DAY', today); const r = archiveBills(adays); shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} if (r.archived) ran.push({ b: b.id, fn: 'archive', res: r.archived + ' bills' }); }
+      } catch (e) { ran.push({ b: b.id, err: String(e && e.message || e) }); } finally { shim.endRequest(); } });
     return send(res, 200, JSON.stringify({ ok: true, ran: ran, branches: ran.length >= 0 ? branches().length : 0, at: new Date().toISOString() }), 'application/json');
   }
   const br = brFromPath(u.pathname);
