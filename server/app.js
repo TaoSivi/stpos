@@ -39,7 +39,7 @@ function useBranch(b) { CURBR = b; shim.use(brDir(b)); }
 /* ສາຂາໃໝ່ ສຳເນົາ "ການຕັ້ງຄ່າ" ຈາກສາຂາແມ່ແບບ (ເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ການຊຳລະ workflow ຜູ້ໃຊ້) · "ການເຄື່ອນໄຫວ" ເລີ່ມວ່າງ */
 const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
 const BR_DROP = ['curShift', 'activeShift', 'activeStaff', 'activeTable', 'activeCat', 'activeSub', '_srcLoc', '_v', 'servedToday', '_reset'];
-function branchTemplate(st, name, id, type) {
+function branchTemplate(st, name, id, type, srcId) {
   const n = JSON.parse(JSON.stringify(st || {}));
   BR_DROP.forEach(function (k) { delete n[k]; });
   Object.keys(BR_RESET).forEach(function (k) { if (k in n) n[k] = JSON.parse(JSON.stringify(BR_RESET[k])); });
@@ -50,6 +50,8 @@ function branchTemplate(st, name, id, type) {
     const c = JSON.parse(JSON.stringify(t)); ['items', 'customer', 'main', 'mergedInto', 'reserved', 'memberId', 'billTs', 'del', 'sd', 'pkO', 'callTs', 'upd'].forEach(function (f) { delete c[f]; });
     c.status = 'free'; c.items = []; c.customer = null; c.dv = 1; c.upd = Date.now(); tb[k] = c; }); /* ເກັບຜັງ (ຊັ້ນ ຕຳແໜ່ງ ຮູບຮ່າງ ບ່ອນນັ່ງ) */
   n.tables = tb; n._v = Date.now();
+  /* ຈື່ວ່າເມນູໃດມາຈາກສາຂາແມ່ (ການສົ່ງເມນູຄັ້ງຕໍ່ໄປ ຈະແຍກເມນູທີ່ສາຂາເພີ່ມເອງໄດ້ຖືກ) */
+  n.menuHQ = { src: srcId || 'b1', mode: 'hq', ts: Date.now(), codes: menuItems(n.catalog).map(function (x) { return x.m.c; }), gids: (n.modGroups || []).map(function (g) { return g && g.id; }).filter(Boolean) };
   return n;
 }
 
@@ -151,7 +153,7 @@ function hqApi(q, req) {
     const nb = { id: 'b' + n, name: name, type: type, dir: 'b/b' + n, ts: Date.now() }, prev = CURBR;
     shim.endRequest(); useBranch(tpl); shim.beginRequest();
     const ts = G.getState_(); if (!ts) { useBranch(prev); shim.beginRequest(); return { ok: false, err: 'ສາຂາແມ່ແບບບໍ່ມີຂໍ້ມູນ' }; }
-    const json = JSON.stringify(branchTemplate(JSON.parse(ts), name, nb.id, type));
+    const json = JSON.stringify(branchTemplate(JSON.parse(ts), name, nb.id, type, tpl.id));
     shim.endRequest(); useBranch(nb); shim.beginRequest();
     const lock = LockService.getScriptLock(); lock.waitLock(30000);
     try { G.saveStateRaw_(json, true); } finally { lock.releaseLock(); }
@@ -164,17 +166,121 @@ function hqApi(q, req) {
     const L = branches(), b = L.filter(function (x) { return x.id === q.id; })[0], name = String(q.name || '').replace(/[<>]/g, '').trim().slice(0, 60);
     if (!b || !name) return { ok: false, err: 'id/name' }; b.name = name; atomicWrite0(BR_FILE, JSON.stringify(L, null, 1)); return { ok: true, branches: brList(req) };
   }
+  /* ໄລຍະ 2: ເມນູກາງ */
+  if (a === 'menu') return menuStatus(req);
+  if (a === 'menuSrc') { const b = brFind(String(q.id || '')); if (!b) return { ok: false, err: 'id' }; const hq = hqRead(); hq.menuSrc = b.id; hqWrite(hq); return menuStatus(req); }
+  if (a === 'menuItems') {
+    const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], st = branchState(src) || {};
+    return { ok: true, src: src.id, rule: q.id ? ruleOf(hq, String(q.id)) : null, items: menuItems(st.catalog).map(function (x) { return { c: x.m.c, n: x.m.n, p: x.m.p, k: x.m.k, cat: x.c, sub: x.s }; }) };
+  }
+  if (a === 'menuPush') { const ids = q.ids && q.ids !== 'all' ? String(q.ids).split(',') : null; return menuPush(ids, String(q.by || '').slice(0, 60)); }
   return { ok: false, err: 'hq' };
 }
+/* POST ສຳລັບ HQ (ກົດເມນູລາຍສາຂາ ມີຂໍ້ມູນຫຼາຍ ເກີນ URL) · ຕອບ JSON + CORS ໃຫ້ແອັບອ່ານໄດ້ */
+function hqPost(q, req, res, body) {
+  const origin = String(req.headers.origin || ''), hdr = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  if (origin) { hdr['Access-Control-Allow-Origin'] = origin; hdr['Vary'] = 'Origin'; }
+  const done = function (o) { res.writeHead(200, hdr); res.end(JSON.stringify(o)); };
+  if (!hqAuth(q)) return done({ ok: false, err: 'token' });
+  let o; try { o = JSON.parse(body || '{}'); } catch (e) { return done({ ok: false, err: 'json' }); }
+  if (q.hq === 'menuRule') {
+    const b = brFind(String(o.id || '')); if (!b) return done({ ok: false, err: 'id' });
+    const mode = (o.mode === 'own' || o.mode === 'except') ? o.mode : 'hq', off = {}, price = {};
+    Object.keys(o.off || {}).forEach(function (c) { if (o.off[c]) off[String(c).slice(0, 40)] = 1; });
+    Object.keys(o.price || {}).forEach(function (c) { const v = o.price[c]; if (v !== '' && v !== null && isFinite(+v) && +v >= 0) price[String(c).slice(0, 40)] = Math.round(+v); });
+    const hq = hqRead(); if (!hq.rules) hq.rules = {}; hq.rules[b.id] = { mode: mode, off: off, price: price, ts: Date.now() }; hqWrite(hq);
+    return done(Object.assign(menuStatus(req), { saved: b.id }));
+  }
+  return done({ ok: false, err: 'hq' });
+}
 function jsonpOut(res, cb, payload) { send(res, 200, String(cb).replace(/[^\w$.]/g, '') + '(' + JSON.stringify(payload) + ')', 'application/javascript'); }
-/* POST ແບບ DZ: = {b: hash ສະບັບພື້ນ, p: patch, h: hash ຜົນ} → ປະກອບເປັນ JSON ເຕັມ ແລ້ວສົ່ງເຂົ້າ doPost ຄືເກົ່າ; ຜິດ = 'resend' (ແອັບສົ່ງເຕັມແທນ) */
-function expandDeltaBody(body) {
+/* POST ແບບ DZ: = {b: hash ສະບັບພື້ນ, p: patch, h: hash ຜົນ} → {obj: state ເຕັມຂອງເຄື່ອງ, p} · ຜິດ = null ('resend' → ແອັບສົ່ງເຕັມແທນ) */
+function expandDelta(body) {
   try {
     const o = JSON.parse(zlib.gunzipSync(Buffer.from(body.substring(3), 'base64')).toString('utf8'));
     const base = histGet(o.b); if (!base || !o.p) return null;
     const r = STDelta.apply(base, o.p); if (hashOf(r) !== o.h) return null;
-    return JSON.stringify(r);
+    return { obj: r, p: o.p };
   } catch (e) { return null; }
+}
+/* ກ່ອນລວມຂໍ້ມູນ: (1) delta — ສ່ວນທີ່ເຄື່ອງບໍ່ໄດ້ແກ້ ໃຊ້ຂອງ server (ບໍ່ດຶງຂໍ້ມູນເກົ່າກັບຄືນ ເຊັ່ນ ເມນູທີ່ HQ ຫາກໍສົ່ງ)
+ * (2) ເມນູ: ເຄື່ອງທີ່ຖືເມນູເວີຊັນເກົ່າກວ່າ server (menuV) ຂຽນທັບເມນູບໍ່ໄດ້ */
+const MENU_KEYS = ['catalog', 'menuImg', 'modGroups', 'menuHQ', 'menuV'];
+function prepIncoming(inc, p, cur) {
+  if (!cur || !inc || typeof inc !== 'object') return inc;
+  if (p) {
+    Object.keys(cur).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(p.s, k) && p.d.indexOf(k) < 0) inc[k] = cur[k]; });
+    Object.keys(inc).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(cur, k) && !Object.prototype.hasOwnProperty.call(p.s, k)) delete inc[k]; });
+  }
+  if ((+cur.menuV || 0) > (+inc.menuV || 0)) MENU_KEYS.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(cur, k)) inc[k] = cur[k]; else delete inc[k]; });
+  return inc;
+}
+
+/* ===== ໄລຍະ 2: ເມນູ ແລະ ລາຄາກາງ =====
+ * hq.json = { menuSrc: id ສາຂາແມ່, rules: {id: {mode: 'hq'|'except'|'own', off: {code:1}, price: {code: ລາຄາ}}}, push: {ts, by, h, res} }
+ * ສົ່ງເມນູ: ເມນູ (catalog) + ຮູບ + ຂະໜາດ/Topping ຂອງສາຂາແມ່ → ສາຂາອື່ນຕາມກົດ · ເມນູທີ່ສາຂາເພີ່ມເອງບໍ່ຖືກລຶບ · ວັດຖຸດິບໃນສູດທີ່ສາຂາບໍ່ມີ ເພີ່ມໃຫ້ (ສະຕ໋ອກ 0) */
+const HQ_FILE = path.join(DATA_DIR, 'hq.json');
+function hqRead() { try { return JSON.parse(fs.readFileSync(HQ_FILE, 'utf8')) || {}; } catch (e) { return {}; } }
+function hqWrite(o) { atomicWrite0(HQ_FILE, JSON.stringify(o, null, 1)); }
+function withBranch(b, fn) { const prev = CURBR; shim.endRequest(); useBranch(b); shim.beginRequest(); try { return fn(); } finally { shim.endRequest(); useBranch(prev); shim.beginRequest(); } }
+function branchState(b) { return withBranch(b, function () { const s = G.getState_(); return s ? JSON.parse(s) : null; }); }
+function menuItems(cat) { const out = []; Object.keys(cat || {}).forEach(function (c) { Object.keys(cat[c] || {}).forEach(function (s) { (cat[c][s] || []).forEach(function (m) { if (m && m.c) out.push({ m: m, c: c, s: s }); }); }); }); return out; }
+function menuOf(st) { return { catalog: st.catalog || {}, menuImg: st.menuImg || {}, modGroups: st.modGroups || [] }; }
+function ruleOf(hq, id) { const r = (hq.rules || {})[id] || {}; return { mode: (r.mode === 'own' || r.mode === 'except') ? r.mode : 'hq', off: r.off || {}, price: r.price || {} }; }
+function ingRefs(menu) {
+  const s = {};
+  menuItems(menu.catalog).forEach(function (x) { (x.m.bom || []).concat(Array.isArray(x.m.pk) ? x.m.pk : []).forEach(function (b) { if (b && b[0]) s[b[0]] = 1; }); });
+  (menu.modGroups || []).forEach(function (g) { (g.opts || []).forEach(function (o) { if (o && o.ing) s[o.ing] = 1; if (o && o.pc) s[o.pc] = 1; }); });
+  return Object.keys(s);
+}
+function buildMenu(src, rule, tgt) {
+  const menu = JSON.parse(JSON.stringify(menuOf(src))), mCodes = {}; menuItems(menu.catalog).forEach(function (x) { mCodes[x.m.c] = 1; });
+  const prev = tgt.menuHQ && Array.isArray(tgt.menuHQ.codes) ? tgt.menuHQ.codes : null, prevSet = {}; (prev || []).forEach(function (c) { prevSet[c] = 1; });
+  let off = 0, priced = 0, own = 0;
+  if (rule.mode === 'except') Object.keys(menu.catalog).forEach(function (c) { Object.keys(menu.catalog[c]).forEach(function (s) {
+    menu.catalog[c][s] = menu.catalog[c][s].filter(function (m) { if (rule.off[m.c]) { off++; return false; } return true; }).map(function (m) {
+      const p = rule.price[m.c]; if (p !== undefined && p !== null && p !== '' && +p >= 0) { m.p = +p; priced++; } return m; }); }); });
+  /* ເມນູຂອງສາຂາເອງ = ບໍ່ມີໃນສາຂາແມ່ ແລະ ບໍ່ເຄີຍມາຈາກສາຂາແມ່ (ຖ້າເຄີຍມາ ແລ້ວແມ່ລຶບອອກ = ລຶບນຳ) */
+  menuItems(tgt.catalog).forEach(function (x) { if (mCodes[x.m.c] || prevSet[x.m.c]) return;
+    if (!menu.catalog[x.c]) menu.catalog[x.c] = {}; if (!menu.catalog[x.c][x.s]) menu.catalog[x.c][x.s] = []; menu.catalog[x.c][x.s].push(x.m); own++; });
+  const gm = {}; menu.modGroups.forEach(function (g) { if (g && g.id) gm[g.id] = 1; });
+  const prevG = {}; ((tgt.menuHQ && tgt.menuHQ.gids) || []).forEach(function (id) { prevG[id] = 1; });
+  (tgt.modGroups || []).forEach(function (g) { if (g && g.id && !gm[g.id] && !prevG[g.id]) menu.modGroups.push(g); });
+  menu.menuImg = Object.assign({}, tgt.menuImg || {}, menu.menuImg);
+  return { menu: menu, off: off, priced: priced, own: own, codes: Object.keys(mCodes), gids: Object.keys(gm) };
+}
+function menuPush(ids, by) {
+  const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], srcSt = branchState(src);
+  if (!srcSt || !srcSt.catalog) return { ok: false, err: 'ສາຂາແມ່ບໍ່ມີເມນູ' };
+  const mv = Date.now(), h = hashOf(menuOf(srcSt)), res = [];
+  branches().forEach(function (b) {
+    if (b.id === src.id || (ids && ids.indexOf(b.id) < 0)) return;
+    const rule = ruleOf(hq, b.id);
+    if (rule.mode === 'own') { res.push({ id: b.id, name: b.name, mode: 'own', skip: 1 }); return; }
+    withBranch(b, function () {
+      const lock = LockService.getScriptLock(); lock.waitLock(30000);
+      try {
+        const s = G.getState_(); if (!s) { res.push({ id: b.id, name: b.name, err: 'empty' }); return; }
+        const st = JSON.parse(s), r = buildMenu(srcSt, rule, st);
+        st.catalog = r.menu.catalog; st.menuImg = r.menu.menuImg; st.modGroups = r.menu.modGroups;
+        let addIng = 0; if (!st.ingredients) st.ingredients = {};
+        ingRefs(r.menu).forEach(function (code) { if (st.ingredients[code]) return; const si = srcSt.ingredients && srcSt.ingredients[code]; if (!si) return;
+          const ni = JSON.parse(JSON.stringify(si)); ni.locs = { main: 0 }; ni.stock = 0; delete ni.lastIn; ni.addTs = Date.now(); st.ingredients[code] = ni; addIng++; });
+        st.menuV = mv; st.menuHQ = { src: src.id, srcName: src.name || src.id, mode: rule.mode, ts: mv, by: by || '', codes: r.codes, gids: r.gids };
+        st._v = Math.max(Date.now(), (+st._v || 0) + 1);
+        G.saveStateRaw_(JSON.stringify(st), true, true);
+        res.push({ id: b.id, name: b.name, mode: rule.mode, items: menuItems(st.catalog).length, off: r.off, priced: r.priced, own: r.own, addIng: addIng });
+      } finally { lock.releaseLock(); }
+      shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {}
+    });
+  });
+  hq.push = { ts: mv, by: by || '', h: h, res: res }; hqWrite(hq);
+  return { ok: true, push: hq.push };
+}
+function menuStatus(req) {
+  const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], srcSt = branchState(src) || {};
+  const h = hashOf(menuOf(srcSt)), L = branches().map(function (b) { const r = ruleOf(hq, b.id); return { id: b.id, name: b.name, type: b.type, src: b.id === src.id, mode: r.mode, off: Object.keys(r.off).length, price: Object.keys(r.price).length }; });
+  return { ok: true, src: src.id, srcName: src.name, items: menuItems(srcSt.catalog).length, dirty: !hq.push || hq.push.h !== h, push: hq.push ? { ts: hq.push.ts, by: hq.push.by, res: hq.push.res } : null, branches: L };
 }
 
 /* ເທື່ອທຳອິດ: ຕັ້ງສຳຮອງອັດຕະໂນມັດທຸກມື້ 03:00 (ເກັບ 14 ມື້) + ທະບຽນສາຂາ (b1 = ຂໍ້ມູນເດີມ, ຊື່ຕາມຊື່ຮ້ານ) */
@@ -246,11 +352,19 @@ function handle(req, res, body) {
   liftToken(q);
   if (q.callback && q.login !== undefined) return jsonpOut(res, q.callback, loginApi(q, req));
   if (req.method === 'POST') {
+    if (q.hq !== undefined) return hqPost(q, req, res, body);
+    let inc = null, dz = null;
     if (body.indexOf('DZ:') === 0) {
       if (!G.tokenOk_(q.token)) return send(res, 200, 'denied');
-      const full = expandDeltaBody(body); if (full === null) return send(res, 200, 'resend');
-      body = full;
+      dz = expandDelta(body); if (dz === null) return send(res, 200, 'resend');
+      inc = dz.obj;
+    } else if (G.tokenOk_(q.token)) {
+      try { inc = JSON.parse(body.indexOf('GZ:') === 0 ? zlib.gunzipSync(Buffer.from(body.substring(3), 'base64')).toString('utf8') : body); } catch (e) { inc = null; }
     }
+    if (inc && typeof inc === 'object' && !inc.action && !inc.cust) {
+      let cur = null; try { const cs = G.getState_(); cur = cs ? JSON.parse(cs) : null; } catch (e) {}
+      prepIncoming(inc, dz && dz.p, cur); body = JSON.stringify(inc);
+    } else if (dz) body = JSON.stringify(inc);
     const r = G.doPost({ parameter: q, postData: { contents: body, length: body.length, type: req.headers['content-type'] || '' } });
     shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {}
     return out(res, r);

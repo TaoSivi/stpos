@@ -6033,7 +6033,7 @@ function setSecTable(){var T=Object.values(state.tables||{});
    return '<div class="sfloor"><div class="sfloor-h"><b>'+cesc(f)+'</b><small>'+tt.length+' ໂຕະ</small><span class="sitem-a">'+sBtn('+ ເພີ່ມໂຕະ','addTablePrompt(this.dataset.k)','sm',sKX(f))+(tt.length?'':sBtn('ລຶບຊັ້ນ','removeFloor(this.dataset.k)','sm ghost-danger',sKX(f)))+'</span></div>'+
     (tt.length?'<div class="schips">'+tt.map(function(t){return '<span class="schip">'+cesc(t.name)+'<button type="button" title="ລຶບໂຕະ"'+sKX(t.name)+' onclick="removeTable(this.dataset.k)">×</button></span>';}).join('')+'</div>':'<div class="sfloor-e">ຍັງບໍ່ມີໂຕະ</div>')+'</div>';}).join('')||sEmpty('ຍັງບໍ່ມີຊັ້ນ — ກົດ "+ ເພີ່ມຊັ້ນ"'));}
 function setSecMenu(){
- return '<section class="scard smenu">'+menuAdminHTML()+'</section>'+
+ return hqMenuBanner()+'<section class="scard smenu">'+menuAdminHTML()+'</section>'+
  sCard('ນຳເຂົ້າ / ສົ່ງອອກ ສູດ','ໄຟລ໌ ST POS - Data.xlsx = ເມນູ + ລາຄາ + ສູດຕັດສະຕ໋ອກ + ວັດຖຸດິບ (ສະຕ໋ອກເລີ່ມ 0) · "ສະເພາະສູດ" ບໍ່ແຕະເມນູ/ລາຄາ/ສະຕ໋ອກ',
   (isOwner()&&state.catalog?sBtn('ເກັບໄວ້ສະເພາະ…','menuKeepModal()','ghost-danger'):'')+sBtn('ກວດສູດ','showBomAudit()')+sBtn('Export ສູດ','exportBOM()')+sBtn('ນຳເຂົ້າສະເພາະສູດ','openImportBOM()')+sBtn('ນຳເຂົ້າທັງໝົດ','openImport()','pri'),
   sRow('ສະຖານະ','',state.catalog?sBadge('ນຳເຂົ້າແລ້ວ '+allMenu().length+' ເມນູ','ok'):sBadge('ຍັງໃຊ້ເມນູຕົວຢ່າງ','warn')))+
@@ -6078,7 +6078,7 @@ function setSecLoc(){var L=state.locations||[],LT={branch:'ສາຂາ',warehou
   sRow('ບ່ອນເກັບຂອງເຄື່ອງນີ້','','<select class="ssel" onchange="setTerminalLoc(this.value)">'+L.map(function(l){return '<option value="'+aesc(l.id)+'"'+(l.id===curLoc()?' selected':'')+'>'+cesc(l.name)+'</option>';}).join('')+'</select>'))+
  sCard('ບ່ອນເກັບ (ສະຕ໋ອກ)','ຄົວກາງ, ສາງ, ສາຂາ — ສະຕ໋ອກແຍກຕາມບ່ອນ ໃນ server ດຽວກັນ',sBtn('+ ເພີ່ມບ່ອນເກັບ','addLocation()','pri'),
   L.map(function(l){return sItem(cesc(l.name)+(l.id===curLoc()?sBadge('ເຄື່ອງນີ້','ok'):''),LT[l.type]||l.type||'',sBtn('ແກ້','editLocation(this.dataset.k)','sm',sKX(l.id))+(L.length>1?sBtn('ລຶບ','delLocation(this.dataset.k)','sm ghost-danger',sKX(l.id)):''));}).join(''))+
- (hqMode()?hqCard():sCard('ສາຂາທີ່ມີ server ແຍກ','ແຕ່ລະສາຂາ = 1 Apps Script + 1 Google Sheet · ເບິ່ງຍອດລວມ: ລາຍງານ → ສາຂາ · ສະຫຼັບ = ປ່ຽນລິ້ງຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່',sBtn('+ ເພີ່ມສາຂາ','addBranchModal()','pri'),
+ (hqMode()?hqCard()+hqMenuCard():sCard('ສາຂາທີ່ມີ server ແຍກ','ແຕ່ລະສາຂາ = 1 Apps Script + 1 Google Sheet · ເບິ່ງຍອດລວມ: ລາຍງານ → ສາຂາ · ສະຫຼັບ = ປ່ຽນລິ້ງຂອງເຄື່ອງນີ້ ແລ້ວໂຫຼດໃໝ່',sBtn('+ ເພີ່ມສາຂາ','addBranchModal()','pri'),
   B.map(function(b,i){return sItem(cesc(b.name),'',sBtn('ສະຫຼັບໄປ','switchBranch('+i+')','sm')+sBtn('ລຶບ','delBranch('+i+')','sm ghost-danger'));}).join('')||sEmpty('ຍັງບໍ່ມີສາຂາອື່ນ')));}
 /* ສາຂາໃນ server ດຽວກັນ: ທຸກສາຂາ + QR ພະນັກງານຂອງແຕ່ລະສາຂາ + ສະຫຼັບ + ເພີ່ມສາຂາ (ພິມແຕ່ຊື່) */
 function hqCard(){if(!HQ.list&&!HQ.loading&&!HQ.err)hqLoad(render);var TL={branch:'ສາຂາ',warehouse:'ສາງ / ຄົວກາງ'},sup=!!(curUser()&&curUser().role==='superadmin');
@@ -6086,6 +6086,53 @@ function hqCard(){if(!HQ.list&&!HQ.loading&&!HQ.err)hqLoad(render);var TL={branc
  return sCard('ສາຂາ ('+HQ.list.length+')','ທຸກສາຂາຢູ່ server ດຽວກັນ · ສາຂາໃໝ່ສຳເນົາເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ຜູ້ໃຊ້ ຈາກສາຂານີ້ (ສະຕ໋ອກເລີ່ມ 0, ບິນເລີ່ມວ່າງ) · ໃຫ້ພະນັກງານສາຂາສະແກນ QR ຂອງສາຂາຕົນ',sup?sBtn('+ ເພີ່ມສາຂາ','hqAddModal()','pri'):'',
   HQ.list.map(function(b){var me=b.id===HQ.cur;return sItem(cesc(b.name)+(me?sBadge('ເຄື່ອງນີ້','ok'):''),(TL[b.type]||b.type)+' · '+b.id,
    sBtn('QR ພະນັກງານ','staffLinkModal(this.dataset.u,this.dataset.n)','sm',' data-u="'+aesc(b.url)+'" data-n="'+aesc(b.name)+'"')+(me?'':sBtn('ສະຫຼັບໄປ','hqSwitch(this.dataset.k)','sm',sKX(b.id)))+(sup?sBtn('ປ່ຽນຊື່','hqRename(this.dataset.k)','sm ghost',sKX(b.id)):''));}).join(''));}
+/* ===== ໄລຍະ 2: ເມນູ ແລະ ລາຄາກາງ — ແກ້ເມນູໃນ "ສາຂາແມ່" ແລ້ວສົ່ງໄປສາຂາອື່ນຕາມກົດຂອງແຕ່ລະສາຂາ ===== */
+var MENU_MODE={hq:'ຄືສາຂາແມ່ທັງໝົດ',except:'ຄືສາຂາແມ່ + ຍົກເວັ້ນ',own:'ເມນູຂອງຕົນເອງ (ບໍ່ຮັບການສົ່ງ)'};
+function hqMenuBanner(){var m=state.menuHQ;if(!m||!m.ts||m.mode==='own')return '';
+ return '<div class="me-note" style="margin-bottom:12px;background:#ecfeff;border:1px solid #a5f3fc;border-radius:14px;padding:12px 14px;line-height:1.65"><b>ເມນູສາຂານີ້ ສົ່ງມາຈາກ '+cesc(m.srcName||m.src||'ສາຂາແມ່')+'</b> ('+(m.mode==='except'?'ມີຍົກເວັ້ນ':'ຄືສາຂາແມ່')+') · ສົ່ງລ່າສຸດ '+new Date(m.ts).toLocaleString('en-GB')+(m.by?' ໂດຍ '+cesc(m.by):'')+
+  '<br>ເມນູ ແລະ ລາຄາທີ່ມາຈາກສາຂາແມ່ ແກ້ຢູ່ນີ້ໄດ້ ແຕ່<b>ຈະຖືກຂຽນທັບ</b>ຕອນສົ່ງເມນູຄັ້ງຕໍ່ໄປ — ຂໍໃຫ້ HQ ປັບກົດຂອງສາຂາແທນ · ເມນູທີ່ສາຂາເພີ່ມເອງ ແລະ ການໝາຍ "ໝົດ" ບໍ່ຖືກແຕະ</div>';}
+function hqMenuLoad(){if(HQ.menuLoading)return;HQ.menuLoading=true;jsonpUrl_(API_URL,'hq=menu&token='+encodeURIComponent(TOKEN),function(r){HQ.menuLoading=false;if(r&&r.ok&&r.branches){HQ.menu=r;HQ.menuErr='';}else HQ.menuErr=(r&&r.err)||'net';render();},30000);}
+function hqMenuCard(){var sup=!!(curUser()&&curUser().role==='superadmin');if(!sup||!HQ.list)return '';if(!HQ.menu&&!HQ.menuLoading&&!HQ.menuErr)hqMenuLoad();var M=HQ.menu;
+ if(!M)return sCard('ເມນູ ແລະ ລາຄາກາງ','',sBtn('ລອງໃໝ່','HQ.menuErr=String();hqMenuLoad()','sm'),sEmpty(HQ.menuErr?'ໂຫຼດບໍ່ໄດ້':'ກຳລັງໂຫຼດ…'));
+ var others=M.branches.filter(function(b){return !b.src;});
+ var st=M.dirty?sBadge('ເມນູສາຂາແມ່ມີການປ່ຽນ — ຍັງບໍ່ໄດ້ສົ່ງ','warn'):sBadge('ສົ່ງແລ້ວ '+(M.push?new Date(M.push.ts).toLocaleString('en-GB'):''),'ok');
+ return sCard('ເມນູ ແລະ ລາຄາກາງ','ແກ້ເມນູ ລາຄາ ສູດ ຂະໜາດ/Topping ໃນ "ສາຂາແມ່" (ໜ້າ ເມນູ & ຮູບ ຂອງສາຂານັ້ນ) → ກົດ "ສົ່ງເມນູ" → ສາຂາອື່ນໄດ້ຕາມກົດຂອງມັນ · ເມນູທີ່ສາຂາເພີ່ມເອງບໍ່ຖືກລຶບ · ວັດຖຸດິບໃໝ່ໃນສູດ ເພີ່ມໃຫ້ (ສະຕ໋ອກ 0)',
+  others.length?sBtn('ສົ່ງເມນູໄປທຸກສາຂາ','hqMenuPushAsk()','pri'):'',
+  sRow('ສາຂາແມ່ຂອງເມນູ',M.items+' ເມນູ','<select class="ssel" onchange="hqMenuSrc(this.value)">'+M.branches.map(function(b){return '<option value="'+aesc(b.id)+'"'+(b.src?' selected':'')+'>'+cesc(b.name)+'</option>';}).join('')+'</select>')+
+  sRow('ສະຖານະ','',st)+
+  (others.length?others.map(function(b){var sub=MENU_MODE[b.mode]+(b.mode==='except'?' · ປິດ '+b.off+' · ລາຄາພິເສດ '+b.price:'');
+   return sItem(cesc(b.name),sub,sBtn('ຕັ້ງກົດ','hqRuleModal(this.dataset.k)','sm',sKX(b.id))+sBtn('ສົ່ງສະເພາະສາຂານີ້','hqMenuPush(this.dataset.k)','sm ghost',sKX(b.id)));}).join(''):sEmpty('ຍັງບໍ່ມີສາຂາອື່ນ — ເພີ່ມສາຂາກ່ອນ')));}
+function hqMenuSrc(id){jsonpUrl_(API_URL,'hq=menuSrc&id='+encodeURIComponent(id)+'&token='+encodeURIComponent(TOKEN),function(r){if(r&&r.ok){HQ.menu=r;render();toast('ສາຂາແມ່ຂອງເມນູ: '+r.srcName);}else toast('ປ່ຽນບໍ່ໄດ້');},30000);}
+function hqMenuPushAsk(){var M=HQ.menu;if(!M)return;var o=M.branches.filter(function(b){return !b.src;});
+ openModal('<h2>ສົ່ງເມນູຈາກ '+cesc(M.srcName)+'?</h2><p class="ie-sub" style="text-align:left;line-height:1.7">'+o.map(function(b){return '• <b>'+cesc(b.name)+'</b>: '+MENU_MODE[b.mode];}).join('<br>')+'</p><p style="font-size:12.5px;color:var(--muted);line-height:1.6">ເຄື່ອງໃນສາຂາຈະໄດ້ເມນູໃໝ່ພາຍໃນບໍ່ເທົ່າໃດວິນາທີ · ໂຕະ ອໍເດີ ບິນ ສະຕ໋ອກ ບໍ່ຖືກແຕະ</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" id="mp_go" onclick="hqMenuPush()">ສົ່ງເມນູ</button></div>');}
+function hqMenuPush(id){var bt=document.getElementById('mp_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງສົ່ງ…';}else toast('ກຳລັງສົ່ງເມນູ…');var by=(curUser()&&curUser().name)||'';
+ jsonpUrl_(API_URL,'hq=menuPush&ids='+encodeURIComponent(id||'all')+'&by='+encodeURIComponent(by)+'&token='+encodeURIComponent(TOKEN),function(r){
+  if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ສົ່ງເມນູ';}toast(r&&r.err?r.err:'ສົ່ງບໍ່ໄດ້ — ລອງໃໝ່');return;}
+  logOrder('ສົ່ງເມນູກາງ',(id||'ທຸກສາຂາ')+' · '+r.push.res.length+' ສາຂາ','');HQ.menu=null;hqMenuLoad();
+  openModal('<h2>ສົ່ງເມນູແລ້ວ</h2><div style="text-align:left;font-size:14px;line-height:1.8">'+r.push.res.map(function(x){return '<b>'+cesc(x.name)+'</b>: '+(x.skip?'ເມນູຂອງຕົນເອງ — ຂ້າມ':x.err?'⚠ '+cesc(x.err):x.items+' ເມນູ'+(x.off?' · ປິດ '+x.off:'')+(x.priced?' · ລາຄາພິເສດ '+x.priced:'')+(x.own?' · ເມນູສາຂາເອງ '+x.own:'')+(x.addIng?' · ເພີ່ມວັດຖຸດິບ '+x.addIng:''));}).join('<br>')+'</div><div class="modal-btns"><button class="btn-ok grad" onclick="closeModal()">ຕົກລົງ</button></div>');},120000);}
+/* ກົດເມນູຂອງ 1 ສາຂາ: ຄືແມ່ / ຍົກເວັ້ນ (ປິດບາງເມນູ + ລາຄາພິເສດ) / ເມນູຂອງຕົນເອງ */
+var _rm=null;
+function hqRuleModal(id){var b=(HQ.menu&&HQ.menu.branches||[]).find(function(x){return x.id===id;});if(!b)return;
+ openModal('<h2>ກົດເມນູ — '+cesc(b.name)+'</h2><div class="ie-sub">ກຳລັງໂຫຼດເມນູສາຂາແມ່…</div>');
+ jsonpUrl_(API_URL,'hq=menuItems&id='+encodeURIComponent(id)+'&token='+encodeURIComponent(TOKEN),function(r){if(!(r&&r.ok)){closeModal();toast('ໂຫຼດບໍ່ໄດ້');return;}
+  _rm={id:id,name:b.name,mode:r.rule.mode,off:Object.assign({},r.rule.off),price:Object.assign({},r.rule.price),items:r.items,q:''};hqRuleDraw();},60000);}
+function hqRuleDraw(){var R=_rm;if(!R)return;var q=R.q.toLowerCase(),list=R.items.filter(function(m){return !q||(m.n||'').toLowerCase().indexOf(q)>=0||String(m.c).toLowerCase().indexOf(q)>=0||(m.cat||'').toLowerCase().indexOf(q)>=0;});
+ var nOff=Object.keys(R.off).length,nPr=Object.keys(R.price).length,last='';
+ openModal('<h2>ກົດເມນູ — '+cesc(R.name)+'</h2>'+
+  '<div style="display:flex;flex-direction:column;gap:6px;margin:6px 0 10px">'+['hq','except','own'].map(function(k){return '<label style="display:flex;gap:10px;align-items:center;justify-content:flex-start;text-align:left;font-weight:600;cursor:pointer;margin:0"><input type="radio" name="rm_mode" style="width:18px;height:18px;flex:none;margin:0" '+(R.mode===k?'checked':'')+' onchange="_rm.mode=\''+k+'\';hqRuleDraw()"> '+MENU_MODE[k]+'</label>';}).join('')+'</div>'+
+  (R.mode!=='except'?'<p style="font-size:12.5px;color:var(--muted)">'+(R.mode==='hq'?'ສາຂານີ້ໄດ້ເມນູ ແລະ ລາຄາຄືສາຂາແມ່ທຸກຢ່າງ (ບວກເມນູທີ່ສາຂາເພີ່ມເອງ)':'HQ ບໍ່ສົ່ງເມນູໃຫ້ສາຂານີ້ — ສາຂາແກ້ເມນູເອງທັງໝົດ')+'</p>':
+   '<input class="in" id="rm_q" placeholder="ຄົ້ນຫາເມນູ / ລະຫັດ / ໝວດ" value="'+aesc(R.q)+'" oninput="_rm.q=this.value;hqRuleDraw();var e=document.getElementById(\'rm_q\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px">'+
+   '<div style="font-size:12.5px;color:var(--muted);margin:6px 0">ປິດ '+nOff+' ເມນູ · ລາຄາພິເສດ '+nPr+' ເມນູ · ຊ່ອງລາຄາວ່າງ = ລາຄາສາຂາແມ່</div>'+
+   '<div style="max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px">'+list.slice(0,300).map(function(m){var hd='';if(m.cat!==last){last=m.cat;hd='<div style="position:sticky;top:0;background:#f4faf9;padding:6px 10px;font-weight:800;font-size:12.5px">'+cesc(m.cat)+'</div>';}var off=!!R.off[m.c];
+    return hd+'<div style="padding:8px 10px;border-top:1px solid #eef5f4;'+(off?'opacity:.55':'')+'"><label style="display:flex;gap:10px;align-items:flex-start;margin:0;cursor:pointer;text-align:left"><input type="checkbox" style="width:20px;height:20px;flex:none;margin:1px 0 0" '+(off?'':'checked')+' title="ຂາຍໃນສາຂານີ້" data-c="'+aesc(m.c)+'" onchange="if(this.checked)delete _rm.off[this.dataset.c];else _rm.off[this.dataset.c]=1;hqRuleDraw()"><b style="flex:1;font-size:13.5px;line-height:1.35">'+cesc(m.n)+'</b></label>'+
+     '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 0 30px"><small style="color:var(--muted)">'+cesc(m.c)+' · ແມ່ '+KIP(m.p)+(off?' · ປິດ':'')+'</small><input type="number" inputmode="numeric" min="0" placeholder="ລາຄາພິເສດ" value="'+(R.price[m.c]!=null?R.price[m.c]:'')+'" data-c="'+aesc(m.c)+'" onchange="var v=this.value.trim();if(v===\'\')delete _rm.price[this.dataset.c];else _rm.price[this.dataset.c]=+v;" style="width:96px;flex:none;padding:6px 8px;border:1px solid var(--line);border-radius:8px;text-align:right"></div></div>';}).join('')+(list.length>300?'<div style="padding:8px;color:var(--muted);font-size:12px">ສະແດງ 300 ຈາກ '+list.length+' — ໃຊ້ຊ່ອງຄົ້ນຫາ</div>':'')+'</div>')+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="_rm=null;closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" id="rm_go" onclick="hqRuleSave()">ບັນທຶກກົດ</button></div>');
+ var m=document.querySelector('#modalRoot .modal');if(m)m.style.maxWidth='720px';}
+function hqRuleSave(){var R=_rm;if(!R)return;var bt=document.getElementById('rm_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງບັນທຶກ…';}
+ fetch(API_URL+(API_URL.indexOf('?')<0?'?':'&')+'hq=menuRule&token='+encodeURIComponent(TOKEN),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:R.id,mode:R.mode,off:R.mode==='except'?R.off:{},price:R.mode==='except'?R.price:{}})})
+  .then(function(x){return x.json();}).then(function(r){if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ບັນທຶກກົດ';}toast(r&&r.err==='token'?'ສະເພາະ Super Admin':'ບັນທຶກບໍ່ໄດ້');return;}
+   HQ.menu=r;logOrder('ກົດເມນູສາຂາ',R.name+' · '+MENU_MODE[R.mode],'');_rm=null;closeModal();render();toast('ບັນທຶກກົດແລ້ວ — ກົດ "ສົ່ງເມນູ" ເພື່ອໃຫ້ມີຜົນ');})
+  .catch(function(){if(bt){bt.disabled=false;bt.textContent='ບັນທຶກກົດ';}toast('ເຊື່ອມ server ບໍ່ໄດ້');});}
 function hqAddModal(){openModal('<h2>ເພີ່ມສາຂາ</h2><label>ຊື່ສາຂາ</label><input id="hq_nm" placeholder="ເຊັ່ນ LaoFe ສາຂາ ດົງໂດກ" maxlength="60">'+
  '<label style="margin-top:10px">ປະເພດ</label><select id="hq_ty"><option value="branch">ສາຂາ (ຮ້ານ)</option><option value="warehouse">ສາງ / ຄົວກາງ</option></select>'+
  '<p style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6">ສຳເນົາຈາກ <b>'+cesc(state.shopName||'')+'</b>: ເມນູ ລາຄາ ສູດ ວັດຖຸດິບ (ສະຕ໋ອກ 0) ຜັງໂຕະ ການຊຳລະ ພາສີ workflow ແລະ ຜູ້ໃຊ້ (PIN ເດີມ). ບິນ ອໍເດີ ກະ ແລະ ເອກະສານ ເລີ່ມວ່າງ.</p>'+

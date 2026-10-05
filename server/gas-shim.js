@@ -52,11 +52,13 @@ function create(dataDir) {
   }
   function release(dir) { try { fs.rmdirSync(dir); } catch (e) {} }
   function withFileLock(name, fn) { const d = acquire(name, 10000); try { return fn(); } finally { release(d); } }
+  /* ໄດ້ lock ແລ້ວ: ລ້າງແຜ່ນງານທີ່ອ່ານໄວ້ກ່ອນ lock (ບໍ່ໄດ້ແກ້) → ອ່ານໃໝ່ຫຼັງ lock ເຫັນສິ່ງທີ່ process ອື່ນຫາກໍຂຽນ (ກັນລວມກັບຂໍ້ມູນເກົ່າ) */
+  function dropClean() { if (!book) return; Object.keys(book).forEach(function (n) { if (!book[n]._dirty) delete book[n]; }); }
   function makeLock(name) {
     let held = null;
     return {
-      waitLock: function (ms) { if (held) return; held = acquire(name, ms); },
-      tryLock: function (ms) { if (held) return true; try { held = acquire(name, ms); return true; } catch (e) { return false; } },
+      waitLock: function (ms) { if (held) return; held = acquire(name, ms); dropClean(); },
+      tryLock: function (ms) { if (held) return true; try { held = acquire(name, ms); dropClean(); return true; } catch (e) { return false; } },
       hasLock: function () { return !!held; },
       releaseLock: function () { if (held) { release(held); held = null; } }
     };
