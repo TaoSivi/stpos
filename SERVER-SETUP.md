@@ -65,6 +65,33 @@ Environment variables (ກົດ **Add Variable**):
 4. ພິມ QR ໂຕະໃໝ່
 5. ເກັບ Google Sheet ໄວ້ (ບໍ່ລຶບ) 2 ອາທິດ ເປັນສຳຮອງ
 
+## ເຂົ້າລະບົບເຄື່ອງດ້ວຍ PIN (ບໍ່ຕ້ອງໃຊ້ token ໃນລິ້ງ)
+
+- ລິ້ງ / QR ພະນັກງານ ມີແຕ່ທີ່ຢູ່ server. ເຄື່ອງໃໝ່ເປີດແລ້ວ ເລືອກຜູ້ໃຊ້ + PIN → server ກວດ PIN → ໃຫ້ລະຫັດປະຈຳເຄື່ອງ (180 ມື້)
+- ປ່ຽນ PIN ຜູ້ໃດ → ເຄື່ອງຂອງຜູ້ນັ້ນຕ້ອງເຂົ້າລະບົບໃໝ່ · ປ່ຽນ API_TOKEN → ທຸກເຄື່ອງເຂົ້າລະບົບໃໝ່
+- PIN ຜິດ 10 ເທື່ອ/ຜູ້ໃຊ້ (ຫຼື 30 ເທື່ອ/IP) ໃນ 15 ນາທີ → ລັອກ 15 ນາທີ
+- API_TOKEN ຫຼັກ ໃຊ້ສະເພາະເຄື່ອງ admin ແລະ ຄຳສັ່ງຜູ້ດູແລ
+
+## Sync ສະເພາະສ່ວນທີ່ປ່ຽນ (delta)
+
+- ແອັບ ແລະ server ສົ່ງສະເພາະສ່ວນທີ່ປ່ຽນ (ກວດດ້ວຍ hash) ແທນຂໍ້ມູນທັງກ້ອນ · ຜິດພາດ → ກັບໄປສົ່ງແບບເຕັມເອງ
+- server ເກັບ 150 ສະບັບລ່າສຸດໃນ `~/stpos-data/hist` · ເປີດແອັບໃໝ່ໃຊ້ສະບັບທີ່ເກັບໃນເຄື່ອງ (IndexedDB) ແລ້ວດຶງແຕ່ສ່ວນຕ່າງ
+- ໂຄດຄິດໄລ່ສ່ວນຕ່າງ: `server/delta.js` = ບລັອກ `STPOS-DELTA` ໃນ index.html (test ກວດວ່າຄືກັນ)
+
+## ແຈ້ງເຕືອນ server ລົ້ມ
+
+cPanel → Cron Jobs: ຕັ້ງ **Cron Email** ເປັນອີເມວເຈົ້າຂອງ, ແລະ ໃຊ້ຄຳສັ່ງ (ທຸກ 10 ນາທີ):
+
+```
+curl -fsS -m 90 "https://stpos.store/api?cron=CRON_KEY" > /dev/null || echo "ST POS server ບໍ່ຕອບ"
+```
+
+ປົກກະຕິບໍ່ມີອີເມວ; server ບໍ່ຕອບ ຫຼື error → ໄດ້ອີເມວ. (ຖ້າໂຮສລົ້ມທັງໝົດ cron ກໍຢຸດ — ໃຊ້ບໍລິການພາຍນອກເຊັ່ນ UptimeRobot ກວດ `https://stpos.store/api` ນຳ)
+
+## ທົດສອບ
+
+`cd server && npm test` (syntax ແອັບ · delta 3,000 ຮອບ · server 18 ຂໍ້ · 2 process) · `npm run soak` (5 ເຄື່ອງ + QR ພ້ອມກັນ, ກວດບິນບໍ່ຫາຍ)
+
 ## ສຳຮອງນອກໂຮສ
 
 ຂໍ້ມູນທັງໝົດຢູ່ `~/stpos-data`. ທຸກອາທິດ: cPanel → File Manager → ຄລິກຂວາ `stpos-data` → Compress → Download ເກັບໄວ້ໃນຄອມ/Drive.

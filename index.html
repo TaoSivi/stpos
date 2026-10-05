@@ -1892,7 +1892,23 @@ const API_URL=(API_QP||((typeof localStorage!=='undefined'&&localStorage.getItem
 const HAS_API=(!HAS_GAS && !!API_URL);
 const TOKEN=(((typeof localStorage!=='undefined'&&localStorage.getItem('stpos_token'))||'')+'').trim();
 let __tokErr=false;
-function tokenErr_(){if(__tokErr)return;__tokErr=true;var b=document.getElementById('boot');if(b&&!b.classList.contains('hidden')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:340px;text-align:center;line-height:1.7">'+(__apiMoved?'<b style="font-size:16px">ຮ້ານຍ້າຍ server ແລ້ວ</b><br>ເຄື່ອງນີ້ຍັງໃຊ້ລິ້ງເກົ່າ — ຂໍ <b>QR / ລິ້ງເຂົ້າລະບົບ</b> ໃໝ່ຈາກຜູ້ຈັດການ ແລ້ວສະແກນ 1 ເທື່ອ':' Token ບໍ່ຖືກຕ້ອງ ຫຼື ຍັງບໍ່ໄດ້ໃສ່<br>ໄປ ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່ ແລ້ວໃສ່ token ໃຫ້ກົງກັບທີ່ຕັ້ງໄວ້ໃນ server')+'</div><button onclick="var t=prompt(\'ໃສ່ API Token:\');if(t){localStorage.setItem(\'stpos_token\',t.trim());location.reload();}" style="padding:11px 22px;border-radius:11px;border:none;font-weight:700;font-family:inherit">ໃສ່ Token</button>';}else{toast(' Token ບໍ່ຖືກຕ້ອງ — ຂໍ້ມູນຈະບໍ່ຖືກບັນທຶກ (ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່)');}}
+function tokenErr_(){if(__tokErr)return;__tokErr=true;if(HAS_API&&!/[?&]table=/.test(location.search)){srvLogin();return;}tokenErrOld_();}
+/* ເຂົ້າລະບົບດ້ວຍ PIN ທີ່ server (ເຄື່ອງທີ່ຍັງບໍ່ມີລະຫັດ ຫຼື ລະຫັດໝົດອາຍຸ): ເລືອກຜູ້ໃຊ້ + PIN → server ອອກລະຫັດປະຈຳເຄື່ອງ. server ບໍ່ຮອງຮັບ → ຂໍ token ແບບເກົ່າ */
+var _sl={u:null,pin:'',users:[],shop:'',msg:'',busy:false};
+function srvLogin(){if(document.getElementById('srvLogin'))return;var el=document.createElement('div');el.id='srvLogin';el.style.cssText='position:fixed;inset:0;z-index:99999;background:#eaf4f3;display:flex;align-items:center;justify-content:center;overflow:auto;padding:16px';document.body.appendChild(el);
+ el.innerHTML='<div class="loginbox"><h2>ST POS</h2><div class="lsub">ກຳລັງເຊື່ອມ server…</div></div>';
+ jsonpUrl_(API_URL,'login=info',function(r){if(!(r&&r.ok&&r.login)){el.remove();tokenErrOld_();return;}_sl.users=r.users||[];_sl.shop=r.shop||'ST POS';srvLoginDraw();},20000);}
+function srvLoginDraw(){var el=document.getElementById('srvLogin');if(!el)return;
+ el.innerHTML='<div class="loginbox"><h2>'+cesc(_sl.shop)+'</h2><div class="lsub">'+(__apiMoved?'ຮ້ານຍ້າຍ server ແລ້ວ — ':'')+'ເຂົ້າລະບົບເຄື່ອງນີ້: ເລືອກຜູ້ໃຊ້ ແລ້ວໃສ່ PIN (ເທື່ອດຽວ)</div>'+
+  '<div class="usersgrid">'+_sl.users.map(function(u){return '<div class="ucard '+(_sl.u===u.id?'sel':'')+'" data-u="'+cesc(u.id)+'" onclick="_sl.u=this.dataset.u;_sl.pin=_sl.msg=String();srvLoginDraw()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><div class="unm">'+cesc(u.name)+'</div><div class="url">'+cesc((typeof ROLE_LABELS!=='undefined'&&ROLE_LABELS[u.role])||u.role)+'</div></div>';}).join('')+'</div>'+
+  (_sl.u?'<div class="pindots">'+[0,1,2,3].map(function(i){return '<span class="'+(i<_sl.pin.length?'f':'')+'"></span>';}).join('')+'</div>'+(_sl.msg?'<div style="color:var(--red,#dc2626);font-weight:700;font-size:13px">'+cesc(_sl.msg)+'</div>':'')+
+   '<div class="numpad">'+['1','2','3','4','5','6','7','8','9','C','0','⌫'].map(function(n){return '<button onclick="srvLoginKey(this.textContent)">'+n+'</button>';}).join('')+'</div>':'')+'</div>';}
+function srvLoginKey(k){if(_sl.busy)return;if(k==='C')_sl.pin='';else if(k==='⌫')_sl.pin=_sl.pin.slice(0,-1);else if(_sl.pin.length<4)_sl.pin+=k;
+ if(_sl.pin.length<4){srvLoginDraw();return;}_sl.busy=true;_sl.msg='ກຳລັງກວດ…';srvLoginDraw();
+ jsonpUrl_(API_URL,'login=pin&uid='+encodeURIComponent(_sl.u)+'&pin='+encodeURIComponent(_sl.pin),function(r){_sl.busy=false;_sl.pin='';
+  if(r&&r.ok&&r.tk){try{localStorage.setItem('stpos_token',r.tk);localStorage.setItem('stpos_uid',r.uid);}catch(e){}location.reload();return;}
+  _sl.msg=!r?'ເຊື່ອມ server ບໍ່ໄດ້ — ລອງໃໝ່':(r.err==='locked'?(r.msg||'ລັອກຊົ່ວຄາວ'):'PIN ບໍ່ຖືກຕ້ອງ'+(r.left!=null?' (ເຫຼືອ '+r.left+' ເທື່ອ)':''));srvLoginDraw();},20000);}
+function tokenErrOld_(){var b=document.getElementById('boot');if(b&&!b.classList.contains('hidden')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:14px;max-width:340px;text-align:center;line-height:1.7">'+(__apiMoved?'<b style="font-size:16px">ຮ້ານຍ້າຍ server ແລ້ວ</b><br>ເຄື່ອງນີ້ຍັງໃຊ້ລິ້ງເກົ່າ — ຂໍ <b>QR / ລິ້ງເຂົ້າລະບົບ</b> ໃໝ່ຈາກຜູ້ຈັດການ ແລ້ວສະແກນ 1 ເທື່ອ':' Token ບໍ່ຖືກຕ້ອງ ຫຼື ຍັງບໍ່ໄດ້ໃສ່<br>ໄປ ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່ ແລ້ວໃສ່ token ໃຫ້ກົງກັບທີ່ຕັ້ງໄວ້ໃນ server')+'</div><button onclick="var t=prompt(\'ໃສ່ API Token:\');if(t){localStorage.setItem(\'stpos_token\',t.trim());location.reload();}" style="padding:11px 22px;border-radius:11px;border:none;font-weight:700;font-family:inherit">ໃສ່ Token</button>';}else{toast(' Token ບໍ່ຖືກຕ້ອງ — ຂໍ້ມູນຈະບໍ່ຖືກບັນທຶກ (ການຕັ້ງຄ່າ → ການເຊື່ອມຕໍ່)');}}
 function jsonpUrl_(url,params,cb,tmo){var fn='__cb'+Date.now()+Math.floor(Math.random()*1e4);var s=document.createElement('script');var done=false;
  var tm=setTimeout(function(){if(done)return;done=true;window[fn]=function(){try{delete window[fn];}catch(e){}};if(s.parentNode)s.parentNode.removeChild(s);cb(null);},tmo||90000);
  window[fn]=function(r){if(done){try{delete window[fn];}catch(e){}return;}done=true;clearTimeout(tm);try{delete window[fn];}catch(e){window[fn]=null;}if(s.parentNode)s.parentNode.removeChild(s);cb(r||null);};
@@ -1908,11 +1924,118 @@ function b64ToBytes(b){var s=atob(b),a=new Uint8Array(s.length);for(var i=0;i<s.
 function bytesToB64(u){var s='';for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);}
 function gunzipB64(b,cb){try{new Response(new Blob([b64ToBytes(b)]).stream().pipeThrough(new DecompressionStream('gzip'))).text().then(cb,function(){cb(null);});}catch(e){cb(null);}}
 function gzipB64(str,cb){try{new Response(new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer().then(function(ab){cb(bytesToB64(new Uint8Array(ab)));},function(){cb(null);});}catch(e){cb(null);}}
-function apiGet(cb){jsonp_('token='+encodeURIComponent(TOKEN)+(GZ_OK?'&gz=1':''),function(r){if(r&&!r.ok&&r.err==='token'){tokenErr_();cb(null);return;}if(r&&r.ok&&r.gz){window.__srvGz=true;gunzipB64(r.gz,cb);return;}cb(r&&r.ok?r.state:null);});}
+/* STPOS-DELTA BEGIN */
+var STDelta = (function () {
+  function canon(v) {
+    if (v === null || typeof v !== 'object') return (v === undefined || typeof v === 'function') ? 'null' : JSON.stringify(v);
+    if (Array.isArray(v)) { var a = []; for (var i = 0; i < v.length; i++) a.push(canon(v[i])); return '[' + a.join(',') + ']'; }
+    var ks = Object.keys(v).filter(function (k) { return v[k] !== undefined && typeof v[k] !== 'function'; }).sort(), o = [];
+    for (var j = 0; j < ks.length; j++) o.push(JSON.stringify(ks[j]) + ':' + canon(v[ks[j]]));
+    return '{' + o.join(',') + '}';
+  }
+  function same(x, y) { return x === y || JSON.stringify(x) === JSON.stringify(y); }
+  function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+  function idMap(a) {
+    var m = {};
+    for (var i = 0; i < a.length; i++) {
+      var e = a[i]; if (!isObj(e) || e.id == null || (typeof e.id !== 'string' && typeof e.id !== 'number')) return null;
+      var k = String(e.id); if (Object.prototype.hasOwnProperty.call(m, k)) return null; m[k] = e;
+    }
+    return m;
+  }
+  function sub(x, y) {
+    if (Array.isArray(x) && Array.isArray(y) && y.length > 16) {
+      /* ສ່ວນຫົວ + ສ່ວນທ້າຍທີ່ຄືເກົ່າ → ສົ່ງແຕ່ຊ່ວງກາງ (ຮອງຮັບ ເພີ່ມທ້າຍ, ລຶບ/ແຊກກາງ, log ເຕັມເພດານລຶບອັນເກົ່າສຸດ) */
+      var p = 0, q = 0, lim = Math.min(x.length, y.length);
+      while (p < lim && same(x[p], y[p])) p++;
+      while (q < lim - p && same(x[x.length - 1 - q], y[y.length - 1 - q])) q++;
+      var best = (y.length - p - q < y.length / 2) ? { $s: [p, q], m: y.slice(p, y.length - q) } : null;
+      /* ລາຍການມີ id ບໍ່ຊ້ຳ (ອໍເດີຄົວ, ເອກະສານ): ລຳດັບ id + ສະເພາະລາຍການທີ່ປ່ຽນ */
+      var kx = idMap(x), ky = kx && idMap(y);
+      if (ky) {
+        var ids = [], ch = {}, nch = 0;
+        for (var r = 0; r < y.length; r++) { var id = String(y[r].id); ids.push(y[r].id); if (!kx[id] || !same(kx[id], y[r])) { ch[id] = y[r]; nch++; } }
+        if (nch < y.length / 2) { var kd = { $k: ids, c: ch }; if (!best || JSON.stringify(kd).length < JSON.stringify(best).length) best = kd; }
+      }
+      if (best) return best;
+    }
+    if (isObj(x) && isObj(y)) {
+      var ky = Object.keys(y);
+      if (ky.length > 16) {
+        var ch = {}, dl = [], m = 0;
+        Object.keys(x).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(y, k)) dl.push(k); });
+        ky.forEach(function (k) { if (!same(x[k], y[k])) { ch[k] = y[k]; m++; } });
+        if (m < ky.length / 2) return { $o: ch, x: dl };
+      }
+    }
+    return { $v: y };
+  }
+  function diff(a, b) {
+    var p = { s: {}, d: [] };
+    Object.keys(a).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(b, k)) p.d.push(k); });
+    Object.keys(b).forEach(function (k) { if (!same(a[k], b[k])) p.s[k] = sub(a[k], b[k]); });
+    return p;
+  }
+  function apply(a, p) {
+    var o = {}, k;
+    Object.keys(a).forEach(function (k0) { if (p.d.indexOf(k0) < 0) o[k0] = a[k0]; });
+    for (k in p.s) {
+      var e = p.s[k], x = a[k];
+      if (Object.prototype.hasOwnProperty.call(e, '$v')) o[k] = e.$v;
+      else if (Object.prototype.hasOwnProperty.call(e, '$k')) { var xm = (Array.isArray(x) && idMap(x)) || {}; o[k] = e.$k.map(function (id) { var s0 = String(id); return Object.prototype.hasOwnProperty.call(e.c, s0) ? e.c[s0] : xm[s0]; }); }
+      else if (Object.prototype.hasOwnProperty.call(e, '$s')) { var xa = Array.isArray(x) ? x : []; o[k] = xa.slice(0, e.$s[0]).concat(e.m, xa.slice(xa.length - e.$s[1])); }
+      else if (Object.prototype.hasOwnProperty.call(e, '$a')) {
+        var arr = (Array.isArray(x) ? x : []).slice(0, e.$a);
+        while (arr.length < e.$a) arr.push(null);
+        for (var i in e.c) arr[+i] = e.c[i];
+        o[k] = arr;
+      } else {
+        var ob = {}, src = isObj(x) ? x : {};
+        Object.keys(src).forEach(function (kk) { if (e.x.indexOf(kk) < 0) ob[kk] = src[kk]; });
+        for (var kk in e.$o) ob[kk] = e.$o[kk];
+        o[k] = ob;
+      }
+    }
+    return o;
+  }
+  return { canon: canon, diff: diff, apply: apply };
+})();
+/* STPOS-DELTA END */
+/* ===== delta sync: ຮັບ/ສົ່ງສະເພາະສ່ວນທີ່ປ່ຽນ (server ຂອງຮ້ານ). DZ.bStr/bH = ສະບັບຂອງ server ທີ່ເຄື່ອງນີ້ມີ (ກວດດ້ວຍ hash) · ຜິດພາດ = ກັບໄປໃຊ້ແບບເຕັມເອງ ===== */
+var DZ_OK=GZ_OK&&typeof crypto!=='undefined'&&!!(crypto.subtle&&crypto.subtle.digest)&&typeof TextEncoder!=='undefined';
+var DZ={ok:false,bStr:null,bH:null,sentStr:null,sentH:null,loaded:false};
+function dzHash(obj,cb){try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(STDelta.canon(obj))).then(function(b){var a=new Uint8Array(b),h='';for(var i=0;i<16;i++)h+=(a[i]<16?'0':'')+a[i].toString(16);cb(h);},function(){cb(null);});}catch(e){cb(null);}}
+function dzIdb(fn){try{var rq=indexedDB.open('stpos-dz',1);rq.onupgradeneeded=function(){rq.result.createObjectStore('b');};rq.onsuccess=function(){try{fn(rq.result);}catch(e){fn(null);}};rq.onerror=function(){fn(null);};}catch(e){fn(null);}}
+function dzStore(){if(!DZ.bStr||!DZ.bH)return;var v={api:API_URL,s:DZ.bStr,h:DZ.bH};dzIdb(function(db){if(!db)return;try{db.transaction('b','readwrite').objectStore('b').put(v,'base');}catch(e){}});}
+function dzLoad(cb){if(DZ.loaded||!DZ_OK){DZ.loaded=true;cb();return;}DZ.loaded=true;var t=setTimeout(function(){t=null;cb();},1500);
+ dzIdb(function(db){var fin=function(){if(t){clearTimeout(t);t=null;cb();}};if(!db)return fin();try{var g=db.transaction('b').objectStore('b').get('base');g.onsuccess=function(){var v=g.result;if(v&&v.api===API_URL&&v.s&&v.h&&!DZ.bH){DZ.bStr=v.s;DZ.bH=v.h;}fin();};g.onerror=fin;}catch(e){fin();}});}
+function dzDrop(){DZ.bStr=null;DZ.bH=null;DZ.sentStr=null;DZ.sentH=null;}
+/* ຜົນກວດເວີຊັນ: server ຮອງຮັບ delta + ສິ່ງທີ່ເຄື່ອງນີ້ສົ່ງໄປ ຖືກເກັບໂດຍບໍ່ຖືກລວມ → ໃຊ້ເປັນສະບັບພື້ນໃໝ່ */
+function dzOnVer(r){if(!r||!r.ok||!r.dz||!DZ_OK)return;DZ.ok=true;if(DZ.sentH&&r.h===DZ.sentH){DZ.bStr=DZ.sentStr;DZ.bH=DZ.sentH;DZ.sentStr=null;DZ.sentH=null;dzStore();}}
+function apiGetFull(cb){jsonp_('token='+encodeURIComponent(TOKEN)+(GZ_OK?'&gz=1':''),function(r){if(r&&!r.ok&&r.err==='token'){tokenErr_();cb(null);return;}if(r&&r.ok&&r.gz){window.__srvGz=true;gunzipB64(r.gz,cb);return;}cb(r&&r.ok?r.state:null);});}
+function apiGet(cb){if(!DZ_OK)return apiGetFull(cb);
+ jsonp_('dz='+encodeURIComponent(DZ.bH||'')+'&token='+encodeURIComponent(TOKEN)+'&gz=1',function(r){
+  if(r&&!r.ok&&r.err==='token'){tokenErr_();cb(null);return;}
+  if(!(r&&r.ok&&r.dz)){if(r&&r.ok&&r.gz){window.__srvGz=true;gunzipB64(r.gz,cb);return;}cb(r&&r.ok?r.state:null);return;} /* server ບໍ່ຮອງຮັບ delta (Google) → ແບບເກົ່າ */
+  DZ.ok=true;window.__srvGz=true;
+  if(r.same&&DZ.bStr){cb(DZ.bStr);return;}
+  if(r.d&&DZ.bStr){var bs=DZ.bStr;gunzipB64(r.d,function(ps){var res=null;try{res=STDelta.apply(JSON.parse(bs),JSON.parse(ps));}catch(e){}
+   if(!res){dzDrop();apiGet(cb);return;}
+   dzHash(res,function(h){if(h!==r.h){dzDrop();apiGet(cb);return;}var s=JSON.stringify(res);DZ.bStr=s;DZ.bH=h;dzStore();cb(s);});});return;}
+  if(r.gz){gunzipB64(r.gz,function(s){if(s&&r.h){DZ.bStr=s;DZ.bH=r.h;dzStore();}cb(s);});return;}
+  cb(typeof r.state==='string'?r.state:null);});}
 function apiGetCust(table,cb){jsonp_('cust=1&table='+encodeURIComponent(table),function(r){cb(r&&r.ok?r.state:null);});}
 function apiAction(payload,cb){jsonp_('action='+encodeURIComponent(payload.action)+'&payload='+encodeURIComponent(JSON.stringify(payload)),cb);}
 function apiSave(json){var send=function(body){try{fetch(API_URL+'?token='+encodeURIComponent(TOKEN),{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body}).catch(function(){setNet(true);});}catch(e){setNet(true);}};
- if(GZ_OK&&window.__srvGz===true){gzipB64(json,function(b){send(b?'GZ:'+b:json);});}else send(json);}
+ var full=function(){if(GZ_OK&&window.__srvGz===true){gzipB64(json,function(b){send(b?'GZ:'+b:json);});}else send(json);};
+ if(!(DZ_OK&&DZ.ok))return full();
+ var cur=null;try{cur=JSON.parse(json);}catch(e){}if(!cur)return full();
+ var bs=DZ.bStr,bh=DZ.bH,useDz=!!(bs&&bh&&!_svFail); /* ບັນທຶກບໍ່ສຳເລັດມາກ່ອນ → ສົ່ງເຕັມ */
+ dzHash(cur,function(h){if(!h)return full();DZ.sentStr=json;DZ.sentH=h;
+  if(!useDz)return full();
+  var ps=null;try{ps=JSON.stringify({b:bh,p:STDelta.diff(JSON.parse(bs),cur),h:h});}catch(e){}
+  if(!ps||ps.length>json.length*0.6)return full();
+  gzipB64(ps,function(b){if(b)send('DZ:'+b);else full();});});}
 /* ສົ່ງຄຳສັ່ງລູກຄ້າ (ສັ່ງອາຫານ/ຂໍເຊັກບິນ) — server ກວດ PIN + ຕັດສະຕ໋ອກເອງ */
 function custSend(payload,cb){
  if(HAS_GAS){google.script.run.withSuccessHandler(function(s){var r=null;try{r=JSON.parse(s);}catch(e){}cb(r);}).withFailureHandler(function(){cb(null);}).submitOrder(JSON.stringify(payload));}
@@ -2043,9 +2166,9 @@ function saveConfirmed(v){if(window.__sentV&&v>=window.__sentV){window.__sentV=0
 function setSaveWarn(on){var d=document.getElementById('netDot');if(!d||_offline)return;
  d.innerHTML=on?'<span onclick="_doSaveApi()" title="ກົດເພື່ອລອງບັນທຶກໃໝ່" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:800;padding:4px 10px;border-radius:12px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>ຍັງບໍ່ໄດ້ບັນທຶກ — ກຳລັງລອງໃໝ່ ('+_svFail+')</span>':'<span title="ອອນລາຍ" style="width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block"></span>';}
 function saveWatch(){if(!HAS_API||_svChk||!window.__sentV||_offline)return;if(Date.now()-(window.__sentTs||0)<9000)return;_svChk=true;
- jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){_svChk=false;if(!(r&&r.ok&&typeof r.v==='number'))return;
+ jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){_svChk=false;if(!(r&&r.ok&&typeof r.v==='number'))return;dzOnVer(r);
   if(r.v>=window.__sentV){saveConfirmed(r.v);return;}
-  _svFail++;setSaveWarn(true);_doSaveApi();},20000);}
+  _svFail++;dzDrop();setSaveWarn(true);_doSaveApi();},20000);}
 function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.classList.remove('hidden');
  if(getQ('table')){b.innerHTML='<div class="lg">ST POS</div><div style="font-size:15px;max-width:340px;text-align:center;line-height:1.7">QR ນີ້ໝົດອາຍຸ ຫຼື ບໍ່ສົມບູນ<br>ກະລຸນາຂໍລະຫັດ QR ໃໝ່ຈາກພະນັກງານ</div>';return;}
  b.innerHTML='<div class="lg">ST POS</div>'+
@@ -2058,11 +2181,11 @@ function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.c
    '<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'+
    '<div onclick="localStorage.setItem(\'stpos_local\',\'1\');location.reload()" style="font-size:12px;color:#0A7E7A;text-decoration:underline;cursor:pointer">ໃຊ້ແບບເຄື່ອງດຽວ (ບໍ່ເຊື່ອມ server)</div></div>';}
 /* ລິ້ງ / QR ເຂົ້າລະບົບສຳລັບພະນັກງານ: ເປີດແລ້ວຈື່ server + API token ໃນເຄື່ອງ ແລະ ໄປໜ້າເຂົ້າລະບົບເລີຍ (PIN ບໍ່ຢູ່ໃນລິ້ງ) */
-function staffLink(){return API_URL?QR_BASE+'?api='+encodeURIComponent(API_URL)+(TOKEN?'&tok='+encodeURIComponent(TOKEN):''):'';}
+function staffLink(){return API_URL?QR_BASE+'?api='+encodeURIComponent(API_URL)+((TOKEN&&!/^s1\./.test(TOKEN)&&!/^https:\/\/[^\/?#]+\/api\/?$/.test(API_URL))?'&tok='+encodeURIComponent(TOKEN):''):'';} /* server ຂອງຮ້ານ (/api): ບໍ່ໃສ່ token ໃນລິ້ງ — ເຄື່ອງໃໝ່ເຂົ້າລະບົບດ້ວຍ PIN ທີ່ server */
 function staffLinkModal(){var u=staffLink();if(!u){toast('ຍັງບໍ່ໄດ້ເຊື່ອມ server');return;}
  openModal('<div style="text-align:center"><h2>ລິ້ງເຂົ້າລະບົບ ສຳລັບພະນັກງານ</h2><p class="ie-sub">ສົ່ງລິ້ງ ຫຼື ໃຫ້ສະແກນ QR → ເປີດແລ້ວໄປໜ້າເຂົ້າລະບົບ (ໃສ່ PIN ຂອງຕົນເອງ)</p><div id="slqr" style="display:inline-block;padding:14px;background:#fff;border:2px solid var(--line);border-radius:14px;margin:6px"></div>'+
   '<div class="sl-url">'+cesc(u)+'</div><div class="sl-acts"><button type="button" class="btn-sm" onclick="staffLinkCopy()">ສຳເນົາລິ້ງ</button>'+(navigator.share?'<button type="button" class="btn-sm" onclick="navigator.share({title:\'ST POS\',text:\'ລິ້ງເຂົ້າລະບົບ ST POS ('+aesc(state.shopName||'')+')\',url:staffLink()}).catch(function(){})">ແຊຣ໌</button>':'')+'</div>'+
-  '<p class="me-note" style="text-align:left">⚠ ລິ້ງນີ້ມີທີ່ຢູ່ server'+(TOKEN?' ແລະ ລະຫັດ token':'')+' ຂອງຮ້ານ — ສົ່ງໃຫ້ສະເພາະພະນັກງານ (ທາງແຊັດສ່ວນຕົວ, ບໍ່ໂພສໃນກຸ່ມ). ເຂົ້າໃຊ້ແອັບຍັງຕ້ອງມີ PIN · ເປີດເທື່ອດຽວ ເຄື່ອງນັ້ນຈະຈື່ໄວ້ (ຄັ້ງຕໍ່ໄປເປີດ '+cesc(location.host+location.pathname)+' ໄດ້ເລີຍ)'+(TOKEN?' · ຖ້າລິ້ງຫຼຸດໄປຫາຄົນນອກ ໃຫ້ປ່ຽນ token':'')+'</p></div>'+
+  '<p class="me-note" style="text-align:left">⚠ ລິ້ງນີ້ມີທີ່ຢູ່ server'+(/[?&]tok=/.test(u)?' ແລະ ລະຫັດ token':'')+' ຂອງຮ້ານ — ສົ່ງໃຫ້ສະເພາະພະນັກງານ (ທາງແຊັດສ່ວນຕົວ, ບໍ່ໂພສໃນກຸ່ມ). ເຂົ້າໃຊ້ແອັບຍັງຕ້ອງມີ PIN · ເປີດເທື່ອດຽວ ເຄື່ອງນັ້ນຈະຈື່ໄວ້ (ຄັ້ງຕໍ່ໄປເປີດ '+cesc(location.host+location.pathname)+' ໄດ້ເລີຍ)'+(/[?&]tok=/.test(u)?' · ຖ້າລິ້ງຫຼຸດໄປຫາຄົນນອກ ໃຫ້ປ່ຽນ token':' · ເຄື່ອງໃໝ່ຕ້ອງເຂົ້າລະບົບດ້ວຍ PIN ເທື່ອທຳອິດ (ລິ້ງຢ່າງດຽວເຂົ້າບໍ່ໄດ້)')+'</p></div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');
  var box=document.getElementById('slqr');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});else box.textContent='ໂຫຼດ QR ບໍ່ໄດ້';});}
 function staffLinkCopy(){var u=staffLink();var done=function(){toast('ສຳເນົາລິ້ງແລ້ວ');};try{navigator.clipboard.writeText(u).then(done,function(){prompt('ສຳເນົາລິ້ງນີ້',u);});}catch(e){prompt('ສຳເນົາລິ້ງນີ້',u);}}
@@ -2075,7 +2198,7 @@ function boot(){var wantLocal=false;try{wantLocal=localStorage.getItem('stpos_lo
  if(HAS_GAS||HAS_API){state=freshState();ensureDefaults();}else{initState(localStorage.getItem('stpos')||'');}afterBoot();
  if(getQ('table')&&(HAS_GAS||HAS_API)){pullCust(0);return;} /* ລູກຄ້າ QR: ດຶງສະເພາະຂໍ້ມູນໂຕະຕົນເອງ */
  if(HAS_GAS)pullState(0);else if(HAS_API)pullStateApi(0);}
-function pullStateApi(a){apiGet(function(s){
+function pullStateApi(a){if(!DZ.loaded){dzLoad(function(){pullStateApi(a);});return;}apiGet(function(s){
   if(s){ // ມີຂໍ້ມູນຈາກ server → ໂຫຼດ (ບໍ່ມີການ wipe)
    try{var ns=JSON.parse(s);ns.draft=[];state=ns;ensureDefaults();_loaded=true;render();qrEntry();return;}catch(e){}
    if(a<8){setTimeout(function(){pullStateApi(a+1);},3000);}else{restoreOrFresh();} // parse fail → ລອງໃໝ່, ຫ້າມ save ທັບ
@@ -2126,7 +2249,7 @@ function startSync(){
   setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;
    var done=function(ms){setTimeout(function(){_polling=false;},ms||0);};
    jsonpUrl_(API_URL,'ver=1&token='+encodeURIComponent(TOKEN),function(r){
-    if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;saveConfirmed(r.v);if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
+    if(r&&r.ok&&typeof r.v==='number'){window.__srvGz=true;dzOnVer(r);saveConfirmed(r.v);if(!r.v||(state._v&&r.v<=state._v)){done();return;}apiGet(function(s){applyRemote(s);done();});return;}
     if(r&&r.ok&&r.state){applyRemote(r.state);done(8000);return;}done(8000);},30000);},4000);}
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}

@@ -135,6 +135,44 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
       const ok = await getState('secret-token-1'); assert.strictEqual(ok.shopName, 'Test Cafe');
       const qr = await jsonp('cust=1&table=A1'); assert.ok(qr.ok, 'QR customers still work without token');
     });
+    await test('PIN login → device session: works for read/save/ver/chat, wrong PIN refused, tampered refused', async function () {
+      const ph = function (p) { p = 'stpos:' + p; let h = 5381; for (let i = 0; i < p.length; i++) h = ((h << 5) + h + p.charCodeAt(i)) | 0; let h2 = 52711; for (let j = p.length - 1; j >= 0; j--) h2 = ((h2 << 5) + h2 + p.charCodeAt(j)) | 0; return 'h' + (h >>> 0).toString(16) + '.' + (h2 >>> 0).toString(16); };
+      const g = await getState('secret-token-1'); g.users = [{ id: 'u1', name: 'Admin', role: 'superadmin', pinH: ph('1234') }, { id: 'u2', name: 'Cashier', role: 'cashier', pinH: ph('5678') }]; g._v = Date.now();
+      assert.strictEqual(await post(JSON.stringify(g), '?token=secret-token-1'), 'ok');
+      const info = await jsonp('login=info'); assert.ok(info.ok && info.users.length === 2 && !info.users[0].pinH && info.shop === 'Test Cafe', JSON.stringify(info));
+      const bad = await jsonp('login=pin&uid=u2&pin=0000'); assert.strictEqual(bad.err, 'pin');
+      const ok = await jsonp('login=pin&uid=u2&pin=5678'); assert.ok(ok.ok && /^s1\./.test(ok.tk), JSON.stringify(ok));
+      const st = await getState(ok.tk); assert.strictEqual(st.shopName, 'Test Cafe');
+      st.expenses = [{ ts: 1, cat: 'x', amount: 7 }]; st._v = Date.now() + 1; assert.strictEqual(await post(JSON.stringify(st), '?token=' + encodeURIComponent(ok.tk)), 'ok');
+      assert.strictEqual((await getState('secret-token-1')).expenses.length, 1);
+      const v = await jsonp('ver=1&token=' + encodeURIComponent(ok.tk)); assert.ok(v.ok && v.dz === 1 && /^[0-9a-f]{32}$/.test(v.h));
+      const sp = await jsonp('chat=1&p=' + encodeURIComponent(JSON.stringify({ a: 'spoll', token: ok.tk, since: 0 }))); assert.ok(sp.ok, JSON.stringify(sp));
+      const tam = ok.tk.slice(0, -3) + (ok.tk.slice(-3) === 'AAA' ? 'BBB' : 'AAA'); assert.strictEqual((await jsonp('token=' + encodeURIComponent(tam) + '&gz=1')).err, 'token');
+      /* ປ່ຽນ PIN → session ເກົ່າໃຊ້ບໍ່ໄດ້ */
+      const g2 = await getState('secret-token-1'); g2.users[1].pinH = ph('9999'); g2._v = Date.now() + 2; await post(JSON.stringify(g2), '?token=secret-token-1');
+      assert.strictEqual((await jsonp('token=' + encodeURIComponent(ok.tk) + '&gz=1')).err, 'token', 'old session after PIN change');
+      /* ເດົາ PIN: ລັອກຫຼັງຜິດ 10 ເທື່ອ, PIN ຖືກກໍເຂົ້າບໍ່ໄດ້ຈົນກວ່າໝົດເວລາ */
+      for (let i = 0; i < 10; i++) await jsonp('login=pin&uid=u1&pin=' + (1000 + i));
+      const lk = await jsonp('login=pin&uid=u1&pin=1234'); assert.strictEqual(lk.err, 'locked');
+    });
+    await test('delta over HTTP: full+hash, patch POST (DZ:), same, delta GET, bad patch → resend', async function () {
+      const D = require('../delta'), crypto = require('crypto');
+      const H = function (o) { return crypto.createHash('sha256').update(D.canon(o)).digest('hex').slice(0, 32); };
+      const f = await jsonp('dz=&gz=1&token=secret-token-1'); assert.ok(f.ok && f.dz === 1 && f.gz && f.h);
+      const base = JSON.parse(zlib.gunzipSync(Buffer.from(f.gz, 'base64'))); assert.strictEqual(H(base), f.h, 'server hash = client hash');
+      const same = await jsonp('dz=' + f.h + '&gz=1&token=secret-token-1'); assert.strictEqual(same.same, 1);
+      const nxt = JSON.parse(JSON.stringify(base)); nxt.bills.push({ receipt: 'DZ1', ts: Date.now(), total: 9, items: [] }); nxt._v = Date.now() + 5;
+      const body = 'DZ:' + zlib.gzipSync(JSON.stringify({ b: f.h, p: D.diff(base, nxt), h: H(nxt) })).toString('base64');
+      assert.ok(body.length < 1500, 'patch body ' + body.length);
+      assert.strictEqual(await post(body, '?token=secret-token-1'), 'ok');
+      const d = await jsonp('dz=' + f.h + '&gz=1&token=secret-token-1'); assert.ok(d.d || d.gz, 'delta or full returned');
+      /* ຂໍ້ມູນທົດສອບນ້ອຍ → server ອາດສົ່ງເຕັມ (patch ບໍ່ຄຸ້ມ); ຂໍ້ມູນຈິງໃຫຍ່ ທົດສອບໃນ browser ແລ້ວວ່າສົ່ງ delta */
+      const got = d.d ? D.apply(base, JSON.parse(zlib.gunzipSync(Buffer.from(d.d, 'base64')))) : JSON.parse(zlib.gunzipSync(Buffer.from(d.gz, 'base64')));
+      assert.strictEqual(H(got), d.h); assert.ok(got.bills.some(function (b) { return b.receipt === 'DZ1'; }));
+      const badb = 'DZ:' + zlib.gzipSync(JSON.stringify({ b: f.h, p: D.diff(base, nxt), h: '0'.repeat(32) })).toString('base64');
+      assert.strictEqual(await post(badb, '?token=secret-token-1'), 'resend');
+      assert.strictEqual(await post(body, '?token=bad'), 'denied');
+    });
     console.log('\n' + passed + ' passed');
   } catch (e) { console.error('\n✗ FAILED:', e && e.stack || e); process.exitCode = 1; }
   finally { await stop(); try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) {} }
