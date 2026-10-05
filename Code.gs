@@ -217,6 +217,7 @@ function mergeDocs_(curStr, inc) {
     var LOGS = { cancelLog: function (l) { return l.ts + '|' + (l.type || '') + '|' + (l.name || '') + '|' + (l.table || '') + '|' + (l.qty || ''); },
       orderLog: function (l) { return l.ts + '|' + (l.action || '') + '|' + (l.detail || '') + '|' + (l.table || ''); },
       menuLog: function (l) { return l.ts + '|' + (l.code || '') + '|' + (l.reason || ''); },
+      kdsLog: function (l) { return (l.id || '') + '|' + (l.end || l.ts || ''); },
       shiftLog: function (l) { return (l.id || '') + '|' + (l.openTs || l.ts || '') + '|' + (l.name || ''); } };
     Object.keys(LOGS).forEach(function (k) {
       if (!Array.isArray(cur[k]) || !cur[k].length) return;
@@ -225,7 +226,7 @@ function mergeDocs_(curStr, inc) {
       inc[k].forEach(function (l) { if (l) seen[key(l)] = 1; });
       var added = 0; cur[k].forEach(function (l) { if (!l) return; var kk = key(l); if (!seen[kk]) { inc[k].push(l); seen[kk] = 1; added++; } });
       if (added) inc[k].sort(function (a, b) { return (a.ts || a.openTs || 0) - (b.ts || b.openTs || 0); });
-      var cap = { cancelLog: 3000, orderLog: 2000, menuLog: 2000, shiftLog: 1000 }[k]; if (inc[k].length > cap) inc[k] = inc[k].slice(-cap);
+      var cap = { cancelLog: 3000, orderLog: 2000, menuLog: 2000, shiftLog: 1000, kdsLog: 3000 }[k]; if (inc[k].length > cap) inc[k] = inc[k].slice(-cap);
     });
     return inc;
   } catch (e) { return inc; }
