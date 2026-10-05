@@ -6,7 +6,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "node test/syntax.js && node test/delta.js && node test/run.js && node test/multiproc.js && node test/branches.js && node test/menu.js && node test/report.js && node test/users.js",
+    "test": "node test/syntax.js && node test/delta.js && node test/run.js && node test/multiproc.js && node test/branches.js && node test/menu.js && node test/report.js && node test/users.js && node test/xfer.js",
     "soak": "node test/soak.js 120"
   },
   "engines": {

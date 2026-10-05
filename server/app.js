@@ -373,6 +373,112 @@ function myBranches(tk, req) {
   if (!ok.some(function (b) { return b.id === CURBR.id; })) return { ok: false, err: 'token' };
   return { ok: true, login: 1, cur: CURBR.id, branches: ok };
 }
+/* ===== ໄລຍະ 5: ເບີກ / ໂອນ ຂ້າມສາຂາ (ສາງ ຫຼື ຄົວກາງ → ສາຂາ) =====
+ * xfers.json = {seq, list: [{id, no, from, to, status: req|sent|received|rejected|void, items: [{code, name, unit, qty, sent, recv, cost}], ...}]}
+ * ສາຂາຂໍເບີກ (req) → ຕົ້ນທາງກວດ ແລະ ສົ່ງ (ຕັດສະຕ໋ອກຕົ້ນທາງ) → ປາຍທາງນັບຮັບ (ເພີ່ມສະຕ໋ອກປາຍທາງ) · ຕົ້ນທາງສົ່ງໃຫ້ໂດຍບໍ່ມີໃບຂໍກໍ່ໄດ້
+ * ສະຕ໋ອກປັບຢູ່ server (ingredients.locs + stockLog ຄືແອັບ) — ເຄື່ອງທີ່ຖືຂໍ້ມູນເກົ່າ ບັນທຶກແລ້ວບໍ່ລົບລ້າງ (mergeStock_ ລວມຕາມ stockLog)
+ * ໃບໂອນລະຫວ່າງບ່ອນເກັບໃນສາຂາດຽວກັນ (state.transfers) ຄືເກົ່າ ບໍ່ກ່ຽວກັບສ່ວນນີ້ */
+const XF_FILE = path.join(DATA_DIR, 'xfers.json'), XF_ROLES = ['superadmin', 'owner', 'admin', 'manager', 'storekeeper', 'purchasing'];
+const _xfSab = new Int32Array(new SharedArrayBuffer(4));
+function xfLock(fn) {
+  const d = path.join(DATA_DIR, 'xfers.lock'), end = Date.now() + 30000;
+  for (;;) {
+    try { fs.mkdirSync(d); break; } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      try { if (Date.now() - fs.statSync(d).mtimeMs > 120000) { fs.rmdirSync(d); continue; } } catch (e2) {}
+      if (Date.now() > end) throw new Error('xfers lock timeout');
+      Atomics.wait(_xfSab, 0, 0, 25);
+    }
+  }
+  try { return fn(); } finally { try { fs.rmdirSync(d); } catch (e) {} }
+}
+function xfRead() { try { const o = JSON.parse(fs.readFileSync(XF_FILE, 'utf8')); if (o && Array.isArray(o.list)) return o; } catch (e) {} return { seq: 0, list: [] }; }
+function xfWrite(o) { if (o.list.length > 5000) o.list = o.list.slice(-5000); atomicWrite0(XF_FILE, JSON.stringify(o)); }
+/* ຜູ້ໃຊ້ຂອງ request: token ຫຼັກ = ເຈົ້າຂອງ · session = ຜູ້ໃຊ້ໃນສາຂານີ້ (ບົດບາດສາງ/ຜູ້ຈັດການ ຫຼື ສິດ "ປັບສະຕ໋ອກ") */
+function xfWho(tk) {
+  const t = apiToken(); if (!t || tk === t) return { id: '', name: 'HQ', ok: true, all: true };
+  const s = sessUser(tk); if (!s) return null;
+  const u = stateUsers().filter(function (x) { return x && x.id === s.id; })[0] || {}, pa = u.perm && u.perm.a, ov = pa && Object.prototype.hasOwnProperty.call(pa, 'stockAdjust') ? !!pa.stockAdjust : null;
+  return { id: s.id, name: u.name || '', ok: ov === null ? XF_ROLES.indexOf(s.role) >= 0 : ov, all: s.role === 'superadmin' };
+}
+function xfLines(items) { const out = [], seen = {}; (Array.isArray(items) ? items : []).forEach(function (x) { const c = String(x && x.code || '').trim().slice(0, 40), q = Math.round((+(x && x.qty) || 0) * 1000) / 1000; if (!c || !(q >= 0) || seen[c]) return; seen[c] = 1; out.push({ code: c, qty: q }); }); return out; }
+/* ປັບສະຕ໋ອກສາຂາ b ທີ່ບ່ອນເກັບ loc · lines = [{code, delta}] · ວັດຖຸດິບທີ່ສາຂາບໍ່ມີ ສຳເນົາຈາກ srcIng (ສະຕ໋ອກ 0 ກ່ອນຮັບ) */
+function xfStock(b, loc, lines, reason, ref, by, srcIng) {
+  return withBranch(b, function () {
+    const lock = LockService.getScriptLock(); lock.waitLock(30000); let lc = loc;
+    try {
+      const s = G.getState_(); if (!s) throw new Error('ສາຂາ ' + (b.name || b.id) + ' ບໍ່ມີຂໍ້ມູນ');
+      const st = JSON.parse(s), L = st.locations || [];
+      if (!L.some(function (l) { return l && l.id === lc; })) lc = (L[0] && L[0].id) || 'main';
+      const ln = (L.filter(function (l) { return l && l.id === lc; })[0] || {}).name || lc, now = Date.now();
+      if (!st.ingredients) st.ingredients = {}; if (!Array.isArray(st.stockLog)) st.stockLog = [];
+      lines.forEach(function (x, i) {
+        if (!x.delta) return; let it = st.ingredients[x.code];
+        if (!it) { const si = (srcIng || {})[x.code] || { code: x.code, name: x.name || x.code, unit: x.unit || '', cost: x.cost || 0 }; it = JSON.parse(JSON.stringify(si)); it.locs = {}; it.stock = 0; delete it.lastIn; it.addTs = now; st.ingredients[x.code] = it; }
+        if (!it.locs || typeof it.locs !== 'object') it.locs = {};
+        it.locs[lc] = Math.round(((+it.locs[lc] || 0) + x.delta) * 1000) / 1000;
+        st.stockLog.push({ ts: now + i, code: x.code, name: it.name || x.code, unit: it.unit || '', delta: Math.round(x.delta * 100) / 100, after: Math.round(it.locs[lc] * 100) / 100, reason: reason, ref: ref, by: by, loc: lc, locName: ln });
+      });
+      if (st.stockLog.length > 4000) st.stockLog = st.stockLog.slice(-4000);
+      st._v = Math.max(Date.now(), (+st._v || 0) + 1); G.saveStateRaw_(JSON.stringify(st), true, true);
+    } finally { lock.releaseLock(); }
+    shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {}
+    return lc;
+  });
+}
+function xfView(who, all) {
+  const me = CURBR.id, L = branches(), o = xfRead();
+  return { ok: true, xf: 1, me: me, can: !!who.ok, branches: L.map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch' }; }),
+    list: o.list.filter(function (x) { return (all && who.all) || x.from === me || x.to === me; }).slice(-400).reverse() };
+}
+function xfApi(q, body, req) {
+  const who = xfWho(q.token); if (!who) return { ok: false, err: 'token' };
+  const a = String(q.xf || 'list'); if (a === 'list') return xfView(who, q.all === '1');
+  if (!who.ok) return { ok: false, err: 'ບໍ່ມີສິດ (ສະເພາະ ຜູ້ຈັດການ / ນາຍສາງ / ເຈົ້າຂອງ)' };
+  let o; try { o = JSON.parse(body || '{}') || {}; } catch (e) { return { ok: false, err: 'json' }; }
+  const me = CURBR, by = (who.name || '') + ' · ' + (me.name || me.id), now = Date.now(), note = String(o.note || '').replace(/[<>]/g, '').slice(0, 200);
+  const r = xfLock(function () {
+    const X = xfRead();
+    if (a === 'create') {
+      const other = brFind(String(o.branch || '')), push = !!o.send; if (!other || other.id === me.id) return { ok: false, err: 'ເລືອກສາຂາ' };
+      const lines = xfLines(o.items).filter(function (x) { return x.qty > 0; }); if (!lines.length) return { ok: false, err: 'ຍັງບໍ່ມີລາຍການ' };
+      const myIng = branchState(me).ingredients || {};
+      if (push && lines.some(function (x) { return !myIng[x.code]; })) return { ok: false, err: 'ບໍ່ພົບວັດຖຸດິບ' };
+      X.seq = (+X.seq || 0) + 1;
+      const d = { id: 'xb' + now.toString(36) + Math.floor(Math.random() * 1000), no: 'XB-' + String(X.seq).padStart(4, '0'), from: push ? me.id : other.id, to: push ? other.id : me.id, fromName: push ? me.name : other.name, toName: push ? other.name : me.name,
+        status: 'req', ts: now, upd: now, by: by, uid: who.id, note: note, items: lines.map(function (x) { const g = myIng[x.code] || {}; return { code: x.code, name: g.name || x.code, unit: g.unit || '', qty: x.qty }; }), hist: [{ ts: now, act: push ? 'ສ້າງ ແລະ ສົ່ງ' : 'ຂໍເບີກ', by: by, note: note }] };
+      if (push) { d.items.forEach(function (x) { x.sent = x.qty; x.cost = +(myIng[x.code] || {}).cost || 0; }); d.fromLoc = xfStock(me, String(o.loc || ''), d.items.map(function (x) { return { code: x.code, delta: -x.sent }; }), 'ໂອນອອກ', 'ໃບ ' + d.no + ' → ' + d.toName, by); d.status = 'sent'; d.sentTs = now; d.sentBy = by; }
+      X.list.push(d); xfWrite(X); return { ok: true, id: d.id, no: d.no };
+    }
+    const d = X.list.filter(function (x) { return x.id === String(o.id || ''); })[0]; if (!d) return { ok: false, err: 'ບໍ່ພົບໃບ' };
+    const fail = function (m) { return { ok: false, err: m, status: d.status }; };
+    if (a === 'send' || a === 'reject') {
+      if (d.from !== me.id) return fail('ສົ່ງ/ປະຕິເສດໄດ້ທີ່ສາຂາຕົ້ນທາງເທົ່ານັ້ນ'); if (d.status !== 'req') return fail('ໃບນີ້ດຳເນີນການແລ້ວ');
+      if (a === 'reject') { d.status = 'rejected'; d.upd = now; d.hist.push({ ts: now, act: 'ປະຕິເສດ', by: by, note: note }); xfWrite(X); return { ok: true }; }
+      const got = {}; xfLines(o.items).forEach(function (x) { got[x.code] = x.qty; });
+      const myIng = branchState(me).ingredients || {};
+      d.items.forEach(function (x) { x.sent = got[x.code] !== undefined ? got[x.code] : x.qty; x.cost = +(myIng[x.code] || {}).cost || 0; });
+      if (!d.items.some(function (x) { return x.sent > 0; })) return fail('ຈຳນວນສົ່ງທັງໝົດເປັນ 0 — ໃຊ້ "ປະຕິເສດ" ແທນ');
+      if (d.items.some(function (x) { return x.sent > 0 && !myIng[x.code]; })) return fail('ສາຂານີ້ບໍ່ມີວັດຖຸດິບບາງລາຍການ');
+      d.fromLoc = xfStock(me, String(o.loc || ''), d.items.map(function (x) { return { code: x.code, delta: -x.sent }; }), 'ໂອນອອກ', 'ໃບ ' + d.no + ' → ' + d.toName, by);
+      d.status = 'sent'; d.sentTs = now; d.sentBy = by; d.upd = now; d.hist.push({ ts: now, act: 'ສົ່ງ', by: by, note: note }); xfWrite(X); return { ok: true };
+    }
+    if (a === 'cancel') {
+      if (d.to !== me.id || d.status !== 'req') return fail('ຍົກເລີກໄດ້ສະເພາະໃບຂໍທີ່ຍັງບໍ່ສົ່ງ (ສາຂາທີ່ຂໍ)');
+      d.status = 'void'; d.upd = now; d.hist.push({ ts: now, act: 'ຍົກເລີກ', by: by, note: note }); xfWrite(X); return { ok: true };
+    }
+    if (a === 'receive') {
+      if (d.to !== me.id) return fail('ຮັບໄດ້ທີ່ສາຂາປາຍທາງເທົ່ານັ້ນ'); if (d.status !== 'sent') return fail('ໃບນີ້ບໍ່ໄດ້ລໍຖ້າຮັບ');
+      const got = {}; xfLines(o.items).forEach(function (x) { got[x.code] = x.qty; });
+      const srcIng = (branchState(brFind(d.from) || me) || {}).ingredients || {}, diff = [];
+      d.items.forEach(function (x) { x.recv = got[x.code] !== undefined ? got[x.code] : (x.sent || 0); if (x.recv !== (x.sent || 0)) diff.push((x.name || x.code) + ' ' + (x.recv < (x.sent || 0) ? 'ຂາດ ' : 'ເກີນ ') + Math.abs(Math.round((x.recv - (x.sent || 0)) * 1000) / 1000) + ' ' + (x.unit || '')); });
+      d.toLoc = xfStock(me, String(o.loc || ''), d.items.map(function (x) { return { code: x.code, delta: x.recv, name: x.name, unit: x.unit, cost: x.cost }; }), 'ໂອນເຂົ້າ', 'ໃບ ' + d.no + ' ← ' + d.fromName, by, srcIng);
+      d.status = 'received'; d.recvTs = now; d.recvBy = by; d.diff = diff; d.recvNote = note; d.upd = now; d.hist.push({ ts: now, act: 'ຮັບ', by: by, note: (diff.length ? 'ຜິດດ່ຽງ: ' + diff.join(', ') : 'ຄົບ') + (note ? ' · ' + note : '') }); xfWrite(X); return { ok: true, diff: diff };
+    }
+    return { ok: false, err: 'xf' };
+  });
+  return Object.assign(xfView(who, false), r, { ok: r.ok });
+}
 /* ===== ໄລຍະ 3: ຄັງບິນເກົ່າ + ລາຍງານລວມທຸກສາຂາ =====
  * ຄັງ: <ສາຂາ>/archive/bills-YYYY-MM.json.gz (ບິນເຕັມ) + index.json {keys: {receipt|ts: 1}} — ບິນເກົ່າກວ່າ N ວັນ ອອກຈາກຂໍ້ມູນທີ່ເຄື່ອງຖື (ຕິດໜີ້ຍັງບໍ່ຈ່າຍ ບໍ່ຍ້າຍ)
  * ເຄື່ອງເກົ່າທີ່ຍັງຖືບິນເຫຼົ່ານັ້ນ ບັນທຶກແລ້ວ ບິນບໍ່ກັບມາ (prepIncoming ກັ່ນອອກຕາມ index) · ລາຍງານລວມອ່ານທັງຂໍ້ມູນປັດຈຸບັນ ແລະ ຄັງ */
@@ -522,6 +628,13 @@ function handle(req, res, body) {
     return send(res, 400, 'unknown admin');
   }
   if (q.callback && q.hq !== undefined) return jsonpOut(res, q.callback, hqApi(q, req));
+  if (q.xf !== undefined) { /* ໄລຍະ 5: ເບີກ/ໂອນຂ້າມສາຂາ (ກ່ອນ liftToken: ຕ້ອງຮູ້ຜູ້ໃຊ້ຂອງ session) */
+    let r; try { r = (req.method !== 'POST' && q.xf !== 'list') ? { ok: false, err: 'post' } : xfApi(q, req.method === 'POST' ? body : '', req); } catch (e) { r = { ok: false, err: String(e && e.message || e) }; }
+    if (q.callback) return jsonpOut(res, q.callback, r);
+    const origin = String(req.headers.origin || ''), hdr = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+    if (origin) { hdr['Access-Control-Allow-Origin'] = origin; hdr['Vary'] = 'Origin'; }
+    res.writeHead(200, hdr); return res.end(JSON.stringify(r));
+  }
   if (q.callback && q.login === 'mybr') return jsonpOut(res, q.callback, myBranches(q.token, req)); /* ກ່ອນ liftToken (ຕ້ອງການ session ເດີມ) */
   liftToken(q);
   if (q.callback && q.login !== undefined) return jsonpOut(res, q.callback, loginApi(q, req));
