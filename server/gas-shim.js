@@ -13,18 +13,23 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
 function create(dataDir) {
-  const D = path.resolve(dataDir);
-  const SHEETS = path.join(D, 'sheets'), CACHE = path.join(D, 'cache'), LOCKS = path.join(D, 'locks');
-  [D, SHEETS, CACHE, LOCKS].forEach(function (d) { fs.mkdirSync(d, { recursive: true }); });
+  /* ໂຟນເດີຂໍ້ມູນປັດຈຸບັນ — ສະຫຼັບໄດ້ຕໍ່ request ດ້ວຍ use(dir) (ຫຼາຍສາຂາ: 1 ໂຟນເດີ/ສາຂາ) */
+  let D, SHEETS, CACHE, LOCKS, PROPS;
+  function use(dir) {
+    D = path.resolve(dir); SHEETS = path.join(D, 'sheets'); CACHE = path.join(D, 'cache'); LOCKS = path.join(D, 'locks'); PROPS = path.join(D, 'props.json');
+    [D, SHEETS, CACHE, LOCKS].forEach(function (d) { fs.mkdirSync(d, { recursive: true }); });
+    book = null;
+  }
   const sab = new Int32Array(new SharedArrayBuffer(4));
   function sleep(ms) { if (ms > 0) Atomics.wait(sab, 0, 0, ms); }
   /* ຂຽນແບບ atomic: ໄຟລ໌ຊົ່ວຄາວ → rename (ຜູ້ອ່ານບໍ່ເຫັນໄຟລ໌ເຄິ່ງໆ) */
-  function writeAtomic(file, data) { const tmp = file + '.' + process.pid + '.' + Date.now() + '.tmp'; fs.writeFileSync(tmp, data); fs.renameSync(tmp, file); }
+  /* Windows: ປ່ຽນຊື່ທັບໄຟລ໌ທີ່ process ອື່ນກຳລັງອ່ານ → EPERM/EBUSY ຊົ່ວຄາວ → ລອງໃໝ່ (Linux ບໍ່ເກີດ) */
+  function renameRetry(a, b) { for (let i = 0; ; i++) { try { fs.renameSync(a, b); return; } catch (e) { if (i >= 40 || (e.code !== 'EPERM' && e.code !== 'EBUSY' && e.code !== 'EACCES')) { try { fs.unlinkSync(a); } catch (e2) {} throw e; } sleep(10 + i * 5); } } }
+  function writeAtomic(file, data) { const tmp = file + '.' + process.pid + '.' + Date.now() + '.' + Math.random().toString(36).slice(2, 6) + '.tmp'; fs.writeFileSync(tmp, data); renameRetry(tmp, file); }
   function readJson(file, dflt) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return dflt; } }
   const enc = function (name) { return encodeURIComponent(String(name)).replace(/\*/g, '%2A') + '.json'; };
 
   /* ---------- PropertiesService ---------- */
-  const PROPS = path.join(D, 'props.json');
   const props = {
     getProperty: function (k) { const p = readJson(PROPS, {}); if (Object.prototype.hasOwnProperty.call(p, k)) return p[k]; const e = process.env[k]; return e === undefined || e === '' ? null : String(e); },
     setProperty: function (k, v) { withFileLock('props', function () { const p = readJson(PROPS, {}); p[k] = String(v); writeAtomic(PROPS, JSON.stringify(p)); }); return props; },
@@ -211,11 +216,14 @@ function create(dataDir) {
   const logs = [];
   const Logger = { log: function () { const s = Array.prototype.slice.call(arguments).join(' '); logs.push(s); if (logs.length > 50) logs.shift(); return Logger; } };
 
+  use(dataDir);
   return {
+    use: use, dir: function () { return D; },
+    writeAtomic: writeAtomic,
     globals: { PropertiesService: PropertiesService, LockService: LockService, CacheService: CacheService, SpreadsheetApp: SpreadsheetApp, Utilities: Utilities, UrlFetchApp: UrlFetchApp, ScriptApp: ScriptApp, ContentService: ContentService, HtmlService: HtmlService, Logger: Logger },
     beginRequest: function () { book = null; },
     endRequest: function () { try { flush(); } finally { book = null; } },
-    runDue: runDue, sweepCache: sweepCache, props: props, logs: logs, dataDir: D, formatDate: formatDate
+    runDue: runDue, sweepCache: sweepCache, props: props, logs: logs, dataDir: path.resolve(dataDir), formatDate: formatDate
   };
 }
 module.exports = { create: create };
