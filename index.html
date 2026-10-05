@@ -1929,7 +1929,7 @@ function demoIng(c){var d=ING_DEF[c];return {code:c,name:d[0],unit:d[1],stock:0,
 /* ຍັງໃຊ້ເມນູເດໂມ (ບໍ່ໄດ້ນຳເຂົ້າ Excel) → ເພີ່ມວັດຖຸດິບເດໂມທີ່ຍັງບໍ່ມີ (ສະຕ໋ອກ 0) ໃຫ້ສູດຕັດສະຕ໋ອກໄດ້ */
 function ensureDemoIng(){if(!state.ingredients)state.ingredients={};if(state.catalog&&Object.keys(state.catalog).length)return;Object.keys(ING_DEF).forEach(function(c){var it=state.ingredients[c];if(!it)state.ingredients[c]=demoIng(c);else{if(!it.cat)it.cat=ING_DEF[c][4];if(!it.cost)it.cost=ING_DEF[c][2];}});}
 /* ຮູບເມນູເດໂມ (ໄຟລ໌ demo-img/ ໃນ GitHub Pages) */
-function demoImg(p){if(!p||!p.img)return '';var h=location.hostname||'';var base=(/github\.io$|^localhost$|^127\.|^$/.test(h))?'demo-img/':'https://taosivi.github.io/stpos/demo-img/';return base+p.img;}
+function demoImg(p){if(!p||!p.img)return '';var h=location.hostname||'';var base=(/googleusercontent\.com$|script\.google\.com$/.test(h))?'https://taosivi.github.io/stpos/demo-img/':'demo-img/'; /* ໂຮສທີ່ມີໂຟນເດີ demo-img ເອງ (GitHub Pages, stpos.store, localhost) ໃຊ້ຮູບຂອງຕົນ; ສະເພາະ Apps Script ດຶງຈາກ GitHub */return base+p.img;}
 /* ===== ຫຼາຍເຄື່ອງພ້ອມກັນ: ໝາຍເວລາແກ້ໄຂ (upd) ລາຍໂຕະ/ອໍເດີ/ສະມາຊິກ — server ລວມລາຍອັນ (ອັນໃໝ່ກວ່າຊະນະ) ແທນການຂຽນທັບທັງກ້ອນ ===== */
 var _updSnap={t:{},o:{},c:{},ti:{}};
 function _updKey(x){var u=x.upd;x.upd=0;var s=JSON.stringify(x);x.upd=u;return s;}

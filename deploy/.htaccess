@@ -1,0 +1,36 @@
+# ST POS — stpos.store (Namecheap shared hosting)
+
+# 1) ບັງຄັບ https (ຂ້າມໄວ້ສຳລັບ .well-known ທີ່ SSL ໃຊ້ຢືນຢັນໂດເມນ)
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2) www.stpos.store → stpos.store (ໃຫ້ທຸກເຄື່ອງໃຊ້ທີ່ຢູ່ດຽວ — ການລັອກອິນ/server ທີ່ຈື່ໄວ້ ແຍກຕາມທີ່ຢູ່)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# 3) ບໍ່ສະແດງລາຍຊື່ໄຟລ໌ໃນໂຟນເດີ
+Options -Indexes
+
+# 4) index.html ຕ້ອງກວດເວີຊັນໃໝ່ທຸກເທື່ອ (ອັບເດດແລ້ວ ທຸກເຄື່ອງໄດ້ທັນທີ ບໍ່ຕ້ອງ Ctrl+Shift+R)
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html)?$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|webp|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# 5) ກັນໄຟລ໌ທີ່ບໍ່ຄວນເປີດຈາກເວັບ ຖ້າເຜີອັບໂຫຼດຂຶ້ນໄປ (ໂຄດ server, ຄູ່ມື, Excel ຂໍ້ມູນຈິງ)
+<FilesMatch "\.(gs|md|xlsx|xls|mp4|zip|sh|py)$">
+  Require all denied
+</FilesMatch>
+
+# 6) ບີບອັດໄຟລ໌ (index.html ~1.3 MB → ໂຫຼດໄວຂຶ້ນຫຼາຍ)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
