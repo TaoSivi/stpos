@@ -2047,7 +2047,7 @@ function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.c
   '<div class="su-card"><b>ເຂົ້າລະບົບຂອງຮ້ານ</b><p>ເປີດແອັບຈາກ <b>ລິ້ງ</b> ຫຼື <b>QR ເຂົ້າລະບົບ</b> ທີ່ຮ້ານສົ່ງໃຫ້ — ແອັບຈະໄປໜ້າເຂົ້າລະບົບ (PIN) ເລີຍ</p><small>ຍັງບໍ່ມີ? ຂໍຈາກຜູ້ຈັດການ: ການຕັ້ງຄ່າ › ການເຊື່ອມຕໍ່ › ລິ້ງເຂົ້າລະບົບສຳລັບພະນັກງານ</small></div>'+
   '<button type="button" class="su-adm" onclick="var x=document.getElementById(\'suAdm\');x.style.display=x.style.display===\'none\'?\'flex\':\'none\';var i=document.getElementById(\'apiIn\');if(i)i.focus()">ຂ້ອຍເປັນຜູ້ດູແລລະບົບ — ຕັ້ງຄ່າ server ເອງ</button>'+
   '<div id="suAdm" style="display:none;flex-direction:column;align-items:center;gap:8px">'+
-   '<input id="apiIn" placeholder="https://script.google.com/macros/s/..../exec" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'+
+   '<input id="apiIn" placeholder="https://stpos.store/api ຫຼື https://script.google.com/…/exec" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'+
    '<input id="tokIn" placeholder="API Token (ຖ້າຕັ້ງໄວ້ໃນ Code.gs)" style="width:320px;max-width:86vw;padding:11px;border-radius:10px;border:1px solid #cbd5e1;font-family:inherit;font-size:13px">'+
    '<button onclick="apiSetupSave()" style="padding:11px 24px;border-radius:11px;border:none;font-weight:700;font-family:inherit;background:#0ABAB5;color:#fff">ບັນທຶກ & ເລີ່ມ</button>'+
    '<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'+
@@ -2062,7 +2062,7 @@ function staffLinkModal(){var u=staffLink();if(!u){toast('ຍັງບໍ່ໄ�
  var box=document.getElementById('slqr');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});else box.textContent='ໂຫຼດ QR ບໍ່ໄດ້';});}
 function staffLinkCopy(){var u=staffLink();var done=function(){toast('ສຳເນົາລິ້ງແລ້ວ');};try{navigator.clipboard.writeText(u).then(done,function(){prompt('ສຳເນົາລິ້ງນີ້',u);});}catch(e){prompt('ສຳເນົາລິ້ງນີ້',u);}}
 function apiSetupSave(){var u=((document.getElementById('apiIn')||{}).value||'').trim();var t=((document.getElementById('tokIn')||{}).value||'').trim();
- if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)){alert('ລິ້ງບໍ່ຖືກຮູບແບບ — ຕ້ອງລົງທ້າຍດ້ວຍ /exec');return;}
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)&&!/^https:\/\/[^\/?#]+\/api\/?$/.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/api\/?$/.test(u)){alert('ລິ້ງບໍ່ຖືກຮູບແບບ — Google: ລົງທ້າຍດ້ວຍ /exec · server ຂອງຮ້ານ: https://ໂດເມນ/api');return;}
  try{localStorage.setItem('stpos_api',u);if(t)localStorage.setItem('stpos_token',t);}catch(e){}
  location.reload();}
 function boot(){var wantLocal=false;try{wantLocal=localStorage.getItem('stpos_local')==='1';}catch(e){}

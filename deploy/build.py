@@ -41,3 +41,13 @@ with zipfile.ZipFile(ZIP, 'w', zipfile.ZIP_DEFLATED) as z:
             size += os.path.getsize(p)
 h = hashlib.sha256(open(os.path.join(OUT, 'index.html'), 'rb').read()).hexdigest()[:12]
 print('OK deploy.zip: %d files, %.1f MB (zip %.1f MB) · index.html sha256 %s' % (n, size / 1e6, os.path.getsize(ZIP) / 1e6, h))
+
+# server (Node.js) — ອັບໂຫຼດໄປ ~/stpos-api (ບໍ່ແມ່ນ public_html): app.js + gas-shim.js + package.json + Code.gs
+SZIP = os.path.join(ROOT, 'stpos-server.zip')
+if os.path.exists(SZIP):
+    os.remove(SZIP)
+with zipfile.ZipFile(SZIP, 'w', zipfile.ZIP_DEFLATED) as z:
+    for f in ('app.js', 'gas-shim.js', 'package.json'):
+        z.write(os.path.join(ROOT, 'server', f), f)
+    z.write(os.path.join(ROOT, 'Code.gs'), 'Code.gs')
+print('OK stpos-server.zip: %.0f KB (app.js, gas-shim.js, package.json, Code.gs)' % (os.path.getsize(SZIP) / 1e3))
