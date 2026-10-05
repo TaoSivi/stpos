@@ -13,3 +13,13 @@ _synctest.txt
 demo-video/
 *.mp4
 laofe-import/
+
+# Namecheap deploy build output
+deploy-output/
+deploy.zip
+stpos-server.zip
+
+# server secrets (never commit)
+ລະຫັດ-server*.txt
+server/secrets.json
+ຊຸດປ່ຽນ-server.html

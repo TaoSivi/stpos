@@ -1,0 +1,14 @@
+{
+  "name": "stpos-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ST POS server for the shop's own hosting — runs the original Code.gs on Node.js with file storage",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node test/run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
