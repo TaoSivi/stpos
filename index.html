@@ -3068,7 +3068,7 @@ function kImg(o){var u=o.code?menuImgFor(o.code):'';return u?'<img class="kimg" 
 function kcard(o){const mins=Math.floor((Date.now()-o.ts)/60000);const next={wait:['cooking',' ເລີ່ມເຮັດ','var(--orange)'],cooking:['ready',' ພ້ອມເສີບ','var(--green)'],ready:['ready','ລໍພະນັກງານຍົກ','var(--muted)']}[o.status];
  return `<div class="kcard st-${o.status}"><div class="khead">${kImg(o)}<div style="min-width:0"><h4>${o.qty}× ${cesc(o.name)}</h4><div class="meta">ໂຕະ ${cesc(o.table)} · ${mins} ນາທີ${mins>=15?' ⚠':''}</div></div></div>${o.mods&&o.mods.length?`<div style="font-size:12px;color:var(--pink)">${cesc(o.mods.join(', '))}</div>`:''}${o.note?`<div style="font-size:12px;color:var(--blue)"> ${cesc(o.note)}</div>`:''}
   ${o.status!=='ready'?`<button class="kbtn" style="background:${next[2]}" onclick="advanceOrder('${o.id}')">${next[1]}</button>`:`<div class="kbtn" style="background:${next[2]};text-align:center">${next[1]}</div>`}</div>`;}
-function advanceOrder(id){const o=state.orders.find(x=>String(x.id)===String(id));if(!o)return;o.status=o.status==='wait'?'cooking':'ready';save();render();}
+function advanceOrder(id){advanceTicket([String(id)]);} /* ແຕະລາຍການດຽວ — ບັນທຶກເວລາ/ຜູ້ເຮັດ ຄືກັບກົດທັງບິນ */
 function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');const prep=state.orders.filter(o=>o.status==='wait'||o.status==='cooking');
  var tk=kdsTickets(ready);var pt=kdsTickets(prep);
  var chips='<span class="kx-chip">ພ້ອມເສີບ <b>'+ready.length+'</b></span><span class="kx-chip">ເສີບແລ້ວມື້ນີ້ <b>'+(state.servedToday||0)+'</b></span>';
@@ -5456,20 +5456,21 @@ function kdsAll(){var seen={},out=[];(state.kdsLog||[]).forEach(function(l){seen
 function renderRepFood(b){var now=Date.now(),L_=KDS_LATE;
  var stMap={wait:['ລໍຖ້າ','#fef3c7','#92400e'],cooking:['ກຳລັງເຮັດ','#dbeafe','#1e40af'],ready:['ພ້ອມເສີບ','#dcfce7','#166534'],served:['ເສີບແລ້ວ','#e5e7eb','#374151']};
  var tabs='<div class="fd-tabs"><button class="chip'+(foodTab==='live'?' active':'')+'" onclick="foodTab=\'live\';render()">ກຳລັງດຳເນີນ</button><button class="chip'+(foodTab==='hist'?' active':'')+'" onclick="foodTab=\'hist\';render()">ປະຫວັດ & ສະຖິຕິ</button></div>';
- var legend='<div class="fd-lg"><b>ອ່ານແນວໃດ:</b> <span class="w">ສັ່ງເຂົ້າຄົວ (ເວລາ)</span> → <span class="w">ເລີ່ມເຮັດ + ລໍຖ້າຄົວ ຈັກນາທີ</span> → <span class="c">ພ້ອມເສີບ + ໃຊ້ເວລາເຮັດ ຈັກນາທີ</span> → <span class="h">ເສີບແລ້ວ + ໃຊ້ເວລາເສີບ ຈັກນາທີ</span> · <span class="t">ລວມ = ສັ່ງ → ເສີບ</span> · ຂັ້ນທີ່ກຳລັງລໍຢູ່ຈະມີກອບເຫຼືອງ · <em>"—" = ອໍເດີກ່ອນອັບເດດ ບໍ່ມີເວລາຂັ້ນນັ້ນ</em></div>';
+ var legend='<div class="fd-lg"><b>ອ່ານແນວໃດ:</b> <span class="w">ສັ່ງເຂົ້າຄົວ (ເວລາ)</span> → <span class="w">ເລີ່ມເຮັດ + ລໍຖ້າຄົວ ຈັກນາທີ</span> → <span class="c">ພ້ອມເສີບ + ໃຊ້ເວລາເຮັດ ຈັກນາທີ</span> → <span class="h">ເສີບແລ້ວ + ໃຊ້ເວລາເສີບ ຈັກນາທີ</span> · <span class="t">ລວມ = ສັ່ງ → ເສີບ</span> · ຂັ້ນທີ່ກຳລັງລໍຢູ່ຈະມີກອບເຫຼືອງ · <em>"ບໍ່ໄດ້ບັນທຶກເວລາ" = ຂັ້ນນັ້ນຖືກກົດຈາກເຄື່ອງທີ່ຍັງໃຊ້ແອັບເວີຊັນເກົ່າ — ໂຫຼດໜ້າໃໝ່ (Ctrl+Shift+R) ທຸກເຄື່ອງ ໂດຍສະເພາະຈໍຄົວ/ບາ</em></div>';
  var thead='<tr><th>ໂຕະ</th><th>ລາຍການ</th><th>ສະຖານະ</th><th class="r">ສັ່ງເຂົ້າຄົວ</th><th class="r fd-w">ເລີ່ມເຮັດ<small>ລໍຖ້າຄົວ</small></th><th class="r fd-c">ພ້ອມເສີບ<small>ໃຊ້ເວລາເຮັດ</small></th><th class="r fd-h">ເສີບແລ້ວ<small>ໃຊ້ເວລາເສີບ</small></th><th class="r fd-t">ລວມ</th></tr>';
  /* ຊ່ອງຂອງແຕ່ລະຂັ້ນ: ເວລາ (ໂມງ) + ໃຊ້ເວລາຈັກນາທີ · ຂັ້ນທີ່ກຳລັງລໍ = ເວລາທີ່ລໍມາແລ້ວ (ເຫຼືອງ) */
- var stg=function(ts,dur,cls,runLabel,running){if(ts)return '<td class="r fd-s '+cls+'"><span class="fd-tm">'+kdTm(ts)+'</span><span class="fd-d" title="'+kdFmt(dur)+' (ນາທີ:ວິ)">'+kdMin(dur)+'</span></td>';
-  if(running)return '<td class="r fd-s cur"><span class="fd-tm">—</span><span class="fd-d">'+runLabel+' '+kdMin(dur)+'</span></td>';return '<td class="r fd-s"><span class="fd-tm">—</span></td>';};
+ var stg=function(ts,dur,cls,runLabel,running,passed){if(ts)return '<td class="r fd-s '+cls+'"><span class="fd-tm">'+kdTm(ts)+'</span><span class="fd-d" title="'+kdFmt(dur)+' (ນາທີ:ວິ)">'+kdMin(dur)+'</span></td>';
+  if(running)return '<td class="r fd-s cur"><span class="fd-tm">—</span><span class="fd-d">'+runLabel+' '+kdMin(dur)+'</span></td>';
+  if(passed)return '<td class="r fd-s"><span class="fd-tm">—</span><small class="fd-by" title="ຂັ້ນນີ້ຜ່ານແລ້ວ ແຕ່ເຄື່ອງທີ່ກົດຍັງໃຊ້ແອັບເວີຊັນເກົ່າ — ໂຫຼດໜ້າໃໝ່ທຸກເຄື່ອງ">ບໍ່ໄດ້ບັນທຶກເວລາ</small></td>';return '<td class="r fd-s"><span class="fd-tm">—</span></td>';};
  var row=function(o,live){var at=live?now:(o.end||now),s=kdStages(o,at),st=o.servedTs?'served':(o.readyTs?'ready':(o.cookTs?'cooking':(o.status||'wait')));st=live&&o.status?o.status:st;var sm=stMap[st]||['—','#e2e8f0','#475569'],L=L_[o.k==='drink'?'drink':'food']||[8,15],late=!s.done&&s.total/60000>=L[1];
-  var run=live&&!o.servedTs,t0=o.ts||0;
-  var c2=stg(o.cookTs,(o.cookTs||at)-t0,'w','ລໍຖ້າ…',run&&!o.cookTs&&!o.readyTs&&(o.status==='wait'||!o.status)),
-      c3=stg(o.readyTs,(o.readyTs||at)-(o.cookTs||0),'c','ກຳລັງເຮັດ…',run&&!!o.cookTs&&!o.readyTs),
-      c4=stg(o.servedTs,(o.servedTs||at)-(o.readyTs||0),'h','ລໍເສີບ…',run&&!!o.readyTs);
+  var run=live&&!o.servedTs,t0=o.ts||0,rk={cooking:1,ready:2,served:3}[o.status]||0;
+  var c2=stg(o.cookTs,(o.cookTs||at)-t0,'w','ລໍຖ້າ…',run&&!o.cookTs&&!o.readyTs&&(o.status==='wait'||!o.status),rk>=1),
+      c3=stg(o.readyTs,(o.readyTs||at)-(o.cookTs||0),'c','ກຳລັງເຮັດ…',run&&!!o.cookTs&&!o.readyTs&&rk<2,rk>=2),
+      c4=stg(o.servedTs,(o.servedTs||at)-(o.readyTs||0),'h','ລໍເສີບ…',run&&!!o.readyTs&&rk<3,rk>=3);
   return '<tr><td><b>'+cesc(o.table)+'</b></td><td class="fd-nm">'+cesc(o.name)+(+o.qty>1?' <b class="fd-q">×'+o.qty+'</b>':'')+(o.by?'<small class="fd-by">ສັ່ງໂດຍ '+cesc(o.by)+'</small>':'')+'</td><td><span class="stbadge" style="background:'+sm[1]+';color:'+sm[2]+'">'+sm[0]+'</span><small class="fd-by">'+(o.k==='drink'?'ເຄື່ອງດື່ມ':'ອາຫານ')+'</small></td>'+
    '<td class="r fd-s"><span class="fd-tm">'+kdTm(o.ts)+'</span></td>'+c2+c3+c4+'<td class="r fd-s fd-tot'+(late?' late':'')+'"><span class="fd-d" title="'+kdFmt(s.total)+' (ນາທີ:ວິ)">'+(s.done?'':'ຜ່ານມາ ')+kdMin(s.total)+'</span></td></tr>';};
  var body='';
- if(foodTab==='live'){var os=(state.orders||[]).filter(function(o){return !o.arch;}).slice().sort(function(a,c){return (a.ts||0)-(c.ts||0);});
+ if(foodTab==='live'){var os=(state.orders||[]).filter(function(o){return !o.arch&&o.status!=='served';}).slice().sort(function(a,c){return (a.ts||0)-(c.ts||0);});
   body='<div class="toolbar"><span style="font-size:17px;font-weight:800">ຕິດຕາມອາຫານ (ກຳລັງດຳເນີນ)</span><span style="color:var(--muted)">'+os.length+' ລາຍການ</span></div>'+tabs+legend+'<div style="padding:0 18px 18px;overflow:auto"><table class="tbl fd-tbl"><thead>'+thead+'</thead><tbody>'+(os.length?os.map(function(o){return row(o,true);}).join(''):'<tr><td colspan="8" style="text-align:center;padding:24px;color:#94a3b8">ບໍ່ມີອໍເດີກຳລັງດຳເນີນ</td></tr>')+'</tbody></table></div>';}
  else{if(repDate===null)repDate=ymd(Date.now());var list=(state.kdsLog||[]).filter(function(l){return !repDate||ymd(l.ts)===repDate;}).slice().sort(function(a,c){return (c.ts||0)-(a.ts||0);});
   var avg=function(arr,f){var v=arr.map(f).filter(function(x){return x!==null&&x>=0;});return v.length?v.reduce(function(a,x){return a+x;},0)/v.length:null;},kp=function(l,lab,cls){return '<div class="kpi"><div class="lbl">'+lab+'</div><div class="val '+cls+'">'+l+'</div></div>';};
