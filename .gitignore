@@ -18,3 +18,7 @@ laofe-import/
 deploy-output/
 deploy.zip
 stpos-server.zip
+
+# server secrets (never commit)
+ລະຫັດ-server*.txt
+server/secrets.json

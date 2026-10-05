@@ -14,6 +14,8 @@ const path = require('path');
 const vm = require('vm');
 const crypto = require('crypto');
 
+/* secrets.json ຂ້າງ app.js (ສ້າງໃນຄອມ, ບໍ່ຂຶ້ນ GitHub) ມີສິດກ່ອນ env — ບໍ່ຕ້ອງພິມລະຫັດໃນ cPanel */
+if (!process.env.STPOS_NO_SECRETS) try { const sec = JSON.parse(fs.readFileSync(path.join(__dirname, 'secrets.json'), 'utf8')); ['API_TOKEN', 'ADMIN_KEY', 'CRON_KEY'].forEach(function (k) { if (typeof sec[k] === 'string' && sec[k].length >= 16) process.env[k] = sec[k]; }); } catch (e) {}
 const DATA_DIR = process.env.DATA_DIR || path.join(os.homedir(), 'stpos-data');
 const shim = require('./gas-shim').create(DATA_DIR);
 Object.assign(global, shim.globals);

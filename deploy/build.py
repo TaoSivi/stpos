@@ -50,4 +50,7 @@ with zipfile.ZipFile(SZIP, 'w', zipfile.ZIP_DEFLATED) as z:
     for f in ('app.js', 'gas-shim.js', 'package.json'):
         z.write(os.path.join(ROOT, 'server', f), f)
     z.write(os.path.join(ROOT, 'Code.gs'), 'Code.gs')
-print('OK stpos-server.zip: %.0f KB (app.js, gas-shim.js, package.json, Code.gs)' % (os.path.getsize(SZIP) / 1e3))
+    sec = os.path.join(ROOT, 'server', 'secrets.json')  # ລະຫັດ (git-ignored) — ຖ້າບໍ່ມີ ຕ້ອງຕັ້ງໃນ env ຂອງ cPanel
+    if os.path.isfile(sec):
+        z.write(sec, 'secrets.json')
+print('OK stpos-server.zip: %.0f KB (app.js, gas-shim.js, package.json, Code.gs%s)' % (os.path.getsize(SZIP) / 1e3, ', secrets.json' if os.path.isfile(sec) else ' — NO secrets.json'))

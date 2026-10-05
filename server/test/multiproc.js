@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 const fs = require('fs'), os = require('os'), path = require('path'), zlib = require('zlib'), assert = require('assert');
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'stpos-mp-'));
 const ports = [3990, 3991], procs = [];
-function start(port) { return new Promise(function (ok, bad) { const p = spawn(process.execPath, [path.join(__dirname, '..', 'app.js')], { env: Object.assign({}, process.env, { PORT: String(port), DATA_DIR: DATA }) }); procs.push(p); p.stdout.on('data', function (d) { if (/server on/.test(String(d))) ok(); }); p.on('exit', function (c) { if (c) bad(new Error('exit ' + c)); }); }); }
+function start(port) { return new Promise(function (ok, bad) { const p = spawn(process.execPath, [path.join(__dirname, '..', 'app.js')], { env: Object.assign({}, process.env, { PORT: String(port), DATA_DIR: DATA, STPOS_NO_SECRETS: '1' }) }); procs.push(p); p.stdout.on('data', function (d) { if (/server on/.test(String(d))) ok(); }); p.on('exit', function (c) { if (c) bad(new Error('exit ' + c)); }); }); }
 async function get(port) { const t = await (await fetch('http://127.0.0.1:' + port + '/?callback=c&gz=1&token=')).text(); const r = JSON.parse(t.slice(2, -1)); return r.gz ? JSON.parse(zlib.gunzipSync(Buffer.from(r.gz, 'base64'))) : null; }
 (async function () {
   try {

@@ -14,7 +14,7 @@ let proc, passed = 0;
 
 function start(env) {
   return new Promise(function (ok, bad) {
-    proc = spawn(process.execPath, [path.join(__dirname, '..', 'app.js')], { env: Object.assign({}, process.env, { PORT: String(PORT), DATA_DIR: DATA }, env || {}), stdio: ['ignore', 'pipe', 'pipe'] });
+    proc = spawn(process.execPath, [path.join(__dirname, '..', 'app.js')], { env: Object.assign({}, process.env, { PORT: String(PORT), DATA_DIR: DATA, STPOS_NO_SECRETS: '1' }, env || {}), stdio: ['ignore', 'pipe', 'pipe'] });
     let err = ''; proc.stderr.on('data', function (d) { err += d; });
     proc.stdout.on('data', function (d) { if (/server on/.test(String(d))) ok(); });
     proc.on('exit', function (c) { if (c) bad(new Error('server exited ' + c + ' ' + err)); });
