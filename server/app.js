@@ -122,6 +122,8 @@ function loginApi(q, req) {
     const s = G.getState_(); let st = {}; try { st = s ? JSON.parse(s) : {}; } catch (e) {}
     return { ok: true, login: 1, shop: st.shopName || '', users: (st.users || []).filter(function (u) { return u && u.active !== false; }).map(function (u) { return { id: u.id, name: u.name || '', role: u.role || '' }; }) };
   }
+  if (q.login === 'branches') /* ໜ້າເປີດແອັບຄັ້ງທຳອິດ (stpos.store ທຳມະດາ): ໃຫ້ເລືອກສາຂາ — ຊື່ ແລະ ລິ້ງເທົ່ານັ້ນ */
+    return { ok: true, login: 1, branches: brList(req).map(function (b) { return { id: b.id, name: b.name, type: b.type, url: b.url }; }) };
   if (q.login === 'pin') {
     const cache = CacheService.getScriptCache(), uid = String(q.uid || '').slice(0, 80), ip = clientIp(req);
     const ku = 'lfu_' + uid, ki = 'lfi_' + ip, nu = +(cache.get(ku) || 0), ni = +(cache.get(ki) || 0);

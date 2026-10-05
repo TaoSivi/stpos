@@ -2197,8 +2197,18 @@ function apiSetupSave(){var u=((document.getElementById('apiIn')||{}).value||'')
  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)&&!/^https:\/\/[^\/?#]+\/api(\/[a-z0-9_-]+)?\/?$/i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/api(\/[a-z0-9_-]+)?\/?$/i.test(u)){alert('ລິ້ງບໍ່ຖືກຮູບແບບ — Google: ລົງທ້າຍດ້ວຍ /exec · server ຂອງຮ້ານ: https://ໂດເມນ/api');return;}
  try{localStorage.setItem('stpos_api',u);if(t)localStorage.setItem('stpos_token',t);}catch(e){}
  location.reload();}
+/* ເຄື່ອງໃໝ່ເປີດ stpos.store ທຳມະດາ: ຊອກ server ຂອງເວັບນີ້ເອງ (/api) → ສາຂາດຽວ = ໄປໜ້າ PIN ເລີຍ · ຫຼາຍສາຂາ = ເລືອກສາຂາກ່ອນ · ບໍ່ພົບ = ໜ້າຕັ້ງ server ຄືເກົ່າ */
+function autoServer(){if(getQ('table')||!/^https?:$/.test(location.protocol)||/github\.io$|googleusercontent\.com$/.test(location.hostname)){apiSetupScreen();return;}
+ var base=location.origin+'/api';
+ jsonpUrl_(base,'login=branches',function(r){var L=(r&&r.ok&&r.login&&r.branches)||[];if(!L.length){apiSetupScreen();return;}
+  if(L.length===1){autoServerUse(L[0].url);return;}
+  var b=document.getElementById('boot');if(!b){autoServerUse(L[0].url);return;}b.classList.remove('hidden');window.__autoBr=L;
+  b.innerHTML='<div class="lg">ST POS</div><div style="font-size:16px;font-weight:700;margin-bottom:6px">ເລືອກສາຂາຂອງເຄື່ອງນີ້</div><div style="display:flex;flex-direction:column;gap:10px;width:320px;max-width:88vw">'+
+   L.map(function(x,i){return '<button onclick="autoServerUse(window.__autoBr['+i+'].url)" style="padding:14px 18px;border-radius:14px;border:none;font-weight:700;font-size:16px;font-family:inherit;text-align:left;cursor:pointer">'+cesc(x.name)+(x.type==='warehouse'?' <small style="opacity:.7">(ສາງ / ຄົວກາງ)</small>':'')+'</button>';}).join('')+
+   '</div><div style="font-size:12.5px;opacity:.85;margin-top:10px">ເລືອກເທື່ອດຽວ — ເຄື່ອງຈະຈື່ໄວ້</div>';},10000);}
+function autoServerUse(u){try{localStorage.setItem('stpos_api',u);}catch(e){}location.reload();}
 function boot(){var wantLocal=false;try{wantLocal=localStorage.getItem('stpos_local')==='1';}catch(e){}
- if(!HAS_GAS&&!API_URL&&!wantLocal){apiSetupScreen();return;}
+ if(!HAS_GAS&&!API_URL&&!wantLocal){autoServer();return;}
  if(HAS_GAS||HAS_API){state=freshState();ensureDefaults();}else{initState(localStorage.getItem('stpos')||'');}afterBoot();
  if(getQ('table')&&(HAS_GAS||HAS_API)){pullCust(0);return;} /* ລູກຄ້າ QR: ດຶງສະເພາະຂໍ້ມູນໂຕະຕົນເອງ */
  if(HAS_GAS)pullState(0);else if(HAS_API)pullStateApi(0);}
