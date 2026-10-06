@@ -1206,6 +1206,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .bu-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.bu-chip{height:38px;padding:0 14px;border-radius:19px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:14px;cursor:pointer}.bu-chip.on{background:#0A7C77;border-color:#0A7C77;color:#fff}.modal .bu-name{margin:0 0 8px}.bu-q{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:15px;font-weight:600;margin:4px 0 6px}.modal .bu-q input{width:96px;height:40px;margin:0;padding:0 8px;text-align:right;font-weight:700}.bu-tip{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .iu-btn.iu-adv{background:transparent;box-shadow:none;color:var(--muted);font-weight:600;font-size:12px;text-decoration:underline;padding:6px 4px}.modal .bu-q select{width:auto;height:40px;margin:0;padding:0 10px;font-weight:700}
 .uc-lead{font-size:14px;line-height:1.6;margin:-2px 0 10px;text-align:center}.uc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px}.uc-card{position:relative;border:1.5px solid #cfe4e2;background:#fff;border-radius:14px;padding:12px 6px;font:inherit;cursor:pointer;color:var(--ink);line-height:1.35}.uc-card b{display:block;font-size:20px;color:#0A5E5B}.uc-card small{display:block;font-size:12px;color:var(--muted)}.uc-card.on{border-color:#0A7C77;background:#e7f6f4;box-shadow:0 0 0 3px rgba(10,124,119,.15)}.uc-card.cur{opacity:.55;cursor:default}.uc-card i{position:absolute;top:4px;right:6px;font-style:normal;font-size:10.5px;color:var(--muted)}.uc-more{margin:0 0 8px;font-size:13px}.uc-more summary{cursor:pointer;color:var(--muted)}.uc-pv ul{margin:6px 0;padding-left:18px;line-height:1.7}
+.modal .bu-q select optgroup{font-weight:700;color:var(--muted)}
 .bu-pv{font-size:13px;line-height:1.5;padding:8px 10px;border-radius:10px;background:#f1f5f4;color:var(--muted);margin:2px 0 6px}.bu-pv.ok{background:#e7f6ef;color:#166534}.bu-pv.warn{background:#fff7ed;color:#9a3412}
 .bu-h{color:#0A7C77;font-size:11.5px;font-weight:700;white-space:nowrap}
 .hsbox{border:1px solid #d6e9e7;border-radius:12px;padding:4px 12px;max-height:46vh;overflow:auto}.hsrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:9px 0;border-bottom:1px solid #eef5f4}.hsrow:last-child{border-bottom:none}.hsrow span{flex:1 1 140px;font-size:14px;font-weight:600;line-height:1.4}.hsrow b{font-size:14px}.modal .hsrow select{flex:1 1 150px;width:auto;min-width:0;height:40px;margin:0;padding:0 8px;font-size:14px}.hschk{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:14px;line-height:1.5}.hschk input{width:18px;height:18px;flex:none;margin:2px 0 0}.hschk small{color:var(--muted)}
@@ -3412,9 +3413,9 @@ function ingEditSave(code){var it=state.ingredients[code];if(!it)return;var g=fu
  var nc=cv===''?(+it.cost||0):Math.max(0,+cv||0),nr=Math.max(0,+rv||0),nm=mv===''?0:+mv,nl=lv===''?0:+lv,oc=+it.cost||0,or=+it.reorder||0,om=+it.max||0,ol=Math.round(100-(+it.yield||100)),ot=it.cat||'ວັດຖຸດິບ',msg=[];
  if([nc,nr,nm,nl].some(function(v){return isNaN(v);})||nm<0||nl<0){toast('ໃສ່ຕົວເລກໃຫ້ຖືກ');return;}
  if(nl>95){toast('% ສູນເສຍ ຕ້ອງບໍ່ເກີນ 95');return;}if(nm>0&&nm<nr){toast('Max ຕ້ອງບໍ່ຕ່ຳກວ່າ Min');return;}
- var bu=g('ie_bu'),bf=+g('ie_bf')||0,ob=ingBuy(it);if(bu&&bu!==(it.unit||'')&&!(bf>0)){toast('ໃສ່ 1 '+bu+' = ຈັກ '+(it.unit||''));return;}if(!bu||bu===(it.unit||''))bf=1;var bsz=bf!==1?+g('ie_bsz')||0:0,bsu=bsz?g('ie_bsu'):'',bChg=(bf!==1?bu:(it.unit||''))!==ob.u||bf!==ob.f||bsz!==(+it.bsz||0)||bsu!==(it.bsu||'');
+ var bu=g('ie_bu'),bf=+g('ie_bf')||0,ob=ingBuy(it);if(bu&&bu!==(it.unit||'')&&!(bf>0)){toast('ໃສ່ 1 '+bu+' = ຈັກ '+(it.unit||''));return;}if(!bu||bu===(it.unit||''))bf=1;var bsp=bf!==1?g('ie_bspec'):'',bChg=(bf!==1?bu:(it.unit||''))!==ob.u||bf!==ob.f||bsp!==(it.bspec?JSON.stringify(it.bspec):'');
  var cChg=nc!==oc,rChg=nr!==or,mChg=nm!==om,lChg=Math.round(nl)!==ol,tChg=cat!==ot;if(!cChg&&!rChg&&!mChg&&!lChg&&!tChg&&!bChg){closeModal();return;}
- if(bChg){if(bf!==1){it.bu=bu;it.bf=bf;}else{delete it.bu;delete it.bf;}delete it.bpc;if(bsz){it.bsz=bsz;it.bsu=bsu;}else{delete it.bsz;delete it.bsu;}logOrder('ແກ້ຫົວໜ່ວຍຊື້',it.name+': '+(bf!==1?'1 '+bu+' = '+KIP(bf)+' '+(it.unit||''):'ຄືຫົວໜ່ວຍສະຕ໋ອກ'),'');msg.push(bf!==1?'ຊື້ເປັນ '+bu:'ຊື້ເປັນ '+(it.unit||''));}
+ if(bChg){if(bf!==1){it.bu=bu;it.bf=bf;}else{delete it.bu;delete it.bf;}delete it.bpc;delete it.bsz;delete it.bsu;if(bsp){try{it.bspec=JSON.parse(bsp);}catch(e){delete it.bspec;}}else delete it.bspec;logOrder('ແກ້ຫົວໜ່ວຍຊື້',it.name+': '+(bf!==1?'1 '+bu+' = '+KIP(bf)+' '+(it.unit||''):'ຄືຫົວໜ່ວຍສະຕ໋ອກ'),'');msg.push(bf!==1?'ຊື້ເປັນ '+bu:'ຊື້ເປັນ '+(it.unit||''));}
  var rs='';if(cChg&&!can('stockApprove')){rs=((document.getElementById('ie_rsn')||{}).value||'').trim();if(!rs){toast('ໃສ່ເຫດຜົນ ທີ່ປ່ຽນຕົ້ນທຶນ');return;}}
  if(rChg){it.reorder=nr;logOrder('ແກ້ Min (ຈຸດສັ່ງຊື້)',it.name+' '+KIP(or)+' → '+KIP(nr)+' '+(it.unit||''),'');msg.push('Min '+KIP(nr));}
  if(mChg){if(nm>0)it.max=nm;else delete it.max;logOrder('ແກ້ Max',it.name+' '+KIP(om)+' → '+KIP(nm)+' '+(it.unit||''),'');msg.push('Max '+(nm?KIP(nm):'ບໍ່ກຳນົດ'));}
@@ -3429,45 +3430,62 @@ var BUY_U=['kg','L','ຖັງ','ແກັດ','ລັງ','ແພັກ','ກ�
 function ingBuy(it){it=it||{};var f=+it.bf;return (it.bu&&f>0&&!(f===1&&it.bu===it.unit))?{u:it.bu,f:f}:{u:it.unit||'',f:1};}
 function lineF(l){return +(l&&l.bf)>0?+l.bf:1;}
 function buyLine(it,stockQty,buyQty){var b=ingBuy(it),q=buyQty!=null?buyQty:(b.f!==1?Math.max(1,Math.ceil(stockQty/b.f-1e-9)):stockQty);
- var l={code:it.code,name:it.name,unit:b.u,qty:q,est:Math.round((+it.cost||0)*b.f*100)/100};if(b.f!==1){l.bf=b.f;l.su=it.unit||'';}return l;}
-function lineHint(l,q){var f=lineF(l);return f!==1?' <small class="bu-h">= '+KIP(Math.round((q!=null?q:l.qty)*f*1000)/1000)+' '+cesc(l.su||'')+'</small>':'';}
-function bfCopy(l,o){if(lineF(l)!==1){o.bf=lineF(l);o.su=l.su||'';}return o;}
-/* ກ່ອງ "ສັ່ງຊື້ເປັນຫຍັງ": ກົດເລືອກ → ຖາມຂະໜາດຂອງ 1 ຫົວໜ່ວຍ ເປັນ kg / L (ຫຼື g / ml / ອັນ) → ລະບົບແປງເປັນຫົວໜ່ວຍສະຕ໋ອກເອງ · ຄ່າຈິງໃນ input ທີ່ເຊື່ອງໄວ້ ie_bu / ie_bf / ie_bsz / ie_bsu */
-var BU_OPT={g:['kg','ກະສອບ','ຖົງ','ກ່ອງ','ແພັກ','ຖັງ'],ml:['L','ຖັງ','ແກລອນ','ກ່ອງ','ແກັດ','ລັງ','ຂວດ'],x:['ແກັດ','ກ່ອງ','ລັງ','ແພັກ','ໂຫຼ','ຖົງ','ມັດ']};
+ var l={code:it.code,name:it.name,unit:b.u,qty:q,est:Math.round((+it.cost||0)*b.f*100)/100};if(b.f!==1){l.bf=b.f;l.su=it.unit||'';var sp=it.bspec;if(sp&&sp.au==='#'&&sp.in&&+sp.a>0){l.bin=sp.in;l.bic=+sp.a;}}return l;}
+function lineHint(l,q){var f=lineF(l),n=q!=null?q:l.qty;return f!==1?' <small class="bu-h">= '+(l.bin?KIP(Math.round(n*l.bic*1000)/1000)+' '+cesc(l.bin)+' · ':'')+KIP(Math.round(n*f*1000)/1000)+' '+cesc(l.su||'')+'</small>':'';}
+function bfCopy(l,o){if(lineF(l)!==1){o.bf=lineF(l);o.su=l.su||'';if(l.bin){o.bin=l.bin;o.bic=l.bic;}}return o;}
+/* ກ່ອງ "ສັ່ງຊື້ເປັນຫຍັງ": ກົດເລືອກ (ຫຼື ພິມຊື່ເອງ) → 1 ຫົວໜ່ວຍ = [ຈຳນວນ] [kg / L / g / ml ຫຼື ຊິ້ນຂ້າງໃນ ເຊັ່ນ ກະປ໋ອງ] → ຖ້າເປັນຊິ້ນ: 1 ຊິ້ນ = [ຂະໜາດ] [ຫົວໜ່ວຍ]
+ * ລະບົບຄູນເປັນຫົວໜ່ວຍສະຕ໋ອກໃຫ້ (bf) · ສິ່ງທີ່ໃສ່ ເກັບໃນ bspec {a, au, in, b, bu} ເພື່ອເປີດຄືນໄດ້ຄືເກົ່າ (au '#' = ມີຊິ້ນຂ້າງໃນ ຊື່ in) */
+var BU_OPT={g:['kg','ກະສອບ','ຖົງ','ກ່ອງ','ແພັກ','ຖັງ'],ml:['L','ຖັງ','ແກລອນ','ແກັດ','ກ່ອງ','ລັງ','ຂວດ'],x:['ແກັດ','ກ່ອງ','ລັງ','ແພັກ','ໂຫຼ','ຖົງ','ມັດ']};
+var BU_IN=['ກະປ໋ອງ','ຂວດ','ແກ້ວ','ຖົງ','ຊອງ','ກ່ອງ','ແພັກ','ອັນ','ໜ່ວຍ'];
 function buKind(u){return (u==='g'||u==='ml')?u:'x';}
 function buBig(u){return u==='g'?'kg':(u==='ml'?'L':'');}
-function buyRowHTML(it){var b=ingBuy(it),u=it.unit||'',k=buKind(u),cur=b.f!==1?b.u:'',auto=cur?unitGuess(cur,u):'',sz='',su=buBig(u)||u;
- if(cur&&!auto){if(+it.bsz>0&&it.bsu){sz=+it.bsz;su=it.bsu;}else if(k!=='x'&&b.f%1000===0){sz=b.f/1000;su=buBig(u);}else{sz=b.f;su=u;}}
- window.__bu={u:u,sel:cur,sz:sz,su:su,other:!!(cur&&BU_OPT[k].indexOf(cur)<0&&!auto)};
+function buMul(x,u){return (x&&x===buBig(u))?1000:1;}
+function buyRowHTML(it){var b=ingBuy(it),u=it.unit||'',k=buKind(u),cur=b.f!==1?b.u:'',auto=cur?unitGuess(cur,u):'',sp=it.bspec&&typeof it.bspec==='object'?it.bspec:null;
+ var B={u:u,sel:cur,a:'',au:buBig(u)||u,inn:'',b:'',bu:buBig(u)||u,typing:false,other:!!(cur&&BU_OPT[k].indexOf(cur)<0&&!auto)};
+ if(cur&&!auto){if(sp){B.a=sp.a;B.au=sp.au;B.inn=sp.in||'';B.b=sp.b||'';B.bu=sp.bu||B.bu;}else if(+it.bsz>0&&it.bsu){B.a=+it.bsz;B.au=it.bsu;}else if(k!=='x'&&b.f%1000===0){B.a=b.f/1000;B.au=buBig(u);}else{B.a=b.f;B.au=u;}}
+ window.__bu=B;
  return '<div class="ie-f bu-box" style="margin-bottom:10px"><label>ສັ່ງຊື້ຈາກຜູ້ຂາຍເປັນຫຍັງ?</label><div id="bu_ui"></div><div id="ie_bup" class="bu-pv"></div>'+
-  '<input type="hidden" id="ie_bu" value="'+aesc(cur)+'"><input type="hidden" id="ie_bf" value="'+(b.f!==1?b.f:'')+'"><input type="hidden" id="ie_bsz"><input type="hidden" id="ie_bsu"></div>';}
-function buDraw(){var B=window.__bu,el=document.getElementById('bu_ui');if(!B||!el)return;var u=B.u,k=buKind(u),opts=BU_OPT[k],big=buBig(u);
+  '<input type="hidden" id="ie_bu" value="'+aesc(cur)+'"><input type="hidden" id="ie_bf" value="'+(b.f!==1?b.f:'')+'"><input type="hidden" id="ie_bspec"></div>';}
+function buUnits(u){var big=buBig(u);return big?[big,u]:[u];}
+function buDraw(){var B=window.__bu,el=document.getElementById('bu_ui');if(!B||!el)return;var u=B.u,k=buKind(u),opts=BU_OPT[k];
  var chip=function(v,l,on){return '<button type="button" class="bu-chip'+(on?' on':'')+'" data-v="'+aesc(v)+'" onclick="buPick(this.dataset.v)">'+l+'</button>';};
  var h='<div class="bu-chips">'+chip('','ຄືສະຕ໋ອກ ('+cesc(u)+')',!B.sel&&!B.other)+opts.map(function(o){return chip(o,cesc(o),!B.other&&B.sel===o);}).join('')+chip('__o','+ ອື່ນໆ',B.other)+'</div>';
- if(B.other)h+='<input id="bu_name" class="bu-name" maxlength="20" placeholder="ພິມຊື່ຫົວໜ່ວຍ ເຊັ່ນ ຖາດ, ຫໍ່" value="'+aesc(B.sel)+'" oninput="buName(this)">';
+ if(B.other)h+='<input id="bu_name" class="bu-name" maxlength="20" placeholder="ພິມຊື່ຫົວໜ່ວຍ ເຊັ່ນ ຖາດ, ຫໍ່, ແພັກ 6" value="'+aesc(B.sel)+'" oninput="buName(this)">';
  var low=String(B.sel||'').trim().toLowerCase(),miss=(u==='g'&&L_RE.test(low))?'ml':((u==='ml'&&KG_RE.test(low))?'g':'');
- if(miss)h+='<div class="bu-pv warn" style="margin-bottom:8px">ສະຕ໋ອກຂອງລາຍການນີ້ເປັນ <b>'+cesc(u)+'</b> ('+(u==='g'?'ນ້ຳໜັກ':'ປະລິມາດ')+') ແຕ່ '+cesc(B.sel)+' ເປັນ'+(u==='g'?'ປະລິມາດ':'ນ້ຳໜັກ')+' · ໃສ່ນ້ຳໜັກ/ປະລິມາດຈິງຂອງ 1 '+cesc(B.sel)+' ຂ້າງລຸ່ມ (ເຊັ່ນ 1 ລິດ ໜັກ 0.92 kg) · ຫຼື ປ່ຽນຫົວໜ່ວຍສະຕ໋ອກເປັນ '+miss+' (ຂັ້ນສູງ)</div>';
+ if(miss)h+='<div class="bu-pv warn" style="margin-bottom:8px">ສະຕ໋ອກຂອງລາຍການນີ້ເປັນ <b>'+cesc(u)+'</b> ('+(u==='g'?'ນ້ຳໜັກ':'ປະລິມາດ')+') ແຕ່ '+cesc(B.sel)+' ເປັນ'+(u==='g'?'ປະລິມາດ':'ນ້ຳໜັກ')+' · ໃສ່ນ້ຳໜັກ/ປະລິມາດຈິງຂອງ 1 '+cesc(B.sel)+' ຂ້າງລຸ່ມ (ເຊັ່ນ 1 ລິດ ໜັກ 0.92 kg)</div>';
  if(B.sel||B.other){var auto=B.sel?unitGuess(B.sel,u):'',nm='<span class="bu-nm">'+cesc(B.sel||'…')+'</span>';
   if(auto)h+='<div class="bu-q">1 '+nm+' = <b>'+KIP(auto)+' '+cesc(u)+'</b> <small>(ລະບົບຮູ້ເອງ)</small></div>';
-  else h+='<div class="bu-q">1 '+nm+' = <input id="bu_sz" type="number" inputmode="decimal" min="0" step="any" value="'+(B.sz||'')+'" placeholder="?" oninput="buCalc()"> '+
-   (big?'<select id="bu_su" onchange="buCalc()">'+[big,u].map(function(x){return '<option value="'+x+'"'+(B.su===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>':'<b>'+cesc(u)+'</b>')+'</div>'+
-   (big?'<small class="bu-tip">ເຊັ່ນ ກະສອບ 20 kg → ໃສ່ 20 ເລືອກ kg · ຖັງ 20 ລິດ → ໃສ່ 20 ເລືອກ L · ກ່ອງ 12 ຂວດ × 1 ລິດ → ໃສ່ 12 ເລືອກ L</small>':'<small class="bu-tip">ເຊັ່ນ 1 ແກັດ ມີ 24 ກະປ໋ອງ → ໃສ່ 24</small>');}
+  else{var ins=BU_IN.filter(function(x){return x!==u&&x!==B.sel;});if(B.au==='#'&&B.inn&&ins.indexOf(B.inn)<0)ins.push(B.inn);
+   var sel=B.au==='#'?(B.typing?'#*':'#'+B.inn):B.au;
+   h+='<div class="bu-q">1 '+nm+' = <input id="bu_a" type="number" inputmode="decimal" min="0" step="any" value="'+(B.a||'')+'" placeholder="?" oninput="buCalc()"> <select id="bu_au" onchange="buAu(this.value)">'+
+    buUnits(u).map(function(x){return '<option value="'+aesc(x)+'"'+(sel===x?' selected':'')+'>'+cesc(x)+'</option>';}).join('')+
+    '<optgroup label="ມີຫຼາຍຊິ້ນຂ້າງໃນ:">'+ins.map(function(x){return '<option value="#'+aesc(x)+'"'+(sel==='#'+x?' selected':'')+'>'+cesc(x)+'</option>';}).join('')+'<option value="#*"'+(sel==='#*'?' selected':'')+'>ພິມຊື່ເອງ…</option></optgroup></select></div>';
+   if(B.au==='#'){if(B.typing)h+='<input id="bu_in" class="bu-name" maxlength="20" placeholder="ຊື່ຊິ້ນຂ້າງໃນ ເຊັ່ນ ກະປ໋ອງ, ແກ້ວ" value="'+aesc(B.inn)+'" oninput="buIn(this)">';
+    var inm='<span class="bu-inm">'+cesc(B.inn||'…')+'</span>';
+    h+='<div class="bu-q">1 '+inm+' = <input id="bu_b" type="number" inputmode="decimal" min="0" step="any" value="'+(B.b||'')+'" placeholder="?" oninput="buCalc()"> '+
+     (buBig(u)?'<select id="bu_bu" onchange="buCalc()">'+buUnits(u).map(function(x){return '<option value="'+x+'"'+(B.bu===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select>':'<b>'+cesc(u)+'</b>')+'</div>';}
+   h+='<small class="bu-tip">'+(k==='x'?'ເຊັ່ນ 1 ແກັດ = 24 ອັນ · ຫຼື 1 ລັງ = 10 ຖົງ, 1 ຖົງ = 50 ອັນ':'ເຊັ່ນ 1 ກະສອບ = 20 kg · 1 ແກັດ = 24 ກະປ໋ອງ, 1 ກະປ໋ອງ = 330 ml · 1 ຖັງ = 20 L')+'</small>';}}
  el.innerHTML=h;}
 function buName(el){var B=window.__bu;if(!B)return;var v=el.value.trim(),k=function(x){x=String(x||'').toLowerCase();return (unitGuess(x,B.u)?'a':'')+(L_RE.test(x)||KG_RE.test(x)?'m':'');};var was=k(B.sel);B.sel=v;
  if(k(v)!==was){var pos=el.selectionStart;buDraw();var e=document.getElementById('bu_name');if(e){e.focus();try{e.setSelectionRange(pos,pos);}catch(x){}}}
  else document.querySelectorAll('.bu-nm').forEach(function(x){x.textContent=v||'…';});buCalc();}
-function buPick(v){var B=window.__bu;if(!B)return;if(v==='__o'){B.other=true;B.sel='';}else{B.other=false;B.sel=v;}B.sz='';B.su=buBig(B.u)||B.u;buDraw();buCalc();
- var f=document.getElementById(B.other?'bu_name':'bu_sz');if(f)f.focus();}
-function buCalc(){var B=window.__bu;if(!B)return;var u=B.u,auto=B.sel?unitGuess(B.sel,u):'',se=document.getElementById('bu_sz'),ue=document.getElementById('bu_su'),f=0;
- if(se)B.sz=+se.value||0;if(ue)B.su=ue.value;
- if(B.sel){if(auto)f=+auto;else f=(B.sz||0)*(B.su&&B.su===buBig(u)?1000:1);}
- var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};set('ie_bu',B.sel||'');set('ie_bf',B.sel?(f>0?Math.round(f*1000)/1000:''):'');
- set('ie_bsz',B.sel&&!auto&&B.sz?B.sz:'');set('ie_bsu',B.sel&&!auto&&B.sz?B.su:'');buPv();}
-function buPv(){var B=window.__bu,o=document.getElementById('ie_bup');if(!B||!o)return;var u=B.u,n=B.sel,v=+((document.getElementById('ie_bf')||{}).value)||0,big=buBig(u);
+function buIn(el){var B=window.__bu;if(!B)return;B.inn=el.value.trim();document.querySelectorAll('.bu-inm').forEach(function(x){x.textContent=B.inn||'…';});buCalc();}
+function buAu(v){var B=window.__bu;if(!B)return;buCalc();if(v==='#*'){B.au='#';B.typing=true;B.inn='';}else if(v.charAt(0)==='#'){B.au='#';B.typing=false;B.inn=v.slice(1);}else{B.au=v;B.typing=false;}
+ buDraw();buCalc();var f=document.getElementById(B.au==='#'?(B.typing?'bu_in':(B.b?'bu_a':'bu_b')):'bu_a');if(f)f.focus();}
+function buPick(v){var B=window.__bu;if(!B)return;if(v==='__o'){B.other=true;B.sel='';}else{B.other=false;B.sel=v;}B.a='';B.au=buBig(B.u)||B.u;B.inn='';B.b='';B.bu=buBig(B.u)||B.u;B.typing=false;buDraw();buCalc();
+ var f=document.getElementById(B.other?'bu_name':'bu_a');if(f)f.focus();}
+function buCalc(){var B=window.__bu;if(!B)return;var u=B.u,auto=B.sel?unitGuess(B.sel,u):'',g=function(id){return document.getElementById(id);},f=0;
+ if(g('bu_a'))B.a=+g('bu_a').value||0;if(g('bu_b'))B.b=+g('bu_b').value||0;if(g('bu_bu'))B.bu=g('bu_bu').value;
+ if(B.sel){if(auto)f=+auto;else if(B.au==='#')f=(B.a||0)*(B.b||0)*buMul(B.bu,u);else f=(B.a||0)*buMul(B.au,u);}
+ var set=function(id,v){var e=g(id);if(e)e.value=v;};set('ie_bu',B.sel||'');set('ie_bf',B.sel?(f>0?Math.round(f*1000)/1000:''):'');
+ set('ie_bspec',B.sel&&!auto&&f>0?JSON.stringify(B.au==='#'?{a:B.a,au:'#',in:B.inn,b:B.b,bu:B.bu}:{a:B.a,au:B.au}):'');buPv();}
+function buPv(){var B=window.__bu,o=document.getElementById('ie_bup');if(!B||!o)return;var u=B.u,n=B.sel,v=+((document.getElementById('ie_bf')||{}).value)||0,big=buBig(u),auto=n?unitGuess(n,u):'';
  if(!n){o.className='bu-pv';o.innerHTML=B.other?'ພິມຊື່ຫົວໜ່ວຍທີ່ໃຊ້ກັບຜູ້ຂາຍ':'ສັ່ງຊື້ ແລະ ຮັບເຄື່ອງເປັນ <b>'+cesc(u)+'</b> ຄືເກົ່າ';return;}
+ if(!auto&&B.au==='#'&&!B.inn){o.className='bu-pv warn';o.innerHTML='ພິມຊື່ຊິ້ນຂ້າງໃນ (ເຊັ່ນ ກະປ໋ອງ)';return;}
  if(!(v>0)){o.className='bu-pv warn';o.innerHTML='ໃສ່ຕົວເລກໃນຊ່ອງ "?" ຂ້າງເທິງ';return;}
- var q=Math.round(2*v*1000)/1000;
- o.className='bu-pv ok';o.innerHTML='✓ ສັ່ງຊື້ <b>2 '+cesc(n)+'</b> → ຮັບເຄື່ອງແລ້ວ ສະຕ໋ອກ <b>+'+KIP(q)+' '+cesc(u)+'</b>'+(big&&q>=1000?' (= '+KIP(q/1000)+' '+big+')':'');}
+ var q=Math.round(2*v*1000)/1000,inner=!auto&&B.au==='#';
+ o.className='bu-pv ok';o.innerHTML='✓ ສັ່ງຊື້ <b>2 '+cesc(n)+'</b>'+(inner?' ('+KIP(2*B.a)+' '+cesc(B.inn)+')':'')+' → ຮັບເຄື່ອງແລ້ວ ສະຕ໋ອກ <b>+'+KIP(q)+' '+cesc(u)+'</b>'+(big&&q>=1000?' (= '+KIP(q/1000)+' '+big+')':'')+
+  (inner?'<br><small>1 '+cesc(n)+' = '+KIP(B.a)+' '+cesc(B.inn)+' × '+KIP(B.b)+' '+cesc(B.bu)+' = '+KIP(v)+' '+cesc(u)+'</small>':'');}
 /* ===== ຫົວໜ່ວຍມາດຕະຖານ — ສະຕ໋ອກ ຮັບເຂົ້າ ນັບ ເບີກ ແລະ ສູດ ໃຊ້ຫົວໜ່ວຍດຽວກັນ (g / ml / ອັນ ...) ===== */
 var STD_UNITS=[['g','g — ກຣາມ (ຂອງແຫ້ງ ຊັ່ງນ້ຳໜັກ)'],['ml','ml — ມິລລິລິດ (ຂອງແຫຼວ)'],['ອັນ','ອັນ — ນັບເປັນຊິ້ນ (ກ່ອງ ຈອກ ຝາ ຖົງ ...)'],['ຂວດ','ຂວດ'],['ກະປ໋ອງ','ກະປ໋ອງ'],['ຟອງ','ຟອງ (ໄຂ່)'],['ແຜ່ນ','ແຜ່ນ'],['ໃບ','ໃບ']];
 var PACK_U=/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ|l|lt|ລິດ|ແພັກ|ແພກ|ແພັກ|pack|pk|ກ່ອງ|box|ແກັດ|ລັງ|ໂຫຼ|ໂຫລ|ມັດ|ຫໍ່|ຖັງ|ກະສອບ|ແກລອນ|ແກເລີນ)$/i;
@@ -3547,7 +3565,7 @@ function unitConvApply(code){if(!can('stockApprove')){toast('ບໍ່ມີສ�
  if(f!==1){Object.keys(it.locs).forEach(function(l){var o=+it.locs[l]||0;if(!o)return;var d=Math.round((Math.round(o*f*100)/100-o)*100)/100;it.locs[l]=R(o+d);if(l===curLoc())it.stock=it.locs[l];
    logStock(code,d,'ປ່ຽນຫົວໜ່ວຍ','1 '+ou+' = '+f+' '+nu+' ['+locName(l)+']',l);var lg=state.stockLog[state.stockLog.length-1];if(lg&&lg.code===code)lg.uc=1;});
   if(+it.cost>0)it.cost=R(it.cost/f);if(+it.reorder>0)it.reorder=Math.round(it.reorder*f*100)/100;if(+it.max>0)it.max=Math.round(it.max*f*100)/100;
-  if(it.bu&&+it.bf>0){it.bf=R(it.bf*f);delete it.bsz;delete it.bsu;delete it.bpc;}
+  if(it.bu&&+it.bf>0){it.bf=R(it.bf*f);delete it.bsz;delete it.bsu;delete it.bpc;delete it.bspec;}
   var sc=function(L){(L||[]).forEach(function(x){if(x&&x[0]===code){x[1]=R((+x[1]||0)*f);n++;}});};
   allMenu().forEach(function(p){sc(p.bom);sc(p.pk);});var P=state.pkg||{};['food','drink','order'].forEach(function(k){sc(P[k]);});
   (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code&&+o.iq>0){o.iq=R(o.iq*f);n++;}});});}
@@ -4918,7 +4936,7 @@ function openGRN(poId){if(!can('grnReceive')&&!isOwner()){toast('ບໍ່ມີ
   if(isOwner()){openModal('<h2>ຮັບເຄື່ອງທີ່ '+cesc(locName(po.loc))+'</h2><p style="text-align:center">PO ນີ້ສົ່ງເຂົ້າ <b>'+cesc(locName(po.loc))+'</b> ແຕ່ເຄື່ອງນີ້ຕັ້ງເປັນ <b>'+cesc(locName(curLoc()))+'</b>.<br>ສະຫຼັບເຄື່ອງນີ້ເປັນ '+cesc(locName(po.loc))+' ແລ້ວຮັບເຄື່ອງເລີຍບໍ?</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="setTerminalLoc(\''+po.loc+'\');openGRN(\''+po.id+'\')">ສະຫຼັບ ແລະ ຮັບເຄື່ອງ</button></div>');return;}
   toast('ຕ້ອງຮັບທີ່ເຄື່ອງຂອງ '+locName(po.loc)+' (ເຄື່ອງນີ້ = '+locName(curLoc())+')');return;}var cost=procSeeCost();
  openModal('<h2>ຮັບເຄື່ອງ — '+cesc(po.no)+'</h2><p style="text-align:center;font-size:14px;color:var(--muted)">'+cesc(vendorName(po.vendor))+' → <b>'+cesc(locName(po.loc))+'</b> · ໃສ່ຈຳນວນທີ່ຮັບຈິງ (ຮັບບາງສ່ວນໄດ້)</p>'+
-  '<div style="max-height:44vh;overflow:auto"><table class="tbl"><thead><tr><th>ລາຍການ</th><th>ສັ່ງ / ຮັບແລ້ວ</th><th>ຮັບຮອບນີ້</th>'+(cost?'<th>ລາຄາຈິງ/ໜ່ວຍ</th>':'')+'</tr></thead><tbody>'+po.lines.map(function(l,i){var rem=Math.max(0,l.qty-(+l.recv||0));return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+ingThumb(l.code,30)+cesc(l.name)+'</div></td><td style="white-space:nowrap">'+KIP(l.qty)+' / '+KIP(+l.recv||0)+' '+cesc(l.unit||'')+(lineF(l)!==1?'<br><small class="bu-h">1 '+cesc(l.unit||'')+' = '+KIP(lineF(l))+' '+cesc(l.su||'')+'</small>':'')+'</td><td><input id="gr_q'+i+'" type="number" inputmode="decimal" value="'+rem+'" style="width:90px;padding:6px;text-align:center"> '+cesc(l.unit||'')+'</td>'+(cost?'<td><input id="gr_p'+i+'" type="number" inputmode="decimal" value="'+l.price+'" style="width:100px;padding:6px;text-align:right"></td>':'')+'</tr>';}).join('')+'</tbody></table></div>'+
+  '<div style="max-height:44vh;overflow:auto"><table class="tbl"><thead><tr><th>ລາຍການ</th><th>ສັ່ງ / ຮັບແລ້ວ</th><th>ຮັບຮອບນີ້</th>'+(cost?'<th>ລາຄາຈິງ/ໜ່ວຍ</th>':'')+'</tr></thead><tbody>'+po.lines.map(function(l,i){var rem=Math.max(0,l.qty-(+l.recv||0));return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+ingThumb(l.code,30)+cesc(l.name)+'</div></td><td style="white-space:nowrap">'+KIP(l.qty)+' / '+KIP(+l.recv||0)+' '+cesc(l.unit||'')+(lineF(l)!==1?'<br><small class="bu-h">1 '+cesc(l.unit||'')+' = '+(l.bin?KIP(l.bic)+' '+cesc(l.bin)+' = ':'')+KIP(lineF(l))+' '+cesc(l.su||'')+'</small>':'')+'</td><td><input id="gr_q'+i+'" type="number" inputmode="decimal" value="'+rem+'" style="width:90px;padding:6px;text-align:center"> '+cesc(l.unit||'')+'</td>'+(cost?'<td><input id="gr_p'+i+'" type="number" inputmode="decimal" value="'+l.price+'" style="width:100px;padding:6px;text-align:right"></td>':'')+'</tr>';}).join('')+'</tbody></table></div>'+
   '<label>ໝາຍເຫດ (ຂອງເສຍ / ບໍ່ຕົງ / ເລກບິນຜູ້ຂາຍ)</label><input id="gr_note" placeholder="ເຊັ່ນ ບິນ INV-1234, ໄຂ່ແຕກ 2 ໜ່ວຍ">'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doGRN(\''+po.id+'\')">ຢືນຢັນຮັບເຂົ້າສະຕ໋ອກ</button></div>');}
 function doGRN(poId){var po=findPO(poId);if(!po||['APPROVED','ORDERED','PARTIAL'].indexOf(po.status)<0)return;if(po.loc!==curLoc()){toast('ຕ້ອງຮັບທີ່ '+locName(po.loc));return;}
