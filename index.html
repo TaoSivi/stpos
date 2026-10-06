@@ -3547,12 +3547,15 @@ function ucTyped(el){var C=window.__uc;if(!C)return;var v=el.value.trim();if(!v)
 function ucAuto(ou,nu){if(ou===nu)return 1;var a=unitGuess(ou,nu);if(a)return +a;if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))return 1;if(unitGuess(nu,ou))return 1/unitGuess(nu,ou);return '';}
 function ucSet(nu,pick){var C=window.__uc;if(!C||!nu)return;var te=document.getElementById('uc_t');if(te&&(pick||document.activeElement!==te)){C.typed=false;te.style.display='none';te.value='';}var it=state.ingredients[C.code],ou=it.unit||'';document.getElementById('uc_u').value=nu;
  document.querySelectorAll('.uc-card,.uc-chip').forEach(function(b){b.classList.toggle('on',b.dataset.u===nu||(b.dataset.u==='__t'&&C.typed));});
- var a=ucAuto(ou,nu),h='<div class="bu-q">1 '+cesc(ou)+' (ເກົ່າ) = <input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+(a||'')+'" placeholder="?" oninput="ucPv()"> '+cesc(nu)+'</div>';
- if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))h+='<small class="bu-tip">ນ້ຳ ແລະ ຂອງແຫຼວສ່ວນຫຼາຍ 1 ml ≈ 1 g → ໃສ່ 1 (ຕົວເລກສະຕ໋ອກຄືເກົ່າ)</small>';
- else if(a)h+='<small class="bu-tip">ລະບົບໃສ່ໃຫ້ແລ້ວ</small>';
- else h+='<small class="bu-tip">ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າພຽງແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ (ຈຳນວນຖືກແລ້ວ) → ໃສ່ 1</small>';
- document.getElementById('uc_q').innerHTML=h;ucPv();var f=document.getElementById('uc_f');if(f&&!f.value&&!C.typed)f.focus();}
-function ucPv(){var C=window.__uc,el=document.getElementById('uc_pv'),go=document.getElementById('uc_go');if(!C||!el)return;var it=state.ingredients[C.code];if(!it)return;
+ /* ຖາມຕາມທີ່ຄົນຄິດ: ຈາກ g/ml ເປັນຊິ້ນ → "1 ຟອງ = ? g" (ຄິດກັບໃຫ້) · ອື່ນໆ → "1 ແພັກ = ? ອັນ" · ຮູ້ເອງ (kg→g, L→ml) → ບໍ່ຕ້ອງພິມ */
+ var a=ucAuto(ou,nu),sm=function(x){return x==='g'||x==='ml';},inv=sm(ou)&&!sm(nu)&&!KG_RE.test(String(nu).toLowerCase())&&!L_RE.test(String(nu).toLowerCase()),cross=(ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'),h;
+ if(a&&!cross)h='<div class="bu-q">1 '+cesc(a>=1?ou:nu)+' = <b>'+KIP(a>=1?a:1/a)+' '+cesc(a>=1?nu:ou)+'</b> <small>(ລະບົບຮູ້ເອງ)</small></div><input type="hidden" id="uc_f" value="'+a+'">';
+ else if(inv)h='<div class="bu-q">1 '+cesc(nu)+' = <input id="uc_x" type="number" inputmode="decimal" min="0" step="any" placeholder="?" oninput="ucPv()"> '+cesc(ou)+'</div><input type="hidden" id="uc_f" value="">'+
+  '<small class="bu-tip">'+(ou==='g'?'ເຊັ່ນ ໄຂ່ 1 ຟອງ ໜັກ 60 g → ໃສ່ 60 · ຖົງ 1 ຖົງ ໜັກ 500 g → ໃສ່ 500':'ເຊັ່ນ 1 ຂວດ = 750 ml → ໃສ່ 750 · 1 ກະປ໋ອງ = 330 ml → ໃສ່ 330')+'</small>';
+ else h='<div class="bu-q">1 '+cesc(ou)+' = <input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+(a||'')+'" placeholder="?" oninput="ucPv()"> '+cesc(nu)+'</div>'+
+  '<small class="bu-tip">'+(cross?'ນ້ຳ ແລະ ຂອງແຫຼວສ່ວນຫຼາຍ 1 ml ≈ 1 g → ໃສ່ 1 (ຕົວເລກສະຕ໋ອກຄືເກົ່າ)':'ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າພຽງແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ (ຈຳນວນຖືກແລ້ວ) → ໃສ່ 1')+'</small>';
+ document.getElementById('uc_q').innerHTML=h;ucPv();var f=document.getElementById('uc_x')||document.getElementById('uc_f');if(f&&f.type!=='hidden'&&!f.value&&!C.typed)f.focus();}
+function ucPv(){var C=window.__uc,el=document.getElementById('uc_pv'),go=document.getElementById('uc_go');if(!C||!el)return;var xe=document.getElementById('uc_x'),fh=document.getElementById('uc_f');if(xe&&fh)fh.value=+xe.value>0?String(1/(+xe.value)):'';var it=state.ingredients[C.code];if(!it)return;
  var nu=(document.getElementById('uc_u')||{}).value||'',fe=document.getElementById('uc_f'),f=fe?+fe.value:0,ou=it.unit||'';
  var ok=!!nu&&f>0;if(go){go.disabled=!ok;go.style.opacity=ok?'':'.5';go.textContent=nu?(f>0?'ປ່ຽນເປັນ '+nu:'ໃສ່ຕົວເລກກ່ອນ'):'ເລືອກຫົວໜ່ວຍກ່ອນ';}
  if(!ok){el.style.display='none';return;}el.style.display='';
