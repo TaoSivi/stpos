@@ -3382,7 +3382,7 @@ function renderStockList(R){var all=Object.values(state.ingredients||{});const c
    (canView('req')?'<button class="sk-btn" onclick="setView(\'req\')">ເບີກເຄື່ອງ</button>':'')+
    (locs.length>1?'<button class="sk-btn" onclick="setView(\'transfer\')">ໂອນສະຕ໋ອກ'+(inTf?' <i class="sk-n">'+inTf+'</i>':'')+'</button>':'')+
    (xfOn()&&canView('xfer')?'<button class="sk-btn" onclick="setView(\'xfer\')">ເບີກ/ໂອນ ຂ້າມສາຂາ'+(xfPending()?' <i class="sk-n">'+xfPending()+'</i>':'')+'</button>':'')+
-   '<details class="more"><summary class="sk-btn">⋯ ເພີ່ມເຕີມ</summary><div class="more-pop">'+(ed?'<button onclick="addIngredient()">＋ ເພີ່ມວັດຖຸດິບ / ສິນຄ້າ</button>':'')+'<button onclick="exportStockAll()">'+dl+' Export Excel</button><button onclick="showBomViewer()">ເບິ່ງສູດເມນູ</button><button onclick="showBomAudit()">ກວດສູດ (ຫາຂໍ້ຜິດພາດ)</button><button onclick="showStockLog()">ປະຫວັດເຄື່ອນໄຫວ ('+(state.stockLog||[]).length+')</button>'+(isOwner()?'<hr><button class="danger" onclick="resetStockAll()">ຕັ້ງສະຕ໋ອກໃໝ່ທັງໝົດ…</button>':'')+'</div></details></div></div>'+
+   '<details class="more"><summary class="sk-btn">⋯ ເພີ່ມເຕີມ</summary><div class="more-pop">'+(ed?'<button onclick="addIngredient()">＋ ເພີ່ມວັດຖຸດິບ / ສິນຄ້າ</button>':'')+'<button onclick="exportStockAll()">'+dl+' Export ສະຕ໋ອກ (Excel)</button>'+(xiAllowed('ing')?'<button onclick="xiPick(\'ing\')">'+UL_ICON+' Import ສະຕ໋ອກ (Excel)</button>':'')+'<button onclick="showBomViewer()">ເບິ່ງສູດເມນູ</button><button onclick="showBomAudit()">ກວດສູດ (ຫາຂໍ້ຜິດພາດ)</button><button onclick="showStockLog()">ປະຫວັດເຄື່ອນໄຫວ ('+(state.stockLog||[]).length+')</button>'+(isOwner()?'<hr><button class="danger" onclick="resetStockAll()">ຕັ້ງສະຕ໋ອກໃໝ່ທັງໝົດ…</button>':'')+'</div></details></div></div>'+
   (locs.length>1?'<div class="sk-locs"><span>ບ່ອນເກັບ</span>'+locs.map(function(l){return '<button class="chip '+(stockViewLoc===l.id?'active':'')+'" onclick="stockViewLoc=\''+l.id+'\';render()">'+cesc(l.name)+(l.id===curLoc()?' ●':'')+'</button>';}).join('')+'</div>':'')+
   stockCostAlert()+costRiseBar()+
   '<div class="sk-filter"><input class="sk-search" placeholder="ຄົ້ນຫາ ຊື່ / ລະຫັດ" value="'+aesc(stockQ)+'" oninput="stockQ=this.value;clearTimeout(window.__skq);window.__skq=setTimeout(function(){render();var e=document.querySelector(\'.sk-search\');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length);}},220)">'+
@@ -5684,50 +5684,75 @@ function xpRerender(){if(window.__xpModal)xpModal(window.__xpModal);else render(
 function xpRow(k){var d=XP[k];var n=0;try{n=xpBuild(k).rows.length;}catch(e){}return '<div class="xp-row"><div><b>'+cesc(d[1])+'</b><small>'+(d[3]?'ຕາມຊ່ວງວັນທີ':'ຂໍ້ມູນປັດຈຸບັນ')+' · '+KIP(n)+' ແຖວ</small></div><button type="button" class="xp-b xl" onclick="xpExcel(\''+k+'\')">Excel</button><button type="button" class="xp-b pdf" onclick="xpPdf(\''+k+'\')">PDF</button></div>';}
 /* ---------- Import ---------- */
 var XI={
- ing:['ວັດຖຸດິບ / ສິນຄ້າ (ຂໍ້ມູນຫຼັກ)','ເພີ່ມໃໝ່ ຫຼື ອັບເດດ ຊື່ · ໝວດ · ຈຸດສັ່ງຊື້ · ອາຍຸເກັບ · ຕົ້ນທຶນ (ສະຕ໋ອກເລີ່ມ 0 → ຮັບເຂົ້າຜ່ານ PO / ນັບສາງ)',function(){return can('stockAdjust');},['ລະຫັດ','ຊື່','ຫົວໜ່ວຍ','ໝວດ','ຕົ້ນທຶນ/ໜ່ວຍ','ຈຸດສັ່ງຊື້','Max(ສັ່ງເຖິງ)','ເກັບໄດ້(ມື້)','ສົ່ງ(ມື້)','ໃຊ້ໄດ້%'],
-  function(){return Object.values(state.ingredients||{}).map(function(i){return [i.code,i.name||'',i.unit||'',i.cat||'ວັດຖຸດິບ',+i.cost||0,+i.reorder||0,+i.max||'',+i.shelf||'',i.lead==null?'':+i.lead,+i.yield||''];});}],
+ ing:['ສະຕ໋ອກ: ວັດຖຸດິບ / ສິນຄ້າ / ເຄື່ອງໃຊ້','ເພີ່ມ ຫຼື ແກ້ ລາຍການ ແລະ ຕັ້ງ "ຄົງເຫຼືອ" (ບ່ອນເກັບຂອງເຄື່ອງນີ້) · ອ່ານທຸກແຜ່ນທີ່ມີຖັນ ລະຫັດ + ຊື່ (ວັດຖຸດິບ / ສິນຄ້າ / ເຄື່ອງໃຊ້ / Export ສະຕ໋ອກ)',function(){return can('stockAdjust');},['ລະຫັດ','ຊື່','ຫົວໜ່ວຍ','ໝວດ','ຕົ້ນທຶນ/ໜ່ວຍ','ຈຸດສັ່ງຊື້','Max(ສັ່ງເຖິງ)','ເກັບໄດ້(ມື້)','ສົ່ງ(ມື້)','ໃຊ້ໄດ້%','ຄົງເຫຼືອ'],
+  function(){return Object.values(state.ingredients||{}).map(function(i){return [i.code,i.name||'',i.unit||'',i.cat||'ວັດຖຸດິບ',+i.cost||0,+i.reorder||0,+i.max||'',+i.shelf||'',i.lead==null?'':+i.lead,+i.yield||'',stockAt(i.code,curLoc())];});}],
  vendor:['ຜູ້ຂາຍ','ເພີ່ມໃໝ່ ຫຼື ອັບເດດ ຕາມຊື່',function(){return can('vendorMng')||isOwner();},['ຊື່','ເບີໂທ','ເລກອາກອນ','ໝາຍເຫດ'],function(){return (state.vendors||[]).map(function(v){return [v.name||'',v.phone||'',v.taxId||'',v.note||''];});}],
  member:['ສະມາຊິກ','ເພີ່ມໃໝ່ ຫຼື ອັບເດດຊື່ ຕາມເບີໂທ (ແຕ້ມ / ເງິນ ບໍ່ນຳເຂົ້າ)',function(){return can('memberMng');},['ຊື່','ເບີໂທ'],function(){return (state.customers||[]).map(function(m){return [m.name||'',m.phone||''];});}],
  count:['ຜົນນັບສາງ → ໃບນັບທີ່ກຳລັງນັບ','ໃສ່ຈຳນວນນັບໄດ້ ເຂົ້າໃບນັບທີ່ເປີດຢູ່ (ຍັງຕ້ອງເຊັນ ແລະ ອະນຸມັດຕາມປົກກະຕິ)',function(){return can('countDo')||isOwner();},['ລະຫັດ','ຊື່','ນັບໄດ້'],function(){var c=(state.stockCounts||[]).filter(function(x){return x.status==='COUNTING';}).slice(-1)[0];return c?c.lines.map(function(l){return [l.code,l.name,l.cnt==null?'':l.cnt];}):[];}],
  pr:['ລາຍການຂໍຊື້ → ສ້າງ PR','ສ້າງໃບຂໍຊື້ຈາກລາຍການ (ກວດ ແລະ ແກ້ໄດ້ກ່ອນສົ່ງອະນຸມັດ)',function(){return can('prCreate')||isOwner();},['ລະຫັດ','ຈຳນວນ','ລາຄາປະມານ/ໜ່ວຍ'],function(){return [];}]
 };
+/* ===== ອ່ານລາຍການສະຕ໋ອກຈາກ Excel — ທຸກແຜ່ນທີ່ມີຫົວຖັນ "ລະຫັດ" + "ຊື່" =====
+ * ຮອງຮັບ: ແບບຟອມ Import · ໄຟລ໌ Export ສະຕ໋ອກ (ປະເພດ, ຄົງເຫຼືອ / ຄົງເຫຼືອ · ບ່ອນເກັບ) · ໄຟລ໌ຕັ້ງຮ້ານ (ແຜ່ນ ວັດຖຸດິບ / ສິນຄ້າ / ເຄື່ອງໃຊ້, ຖັນ ສະຕ໋ອກ)
+ * ຈຳນວນຄົງເຫຼືອ ຕັ້ງໃຫ້ບ່ອນເກັບຂອງເຄື່ອງນີ້ (ຫຼື ບ່ອນເກັບຕາມຊື່ຖັນ) */
+var STK_SHEETS=['ວັດຖຸດິບ','ສິນຄ້າ','ເຄື່ອງໃຊ້'];
+function stkReadWB(wb){var out=[],locs=state.locations||[],seen={};
+ wb.SheetNames.forEach(function(sn){var aoa=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''}),hi=-1,H=null;
+  for(var r=0;r<Math.min(12,aoa.length);r++){var row=(aoa[r]||[]).map(function(x){return String(x).trim();});if(row.indexOf('ລະຫັດ')>=0&&row.indexOf('ຊື່')>=0){hi=r;H=row;break;}}
+  if(hi<0)return;var col=function(ns){for(var i=0;i<ns.length;i++){var j=H.indexOf(ns[i]);if(j>=0)return j;}return -1;};
+  var C={c:col(['ລະຫັດ']),n:col(['ຊື່']),u:col(['ຫົວໜ່ວຍ']),k:col(['ໝວດ','ປະເພດ']),cost:col(['ຕົ້ນທຶນ/ໜ່ວຍ','ຕົ້ນທຶນ']),re:col(['ຈຸດສັ່ງຊື້']),mx:col(['Max(ສັ່ງເຖິງ)','Max']),sh:col(['ເກັບໄດ້(ມື້)']),ld:col(['ສົ່ງ(ມື້)']),y:col(['ໃຊ້ໄດ້%'])};
+  var Q=[];H.forEach(function(h,i){if(h==='ຄົງເຫຼືອ'||h==='ສະຕ໋ອກ')Q.push({i:i,loc:curLoc()});else{var m=/^ຄົງເຫຼືອ · (.+)$/.exec(h);if(m){var l=locs.filter(function(x){return x.name===m[1];})[0];if(l)Q.push({i:i,loc:l.id});}}});
+  var defCat=STK_SHEETS.indexOf(sn)>=0?sn:'';
+  aoa.slice(hi+1).forEach(function(rw,j){var g=function(c){return c<0||rw[c]==null?'':String(rw[c]).trim();};var code=g(C.c).toUpperCase().replace(/\s+/g,'');if(!code)return;
+   var o={'ລະຫັດ':code,'ຊື່':g(C.n),'ຫົວໜ່ວຍ':g(C.u),'ໝວດ':g(C.k)||defCat,'ຕົ້ນທຶນ/ໜ່ວຍ':g(C.cost),'ຈຸດສັ່ງຊື້':g(C.re),'Max(ສັ່ງເຖິງ)':g(C.mx),'ເກັບໄດ້(ມື້)':g(C.sh),'ສົ່ງ(ມື້)':g(C.ld),'ໃຊ້ໄດ້%':g(C.y),
+    _q:Q.map(function(q){return {loc:q.loc,v:g(q.i)};}).filter(function(q){return q.v!=='';}),_ln:sn+' ແຖວ '+(hi+j+2)};
+   if(seen[code]){o._dup=seen[code];}else seen[code]=o._ln;out.push(o);});});
+ return out;}
+/* ຫົວໜ່ວຍທີ່ເປັນຕົວເລກ (ເຊັ່ນ "30.0" ໃນໄຟລ໌ເກົ່າ) ບໍ່ແມ່ນຫົວໜ່ວຍ */
+function stkUnitOk(u){u=String(u||'').trim();return !!u&&!/^[\d.,\s]+$/.test(u);}
+function xiPreviewRows(k,rows,fname){if(!rows||!rows.length){toast('ບໍ່ພົບຫົວຖັນ "ລະຫັດ" ແລະ "ຊື່" — ໃຊ້ແບບຟອມຈາກປຸ່ມ "ແບບຟອມ"');return;}xiShow(k,rows,fname);}
 function xiAllowed(k){return !!XI[k]&&can('import')&&XI[k][2]();}
 function xiTemplate(k){if(!xiAllowed(k))return;loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var d=XI[k],rows=d[4](),wb=XLSX.utils.book_new();
  var ws=XLSX.utils.aoa_to_sheet([d[3]].concat(rows.length?rows:[d[3].map(function(){return '';})]));ws['!cols']=d[3].map(function(h){return {wch:Math.max(12,h.length+4)};});XLSX.utils.book_append_sheet(wb,ws,'Import');
  var help=XLSX.utils.aoa_to_sheet([['ວິທີໃຊ້'],['1. ແກ້ / ເພີ່ມແຖວໃນແຜ່ນ "Import" — ຢ່າປ່ຽນຊື່ຫົວຖັນ'],['2. ບັນທຶກ ແລ້ວກົດ Import ໃນ ST POS → ກວດຜົນ → ຢືນຢັນ'],['ຫົວໜ່ວຍມາດຕະຖານ: '+STD_UNITS.map(function(u){return u[0];}).join(', ')],[d[1]]]);XLSX.utils.book_append_sheet(wb,help,'ວິທີໃຊ້');
  XLSX.writeFile(wb,xpFname('ແບບຟອມ_'+d[0],'xlsx'));});}
 function xiPick(k){if(!xiAllowed(k)){toast('ບໍ່ມີສິດ Import');return;}var inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';inp.onchange=function(){var f=inp.files&&inp.files[0];if(!f)return;
- loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var rd=new FileReader();rd.onload=function(e){try{var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});var sh=wb.Sheets[wb.SheetNames.indexOf('Import')>=0?'Import':wb.SheetNames[0]];xiPreview(k,XLSX.utils.sheet_to_json(sh,{header:1,defval:''}),f.name);}catch(x){toast('ອ່ານໄຟລ໌ບໍ່ໄດ້');}};rd.readAsArrayBuffer(f);});};inp.click();}
+ loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var rd=new FileReader();rd.onload=function(e){try{var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});if(k==='ing'){xiPreviewRows(k,stkReadWB(wb),f.name);return;}var sh=wb.Sheets[wb.SheetNames.indexOf('Import')>=0?'Import':wb.SheetNames[0]];xiPreview(k,XLSX.utils.sheet_to_json(sh,{header:1,defval:''}),f.name);}catch(x){toast('ອ່ານໄຟລ໌ບໍ່ໄດ້');}};rd.readAsArrayBuffer(f);});};inp.click();}
 function xiRows(k,aoa){var H=XI[k][3],hi=-1,map={};for(var r=0;r<Math.min(12,aoa.length);r++){var row=(aoa[r]||[]).map(function(x){return String(x).trim();});if(row.indexOf(H[0])>=0||row.indexOf(H[1])>=0){hi=r;row.forEach(function(h,i){if(H.indexOf(h)>=0)map[h]=i;});break;}}
  if(hi<0)return null;return aoa.slice(hi+1).map(function(r){var o={};H.forEach(function(h){o[h]=map[h]==null?'':(r[map[h]]==null?'':String(r[map[h]]).trim());});return o;}).filter(function(o){return H.some(function(h){return o[h]!=='';});});}
 function xiNum(v){if(v===''||v==null)return null;var n=+String(v).replace(/,/g,'');return isNaN(n)?NaN:n;}
 function xiPlan(k,rows){var P={add:[],upd:[],err:[],skip:0,info:''};var ca=can('stockApprove')||isOwner();
- if(k==='ing'){var seen={};rows.forEach(function(o,i){var c=String(o['ລະຫັດ']).toUpperCase().replace(/\s+/g,''),ln=i+2;if(!c){P.err.push('ແຖວ '+ln+': ບໍ່ມີລະຫັດ');return;}if(seen[c]){P.err.push('ແຖວ '+ln+': ລະຫັດ '+c+' ຊ້ຳໃນໄຟລ໌');return;}seen[c]=1;
-   var cost=xiNum(o['ຕົ້ນທຶນ/ໜ່ວຍ']),re=xiNum(o['ຈຸດສັ່ງຊື້']),mx=xiNum(o['Max(ສັ່ງເຖິງ)']),sh=xiNum(o['ເກັບໄດ້(ມື້)']),ld=xiNum(o['ສົ່ງ(ມື້)']),y=xiNum(o['ໃຊ້ໄດ້%']);if([cost,re,mx,sh,ld,y].some(function(v){return v!==null&&(isNaN(v)||v<0);})){P.err.push('ແຖວ '+ln+' ('+c+'): ຕົວເລກບໍ່ຖືກ');return;}if(mx!==null&&mx>0&&mx<(re!==null?re:(+(state.ingredients[c]||{}).reorder||0))){P.err.push('ແຖວ '+ln+' ('+c+'): Max ຕ່ຳກວ່າ Min');return;}if(y!==null&&(y<1||y>100)){P.err.push('ແຖວ '+ln+' ('+c+'): ໃຊ້ໄດ້% ຕ້ອງ 1–100');return;}
-   var it=state.ingredients[c],u=String(o['ຫົວໜ່ວຍ']||'');
-   if(!it){if(!o['ຊື່']){P.err.push('ແຖວ '+ln+' ('+c+'): ລາຍການໃໝ່ຕ້ອງມີຊື່');return;}if(!u){P.err.push('ແຖວ '+ln+' ('+c+'): ລາຍການໃໝ່ຕ້ອງມີຫົວໜ່ວຍ');return;}
-    P.add.push({c:c,o:o,cost:cost,re:re,mx:mx,sh:sh,ld:ld,y:y,warn:unitIsPack(u)?'ຫົວໜ່ວຍບັນຈຸ ('+u+')':''});return;}
-   if(u&&u!==it.unit){P.err.push('ແຖວ '+ln+' ('+c+'): ຫົວໜ່ວຍ '+u+' ≠ '+it.unit+' — ປ່ຽນຫົວໜ່ວຍດ້ວຍເຄື່ອງມື "ປ່ຽນຫົວໜ່ວຍ"');return;}
+ if(k==='ing'){var seen={},sa=can('stockApprove')||isOwner();P.stk=[];rows.forEach(function(o,i){var c=String(o['ລະຫັດ']).toUpperCase().replace(/\s+/g,''),ln=o._ln||('ແຖວ '+(i+2));if(!c){P.err.push(ln+': ບໍ່ມີລະຫັດ');return;}if(seen[c]){P.err.push(ln+': ລະຫັດ '+c+' ຊ້ຳໃນໄຟລ໌');return;}seen[c]=1;
+   var cost=xiNum(o['ຕົ້ນທຶນ/ໜ່ວຍ']),re=xiNum(o['ຈຸດສັ່ງຊື້']),mx=xiNum(o['Max(ສັ່ງເຖິງ)']),sh=xiNum(o['ເກັບໄດ້(ມື້)']),ld=xiNum(o['ສົ່ງ(ມື້)']),y=xiNum(o['ໃຊ້ໄດ້%']);if([cost,re,mx,sh,ld,y].some(function(v){return v!==null&&(isNaN(v)||v<0);})){P.err.push(ln+' ('+c+'): ຕົວເລກບໍ່ຖືກ');return;}if(mx!==null&&mx>0&&mx<(re!==null?re:(+(state.ingredients[c]||{}).reorder||0))){P.err.push(ln+' ('+c+'): Max ຕ່ຳກວ່າ Min');return;}if(y!==null&&(y<1||y>100)){P.err.push(ln+' ('+c+'): ໃຊ້ໄດ້% ຕ້ອງ 1–100');return;}
+   var qs=[],qbad=false;(o._q||[]).forEach(function(q){var v=xiNum(q.v);if(v===null)return;if(isNaN(v)||v<0){qbad=true;return;}qs.push({loc:q.loc,v:Math.round(v*1000)/1000});});if(qbad){P.err.push(ln+' ('+c+'): ຈຳນວນຄົງເຫຼືອບໍ່ຖືກ');return;}
+   var it=state.ingredients[c],u=String(o['ຫົວໜ່ວຍ']||'').trim(),n0=P.stk.length;
+   var addStk=function(isNew,unit){qs.forEach(function(q){var cur=isNew?0:stockAt(c,q.loc);if(Math.abs(cur-q.v)>1e-9)P.stk.push({c:c,loc:q.loc,from:cur,to:q.v,unit:unit});});};
+   if(!it){if(!o['ຊື່']){P.err.push(ln+' ('+c+'): ລາຍການໃໝ່ຕ້ອງມີຊື່');return;}var warn='';if(!stkUnitOk(u)){warn='ບໍ່ມີຫົວໜ່ວຍ'+(u?' ("'+u+'")':'')+' → ໃຊ້ "ອັນ"';u='ອັນ';}else if(unitIsPack(u))warn='ຫົວໜ່ວຍບັນຈຸ ('+u+')';
+    o['ຫົວໜ່ວຍ']=u;P.add.push({c:c,o:o,cost:cost,re:re,mx:mx,sh:sh,ld:ld,y:y,warn:warn});addStk(true,u);return;}
+   if(stkUnitOk(u)&&u!==it.unit){P.err.push(ln+' ('+c+'): ຫົວໜ່ວຍ '+u+' ≠ '+it.unit+' — ປ່ຽນຫົວໜ່ວຍໃນໜ້າແກ້ວັດຖຸດິບ');return;}
    var ch=[];if(o['ຊື່']&&o['ຊື່']!==it.name)ch.push('ຊື່');if(o['ໝວດ']&&o['ໝວດ']!==(it.cat||'ວັດຖຸດິບ'))ch.push('ໝວດ');if(re!==null&&re!==(+it.reorder||0))ch.push('Min');if(mx!==null&&mx!==(+it.max||0))ch.push('Max');if(sh!==null&&sh!==(+it.shelf||0))ch.push('ອາຍຸເກັບ');if(ld!==null&&ld!==(it.lead==null?1:+it.lead))ch.push('ສົ່ງ');if(y!==null&&y!==(+it.yield||100))ch.push('ໃຊ້ໄດ້%');
-   var cc=cost!==null&&cost!==(+it.cost||0);if(cc&&ca)ch.push('ຕົ້ນທຶນ');if(cc&&!ca)P.info='ຕົ້ນທຶນບໍ່ຖືກປ່ຽນ — ຕ້ອງມີສິດອະນຸມັດສະຕ໋ອກ';
-   if(ch.length)P.upd.push({c:c,o:o,cost:cc&&ca?cost:null,re:re,mx:mx,sh:sh,ld:ld,y:y,ch:ch});else P.skip++;});}
+   var cc=cost!==null&&cost!==(+it.cost||0);if(cc&&sa)ch.push('ຕົ້ນທຶນ');if(cc&&!sa)P.info='ຕົ້ນທຶນບໍ່ຖືກປ່ຽນ — ຕ້ອງມີສິດອະນຸມັດສະຕ໋ອກ';
+   addStk(false,it.unit);
+   if(ch.length)P.upd.push({c:c,o:o,cost:cc&&sa?cost:null,re:re,mx:mx,sh:sh,ld:ld,y:y,ch:ch});else if(P.stk.length===n0)P.skip++;});
+  if(P.stk.length&&!sa){P.stkBlocked=true;P.info=(P.info?P.info+' · ':'')+'ຈຳນວນຄົງເຫຼືອບໍ່ຖືກປ່ຽນ — ຕ້ອງມີສິດອະນຸມັດສະຕ໋ອກ';}}
  else if(k==='vendor'){rows.forEach(function(o,i){var n=o['ຊື່'];if(!n){P.err.push('ແຖວ '+(i+2)+': ບໍ່ມີຊື່');return;}var v=(state.vendors||[]).find(function(x){return x.name===n;});if(!v)P.add.push({o:o});else if((o['ເບີໂທ']&&o['ເບີໂທ']!==v.phone)||(o['ເລກອາກອນ']&&o['ເລກອາກອນ']!==v.taxId)||(o['ໝາຍເຫດ']&&o['ໝາຍເຫດ']!==v.note))P.upd.push({o:o,v:v,ch:['ຂໍ້ມູນ']});else P.skip++;});}
  else if(k==='member'){var ph={};rows.forEach(function(o,i){var n=o['ຊື່'],p=String(o['ເບີໂທ']).replace(/\s+/g,'');if(!n){P.err.push('ແຖວ '+(i+2)+': ບໍ່ມີຊື່');return;}if(p&&ph[p]){P.err.push('ແຖວ '+(i+2)+': ເບີ '+p+' ຊ້ຳໃນໄຟລ໌');return;}if(p)ph[p]=1;var m=p?(state.customers||[]).find(function(x){return x.phone===p;}):null;if(!m)P.add.push({o:o,p:p});else if(m.name!==n)P.upd.push({o:o,m:m,ch:['ຊື່']});else P.skip++;});}
  else if(k==='count'){var sc=(state.stockCounts||[]).filter(function(x){return x.status==='COUNTING';}).slice(-1)[0];if(!sc){P.err.push('ບໍ່ມີໃບນັບທີ່ກຳລັງນັບ — ເລີ່ມຮອບນັບສາງກ່ອນ');return P;}P.sc=sc;P.info='ເຂົ້າໃບ '+sc.no+' ('+xpLoc(sc.loc)+')';
   rows.forEach(function(o,i){var c=String(o['ລະຫັດ']).toUpperCase(),v=xiNum(o['ນັບໄດ້']);if(v===null){P.skip++;return;}if(isNaN(v)||v<0){P.err.push('ແຖວ '+(i+2)+' ('+c+'): ຈຳນວນບໍ່ຖືກ');return;}var l=sc.lines.find(function(x){return x.code===c;});if(!l){P.err.push('ແຖວ '+(i+2)+': '+c+' ບໍ່ຢູ່ໃນໃບນັບນີ້');return;}P.upd.push({l:l,v:v,ch:[KIP(v)+' '+(l.unit||'')]});});}
  else if(k==='pr'){rows.forEach(function(o,i){var c=String(o['ລະຫັດ']).toUpperCase(),q=xiNum(o['ຈຳນວນ']),e=xiNum(o['ລາຄາປະມານ/ໜ່ວຍ']);var it=state.ingredients[c];if(!it){P.err.push('ແຖວ '+(i+2)+': ບໍ່ພົບລະຫັດ '+c);return;}if(!(q>0)){P.err.push('ແຖວ '+(i+2)+' ('+c+'): ຈຳນວນຕ້ອງ > 0');return;}P.add.push({c:c,q:q,e:e>0?e:(+it.cost||0)});});}
  return P;}
-function xiPreview(k,aoa,fname){var rows=xiRows(k,aoa);if(!rows){toast('ບໍ່ພົບຫົວຖັນ — ໃຊ້ແບບຟອມຈາກປຸ່ມ "ແບບຟອມ"');return;}var P=xiPlan(k,rows);window.__xi={k:k,P:P,f:fname};
+function xiPreview(k,aoa,fname){var rows=xiRows(k,aoa);if(!rows){toast('ບໍ່ພົບຫົວຖັນ — ໃຊ້ແບບຟອມຈາກປຸ່ມ "ແບບຟອມ"');return;}xiShow(k,rows,fname);}
+function xiShow(k,rows,fname){var P=xiPlan(k,rows);window.__xi={k:k,P:P,f:fname};var nS=P.stk&&!P.stkBlocked?P.stk.length:0;
  var nm=function(x){return x.c||(x.o&&(x.o['ຊື່']||x.o['ລະຫັດ']))||(x.l&&x.l.code)||'';};
  openModal('<h2>ກວດກ່ອນ Import — '+cesc(XI[k][0])+'</h2><p class="ie-sub">'+cesc(fname)+' · '+rows.length+' ແຖວ'+(P.info?' · '+cesc(P.info):'')+'</p>'+
-  '<div class="xi-sum"><span class="a">ເພີ່ມໃໝ່ <b>'+P.add.length+'</b></span><span class="u">ອັບເດດ <b>'+P.upd.length+'</b></span><span>ບໍ່ປ່ຽນ <b>'+P.skip+'</b></span><span class="e">ຜິດພາດ <b>'+P.err.length+'</b></span></div>'+
+  '<div class="xi-sum"><span class="a">ເພີ່ມໃໝ່ <b>'+P.add.length+'</b></span><span class="u">ອັບເດດ <b>'+P.upd.length+'</b></span>'+(P.stk?'<span class="u">ຕັ້ງຄົງເຫຼືອ <b>'+P.stk.length+'</b></span>':'')+'<span>ບໍ່ປ່ຽນ <b>'+P.skip+'</b></span><span class="e">ຜິດພາດ <b>'+P.err.length+'</b></span></div>'+
   (P.err.length?'<div class="xi-err">'+P.err.slice(0,30).map(cesc).join('<br>')+(P.err.length>30?'<br>… ອີກ '+(P.err.length-30):'')+'</div>':'')+
-  ((P.add.length||P.upd.length)?'<div class="xi-list">'+P.add.slice(0,40).map(function(x){return '<div><i class="a">ໃໝ່</i>'+cesc(nm(x))+(x.o&&x.o['ຊື່']&&x.c?' — '+cesc(x.o['ຊື່']):'')+(x.q?' · '+KIP(x.q):'')+(x.warn?' <em>⚠ '+cesc(x.warn)+'</em>':'')+'</div>';}).join('')+P.upd.slice(0,40).map(function(x){return '<div><i class="u">ແກ້</i>'+cesc(nm(x))+' — '+cesc((x.ch||[]).join(', '))+'</div>';}).join('')+'</div>':'')+
+  ((P.add.length||P.upd.length||nS)?'<div class="xi-list">'+P.add.slice(0,40).map(function(x){return '<div><i class="a">ໃໝ່</i>'+cesc(nm(x))+(x.o&&x.o['ຊື່']&&x.c?' — '+cesc(x.o['ຊື່']):'')+(x.q?' · '+KIP(x.q):'')+(x.warn?' <em>⚠ '+cesc(x.warn)+'</em>':'')+'</div>';}).join('')+P.upd.slice(0,40).map(function(x){return '<div><i class="u">ແກ້</i>'+cesc(nm(x))+' — '+cesc((x.ch||[]).join(', '))+'</div>';}).join('')+(P.stk||[]).slice(0,40).map(function(x){return '<div><i class="u">ຄົງເຫຼືອ</i>'+cesc(x.c)+' — '+KIP(x.from)+' → <b>'+KIP(x.to)+'</b> '+cesc(x.unit||'')+' ('+cesc(xpLoc(x.loc))+')</div>';}).join('')+'</div>':'')+
   '<p class="me-note">ແຖວທີ່ຜິດພາດຈະຖືກຂ້າມ · ບັນທຶກໃນປະຫວັດການເຮັດວຽກ</p>'+
-  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" '+((P.add.length||P.upd.length)?'':'disabled style="opacity:.5"')+' onclick="xiApply()">'+(k==='pr'?'ສ້າງ PR ('+P.add.length+' ລາຍການ)':'ຢືນຢັນ Import')+'</button></div>');}
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" '+((P.add.length||P.upd.length||nS)?'':'disabled style="opacity:.5"')+' onclick="xiApply()">'+(k==='pr'?'ສ້າງ PR ('+P.add.length+' ລາຍການ)':'ຢືນຢັນ Import')+'</button></div>');}
 function xiApply(){var d=window.__xi;if(!d)return;var k=d.k,P=d.P,now=Date.now(),n=0;if(!xiAllowed(k))return;
  if(k==='ing'){P.add.forEach(function(x){var o=x.o;state.ingredients[x.c]={addTs:now,code:x.c,name:o['ຊື່'],unit:o['ຫົວໜ່ວຍ'],cat:o['ໝວດ']||'ວັດຖຸດິບ',cost:x.cost||0,reorder:x.re||0,locs:{}};var it=state.ingredients[x.c];if(x.mx>0)it.max=x.mx;if(x.sh!==null)it.shelf=x.sh;if(x.ld!==null)it.lead=x.ld;if(x.y!==null)it.yield=x.y;if(state.ingDel)delete state.ingDel[x.c];n++;});
-  P.upd.forEach(function(x){var it=state.ingredients[x.c],o=x.o;if(!it)return;if(o['ຊື່'])it.name=o['ຊື່'];if(o['ໝວດ'])it.cat=o['ໝວດ'];if(x.re!==null)it.reorder=x.re;if(x.mx!==null){if(x.mx>0)it.max=x.mx;else delete it.max;}if(x.sh!==null)it.shelf=x.sh;if(x.ld!==null)it.lead=x.ld;if(x.y!==null)it.yield=x.y;if(x.cost!==null){it.cost=x.cost;}n++;});}
+  P.upd.forEach(function(x){var it=state.ingredients[x.c],o=x.o;if(!it)return;if(o['ຊື່'])it.name=o['ຊື່'];if(o['ໝວດ'])it.cat=o['ໝວດ'];if(x.re!==null)it.reorder=x.re;if(x.mx!==null){if(x.mx>0)it.max=x.mx;else delete it.max;}if(x.sh!==null)it.shelf=x.sh;if(x.ld!==null)it.lead=x.ld;if(x.y!==null)it.yield=x.y;if(x.cost!==null){it.cost=x.cost;}n++;});
+  if(P.stk&&!P.stkBlocked)P.stk.forEach(function(x){setStockAt(x.c,x.loc,x.to,'ຍອດຍົກມາ (Import)','Excel '+d.f);n++;});}
  else if(k==='vendor'){if(!Array.isArray(state.vendors))state.vendors=[];P.add.forEach(function(x){var o=x.o;state.vendors.push({id:procId('vd'),status:'ACTIVE',name:o['ຊື່'],phone:o['ເບີໂທ'],taxId:o['ເລກອາກອນ'],note:o['ໝາຍເຫດ'],upd:now});n++;});P.upd.forEach(function(x){var o=x.o;if(o['ເບີໂທ'])x.v.phone=o['ເບີໂທ'];if(o['ເລກອາກອນ'])x.v.taxId=o['ເລກອາກອນ'];if(o['ໝາຍເຫດ'])x.v.note=o['ໝາຍເຫດ'];x.v.upd=now;n++;});}
  else if(k==='member'){if(!Array.isArray(state.customers))state.customers=[];P.add.forEach(function(x,i){state.customers.push({id:'m'+now+'_'+i,name:x.o['ຊື່'],phone:x.p,points:0,wallet:0,ledger:[],ts:now});n++;});P.upd.forEach(function(x){x.m.name=x.o['ຊື່'];n++;});}
  else if(k==='count'){var by=(curUser()||{}).name||'';P.upd.forEach(function(x){x.l.cnt=Math.round(x.v*1000)/1000;x.l.by=by+' (Import)';x.l.ts=now;n++;});P.sc.upd=now;procHist(P.sc,'Import ຜົນນັບ',n+' ລາຍການ · '+d.f);}
@@ -7020,10 +7045,10 @@ function exportMenuXLSX(){loadXLSX(function(err){if(err||!window.XLSX){toast('�
 function importMenuXLSX(){if(!can('menuEdit')){toast('ບໍ່ມີສິດແກ້ເມນູ');return;}var inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv';
  inp.onchange=function(){var f=inp.files&&inp.files[0];if(!f)return;loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫຼດ Excel ບໍ່ໄດ້');return;}var rd=new FileReader();rd.onload=function(e){try{var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});menuImportPreview(wb,f.name);}catch(x){toast('ອ່ານໄຟລ໌ບໍ່ໄດ້: '+x.message);}};rd.readAsArrayBuffer(f);});};inp.click();}
 function _mcol(r,names){for(var i=0;i<names.length;i++){if(r[names[i]]!=null&&String(r[names[i]]).trim()!=='')return String(r[names[i]]).trim();}return '';}
-function menuImportPreview(wb,fname){var sn=wb.SheetNames.indexOf('ເມນູ')>=0?'ເມນູ':wb.SheetNames[0];var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
+function menuImportPreview(wb,fname){var sn=['ເມນູ','Menu','menu'].filter(function(x){return wb.SheetNames.indexOf(x)>=0;})[0]||wb.SheetNames[0];var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
  var ops=[],warn=[],seen={},nextN={};
  rows.forEach(function(r,i){var ln=i+2,n=_mcol(r,['ຊື່ເມນູ','ຊື່','name','Name']);if(!n)return;
-  var c=_mcol(r,['ລະຫັດ','ລະຫັດເມນູ','code','Code']).toUpperCase(),pr=Number(_mcol(r,['ລາຄາ','ລາຄາຂາຍ','price','Price']).replace(/[^\d.]/g,'')),cat=_mcol(r,['ໝວດ','ໝວດຫຼັກ','category'])||'ອື່ນໆ',sub=_mcol(r,['ໝວດຍ່ອຍ','subcategory'])||cat,kt=_mcol(r,['ປະເພດ','kind','type']);
+  var c=_mcol(r,['ລະຫັດ','ລະຫັດເມນູ','code','Code']).toUpperCase(),pr=Number(_mcol(r,['ລາຄາ','ລາຄາຂາຍ','price','Price']).replace(/[^\d.]/g,'')),old1=('ຊະນິດ' in r),cat=_mcol(r,['ໝວດ','ໝວດຫຼັກ','category'])||(old1?_mcol(r,['ປະເພດ']):'')||'ອື່ນໆ',sub=_mcol(r,['ໝວດຍ່ອຍ','ປະເພດຍ່ອຍ','subcategory'])||cat,kt=_mcol(r,['ຊະນິດ','kind','type'])||(old1?'':_mcol(r,['ປະເພດ']));
   var k=/ດື່ມ|drink|bev|ນ້ຳ/i.test(kt)?'drink':(/ອາຫານ|food/i.test(kt)?'food':null);
   if(!(pr>0)){warn.push('ແຖວ '+ln+' "'+n+'": ລາຄາບໍ່ຖືກ — ຂ້າມ');return;}
   var old=c?findMenu(c):null;if(!k)k=old?old.k:'food';
@@ -7031,26 +7056,33 @@ function menuImportPreview(wb,fname){var sn=wb.SheetNames.indexOf('ເມນູ'
   if(seen[c]){warn.push('ແຖວ '+ln+': ລະຫັດ '+c+' ຊ້ຳໃນໄຟລ໌ — ໃຊ້ແຖວທຳອິດ');return;}seen[c]=1;
   var L=old?_menuLoc(c):null,ch=[];if(old){if(old.n!==n)ch.push('ຊື່');if(old.p!==pr)ch.push('ລາຄາ '+KIP(old.p)+'→'+KIP(pr));if(old.k!==k)ch.push('ປະເພດ');if(L&&(L.cat!==cat||L.sub!==sub))ch.push('ໝວດ');}
   ops.push({c:c,n:n,p:pr,k:k,cat:cat,sub:sub,isNew:!old,ch:ch});});
- var bomSheet=['ສູດຕັດສະຕ໋ອກ','ສູດອາຫານ','BOM'].filter(function(x){return wb.SheetNames.indexOf(x)>=0;})[0],bomMap=null;
+ var bomSheet=['ສູດຕັດສະຕ໋ອກ','ສູດອາຫານ','BOM','Recipe','ສູດ'].filter(function(x){return wb.SheetNames.indexOf(x)>=0;})[0],bomMap=null;
+ var stkRows=stkReadWB(wb),newIng={},miss={},nMissRows=0;stkRows.forEach(function(o){var c=o['ລະຫັດ'];if(!state.ingredients[c]&&!newIng[c]&&o['ຊື່'])newIng[c]=o;});
  if(bomSheet){bomMap={};XLSX.utils.sheet_to_json(wb.Sheets[bomSheet],{defval:''}).forEach(function(r,i){var mc=_mcol(r,['ລະຫັດເມນູ','menu']).toUpperCase(),ic=_mcol(r,['ລະຫັດສະຕ໋ອກ','ລະຫັດວັດຖຸດິບ','ingredient']).toUpperCase(),q=Number(_mcol(r,['ຈຳນວນຕັດ','qty']));if(!mc||!ic)return;
-  if(!state.ingredients[ic]){warn.push('ສູດ '+mc+': ບໍ່ພົບວັດຖຸດິບ '+ic+' — ຂ້າມ');return;}if(!(q>0)){warn.push('ສູດ '+mc+'/'+ic+': ຈຳນວນບໍ່ຖືກ');return;}(bomMap[mc]=bomMap[mc]||[]).push([ic,q]);});}
+  if(!state.ingredients[ic]&&!newIng[ic]){miss[ic]=(miss[ic]||0)+1;nMissRows++;return;}if(!(q>0)){warn.push('ສູດ '+mc+'/'+ic+': ຈຳນວນບໍ່ຖືກ');return;}(bomMap[mc]=bomMap[mc]||[]).push([ic,q]);});}
+ var nNewIng=Object.keys(newIng).length,missL=Object.keys(miss);
  var nNew=ops.filter(function(o){return o.isNew;}).length,nUpd=ops.filter(function(o){return !o.isNew&&o.ch.length;}).length,nSame=ops.length-nNew-nUpd,nBom=bomMap?Object.keys(bomMap).length:0;
- window.__menuImp={ops:ops,bom:bomMap};
+ window.__menuImp={ops:ops,bom:bomMap,newIng:newIng};
  var list=ops.filter(function(o){return o.isNew||o.ch.length;}).slice(0,40).map(function(o){return '<tr><td>'+(o.isNew?'<span class="tag ok">ໃໝ່</span>':'<span class="tag permov">ແກ້</span>')+'</td><td>'+cesc(o.c)+'</td><td>'+cesc(o.n)+'</td><td style="color:var(--muted)">'+(o.isNew?cesc(o.cat+' › '+o.sub)+' · '+KIP(o.p):cesc(o.ch.join(', ')))+'</td></tr>';}).join('');
  openModal('<h2>ກວດກ່ອນນຳເຂົ້າເມນູ</h2><p style="font-size:13px;color:var(--muted);margin:-4px 0 10px">'+cesc(fname)+' · ແຜ່ນ "'+cesc(sn)+'"</p>'+
   '<div class="imp-sum"><div><b>'+nNew+'</b><span>ເມນູໃໝ່</span></div><div><b>'+nUpd+'</b><span>ແກ້ໄຂ</span></div><div><b>'+nSame+'</b><span>ບໍ່ປ່ຽນ</span></div><div><b>'+nBom+'</b><span>ສູດ</span></div></div>'+
   (list?'<div style="max-height:34vh;overflow:auto;margin-top:10px"><table class="tbl"><tbody>'+list+'</tbody></table></div>':'<p style="text-align:center;color:var(--muted);padding:14px">ບໍ່ມີການປ່ຽນແປງ</p>')+
+  (nNewIng?'<label style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-weight:600"><input type="checkbox" id="impIng" style="width:auto;margin-top:3px" checked><span>ເພີ່ມວັດຖຸດິບ / ສິນຄ້າ / ເຄື່ອງໃຊ້ ໃໝ່ <b>'+nNewIng+'</b> ລາຍການ ຈາກໄຟລ໌ນີ້ ພ້ອມຈຳນວນຄົງເຫຼືອ<br><small style="color:var(--muted);font-weight:500">ສູດທີ່ໃຊ້ວັດຖຸດິບເຫຼົ່ານີ້ ຈຶ່ງນຳເຂົ້າໄດ້</small></span></label>':'')+
   (bomMap?'<label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:600"><input type="checkbox" id="impBom" style="width:auto" checked> ນຳເຂົ້າສູດຕັດສະຕ໋ອກ '+nBom+' ເມນູ ນຳ (ແທນສູດເກົ່າຂອງເມນູນັ້ນ)</label>':'')+
+  (missL.length?'<div class="imp-warn" style="background:#fef2f2;border-color:#fecaca;color:#991b1b"><b>⚠ ສູດ '+nMissRows+' ແຖວ ຖືກຂ້າມ: ໃຊ້ວັດຖຸດິບທີ່ບໍ່ມີໃນສະຕ໋ອກ ('+missL.length+' ລະຫັດ)</b><br>'+cesc(missL.slice(0,15).join(', '))+(missL.length>15?' …':'')+'<br>→ Import ສະຕ໋ອກກ່ອນ (ໜ້າສະຕ໋ອກ → ⋯ → Import ສະຕ໋ອກ) ຫຼື ໃສ່ແຜ່ນ ວັດຖຸດິບ / ສິນຄ້າ / ເຄື່ອງໃຊ້ ໃນໄຟລ໌ນີ້</div>':'')+
   (warn.length?'<div class="imp-warn"><b>ຄຳເຕືອນ '+warn.length+' ລາຍການ</b><br>'+warn.slice(0,12).map(cesc).join('<br>')+(warn.length>12?'<br>…':'')+'</div>':'')+
-  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="applyMenuImport()" '+((nNew||nUpd||nBom)?'':'disabled')+'>ນຳເຂົ້າ</button></div>');}
-function applyMenuImport(){var I=window.__menuImp;if(!I)return;var M=_ensureCatalog(),nN=0,nU=0,nB=0,useBom=I.bom&&(document.getElementById('impBom')||{}).checked;
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="applyMenuImport()" '+((nNew||nUpd||nBom||nNewIng)?'':'disabled')+'>ນຳເຂົ້າ</button></div>');}
+function applyMenuImport(){var I=window.__menuImp;if(!I)return;var M=_ensureCatalog(),nN=0,nU=0,nB=0,nI=0,useBom=I.bom&&(document.getElementById('impBom')||{}).checked,useIng=(document.getElementById('impIng')||{}).checked;
+ if(useIng&&I.newIng){var sa=can('stockApprove')||isOwner();Object.keys(I.newIng).forEach(function(c){if(state.ingredients[c])return;var o=I.newIng[c],u=stkUnitOk(o['ຫົວໜ່ວຍ'])?String(o['ຫົວໜ່ວຍ']).trim():'ອັນ',num=function(v){var x=xiNum(v);return x>0?x:0;};
+  state.ingredients[c]={addTs:Date.now(),code:c,name:o['ຊື່'],unit:u,cat:o['ໝວດ']||'ວັດຖຸດິບ',cost:num(o['ຕົ້ນທຶນ/ໜ່ວຍ']),reorder:num(o['ຈຸດສັ່ງຊື້']),locs:{}};if(state.ingDel)delete state.ingDel[c];
+  if(sa)(o._q||[]).forEach(function(q){var v=xiNum(q.v);if(v>0)setStockAt(c,q.loc,Math.round(v*1000)/1000,'ຍອດຍົກມາ (Import)','Excel ເມນູ');});nI++;});}
  I.ops.forEach(function(o){var L=_menuLoc(o.c),item;
   if(L){item=M[L.cat][L.sub][L.idx];if(L.cat!==o.cat||L.sub!==o.sub){M[L.cat][L.sub].splice(L.idx,1);if(!M[L.cat][L.sub].length)delete M[L.cat][L.sub];if(!Object.keys(M[L.cat]).length)delete M[L.cat];if(!M[o.cat])M[o.cat]={};if(!M[o.cat][o.sub])M[o.cat][o.sub]=[];M[o.cat][o.sub].push(item);}
    if(o.ch.length)nU++;item.n=o.n;item.p=o.p;item.k=o.k;}
   else{item={c:o.c,n:o.n,p:o.p,k:o.k,bom:[],man:1};if(!M[o.cat])M[o.cat]={};if(!M[o.cat][o.sub])M[o.cat][o.sub]=[];M[o.cat][o.sub].push(item);nN++;}
   delete _thumbCache[o.c];});
- if(useBom){Object.keys(I.bom).forEach(function(c){var L=_menuLoc(c);if(!L)return;M[L.cat][L.sub][L.idx].bom=I.bom[c];nB++;});}
- logOrder('ນຳເຂົ້າເມນູ Excel','ໃໝ່ '+nN+' · ແກ້ '+nU+(useBom?' · ສູດ '+nB:''),'');window.__menuImp=null;save();closeModal();render();showSuccess('ນຳເຂົ້າເມນູແລ້ວ!','ໃໝ່ '+nN+' · ແກ້ໄຂ '+nU+(useBom?' · ສູດ '+nB:''));}
+ if(useBom){Object.keys(I.bom).forEach(function(c){var L=_menuLoc(c);if(!L)return;M[L.cat][L.sub][L.idx].bom=I.bom[c].filter(function(b){return state.ingredients[b[0]];});nB++;});}
+ logOrder('ນຳເຂົ້າເມນູ Excel','ໃໝ່ '+nN+' · ແກ້ '+nU+(useBom?' · ສູດ '+nB:'')+(nI?' · ວັດຖຸດິບໃໝ່ '+nI:''),'');window.__menuImp=null;save();closeModal();render();showSuccess('ນຳເຂົ້າເມນູແລ້ວ!','ໃໝ່ '+nN+' · ແກ້ໄຂ '+nU+(useBom?' · ສູດ '+nB:'')+(nI?' · ວັດຖຸດິບໃໝ່ '+nI:''));}
 function _ensureCatalog(){if(!state.catalog||!Object.keys(state.catalog).length)state.catalog=JSON.parse(JSON.stringify(MENU));return state.catalog;}
 function _menuLoc(code){var M=MSRC();for(var a in M)for(var b in M[a]){var i=M[a][b].findIndex(function(x){return x.c===code;});if(i>=0)return {cat:a,sub:b,idx:i};}return null;}
 function _nextMenuCode(k){var pre=k==='drink'?'BEV':'FOOD',mx=0;allMenu().forEach(function(m){var r=m.c.indexOf(pre)===0?/^\d+$/.exec(m.c.slice(pre.length)):null;if(r)mx=Math.max(mx,+r[0]);});return pre+String(mx+1).padStart(3,'0');}
