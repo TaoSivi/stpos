@@ -1205,6 +1205,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .bu-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}.bu-row input{flex:1;min-width:0}.bu-row span{flex:none;font-weight:700;font-size:14px;white-space:nowrap}
 .bu-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.bu-chip{height:38px;padding:0 14px;border-radius:19px;border:1px solid #cfe4e2;background:#fff;color:#0A5E5B;font:inherit;font-weight:700;font-size:14px;cursor:pointer}.bu-chip.on{background:#0A7C77;border-color:#0A7C77;color:#fff}.modal .bu-name{margin:0 0 8px}.bu-q{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:15px;font-weight:600;margin:4px 0 6px}.modal .bu-q input{width:96px;height:40px;margin:0;padding:0 8px;text-align:right;font-weight:700}.bu-tip{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .iu-btn.iu-adv{background:transparent;box-shadow:none;color:var(--muted);font-weight:600;font-size:12px;text-decoration:underline;padding:6px 4px}.modal .bu-q select{width:auto;height:40px;margin:0;padding:0 10px;font-weight:700}
+.uc-lead{font-size:14px;line-height:1.6;margin:-2px 0 10px;text-align:center}.uc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px}.uc-card{position:relative;border:1.5px solid #cfe4e2;background:#fff;border-radius:14px;padding:12px 6px;font:inherit;cursor:pointer;color:var(--ink);line-height:1.35}.uc-card b{display:block;font-size:20px;color:#0A5E5B}.uc-card small{display:block;font-size:12px;color:var(--muted)}.uc-card.on{border-color:#0A7C77;background:#e7f6f4;box-shadow:0 0 0 3px rgba(10,124,119,.15)}.uc-card.cur{opacity:.55;cursor:default}.uc-card i{position:absolute;top:4px;right:6px;font-style:normal;font-size:10.5px;color:var(--muted)}.uc-more{margin:0 0 8px;font-size:13px}.uc-more summary{cursor:pointer;color:var(--muted)}.uc-pv ul{margin:6px 0;padding-left:18px;line-height:1.7}
 .bu-pv{font-size:13px;line-height:1.5;padding:8px 10px;border-radius:10px;background:#f1f5f4;color:var(--muted);margin:2px 0 6px}.bu-pv.ok{background:#e7f6ef;color:#166534}.bu-pv.warn{background:#fff7ed;color:#9a3412}
 .bu-h{color:#0A7C77;font-size:11.5px;font-weight:700;white-space:nowrap}
 .hsbox{border:1px solid #d6e9e7;border-radius:12px;padding:4px 12px;max-height:46vh;overflow:auto}.hsrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:9px 0;border-bottom:1px solid #eef5f4}.hsrow:last-child{border-bottom:none}.hsrow span{flex:1 1 140px;font-size:14px;font-weight:600;line-height:1.4}.hsrow b{font-size:14px}.modal .hsrow select{flex:1 1 150px;width:auto;min-width:0;height:40px;margin:0;padding:0 8px;font-size:14px}.hschk{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:14px;line-height:1.5}.hschk input{width:18px;height:18px;flex:none;margin:2px 0 0}.hschk small{color:var(--muted)}
@@ -3508,30 +3509,45 @@ function unitUses(code){var m=0,pk=0,tp=0,has=function(L){return (L||[]).some(fu
  allMenu().forEach(function(p){if(has(p.bom))m++;if(has(p.pk))pk++;});var P=state.pkg||{};['food','drink','order'].forEach(function(k){if(has(P[k]))pk++;});
  (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code)tp++;if(o.pc===code)pk++;});});return {m:m,pk:pk,tp:tp};}
 function unitConv(code){if(!can('stockApprove')){toast('ປ່ຽນຫົວໜ່ວຍໄດ້ສະເພາະຜູ້ອະນຸມັດສະຕ໋ອກ');return;}var it=state.ingredients[code];if(!it)return;
- var ou=it.unit||'',nu=/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ)$/i.test(ou)?'g':/^(l|lt|ລິດ)$/i.test(ou)?'ml':(ou==='ອັນ'?'g':'ອັນ'),q=String(code).replace(/'/g,"\\'");
- openModal('<h2>ປ່ຽນຫົວໜ່ວຍສະຕ໋ອກ — '+cesc(it.name||code)+'</h2><div class="bu-pv warn" style="margin-bottom:8px">ແປງສະຕ໋ອກ ແລະ ສູດທັງໝົດ — ຖ້າພຽງຢາກສັ່ງຊື້ເປັນ kg / ຖັງ / ແກັດ ໃຫ້ກົດ "ກັບຄືນ" ແລ້ວໃຊ້ຊ່ອງ "ຫົວໜ່ວຍຊື້" ແທນ</div><p class="ie-sub">'+cesc(code)+' · ປັດຈຸບັນ <b>'+cesc(ou||'—')+'</b></p>'+
-  '<label for="uc_u">ຫົວໜ່ວຍໃໝ່ (ໃຫ້ກົງກັບສູດ)</label>'+plusSel('unit','uc_u',nu,"document.getElementById('uc_f').value=unitGuess('"+aesc(ou).replace(/'/g,"\\'")+"',this.value);ucPv('"+q+"')",true)+
-  '<label for="uc_f">ແປງ</label><div class="ie-in"><span>1 '+cesc(ou||'ໜ່ວຍເກົ່າ')+' =</span><input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+unitGuess(ou,nu)+'" placeholder="?" oninput="ucPv(\''+q+'\')"><span id="uc_ul">'+cesc(nu)+'</span></div>'+
-  '<small class="uc-hint">ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າຂອງນັບເປັນ ອັນ ຢູ່ແລ້ວ ແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ → ໃສ່ 1</small>'+
-  '<div id="uc_pv" class="uc-pv"></div>'+
-  '<div class="modal-btns"><button class="btn-cancel" onclick="ingEdit(\''+q+'\')">ກັບຄືນ</button><button class="btn-ok grad" onclick="unitConvApply(\''+q+'\')">ປ່ຽນຫົວໜ່ວຍ</button></div>');
- ucPv(code);setTimeout(function(){var e=document.getElementById('uc_f');if(e&&!e.value)e.focus();},60);}
-function ucPv(code){var it=state.ingredients[code],el=document.getElementById('uc_pv');if(!it||!el)return;var nu=document.getElementById('uc_u').value,f=+document.getElementById('uc_f').value,ou=it.unit||'';
- var ul=document.getElementById('uc_ul');if(ul)ul.textContent=nu;ensLocs(it);var tot=Object.keys(it.locs).reduce(function(s,l){return s+(+it.locs[l]||0);},0),U=unitUses(code);
- if(!(f>0)){el.innerHTML='<span class="w">ໃສ່ຈຳນວນ: 1 '+cesc(ou)+' ເທົ່າກັບຈັກ '+cesc(nu)+'</span>';return;}
- var r2=function(v){return KIP(Math.round(v*100)/100);};
- el.innerHTML='ສະຕ໋ອກ (ທຸກບ່ອນເກັບ) <b>'+r2(tot)+' '+cesc(ou)+'</b> → <b>'+r2(tot*f)+' '+cesc(nu)+'</b><br>'+
-  (+it.cost>0?'ຕົ້ນທຶນ <b>'+r2(+it.cost)+' ₭/'+cesc(ou)+'</b> → <b>'+r2(it.cost/f)+' ₭/'+cesc(nu)+'</b><br>':'')+
-  (+it.reorder>0?'ຈຸດສັ່ງຊື້ '+r2(+it.reorder)+' → '+r2(it.reorder*f)+' '+cesc(nu)+'<br>':'')+
-  ((U.m||U.pk||U.tp)?'ຈຳນວນຕັດໃນ'+(U.m?' ສູດ '+U.m+' ເມນູ':'')+(U.pk?' · ບັນຈຸພັນ '+U.pk+' ຈຸດ':'')+(U.tp?' · Topping '+U.tp:'')+' ຈະ ×'+r2(f)+' ໃຫ້ອັດຕະໂນມັດ (ຕົ້ນທຶນເມນູເທົ່າເກົ່າ)<br>':'')+
-  '<span class="w">ປະຫວັດເກົ່າຍັງເປັນຫົວໜ່ວຍເດີມ · ໃບຈັດຊື້/ໂອນ/ເບີກ ທີ່ຍັງຄ້າງ ໃຫ້ກວດຈຳນວນຄືນ</span>';}
+ var ou=it.unit||'',q=String(code).replace(/'/g,"\\'");window.__uc={code:code};
+ var card=function(u,t){var cur=u===ou;return '<button type="button" class="uc-card'+(cur?' cur':'')+'" data-u="'+aesc(u)+'"'+(cur?' disabled':' onclick="ucSet(this.dataset.u)"')+'><b>'+cesc(u)+'</b><small>'+t+'</small>'+(cur?'<i>ຕອນນີ້</i>':'')+'</button>';};
+ openModal('<h2>ຫົວໜ່ວຍສະຕ໋ອກ — '+cesc(it.name||code)+'</h2>'+
+  '<p class="uc-lead">ຫົວໜ່ວຍທີ່ໃຊ້<b>ນັບສະຕ໋ອກ</b> ແລະ <b>ຕັດຕາມສູດ</b> · ຕອນນີ້ເປັນ <b>'+cesc(ou||'—')+'</b></p>'+
+  '<div class="bu-pv warn" style="margin-bottom:10px">ຖ້າພຽງຢາກ<b>ສັ່ງຊື້</b>ເປັນ kg / ກະສອບ / ຖັງ / ແກັດ — ບໍ່ຕ້ອງປ່ຽນຢູ່ນີ້. ກົດ "ກັບຄືນ" ແລ້ວໃຊ້ "ສັ່ງຊື້ຈາກຜູ້ຂາຍເປັນຫຍັງ?"</div>'+
+  '<label>ຈະປ່ຽນເປັນ</label><div class="uc-cards">'+card('g','ຊັ່ງນ້ຳໜັກ<br>(ຂອງແຫ້ງ)')+card('ml','ປະລິມາດ<br>(ຂອງແຫຼວ)')+card('ອັນ','ນັບເປັນຊິ້ນ<br>(ຈອກ ຖົງ ຝາ)')+'</div>'+
+  '<details class="uc-more"><summary>ຫົວໜ່ວຍອື່ນ…</summary>'+plusSel('unit','uc_u2','',"ucSet(this.value)",true)+'</details>'+
+  '<input type="hidden" id="uc_u" value=""><div id="uc_q"></div><div id="uc_pv" class="uc-pv" style="display:none"></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="ingEdit(\''+q+'\')">ກັບຄືນ</button><button class="btn-ok grad" id="uc_go" disabled style="opacity:.5" onclick="unitConvApply(\''+q+'\')">ເລືອກຫົວໜ່ວຍກ່ອນ</button></div>');}
+/* 1 ຫົວໜ່ວຍເກົ່າ = ຈັກ ຫົວໜ່ວຍໃໝ່ (ຮູ້ເອງເມື່ອເປັນໄປໄດ້) */
+function ucAuto(ou,nu){if(ou===nu)return 1;var a=unitGuess(ou,nu);if(a)return +a;if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))return 1;if(unitGuess(nu,ou))return 1/unitGuess(nu,ou);return '';}
+function ucSet(nu){var C=window.__uc;if(!C||!nu)return;var it=state.ingredients[C.code],ou=it.unit||'';document.getElementById('uc_u').value=nu;
+ document.querySelectorAll('.uc-card').forEach(function(b){b.classList.toggle('on',b.dataset.u===nu);});
+ var a=ucAuto(ou,nu),h='<div class="bu-q">1 '+cesc(ou)+' (ເກົ່າ) = <input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+(a||'')+'" placeholder="?" oninput="ucPv()"> '+cesc(nu)+'</div>';
+ if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))h+='<small class="bu-tip">ນ້ຳ ແລະ ຂອງແຫຼວສ່ວນຫຼາຍ 1 ml ≈ 1 g → ໃສ່ 1 (ຕົວເລກສະຕ໋ອກຄືເກົ່າ)</small>';
+ else if(a)h+='<small class="bu-tip">ລະບົບໃສ່ໃຫ້ແລ້ວ</small>';
+ else h+='<small class="bu-tip">ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າພຽງແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ (ຈຳນວນຖືກແລ້ວ) → ໃສ່ 1</small>';
+ document.getElementById('uc_q').innerHTML=h;ucPv();var f=document.getElementById('uc_f');if(f&&!f.value)f.focus();}
+function ucPv(){var C=window.__uc,el=document.getElementById('uc_pv'),go=document.getElementById('uc_go');if(!C||!el)return;var it=state.ingredients[C.code];if(!it)return;
+ var nu=(document.getElementById('uc_u')||{}).value||'',fe=document.getElementById('uc_f'),f=fe?+fe.value:0,ou=it.unit||'';
+ var ok=!!nu&&f>0;if(go){go.disabled=!ok;go.style.opacity=ok?'':'.5';go.textContent=nu?(f>0?'ປ່ຽນເປັນ '+nu:'ໃສ່ຕົວເລກກ່ອນ'):'ເລືອກຫົວໜ່ວຍກ່ອນ';}
+ if(!ok){el.style.display='none';return;}el.style.display='';
+ ensLocs(it);var tot=Object.keys(it.locs).reduce(function(s,l){return s+(+it.locs[l]||0);},0),U=unitUses(C.code);
+ var r2=function(v){return KIP(Math.round(v*100)/100);},b=ingBuy(it);
+ el.innerHTML='<b>ຫຼັງປ່ຽນ:</b><ul>'+
+  '<li>ສະຕ໋ອກ (ທຸກບ່ອນເກັບ): '+r2(tot)+' '+cesc(ou)+' → <b>'+r2(tot*f)+' '+cesc(nu)+'</b></li>'+
+  (+it.cost>0?'<li>ຕົ້ນທຶນ: '+r2(+it.cost)+' → <b>'+r2(it.cost/f)+' ກີບ / '+cesc(nu)+'</b></li>':'')+
+  (+it.reorder>0?'<li>ຈຸດສັ່ງຊື້: '+r2(+it.reorder)+' → <b>'+r2(it.reorder*f)+' '+cesc(nu)+'</b></li>':'')+
+  ((U.m||U.pk||U.tp)?'<li>ສູດ'+(U.m?' '+U.m+' ເມນູ':'')+(U.pk?' · ບັນຈຸພັນ '+U.pk:'')+(U.tp?' · Topping '+U.tp:'')+' ປັບໃຫ້ເອງ — ຕົ້ນທຶນເມນູເທົ່າເກົ່າ</li>':'')+
+  (b.f!==1?'<li>ສັ່ງຊື້: 1 '+cesc(b.u)+' = '+r2(b.f)+' '+cesc(ou)+' → <b>'+r2(b.f*f)+' '+cesc(nu)+'</b></li>':'')+'</ul>'+
+  '<span class="w">ປະຫວັດເກົ່າຍັງເປັນ '+cesc(ou)+' · ໃບຈັດຊື້/ໂອນ/ເບີກ ທີ່ຍັງຄ້າງ ໃຫ້ກວດຈຳນວນຄືນ</span>';}
 function unitConvApply(code){if(!can('stockApprove')){toast('ບໍ່ມີສິດ');return;}var it=state.ingredients[code];if(!it)return;
  var nu=(document.getElementById('uc_u').value||'').trim(),f=+document.getElementById('uc_f').value,ou=it.unit||'';
  if(!nu){toast('ເລືອກຫົວໜ່ວຍ');return;}if(!(f>0)){toast('ໃສ່ຈຳນວນ 1 '+ou+' = ? '+nu);return;}if(nu===ou&&f===1){ingEdit(code);return;}
  var R=function(v){return Math.round(v*10000)/10000;},n=0;it.unit=nu;ensLocs(it);
  if(f!==1){Object.keys(it.locs).forEach(function(l){var o=+it.locs[l]||0;if(!o)return;var d=Math.round((Math.round(o*f*100)/100-o)*100)/100;it.locs[l]=R(o+d);if(l===curLoc())it.stock=it.locs[l];
    logStock(code,d,'ປ່ຽນຫົວໜ່ວຍ','1 '+ou+' = '+f+' '+nu+' ['+locName(l)+']',l);var lg=state.stockLog[state.stockLog.length-1];if(lg&&lg.code===code)lg.uc=1;});
-  if(+it.cost>0)it.cost=R(it.cost/f);if(+it.reorder>0)it.reorder=Math.round(it.reorder*f*100)/100;
+  if(+it.cost>0)it.cost=R(it.cost/f);if(+it.reorder>0)it.reorder=Math.round(it.reorder*f*100)/100;if(+it.max>0)it.max=Math.round(it.max*f*100)/100;
+  if(it.bu&&+it.bf>0){it.bf=R(it.bf*f);delete it.bsz;delete it.bsu;delete it.bpc;}
   var sc=function(L){(L||[]).forEach(function(x){if(x&&x[0]===code){x[1]=R((+x[1]||0)*f);n++;}});};
   allMenu().forEach(function(p){sc(p.bom);sc(p.pk);});var P=state.pkg||{};['food','drink','order'].forEach(function(k){sc(P[k]);});
   (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code&&+o.iq>0){o.iq=R(o.iq*f);n++;}});});}
