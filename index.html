@@ -3441,13 +3441,18 @@ function buyRowHTML(it){var b=ingBuy(it),u=it.unit||'',cur=b.f!==1?b.u:'',n=1,sz
 function buDraw(){var B=window.__bu,el=document.getElementById('bu_ui');if(!B||!el)return;var u=B.u,k=buKind(u),opts=BU_OPT[k];
  var chip=function(v,l,on){return '<button type="button" class="bu-chip'+(on?' on':'')+'" data-v="'+aesc(v)+'" onclick="buPick(this.dataset.v)">'+l+'</button>';};
  var h='<div class="bu-chips">'+chip('','ຄືສະຕ໋ອກ ('+cesc(u)+')',!B.sel&&!B.other)+opts.map(function(o){return chip(o,cesc(o),!B.other&&B.sel===o);}).join('')+chip('__o','+ ອື່ນໆ',B.other)+'</div>';
- if(B.other)h+='<input id="bu_name" class="bu-name" maxlength="20" placeholder="ພິມຊື່ຫົວໜ່ວຍ ເຊັ່ນ ຖາດ, ຫໍ່" value="'+aesc(B.sel)+'" oninput="window.__bu.sel=this.value.trim();buCalc()">';
- if(B.sel||B.other){var auto=B.sel?unitGuess(B.sel,u):'',nm=cesc(B.sel||'…');
+ if(B.other)h+='<input id="bu_name" class="bu-name" maxlength="20" placeholder="ພິມຊື່ຫົວໜ່ວຍ ເຊັ່ນ ຖາດ, ຫໍ່" value="'+aesc(B.sel)+'" oninput="buName(this)">';
+ var low=String(B.sel||'').trim().toLowerCase(),miss=(u==='g'&&L_RE.test(low))?'ml':((u==='ml'&&KG_RE.test(low))?'g':'');
+ if(miss)h+='<div class="bu-pv warn" style="margin-bottom:8px">ສະຕ໋ອກຂອງລາຍການນີ້ເປັນ <b>'+cesc(u)+'</b> ('+(u==='g'?'ນ້ຳໜັກ':'ປະລິມາດ')+') ແຕ່ '+cesc(B.sel)+' ເປັນ'+(u==='g'?'ປະລິມາດ':'ນ້ຳໜັກ')+' · ຖ້າເປັນຂອງ'+(u==='g'?'ແຫຼວ':'ແຫ້ງ')+' ໃຫ້ກົດ "ປ່ຽນຫົວໜ່ວຍສະຕ໋ອກ" ເປັນ '+miss+' ກ່ອນ · ຫຼື ໃສ່ 1 ຊິ້ນ ແລະ ນ້ຳໜັກ/ປະລິມາດຈິງ (ເຊັ່ນ 1 ລິດ ໜັກ 920 '+cesc(u)+')</div>';
+ if(B.sel||B.other){var auto=B.sel?unitGuess(B.sel,u):'',nm='<span class="bu-nm">'+cesc(B.sel||'…')+'</span>';
   if(auto)h+='<div class="bu-q">1 '+nm+' = <b>'+KIP(auto)+' '+cesc(u)+'</b> <small>(ລະບົບຮູ້ເອງ)</small></div>';
   else if(k==='x')h+='<div class="bu-q">1 '+nm+' ມີ <input id="bu_n" type="number" inputmode="decimal" min="0" value="'+(B.n>0&&B.sel?B.n:'')+'" placeholder="?" oninput="buCalc()"> '+cesc(u)+'</div>';
   else h+='<div class="bu-q">1 '+nm+' ມີ <input id="bu_n" type="number" inputmode="decimal" min="1" value="'+(B.n||1)+'" oninput="buCalc()"> ຊິ້ນ · ຊິ້ນລະ <input id="bu_sz" type="number" inputmode="decimal" min="0" value="'+(B.sz||'')+'" placeholder="?" oninput="buCalc()"> '+cesc(u)+'</div>'+
    '<small class="bu-tip">ຖ້າ 1 '+nm+' ເປັນອັນດຽວ (ເຊັ່ນ ຖັງ, ກະສອບ) ໃສ່ 1 ຊິ້ນ ແລ້ວໃສ່ຂະໜາດທັງໝົດ</small>';}
  el.innerHTML=h;}
+function buName(el){var B=window.__bu;if(!B)return;var v=el.value.trim(),k=function(x){x=String(x||'').toLowerCase();return (unitGuess(x,B.u)?'a':'')+(L_RE.test(x)||KG_RE.test(x)?'m':'');};var was=k(B.sel);B.sel=v;
+ if(k(v)!==was){var pos=el.selectionStart;buDraw();var e=document.getElementById('bu_name');if(e){e.focus();try{e.setSelectionRange(pos,pos);}catch(x){}}}
+ else document.querySelectorAll('.bu-nm').forEach(function(x){x.textContent=v||'…';});buCalc();}
 function buPick(v){var B=window.__bu;if(!B)return;if(v==='__o'){B.other=true;B.sel='';}else{B.other=false;B.sel=v;}B.n=buKind(B.u)==='x'?0:1;B.sz='';buDraw();buCalc();
  var f=document.getElementById(B.other?'bu_name':(document.getElementById('bu_sz')?'bu_sz':'bu_n'));if(f)f.focus();}
 function buCalc(){var B=window.__bu;if(!B)return;var u=B.u,k=buKind(u),auto=B.sel?unitGuess(B.sel,u):'',ne=document.getElementById('bu_n'),se=document.getElementById('bu_sz'),f=0;
@@ -3493,7 +3498,8 @@ function psDel(id,i){var w=document.getElementById(id+'_w');if(!w)return;var k=w
 function unitRowHTML(code){var it=state.ingredients[code]||{},u=it.unit||'',pk=unitIsPack(u),q=String(code).replace(/'/g,"\\'");
  return '<div class="iu-row'+(pk?' warn':'')+'"><div class="iu-t"><span>ຫົວໜ່ວຍສະຕ໋ອກ</span><b>'+cesc(u||'—')+'</b><small>'+(pk?'⚠ ເປັນຫົວໜ່ວຍບັນຈຸ — ສູດຕັດເປັນ g / ml / ອັນ ຈະບໍ່ກົງກັນ. ຄວນປ່ຽນເປັນຫົວໜ່ວຍນ້ອຍສຸດທີ່ໃຊ້ໃນສູດ':'ຮັບເຂົ້າ · ນັບ · ເບີກ · ສູດ ໃຊ້ຫົວໜ່ວຍນີ້ທັງໝົດ')+'</small></div>'+
   (can('stockApprove')?'<button type="button" class="iu-btn" onclick="unitConv(\''+q+'\')">ປ່ຽນຫົວໜ່ວຍສະຕ໋ອກ</button>':'')+'</div>';}
-function unitGuess(ou,nu){ou=String(ou||'').trim().toLowerCase();if(/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ)$/.test(ou)&&nu==='g')return 1000;if(/^(l|lt|ລິດ)$/.test(ou)&&nu==='ml')return 1000;return '';}
+var KG_RE=/^(kg|kgs|kilo|kilos|kilogram|kilograms|ກິໂລ|ກິໂລກຣາມ|ກລ)$/,L_RE=/^(l|lt|ltr|lit|litre|litres|liter|liters|ລິດ)$/;
+function unitGuess(ou,nu){ou=String(ou||'').trim().toLowerCase();if(KG_RE.test(ou)&&nu==='g')return 1000;if(L_RE.test(ou)&&nu==='ml')return 1000;return '';}
 function unitUses(code){var m=0,pk=0,tp=0,has=function(L){return (L||[]).some(function(x){return x&&x[0]===code;});};
  allMenu().forEach(function(p){if(has(p.bom))m++;if(has(p.pk))pk++;});var P=state.pkg||{};['food','drink','order'].forEach(function(k){if(has(P[k]))pk++;});
  (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code)tp++;if(o.pc===code)pk++;});});return {m:m,pk:pk,tp:tp};}
