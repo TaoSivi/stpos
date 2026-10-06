@@ -1207,6 +1207,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .iu-btn.iu-adv{background:transparent;box-shadow:none;color:var(--muted);font-weight:600;font-size:12px;text-decoration:underline;padding:6px 4px}.modal .bu-q select{width:auto;height:40px;margin:0;padding:0 10px;font-weight:700}
 .uc-lead{font-size:14px;line-height:1.6;margin:-2px 0 10px;text-align:center}.uc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 8px}.uc-card{position:relative;border:1.5px solid #cfe4e2;background:#fff;border-radius:14px;padding:12px 6px;font:inherit;cursor:pointer;color:var(--ink);line-height:1.35}.uc-card b{display:block;font-size:20px;color:#0A5E5B}.uc-card small{display:block;font-size:12px;color:var(--muted)}.uc-card.on{border-color:#0A7C77;background:#e7f6f4;box-shadow:0 0 0 3px rgba(10,124,119,.15)}.uc-card.cur{opacity:.55;cursor:default}.uc-card i{position:absolute;top:4px;right:6px;font-style:normal;font-size:10.5px;color:var(--muted)}.uc-more{margin:0 0 8px;font-size:13px}.uc-more summary{cursor:pointer;color:var(--muted)}.uc-pv ul{margin:6px 0;padding-left:18px;line-height:1.7}
 .modal .bu-q select optgroup{font-weight:700;color:var(--muted)}
+.uc-or{font-size:13px;color:var(--muted);margin:2px 0 0}
 .bu-pv{font-size:13px;line-height:1.5;padding:8px 10px;border-radius:10px;background:#f1f5f4;color:var(--muted);margin:2px 0 6px}.bu-pv.ok{background:#e7f6ef;color:#166534}.bu-pv.warn{background:#fff7ed;color:#9a3412}
 .bu-h{color:#0A7C77;font-size:11.5px;font-weight:700;white-space:nowrap}
 .hsbox{border:1px solid #d6e9e7;border-radius:12px;padding:4px 12px;max-height:46vh;overflow:auto}.hsrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;padding:9px 0;border-bottom:1px solid #eef5f4}.hsrow:last-child{border-bottom:none}.hsrow span{flex:1 1 140px;font-size:14px;font-weight:600;line-height:1.4}.hsrow b{font-size:14px}.modal .hsrow select{flex:1 1 150px;width:auto;min-width:0;height:40px;margin:0;padding:0 8px;font-size:14px}.hschk{display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:14px;line-height:1.5}.hschk input{width:18px;height:18px;flex:none;margin:2px 0 0}.hschk small{color:var(--muted)}
@@ -3439,14 +3440,15 @@ var BU_OPT={g:['kg','ກະສອບ','ຖົງ','ກ່ອງ','ແພັກ',
 var BU_IN=['ກະປ໋ອງ','ຂວດ','ແກ້ວ','ຖົງ','ຊອງ','ກ່ອງ','ແພັກ','ອັນ','ໜ່ວຍ'];
 function buKind(u){return (u==='g'||u==='ml')?u:'x';}
 function buBig(u){return u==='g'?'kg':(u==='ml'?'L':'');}
-function buMul(x,u){return (x&&x===buBig(u))?1000:1;}
+function buMul(x,u){return buKind(u)==='x'?1:((x==='kg'||x==='L')?1000:1);}
+function buX(x,u){return (u==='g'&&(x==='L'||x==='ml'))||(u==='ml'&&(x==='kg'||x==='g'));}
 function buyRowHTML(it){var b=ingBuy(it),u=it.unit||'',k=buKind(u),cur=b.f!==1?b.u:'',auto=cur?unitGuess(cur,u):'',sp=it.bspec&&typeof it.bspec==='object'?it.bspec:null;
  var B={u:u,sel:cur,a:'',au:buBig(u)||u,inn:'',b:'',bu:buBig(u)||u,typing:false,other:!!(cur&&BU_OPT[k].indexOf(cur)<0&&!auto)};
  if(cur&&!auto){if(sp){B.a=sp.a;B.au=sp.au;B.inn=sp.in||'';B.b=sp.b||'';B.bu=sp.bu||B.bu;}else if(+it.bsz>0&&it.bsu){B.a=+it.bsz;B.au=it.bsu;}else if(k!=='x'&&b.f%1000===0){B.a=b.f/1000;B.au=buBig(u);}else{B.a=b.f;B.au=u;}}
  window.__bu=B;
  return '<div class="ie-f bu-box" style="margin-bottom:10px"><label>ສັ່ງຊື້ຈາກຜູ້ຂາຍເປັນຫຍັງ?</label><div id="bu_ui"></div><div id="ie_bup" class="bu-pv"></div>'+
   '<input type="hidden" id="ie_bu" value="'+aesc(cur)+'"><input type="hidden" id="ie_bf" value="'+(b.f!==1?b.f:'')+'"><input type="hidden" id="ie_bspec"></div>';}
-function buUnits(u){var big=buBig(u);return big?[big,u]:[u];}
+function buUnits(u){return u==='g'?['kg','g','L','ml']:(u==='ml'?['L','ml','kg','g']:[u]);}
 function buDraw(){var B=window.__bu,el=document.getElementById('bu_ui');if(!B||!el)return;var u=B.u,k=buKind(u),opts=BU_OPT[k];
  var chip=function(v,l,on){return '<button type="button" class="bu-chip'+(on?' on':'')+'" data-v="'+aesc(v)+'" onclick="buPick(this.dataset.v)">'+l+'</button>';};
  var h='<div class="bu-chips">'+chip('','ຄືສະຕ໋ອກ ('+cesc(u)+')',!B.sel&&!B.other)+opts.map(function(o){return chip(o,cesc(o),!B.other&&B.sel===o);}).join('')+chip('__o','+ ອື່ນໆ',B.other)+'</div>';
@@ -3485,7 +3487,8 @@ function buPv(){var B=window.__bu,o=document.getElementById('ie_bup');if(!B||!o)
  if(!(v>0)){o.className='bu-pv warn';o.innerHTML='ໃສ່ຕົວເລກໃນຊ່ອງ "?" ຂ້າງເທິງ';return;}
  var q=Math.round(2*v*1000)/1000,inner=!auto&&B.au==='#';
  o.className='bu-pv ok';o.innerHTML='✓ ສັ່ງຊື້ <b>2 '+cesc(n)+'</b>'+(inner?' ('+KIP(2*B.a)+' '+cesc(B.inn)+')':'')+' → ຮັບເຄື່ອງແລ້ວ ສະຕ໋ອກ <b>+'+KIP(q)+' '+cesc(u)+'</b>'+(big&&q>=1000?' (= '+KIP(q/1000)+' '+big+')':'')+
-  (inner?'<br><small>1 '+cesc(n)+' = '+KIP(B.a)+' '+cesc(B.inn)+' × '+KIP(B.b)+' '+cesc(B.bu)+' = '+KIP(v)+' '+cesc(u)+'</small>':'');}
+  (inner?'<br><small>1 '+cesc(n)+' = '+KIP(B.a)+' '+cesc(B.inn)+' × '+KIP(B.b)+' '+cesc(B.bu)+' = '+KIP(v)+' '+cesc(u)+'</small>':'')+
+  (!auto&&buX(inner?B.bu:B.au,u)?'<br><small>ຄິດ 1 ml ≈ 1 g (ຄືນ້ຳ) — ຖ້າບໍ່ແມ່ນ ໃຫ້ໃສ່ນ້ຳໜັກ/ປະລິມາດຈິງເປັນ '+cesc(u)+'</small>':'');}
 /* ===== ຫົວໜ່ວຍມາດຕະຖານ — ສະຕ໋ອກ ຮັບເຂົ້າ ນັບ ເບີກ ແລະ ສູດ ໃຊ້ຫົວໜ່ວຍດຽວກັນ (g / ml / ອັນ ...) ===== */
 var STD_UNITS=[['g','g — ກຣາມ (ຂອງແຫ້ງ ຊັ່ງນ້ຳໜັກ)'],['ml','ml — ມິລລິລິດ (ຂອງແຫຼວ)'],['ອັນ','ອັນ — ນັບເປັນຊິ້ນ (ກ່ອງ ຈອກ ຝາ ຖົງ ...)'],['ຂວດ','ຂວດ'],['ກະປ໋ອງ','ກະປ໋ອງ'],['ຟອງ','ຟອງ (ໄຂ່)'],['ແຜ່ນ','ແຜ່ນ'],['ໃບ','ໃບ']];
 var PACK_U=/^(kg|kgs|ກິໂລ|ກິໂລກຣາມ|l|lt|ລິດ|ແພັກ|ແພກ|ແພັກ|pack|pk|ກ່ອງ|box|ແກັດ|ລັງ|ໂຫຼ|ໂຫລ|ມັດ|ຫໍ່|ຖັງ|ກະສອບ|ແກລອນ|ແກເລີນ)$/i;
@@ -3528,23 +3531,27 @@ function unitUses(code){var m=0,pk=0,tp=0,has=function(L){return (L||[]).some(fu
  (state.modGroups||[]).forEach(function(g){(g.opts||[]).forEach(function(o){if(o.ing===code)tp++;if(o.pc===code)pk++;});});return {m:m,pk:pk,tp:tp};}
 function unitConv(code){if(!can('stockApprove')){toast('ປ່ຽນຫົວໜ່ວຍໄດ້ສະເພາະຜູ້ອະນຸມັດສະຕ໋ອກ');return;}var it=state.ingredients[code];if(!it)return;
  var ou=it.unit||'',q=String(code).replace(/'/g,"\\'");window.__uc={code:code};
- var card=function(u,t){var cur=u===ou;return '<button type="button" class="uc-card'+(cur?' cur':'')+'" data-u="'+aesc(u)+'"'+(cur?' disabled':' onclick="ucSet(this.dataset.u)"')+'><b>'+cesc(u)+'</b><small>'+t+'</small>'+(cur?'<i>ຕອນນີ້</i>':'')+'</button>';};
+ var card=function(u,t){var cur=u===ou;return '<button type="button" class="uc-card'+(cur?' cur':'')+'" data-u="'+aesc(u)+'"'+(cur?' disabled':' onclick="ucSet(this.dataset.u,1)"')+'><b>'+cesc(u)+'</b><small>'+t+'</small>'+(cur?'<i>ຕອນນີ້</i>':'')+'</button>';};
  openModal('<h2>ຫົວໜ່ວຍສະຕ໋ອກ — '+cesc(it.name||code)+'</h2>'+
   '<p class="uc-lead">ຫົວໜ່ວຍທີ່ໃຊ້<b>ນັບສະຕ໋ອກ</b> ແລະ <b>ຕັດຕາມສູດ</b> · ຕອນນີ້ເປັນ <b>'+cesc(ou||'—')+'</b></p>'+
   '<div class="bu-pv warn" style="margin-bottom:10px">ຖ້າພຽງຢາກ<b>ສັ່ງຊື້</b>ເປັນ kg / ກະສອບ / ຖັງ / ແກັດ — ບໍ່ຕ້ອງປ່ຽນຢູ່ນີ້. ກົດ "ກັບຄືນ" ແລ້ວໃຊ້ "ສັ່ງຊື້ຈາກຜູ້ຂາຍເປັນຫຍັງ?"</div>'+
   '<label>ຈະປ່ຽນເປັນ</label><div class="uc-cards">'+card('g','ຊັ່ງນ້ຳໜັກ<br>(ຂອງແຫ້ງ)')+card('ml','ປະລິມາດ<br>(ຂອງແຫຼວ)')+card('ອັນ','ນັບເປັນຊິ້ນ<br>(ຈອກ ຖົງ ຝາ)')+'</div>'+
-  '<details class="uc-more"><summary>ຫົວໜ່ວຍອື່ນ…</summary>'+plusSel('unit','uc_u2','',"ucSet(this.value)",true)+'</details>'+
+  '<div class="uc-or">ຫຼື ນັບເປັນ:</div><div class="bu-chips">'+UC_MORE.filter(function(x){return x!==ou;}).map(function(x){return '<button type="button" class="bu-chip uc-chip" data-u="'+aesc(x)+'" onclick="ucSet(this.dataset.u,1)">'+cesc(x)+'</button>';}).join('')+
+  '<button type="button" class="bu-chip uc-chip" data-u="__t" onclick="ucType()">+ ພິມເອງ</button></div><input id="uc_t" class="bu-name" maxlength="20" placeholder="ພິມຊື່ຫົວໜ່ວຍ ເຊັ່ນ ຕຸກ, ແພັກ" style="display:none" oninput="ucTyped(this)">'+
   '<input type="hidden" id="uc_u" value=""><div id="uc_q"></div><div id="uc_pv" class="uc-pv" style="display:none"></div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="ingEdit(\''+q+'\')">ກັບຄືນ</button><button class="btn-ok grad" id="uc_go" disabled style="opacity:.5" onclick="unitConvApply(\''+q+'\')">ເລືອກຫົວໜ່ວຍກ່ອນ</button></div>');}
 /* 1 ຫົວໜ່ວຍເກົ່າ = ຈັກ ຫົວໜ່ວຍໃໝ່ (ຮູ້ເອງເມື່ອເປັນໄປໄດ້) */
+var UC_MORE=['ຂວດ','ກະປ໋ອງ','ຟອງ','ແຜ່ນ','ໃບ','ຖົງ','ຊອງ'];
+function ucType(){var C=window.__uc;if(!C)return;C.typed=true;var t=document.getElementById('uc_t');t.style.display='';t.focus();if(t.value.trim())ucSet(t.value.trim());else{document.getElementById('uc_u').value='';document.querySelectorAll('.uc-card,.uc-chip').forEach(function(b){b.classList.toggle('on',b.dataset.u==='__t');});document.getElementById('uc_q').innerHTML='';ucPv();}}
+function ucTyped(el){var C=window.__uc;if(!C)return;var v=el.value.trim();if(!v){document.getElementById('uc_u').value='';document.getElementById('uc_q').innerHTML='';ucPv();return;}var pos=el.selectionStart;ucSet(v);el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}
 function ucAuto(ou,nu){if(ou===nu)return 1;var a=unitGuess(ou,nu);if(a)return +a;if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))return 1;if(unitGuess(nu,ou))return 1/unitGuess(nu,ou);return '';}
-function ucSet(nu){var C=window.__uc;if(!C||!nu)return;var it=state.ingredients[C.code],ou=it.unit||'';document.getElementById('uc_u').value=nu;
- document.querySelectorAll('.uc-card').forEach(function(b){b.classList.toggle('on',b.dataset.u===nu);});
+function ucSet(nu,pick){var C=window.__uc;if(!C||!nu)return;var te=document.getElementById('uc_t');if(te&&(pick||document.activeElement!==te)){C.typed=false;te.style.display='none';te.value='';}var it=state.ingredients[C.code],ou=it.unit||'';document.getElementById('uc_u').value=nu;
+ document.querySelectorAll('.uc-card,.uc-chip').forEach(function(b){b.classList.toggle('on',b.dataset.u===nu||(b.dataset.u==='__t'&&C.typed));});
  var a=ucAuto(ou,nu),h='<div class="bu-q">1 '+cesc(ou)+' (ເກົ່າ) = <input id="uc_f" type="number" inputmode="decimal" min="0" step="any" value="'+(a||'')+'" placeholder="?" oninput="ucPv()"> '+cesc(nu)+'</div>';
  if((ou==='g'&&nu==='ml')||(ou==='ml'&&nu==='g'))h+='<small class="bu-tip">ນ້ຳ ແລະ ຂອງແຫຼວສ່ວນຫຼາຍ 1 ml ≈ 1 g → ໃສ່ 1 (ຕົວເລກສະຕ໋ອກຄືເກົ່າ)</small>';
  else if(a)h+='<small class="bu-tip">ລະບົບໃສ່ໃຫ້ແລ້ວ</small>';
  else h+='<small class="bu-tip">ເຊັ່ນ 1 ແພັກ ມີ 50 ອັນ → ໃສ່ 50 · ຖ້າພຽງແຕ່ຕັ້ງຊື່ຫົວໜ່ວຍຜິດ (ຈຳນວນຖືກແລ້ວ) → ໃສ່ 1</small>';
- document.getElementById('uc_q').innerHTML=h;ucPv();var f=document.getElementById('uc_f');if(f&&!f.value)f.focus();}
+ document.getElementById('uc_q').innerHTML=h;ucPv();var f=document.getElementById('uc_f');if(f&&!f.value&&!C.typed)f.focus();}
 function ucPv(){var C=window.__uc,el=document.getElementById('uc_pv'),go=document.getElementById('uc_go');if(!C||!el)return;var it=state.ingredients[C.code];if(!it)return;
  var nu=(document.getElementById('uc_u')||{}).value||'',fe=document.getElementById('uc_f'),f=fe?+fe.value:0,ou=it.unit||'';
  var ok=!!nu&&f>0;if(go){go.disabled=!ok;go.style.opacity=ok?'':'.5';go.textContent=nu?(f>0?'ປ່ຽນເປັນ '+nu:'ໃສ່ຕົວເລກກ່ອນ'):'ເລືອກຫົວໜ່ວຍກ່ອນ';}
