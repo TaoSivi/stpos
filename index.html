@@ -6614,7 +6614,15 @@ function setSecConn(){var gas=HAS_GAS||HAS_API;
   sRow('ລິ້ງ Apps Script (/exec)','','<input id="ad_api" class="stxt" value="'+aesc(API_URL)+'" placeholder="https://script.google.com/…/exec">'+sBtn('ບັນທຶກ','setApiUrl()','pri'),'stack')+
   sRow('API Token','ກັນຄົນນອກຂຽນທັບຂໍ້ມູນ · ຕ້ອງກົງກັບ server · '+(TOKEN?'<b class="sgreen">ໃສ່ແລ້ວ</b>':'<b class="sorange">ຍັງບໍ່ໃສ່</b>'),'<input id="ad_tok" class="stxt" type="password" autocomplete="off" value="'+aesc(TOKEN)+'">'+sBtn('ບັນທຶກ','setApiToken()'),'stack')+
   '<div class="sfoot">'+sBtn('ກັບໄປລິ້ງເລີ່ມຕົ້ນ','resetApiUrl()','sm')+'</div>'))+
- sCard('ລາຍງານປະຈຳວັນ','Server ສົ່ງສະຫຼຸບ ຍອດຂາຍ ກຳໄລ ລຶບ/ຍົກເລີກ ເງິນສົດຂາດ-ເກີນ ສະຕ໋ອກໃກ້ໝົດ ໃຫ້ເຈົ້າຂອງທຸກມື້ (WhatsApp / Telegram — ຕັ້ງໃນ Apps Script)',sBtn('ເບິ່ງຕົວຢ່າງ',"waReport('preview')")+sBtn('ສົ່ງທົດສອບ',"waReport('test')",'pri'),'');}
+ sCard('ລາຍງານປະຈຳວັນ','Server ສົ່ງສະຫຼຸບ ຍອດຂາຍ ກຳໄລ ລຶບ/ຍົກເລີກ ເງິນສົດຂາດ-ເກີນ ສະຕ໋ອກໃກ້ໝົດ ໃຫ້ເຈົ້າຂອງທຸກມື້ (WhatsApp / Telegram — ຕັ້ງໃນ Apps Script)',sBtn('ເບິ່ງຕົວຢ່າງ',"waReport('preview')")+sBtn('ສົ່ງທົດສອບ',"waReport('test')",'pri'),'')+
+ sCard('ແຈ້ງສະຕ໋ອກຕ່ຳເຂົ້າ Telegram','ເມື່ອວັດຖຸດິບລົງຮອດ Min ຫຼື ໝົດ ຈະສົ່ງຂໍ້ຄວາມເຂົ້າ Telegram ທັນທີ (ບໍ່ສົ່ງຊ້ຳ ຈົນກວ່າຈະເຕີມພໍແລ້ວຕ່ຳລົງອີກ) · ແຈ້ງສະເພາະວັດຖຸດິບທີ່ຕັ້ງ Min ໄວ້ · ຕ້ອງຕັ້ງ TG_BOT / TG_CHAT ທີ່ server (ແບບດຽວກັບລາຍງານປະຈຳວັນ)',sBtn('ເບິ່ງລາຍການດຽວນີ້',"stockTg('preview')")+sBtn('ສົ່ງທົດສອບ',"stockTg('test')",'pri'),
+  sRow('ເປີດແຈ້ງສະຕ໋ອກເຂົ້າ Telegram','ກວດທຸກ ~2 ນາທີ ຕອນມີການບັນທຶກ · ເປີດຄັ້ງທຳອິດ ຈະຈື່ສະພາບປັດຈຸບັນ ແລະ ແຈ້ງສະເພາະອັນທີ່ຕ່ຳລົງຫຼັງຈາກນີ້',sSw('tgStock.on',!!(state.tgStock&&state.tgStock.on))));}
+function stockTg(mode){if(!isOwner()&&!can('settings')){toast('ບໍ່ມີສິດ');return;}
+ if(!HAS_API){toast('ໃຊ້ໄດ້ເມື່ອເຊື່ອມ server ເທົ່ານັ້ນ');return;}
+ toast(mode==='test'?'ກຳລັງສົ່ງ…':'ກຳລັງກວດ…');
+ jsonpUrl_(API_URL,'report='+(mode==='test'?'stocktest':'stock')+'&token='+encodeURIComponent(TOKEN),function(r){if(!r||!r.ok){toast(r&&r.err==='token'?'token ຜິດ':'ບໍ່ໄດ້ຮັບຄຳຕອບຈາກ server — ອັບເດດ Code.gs ແລ້ວຫຼືຍັງ?');return;}
+  var note=mode==='test'?('<div class="pd-route" style="margin-bottom:8px">ຜົນສົ່ງ Telegram: <b>'+cesc(r.sent===200?'ສົ່ງແລ້ວ ✓':String(r.sent))+'</b></div>'):('<div class="pd-route" style="margin-bottom:8px">'+(r.tg?'Telegram ຕັ້ງແລ້ວ ✓':'⚠ ຍັງບໍ່ໄດ້ຕັ້ງ TG_BOT / TG_CHAT ທີ່ server')+' · ວັດຖຸດິບຕ່ຳກວ່າ Min: <b>'+(r.count||0)+'</b></div>');
+  openModal('<h2>📦 ສະຕ໋ອກຕ່ຳ</h2>'+note+'<pre style="white-space:pre-wrap;font-family:inherit;font-size:15px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px;max-height:55vh;overflow:auto">'+cesc(r.text||'')+'</pre><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');},120000);}
 function setSecAdv(){
  return sCard('ສຳຮອງຂໍ້ມູນ','ສຳຮອງອັດຕະໂນມັດທຸກມື້ 03:00 ເກັບ 14 ມື້ (ເປີດໃນ Apps Script: Run setupBackup ຄັ້ງດຽວ)',sBtn('ລາຍການສຳຮອງ / ກູ້ຄືນ','showBackups()')+sBtn('ສຳຮອງດຽວນີ້','bakNow()','pri'),'')+
  sCard('ຍ້າຍບິນເກົ່າເຂົ້າຄັງ','ບິນປັດຈຸບັນ <b>'+(state.bills||[]).length+'</b> ໃບ — ຫຼາຍພັນໃບ ຈະບັນທຶກຊ້າ · ຍ້າຍໄປ sheet "ບິນ-ຄັງ" ຂໍ້ມູນບໍ່ເສຍ · ບິນຕິດໜີ້ທີ່ຍັງບໍ່ຈ່າຍ ບໍ່ຖືກຍ້າຍ',sBtn('ຍ້າຍບິນເກົ່າ…','archiveModal()'),'')+

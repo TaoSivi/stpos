@@ -40,6 +40,7 @@ function doGet(e) {
       payload = tokenOk_(p.token) ? { ok: true, sum: branchSummary_() } : { ok: false, err: 'token' };
     } else if (p.report) {                                 /* ລາຍງານປະຈຳວັນ: preview / test (ສົ່ງ WhatsApp ດຽວນີ້) */
       if (!tokenOk_(p.token)) payload = { ok: false, err: 'token' };
+      else if (p.report == 'stock' || p.report == 'stocktest') { var stt = null; try { stt = JSON.parse(getState_() || 'null'); } catch (e) { } var sl = stt ? stockLowList_(stt) : [], smsg = stockMsg_(stt || {}, sl, '📦 ສະຕ໋ອກໃກ້ໝົດ / ໝົດ (ດຽວນີ້)'); payload = { ok: true, text: smsg || '✓ ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min', count: sl.length, tg: !!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')) }; if (p.report == 'stocktest') payload.sent = smsg ? tgSend_(smsg) : tgSend_('🧪 ST POS: ທົດສອບແຈ້ງສະຕ໋ອກ — ຕອນນີ້ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min ✓'); }
       else if (p.report == 'test') { var txt = buildDailyReport_(new Date()); payload = { ok: true, text: txt, sent: sendReport_('🧪 ທົດສອບ' + String.fromCharCode(10) + txt) }; }
       else payload = { ok: true, text: buildDailyReport_(new Date()), targets: waTargets_().length, tg: !!PROP.getProperty('TG_BOT'), trigger: ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'dailyReport'; }) };
     } else if (p.bak) {                                    /* backup / restore */
@@ -335,6 +336,7 @@ function saveStateRaw_(json, skipMerge, quiet) {
   /* ເລກເວີຊັນ ໄວ້ໃຫ້ແອັບກວດໄວໆ (ບໍ່ຕ້ອງດຶງ state ເຕັມ) */
   var mv = /"_v":(\d+)/.exec(json); PROP.setProperty('STATE_V', String(mv ? mv[1] : Date.now()));
   sdNotify_(json);
+  stockNotify_(json);
   /* ແທັບສຳເນົາໃຫ້ຄົນອ່ານ (Tables/Stock/Bills…) ຂຽນຊ້າ — ສູງສຸດທຸກ 2 ນາທີ (ເດີມຂຽນທຸກການບັນທຶກ ເຮັດໃຫ້ຊ້າ) */
   var lastM = +(PROP.getProperty('MIRROR_TS') || 0);
   if ((skipMerge && !quiet) || Date.now() - lastM > 120000) { try { writeMirrors_(ss, JSON.parse(json)); PROP.setProperty('MIRROR_TS', String(Date.now())); } catch (e) {} }
@@ -703,6 +705,56 @@ function sdNotify_(json) {
     });
     if (mx > last) PROP.setProperty('SD_TG_TS', String(mx));
   } catch (e) {}
+}
+/* ===== ແຈ້ງສະຕ໋ອກໃກ້ໝົດ / ໝົດ ເຂົ້າ Telegram ທັນທີ (ເປີດ/ປິດ ທີ່ ຕັ້ງຄ່າ › ການເຊື່ອມຕໍ່ & ລາຍງານ → state.tgStock.on) =====
+   ໃຊ້ TG_BOT / TG_CHAT ຄືລາຍງານປະຈຳວັນ · ແຈ້ງສະເພາະວັດຖຸດິບທີ່ຕັ້ງ Min > 0 · ແຈ້ງຕອນລົງຮອດ Min ຄັ້ງທຳອິດ ແລະ ຕອນໝົດ (ບໍ່ສົ່ງຊ້ຳ ຈົນກວ່າຈະເຕີມພໍແລ້ວຕ່ຳລົງອີກ) · ກວດຫ່າງກັນຢ່າງໜ້ອຍ 2 ນາທີ */
+function stockLowList_(st) {
+  var out = [], ing = (st && st.ingredients) || {}, nm = {};
+  ((st && st.locations) || []).forEach(function (l) { nm[l.id] = l.name; });
+  Object.keys(ing).forEach(function (c) {
+    var it = ing[c]; if (!it) return; var mn = +it.reorder || 0; if (!(mn > 0)) return;
+    var L = it.locs || {}; Object.keys(L).forEach(function (l) {
+      var have = +L[l] || 0;
+      if (have <= mn) out.push({ code: c, name: it.name || c, unit: it.unit || '', loc: l, locName: nm[l] || l, have: have, min: mn, lvl: have <= 0 ? 2 : 1 });
+    });
+  });
+  out.sort(function (a, b) { return (b.lvl - a.lvl) || (a.loc < b.loc ? -1 : a.loc > b.loc ? 1 : 0) || (a.name < b.name ? -1 : 1); });
+  return out;
+}
+function stockMsg_(st, list, title) {
+  if (!list || !list.length) return '';
+  var nl = String.fromCharCode(10), fmt = function (n) { return String(Math.round((+n || 0) * 100) / 100).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+  var lines = [title + ' — ' + ((st && st.shopName) || 'ST POS')], cur = null, shown = 0;
+  list.forEach(function (x) {
+    if (shown >= 40) return;
+    if (x.loc !== cur) { cur = x.loc; lines.push('📍 ' + x.locName); }
+    lines.push((x.lvl === 2 ? '🔴 ໝົດ  ' : '🟠 ໃກ້ໝົດ  ') + x.name + ' — ເຫຼືອ ' + fmt(x.have) + ' ' + x.unit + ' (Min ' + fmt(x.min) + ')');
+    shown++;
+  });
+  if (list.length > shown) lines.push('… ແລະ ອີກ ' + (list.length - shown) + ' ລາຍການ');
+  return lines.join(nl);
+}
+function tgSend_(text) {
+  var bot = PROP.getProperty('TG_BOT'), chat = PROP.getProperty('TG_CHAT'); if (!bot || !chat) return 'ບໍ່ໄດ້ຕັ້ງ TG_BOT/TG_CHAT';
+  try { var r = UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat, text: String(text).slice(0, 3900) }), muteHttpExceptions: true }); return r.getResponseCode(); }
+  catch (e) { return 'ERR ' + e.message; }
+}
+function stockNotify_(json) {
+  try {
+    if (!/"tgStock":\{[^}]*"on":true/.test(json)) return;
+    if (!PROP.getProperty('TG_BOT') || !PROP.getProperty('TG_CHAT')) return;
+    var now = Date.now(); if (now - (+(PROP.getProperty('STK_TG_TS') || 0)) < 120000) return;
+    PROP.setProperty('STK_TG_TS', String(now));
+    var st = JSON.parse(json), list = stockLowList_(st), prevS = PROP.getProperty('STK_TG'), prev = null;
+    try { prev = prevS ? JSON.parse(prevS) : null; } catch (e) { prev = null; }
+    var cur = {}; list.forEach(function (x) { cur[x.code + '@' + x.loc] = x.lvl; });
+    var pack = JSON.stringify(cur); if (pack.length > 8500) { cur = {}; list.forEach(function (x) { if (x.lvl === 2) cur[x.code + '@' + x.loc] = 2; }); pack = JSON.stringify(cur).slice(0, 8500); if (pack.charAt(pack.length - 1) !== '}') pack = '{}'; }
+    PROP.setProperty('STK_TG', pack);
+    if (!prev || typeof prev !== 'object') return;                      /* ຄັ້ງທຳອິດ: ຈື່ສະພາບປັດຈຸບັນ ບໍ່ສົ່ງຂອງເກົ່າ (ກົດ "ສົ່ງທົດສອບ" ເພື່ອເບິ່ງລາຍການທັງໝົດ) */
+    var fresh = list.filter(function (x) { return x.lvl > (+prev[x.code + '@' + x.loc] || 0); });
+    if (!fresh.length) return;
+    tgSend_(stockMsg_(st, fresh, '⚠️ ສະຕ໋ອກຕ່ຳ'));
+  } catch (e) { }
 }
 function sendReport_(text) {
   var out = { whatsapp: [], telegram: null };
