@@ -371,7 +371,9 @@ function modInfo_(st, def, mods) {
   var pk = [];
   if (mods.indexOf('ກັບບ້ານ') >= 0 && mo.pkg !== false) { /* ບັນຈຸພັນກັບບ້ານ: ເມນູກຳນົດເອງ > ຕາມປະເພດ · ຂະໜາດປ່ຽນພາຊະນະຫຼັກໄດ້ */
     var cfg = st.pkg || {}; pk = (Array.isArray(def.pk) ? def.pk : (cfg[def.k === 'drink' ? 'drink' : 'food'] || [])).filter(function (x) { return x && x[0] && +x[1] > 0; }).map(function (x) { return [x[0], +x[1]]; });
-    (st.modGroups || []).forEach(function (g) { var t = g.type || (g.multi ? 'topping' : 'choice'); if (t !== 'size' || !mgApplies_(g, def)) return; (g.opts || []).forEach(function (o) { if (o.pc && pick[String(o.n)]) { var cq = +o.pcq > 0 ? +o.pcq : 1; if (pk.length) pk[0] = [o.pc, cq]; else pk.push([o.pc, cq]); } }); });
+    var gs = (st.modGroups || []).filter(function (g) { return mgApplies_(g, def); }), typ = function (g) { return g.type || (g.multi ? 'topping' : 'choice'); };
+    gs.forEach(function (g) { if (typ(g) === 'size') return; (g.opts || []).forEach(function (o) { if (o && pick[String(o.n)] && Array.isArray(o.pks) && o.pks.length) pk = o.pks.map(function (x) { return [x[0], +x[1] > 0 ? +x[1] : 1]; }); }); });
+    gs.forEach(function (g) { if (typ(g) !== 'size') return; (g.opts || []).forEach(function (o) { if (!o || !pick[String(o.n)]) return; var code = o.pc; if (o.pcm) Object.keys(o.pcm).forEach(function (k) { if (o.pcm[k] && pick[k]) code = o.pcm[k]; }); if (code) { var cq = +o.pcq > 0 ? +o.pcq : 1; if (pk.length) pk[0] = [code, cq]; else pk.push([code, cq]); } }); });
     pk = pk.filter(function (x) { return st.ingredients && st.ingredients[x[0]]; });
   }
   return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb, pk: pk };
