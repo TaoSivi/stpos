@@ -1789,6 +1789,10 @@ body.cc-lock{overflow:hidden}
 .fd-s{white-space:nowrap}.fd-s .fd-tm{display:block;font-weight:700;font-variant-numeric:tabular-nums;font-size:13px}.fd-s .fd-d{display:block;font-size:12px;font-weight:700;margin-top:1px}
 .fd-s.w .fd-d{color:#b45309}.fd-s.c .fd-d{color:#1d4ed8}.fd-s.h .fd-d{color:#047857}.fd-s.cur{background:#fff7e0;box-shadow:inset 0 0 0 1.5px #f3c67a;border-radius:6px}.fd-s.cur .fd-d{color:#b45309}
 .fd-tot .fd-d{font-size:13px;color:#111827}.fd-tot.late .fd-d{color:#dc2626}.fd-tbl th small{display:block;font-weight:500;font-size:10.5px;opacity:.85}.fd-lg em{font-style:normal;color:#94a3b8}
+.os-sub{font-size:13px;color:var(--muted);text-align:center;margin:-4px 0 10px}.os-step{display:flex;gap:10px;align-items:flex-start;background:#f8fbfb;border-radius:14px;padding:10px 12px;margin-bottom:8px}.os-step>div{flex:1;min-width:0}.os-step small{display:block;color:var(--muted);font-size:12px;margin:2px 0 6px}
+.os-n{width:26px;height:26px;border-radius:50%;background:#0A7E7A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:1px}.os-list{margin:6px 0;max-height:26vh;overflow:auto}.os-list>div{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:5px 8px;background:#fff1f1;border-radius:8px;margin-bottom:4px}.os-neg{color:#dc2626}
+.os-chips{display:flex;flex-direction:column;gap:6px;margin:6px 0}.os-c{text-align:left;border:1.5px solid #d6e9e7;background:#fff;border-radius:11px;padding:9px 12px;font:inherit;font-size:13.5px;cursor:pointer}.os-c.on{border-color:#0A7E7A;background:#e6f6f4;font-weight:700}
+.os-ck{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:700;margin-top:8px}.os-ck input{width:20px;height:20px;margin:0}
 </style>
 </head>
 <body>
@@ -2990,7 +2994,28 @@ function shortBar(){var L=shortMine();if(!L.length)return '';
 var _snSeen=null;
 function shortWatch(){try{var L=shortMine(),ids={};L.forEach(function(a){ids[a.id]=1;});if(_snSeen===null){_snSeen=ids;return;}var fresh=L.filter(function(a){return !_snSeen[a.id];});_snSeen=ids;if(fresh.length){if(state.soundOn!==false)try{playBeep();}catch(e){}toast('⚠ ວັດຖຸດິບບໍ່ພໍ: '+fresh[0].items.map(function(x){return x.name;}).join(', ')+' (ໂຕະ '+fresh[0].table+')');}}catch(e){}}
 function shortSetFixed(id){if(!can('settings')&&!isOwner()){toast('ບໍ່ມີສິດ');render();return;}state.shortNotify={uid:id||''};logOrder('ຕັ້ງຜູ້ຮັບຜິດຊອບວັດຖຸດິບບໍ່ພໍ',id?((state.users||[]).filter(function(u){return u.id===id;})[0]||{}).name:'ໃຫ້ເລືອກເອງ','');save();toast(id?'ຕັ້ງແລ້ວ':'ປ່ຽນເປັນໃຫ້ເລືອກເອງ');}
-function stockOverride(){var sh=draftShortage(state.draft);closeModal();requireOverride('stockAdjust','ຂາຍເກີນສະຕ໋ອກ',function(){logOrder('ຂາຍເກີນສະຕ໋ອກ',sh.map(function(x){return x.name+' (ມີ '+x.have+', ໃຊ້ '+x.need+')';}).join(', '),state.activeTable);confirmOrder(true);});}
+/* ຂາຍເກີນສະຕ໋ອກ: 3 ຂັ້ນ — (1) ເບິ່ງສິ່ງທີ່ຈະເກີດ (2) ເລືອກເຫດຜົນ + ຢືນຢັນວ່າກວດຂອງແລ້ວ (3) ຜູ້ມີສິດໃສ່ PIN. ບັນທຶກ ເຫດຜົນ + ຜູ້ອະນຸມັດ ໃນປະຫວັດ */
+var OS_RSN=['ຂອງມີແທ້ — ສະຕ໋ອກໃນລະບົບບໍ່ກົງ','ຮັບເຄື່ອງແລ້ວ ແຕ່ຍັງບໍ່ໄດ້ບັນທຶກເຂົ້າລະບົບ','ສູດຂອງເມນູນີ້ໃຊ້ເກີນຄວາມຈິງ','ອື່ນໆ (ພິມເຫດຜົນ)'];
+function stockOverride(){var sh=draftShortage(state.draft);closeModal();window.__os={sh:sh,r:-1,tries:0};
+ openModal('<h2 style="color:var(--orange)">ຂາຍຕໍ່ ທັງທີ່ສະຕ໋ອກບໍ່ພໍ</h2><p class="os-sub">ເຮັດຕາມ 3 ຂັ້ນ — ການຂາຍເກີນສະຕ໋ອກຖືກບັນທຶກ ພ້ອມຊື່ຜູ້ອະນຸມັດ</p>'+
+  '<div class="os-step"><b class="os-n">1</b><div><b>ກວດວ່າຈະເກີດຫຍັງ</b><div class="os-list">'+window.__os.sh.map(function(x){var after=Math.round((x.have-x.need)*100)/100;return '<div><span>'+cesc(x.name)+'</span><span>ມີ '+x.have+' → ຫຼັງຂາຍ <b class="os-neg">'+after+'</b> '+cesc(x.unit)+'</span></div>';}).join('')+'</div><small>ສະຕ໋ອກຈະຕິດລົບ ຈົນກວ່າຈະຮັບເຂົ້າ ຫຼື ນັບສາງແກ້</small></div></div>'+
+  '<div class="os-step"><b class="os-n">2</b><div><b>ເຫດຜົນ ແລະ ຢືນຢັນ</b><div class="os-chips">'+OS_RSN.map(function(t,i){return '<button type="button" class="os-c" id="osr'+i+'" onclick="osPick('+i+')">'+t+'</button>';}).join('')+'</div>'+
+   '<input id="os_txt" style="display:none" maxlength="120" placeholder="ພິມເຫດຜົນ" oninput="osChk()">'+
+   '<label class="os-ck"><input type="checkbox" id="os_ck" onchange="osChk()"> ຂ້ອຍໄປເບິ່ງຂອງໃນສາງ/ຕູ້ແລ້ວ ມີພໍແທ້</label></div></div>'+
+  '<div class="os-step"><b class="os-n">3</b><div><b>ຜູ້ມີສິດໃສ່ PIN</b><small>ຜູ້ຈັດການ / ນາຍສາງ / ເຈົ້າຂອງ — ໃສ່ PIN ຂອງຕົນເອງ (ລະບົບຮູ້ວ່າໃຜອະນຸມັດ)</small><input id="os_pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" oninput="osChk()" style="text-align:center;font-size:22px;letter-spacing:8px;max-width:180px"></div></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ — ກັບໄປແກ້</button><button id="os_go" class="btn-ok" style="background:var(--orange);opacity:.45" onclick="osGo()">ອະນຸມັດ ແລະ ຂາຍຕໍ່</button></div>');}
+function osPick(i){window.__os.r=i;OS_RSN.forEach(function(_,k){var e=document.getElementById('osr'+k);if(e)e.classList.toggle('on',k===i);});var t=document.getElementById('os_txt');if(t){t.style.display=i===OS_RSN.length-1?'':'none';if(i===OS_RSN.length-1)t.focus();}osChk();}
+function osReady(){var o=window.__os||{},t=((document.getElementById('os_txt')||{}).value||'').trim(),ck=(document.getElementById('os_ck')||{}).checked,pin=((document.getElementById('os_pin')||{}).value||'');
+ return o.r>=0&&(o.r<OS_RSN.length-1||t.length>=3)&&!!ck&&pin.length===4;}
+function osChk(){var g=document.getElementById('os_go');if(g)g.style.opacity=osReady()?'1':'.45';}
+function osGo(){var o=window.__os;if(!o)return;if(o.r<0){toast('ຂັ້ນ 2: ເລືອກເຫດຜົນ');return;}var t=((document.getElementById('os_txt')||{}).value||'').trim();if(o.r===OS_RSN.length-1&&t.length<3){toast('ຂັ້ນ 2: ພິມເຫດຜົນ');return;}
+ if(!(document.getElementById('os_ck')||{}).checked){toast('ຂັ້ນ 2: ຕິກຢືນຢັນວ່າກວດຂອງແລ້ວ');return;}
+ var pin=((document.getElementById('os_pin')||{}).value||'');if(pin.length!==4){toast('ຂັ້ນ 3: ໃສ່ PIN 4 ຕົວ');return;}
+ var ap=(state.users||[]).find(function(x){return sdPinOk(x,pin)&&(!PERMS[x.role]||permEffAct(x,x.role,'stockAdjust'));});
+ if(!ap){o.tries++;var e=document.getElementById('os_pin');if(e){e.value='';e.focus();}osChk();if(o.tries>=3){closeModal();toast('PIN ຜິດ 3 ເທື່ອ — ຢຸດ. ໃຫ້ຜູ້ຈັດການມາເຮັດເອງ');}else toast('PIN ບໍ່ຖືກ ຫຼື ບໍ່ມີສິດ ('+o.tries+'/3)');return;}
+ var why=o.r===OS_RSN.length-1?t:OS_RSN[o.r],me=(curUser()||{}).name||'';
+ logOrder('ຂາຍເກີນສະຕ໋ອກ',o.sh.map(function(x){return x.name+' (ມີ '+x.have+', ໃຊ້ '+x.need+' '+x.unit+')';}).join(', ')+' — ເຫດຜົນ: '+why+' — ອະນຸມັດ: '+ap.name+(ap.name!==me?' (ຂໍໂດຍ '+me+')':''),state.activeTable);
+ window.__os=null;closeModal();confirmOrder(true);}
 function confirmOrder(force){if(!state.draft.length)return;
  if(isCust()){custConfirmOrder();return;} /* ລູກຄ້າ QR: ສົ່ງໃຫ້ server ກວດ+ຕັດສະຕ໋ອກ */
  if(state.stockBlock!==false&&modOn('stock')&&force!==true){var sh=draftShortage(state.draft);if(sh.length){
