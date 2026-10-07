@@ -4857,7 +4857,7 @@ function renderChk(R){chkInit();if(chkView){var s0=state.chkSubs.find(function(x
  if(chkTab==='do')chkProg();}
 /* ---- ເຮັດເຊັກລິດ ---- */
 function chkDoHTML(){if(!can('chkDo')&&!isOwner())return '<div class="empty">ບໍ່ມີສິດເຮັດເຊັກລິດ</div>';var my=chkMyDept(),any=chkAnyDept();
- if(!my&&!any)return '<div class="empty">ທ່ານຍັງບໍ່ໄດ້ຖືກກຳນົດພະແນກ — ໃຫ້ຫົວໜ້າກຳນົດທີ່ແຖບ "ແກ້ລາຍການ"</div>';
+ if(!my&&!any)return '<div class="empty">ທ່ານຍັງບໍ່ໄດ້ຖືກກຳນົດພະແນກ — ໃຫ້ຫົວໜ້າກຳນົດທີ່ແຖບ "ຕັ້ງຄ່າ"</div>';
  if(!chkWork)chkStart();if(!any&&chkWork.dept!==my){chkDept=my;chkStart();}
  var T=state.chkTpl,w=chkWork,tasks=T[w.dept].shifts[w.shift]||[];
  var done=state.chkSubs.filter(function(s){return s.dept===w.dept&&s.shift===w.shift&&s.date===chkDate;});
@@ -4955,7 +4955,7 @@ function chkDeptAdd(){var n=prompt('ຊື່ພະແນກໃໝ່');if(!n||!
 function chkDeptRename(){var d=chkEd.tpl[chkEd.dept];var n=prompt('ຊື່ພະແນກ',d.label);if(!n||!n.trim())return;d.label=n.trim();chkEd.dirty=true;render();}
 function chkDeptDel(){if(!confirm('ລຶບພະແນກ "'+chkEd.tpl[chkEd.dept].label+'"? (ປະຫວັດທີ່ສົ່ງແລ້ວຍັງຢູ່)'))return;delete chkEd.tpl[chkEd.dept];chkEd.dept=Object.keys(chkEd.tpl)[0];chkEd.shift=null;chkEd.dirty=true;render();}
 function chkSaveTpl(){if(!(can('chkEdit')||isOwner())){toast('ບໍ່ມີສິດ');return;}var T=chkEd.tpl;Object.keys(T).forEach(function(k){Object.keys(T[k].shifts).forEach(function(s){T[k].shifts[s]=T[k].shifts[s].map(function(x){return String(x).trim();}).filter(Boolean);});});
- state.chkTpl=JSON.parse(JSON.stringify(T));state.chkTplVer=(state.chkTplVer||1)+1;chkEd=null;chkWork=null;logOrder('ເຊັກລິດ','ແກ້ລາຍການ (ເວີຊັນ '+state.chkTplVer+')','');save();render();toast('ບັນທຶກລາຍການແລ້ວ ✓');}
+ var _ed=chkEd.dept,_es=chkEd.shift;state.chkTpl=JSON.parse(JSON.stringify(T));state.chkTplVer=(state.chkTplVer||1)+1;chkEd=null;chkWork=null;if(state.chkTpl[_ed]){chkDept=_ed;chkShift=state.chkTpl[_ed].shifts[_es]?_es:null;chkTab='do';}logOrder('ເຊັກລິດ','ແກ້ລາຍການ (ເວີຊັນ '+state.chkTplVer+')','');save();render();toast('ບັນທຶກລາຍການແລ້ວ ✓ — ເປີດໜ້າເຮັດເຊັກລິດຂອງພະແນກນີ້');}
 function chkSetUserDept(uid,k){if(!(can('chkEdit')||isOwner()))return;var u=(state.users||[]).find(function(x){return x.id===uid;});if(!u)return;if(k)u.chkDept=k;else delete u.chkDept;save();toast(u.name+' → '+(k?chkDeptLabel(k):'ບໍ່ມີພະແນກ'));}
 function chkParseFile(txt){var a=txt.indexOf('{'),depth=0,end=-1,inS=false,q='',esc=false;for(var i=a;i>=0&&i<txt.length;i++){var c=txt[i];if(inS){if(esc)esc=false;else if(c==='\\')esc=true;else if(c===q)inS=false;continue;}if(c==='"'||c==="'"){inS=true;q=c;continue;}if(c==='{')depth++;else if(c==='}'){depth--;if(!depth){end=i;break;}}}
  if(a<0||end<0)throw new Error('ບໍ່ພົບຂໍ້ມູນ');var o=JSON.parse(txt.slice(a,end+1));var out={};Object.keys(o).forEach(function(k){var d=o[k];if(!d||!d.shifts)return;var sh={};Object.keys(d.shifts).forEach(function(s){if(Array.isArray(d.shifts[s]))sh[s]=d.shifts[s].map(String).filter(Boolean);});out[k]={label:String(d.label||k),shifts:sh};});if(!Object.keys(out).length)throw new Error('ບໍ່ມີພະແນກ');return out;}
