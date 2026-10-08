@@ -2212,6 +2212,8 @@ function freshState(){
 }
 let _saveT=null,_saving=false,_pending=false,_loaded=false;
 var _ensD0=ensureDefaults;ensureDefaults=function(){_ensD0();try{snapUpd();}catch(e){}}; /* ຂໍ້ມູນທີ່ຫາກໍໂຫຼດ = ຍັງບໍ່ແມ່ນການແກ້ໄຂຂອງເຄື່ອງນີ້ */
+/* ຄ່າທີ່ເປັນຂອງ "ເຄື່ອງນີ້" (ໂຕະທີ່ເປີດຢູ່, ໝວດທີ່ເລືອກ, ກິນຢູ່ຮ້ານ/ກັບບ້ານ, ສ່ວນຫຼຸດບິນທີ່ກຳລັງເຮັດ) — ຮັບຂໍ້ມູນຈາກເຄື່ອງອື່ນແລ້ວ ຫ້າມຖືກທັບ (ບໍ່ດັ່ງນັ້ນເຄື່ອງ A ເປີດໂຕະ A1 ຢູ່ ແຕ່ເຄື່ອງ B ບັນທຶກ → ໜ້າຈໍ A ຖືກສະຫຼັບໄປໂຕະ B ເອງ ແລະ ອໍເດີຜິດໂຕະ) */
+function keepLocalUI(ns){try{['activeTable','activeCat','activeSub','dineType','billDiscPct'].forEach(function(k){if(state&&state[k]!==undefined)ns[k]=state[k];});if(ns.tables&&ns.activeTable&&!ns.tables[ns.activeTable]){var f=Object.keys(ns.tables)[0];if(f)ns.activeTable=f;}}catch(e){}return ns;}
 function save(){if(isCust())return; /* ລູກຄ້າ QR ບໍ່ຂຽນ state ເຕັມ — ສັ່ງຜ່ານ custSend ເທົ່ານັ້ນ */
  try{draftKeep();}catch(e){}
  try{stampUpd();}catch(e){}
@@ -2314,9 +2316,9 @@ function startSync(){
   return;}
  if(HAS_GAS){setInterval(()=>{if(_saving||_pending)return;if(document.getElementById('modalRoot').innerHTML)return;
   if(view==='order'&&state.draft&&state.draft.length)return;
-  google.script.run.withSuccessHandler(s=>{if(!s||s==='DENIED')return;let ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){state=ns;ensureDefaults();render();}}).getStateTok(TOKEN);},5000);}
+  google.script.run.withSuccessHandler(s=>{if(!s||s==='DENIED')return;let ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){keepLocalUI(ns);state=ns;ensureDefaults();render();}}).getStateTok(TOKEN);},5000);}
  else if(HAS_API){var _polling=false;setInterval(saveWatch,5000);
-  var applyRemote=function(s){if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;ns.draft=state.draft||[];state=ns;ensureDefaults();render();}};
+  var applyRemote=function(s){if(!s)return;var ns;try{ns=JSON.parse(s);}catch(e){return;}if(ns&&ns._v&&(!state._v||ns._v>state._v)){if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;ns.draft=state.draft||[];keepLocalUI(ns);state=ns;ensureDefaults();render();}};
   /* ກວດແຕ່ເລກເວີຊັນທຸກ 4 ວິ (ນ້ອຍຫຼາຍ) → ດຶງເຕັມ (ບີບອັດ) ສະເພາະເມື່ອມີການປ່ຽນ. server ເກົ່າ (ບໍ່ມີ ver) ຈະສົ່ງ state ເຕັມມາແທນ */
   setInterval(function(){if(_polling||!_loaded)return;if(document.getElementById('modalRoot').innerHTML)return;if(view==='order'&&state.draft&&state.draft.length)return;_polling=true;
    var done=function(ms){setTimeout(function(){_polling=false;},ms||0);};

@@ -117,17 +117,35 @@ function mergeBills_(curStr, inc) {
     var cur = JSON.parse(curStr);
     if (!cur || !Array.isArray(cur.bills) || !cur.bills.length) return inc;
     if (!Array.isArray(inc.bills)) inc.bills = [];
-    var have = {}; inc.bills.forEach(function (b) { if (b && b.receipt) have[b.receipt] = b; });
-    cur.bills.forEach(function (b) {
-      if (!b || !b.receipt) return;
-      var m = have[b.receipt];
-      if (!m) { inc.bills.push(b); have[b.receipt] = b; }
-      else if (m.ts !== b.ts || m.total !== b.total) { /* ເລກບິນຊ້ຳຈາກ 2 ເຄື່ອງ — ເກັບທັງສອງ */
-        var nb = JSON.parse(JSON.stringify(b)); nb.receipt = String(b.receipt) + '-B';
-        if (!have[nb.receipt]) { inc.bills.push(nb); have[nb.receipt] = nb; }
-      }
+    /* ບິນ 1 ໃບ = (ເວລາ + ໂຕະ + ຍອດ) — ບໍ່ແມ່ນເລກບິນ: ຫຼາຍເຄື່ອງອອກເລກບິນເລກດຽວກັນພ້ອມກັນໄດ້ (ຍັງບໍ່ທັນ sync). ເລກຊ້ຳແຕ່ເປັນຄົນລະບິນ → ເກັບທຸກໃບ ແລະ ເຕີມ -B/-C/-D… ໃຫ້ໃບຫຼັງ;
+       ບິນດຽວກັນທີ່ມາຈາກເຄື່ອງເກົ່າ (ເລກເກົ່າ) → ໃຊ້ເລກທີ່ server ຕັດສິນແລ້ວ (ບໍ່ເກີດບິນຜີຊ້ຳ ແລະ ບໍ່ຫາຍ) */
+    var bk = function (b) { return (b.ts || 0) + '|' + (b.table || '') + '|' + (+b.total || 0); };
+    var out = [], byKey = {}, used = {};
+    cur.bills.forEach(function (b) { if (!b || !b.receipt) return; var k = bk(b); if (byKey[k]) return; byKey[k] = b; used[b.receipt] = 1; out.push(b); });
+    inc.bills.forEach(function (b) {
+      if (!b || !b.receipt) return; var k = bk(b), old = byKey[k];
+      if (old) { var i = out.indexOf(old); b.receipt = old.receipt; byKey[k] = b; if (i >= 0) out[i] = b; return; }   /* ບິນເກົ່າ (ອາດຖືກ void/ຄືນເງິນ) = ເອົາຂອງເຄື່ອງ ແຕ່ເກັບເລກຂອງ server */
+      if (used[b.receipt]) { var base = String(b.receipt).replace(/(-[B-Z])+$/, ''), c = 66, r; do { r = base + '-' + String.fromCharCode(c++); } while (used[r] && c < 91); if (used[r]) r = base + '-' + (b.ts || Date.now()); b.receipt = r; }
+      used[b.receipt] = 1; byKey[k] = b; out.push(b);
     });
+    inc.bills = out;
     inc.bills.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    /* ຈ່າຍໂຕະ/ລາຍການດຽວກັນ 2 ເຄື່ອງ (ຄົນລະເຄື່ອງ ຍັງບໍ່ທັນ sync) → ບິນຊ້ຳ ເກັບເງິນຊ້ຳ: ເກັບບິນທຳອິດ, ບິນຫຼັງທີ່ມີລາຍການ (id) ຊ້ຳໝົດ → ຕັດອອກ + ບັນທຶກໃນ dupPays ໃຫ້ກວດ */
+    var own = {}, kept = [], dups = [];
+    inc.bills.forEach(function (b) {
+      var ids = (b && !b.voided && Array.isArray(b.items)) ? b.items.map(function (i) { return i && i.id; }).filter(function (x) { return x !== undefined && x !== null && x !== ''; }) : [];
+      if (ids.length && ids.every(function (id) { return own[id]; })) {
+        dups.push({ receipt: b.receipt, of: own[ids[0]], ts: b.ts, total: b.total, table: b.table, by: b.by || b.cashier || '', memberId: b.memberId || '', walletPaid: b.walletPaid || 0, pointsUsed: b.pointsUsed || 0, pointsEarned: b.pointsEarned || 0, credit: b.credit ? (b.creditOwed || 0) : 0, at: Date.now() });
+        return;
+      }
+      ids.forEach(function (id) { if (!own[id]) own[id] = b.receipt; });
+      kept.push(b);
+    });
+    if (dups.length) {
+      inc.bills = kept;
+      var seen = {}; var all = (Array.isArray(cur.dupPays) ? cur.dupPays : []).concat(Array.isArray(inc.dupPays) ? inc.dupPays : []).concat(dups);
+      inc.dupPays = all.filter(function (d) { var k = d.receipt + '|' + d.ts; if (seen[k]) return false; seen[k] = 1; return true; }).slice(-100);
+    } else if (Array.isArray(cur.dupPays) && cur.dupPays.length && !Array.isArray(inc.dupPays)) inc.dupPays = cur.dupPays;
     var maxSeq = 0; inc.bills.forEach(function (b) { var n = parseInt(b.receipt, 10); if (n > maxSeq) maxSeq = n; });
     if (maxSeq > (+inc.receiptSeq || 0)) inc.receiptSeq = maxSeq;
     return inc;
