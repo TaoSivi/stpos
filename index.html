@@ -1817,6 +1817,14 @@ body.cc-lock{overflow:hidden}
 @media (min-width:600px) and (max-width:900px){.products{grid-template-columns:repeat(auto-fill,minmax(172px,1fr))!important}}
 @media (min-width:901px) and (max-width:1250px){.cart{width:330px!important}.products{grid-template-columns:repeat(auto-fill,minmax(134px,1fr))!important;gap:10px!important}}
 .modal.nudge{animation:mNudge .32s ease}@keyframes mNudge{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+/* ຟອມຈອງໂຕະ: Bento ກວ້າງ — ລູກຄ້າ / ມື້-ເວລາ (ມີລູກເລື່ອນ) / ໂຕະທັງໝົດເຫັນຄົບ ບໍ່ຕ້ອງເລື່ອນຫາ */
+.modal.rv-wide{max-width:980px!important;width:94vw}.rv-bento{display:grid;grid-template-columns:1fr 1.1fr;grid-template-areas:"c1 c3" "c2 c3";gap:14px;margin-top:6px}.rv-c{background:#f3f9f8;border:1px solid #e0eeec;border-radius:18px;padding:14px 16px;min-width:0}.rv-c1{grid-area:c1}.rv-c2{grid-area:c2}.rv-c3{grid-area:c3;background:#fff;border-style:dashed}
+.rv-c .rv-step{margin:0 0 10px}.rv-c .rv-grid input{background:#fff}.rv-c .rv-memb:empty{display:none}.rv-c .rv-row{margin-top:12px}
+.rv-tmwrap{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px 0 4px}.rv-tmbig{font-size:46px;font-weight:900;letter-spacing:1px;color:var(--ink);min-width:150px;text-align:center;font-variant-numeric:tabular-nums;line-height:1.1}.rv-tb{height:42px;min-width:58px;border-radius:12px;border:1.5px solid #d6e9e7;background:#fff;font:inherit;font-weight:800;font-size:15px;color:#0A5E5B;cursor:pointer}.rv-tb:active{background:#e6f5f3}
+.rv-rng{-webkit-appearance:none;appearance:none;width:100%;height:34px;margin:2px 0 0!important;padding:0!important;background:transparent;cursor:pointer;touch-action:pan-y}.rv-rng::-webkit-slider-runnable-track{height:10px;border-radius:6px;background:linear-gradient(90deg,#bfe9e5,#0ABAB5)}.rv-rng::-moz-range-track{height:10px;border-radius:6px;background:linear-gradient(90deg,#bfe9e5,#0ABAB5)}.rv-rng::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-10px;border-radius:50%;background:#062f2d;border:4px solid #fff;box-shadow:0 2px 8px rgba(6,47,45,.4)}.rv-rng::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#062f2d;border:4px solid #fff;box-shadow:0 2px 8px rgba(6,47,45,.4)}
+.rv-rl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin:0 2px 8px}.rv-presets{margin:0}
+.rv-tables{max-height:none!important;overflow:visible!important;grid-template-columns:repeat(auto-fill,minmax(74px,1fr))}.rv-c3{display:flex;flex-direction:column}.rv-c3 .rv-tables{flex:1;grid-auto-rows:minmax(54px,1fr);align-content:stretch}.rv-c3 .rv-tc{justify-content:center}@media (max-width:760px){.rv-c3 .rv-tables{grid-auto-rows:54px}}
+@media (max-width:760px){.rv-bento{grid-template-columns:1fr;grid-template-areas:"c1" "c2" "c3"}.rv-tmbig{font-size:40px}}
 </style>
 </head>
 <body>
@@ -2670,23 +2678,31 @@ function rvDefTime(ds){if(ds!==ymd(Date.now()))return '18:00';var m=Math.ceil((r
 function rvModal(id,pre){if(!(can('resvMng')||isOwner())){toast('ບໍ່ມີສິດຈອງໂຕະ');return;}rvInit();var r=id?rvFind(id):null,c=rvCfg(),td=ymd(Date.now());
  var dt=(pre&&pre.date)||(rvDate&&rvDate>=td?rvDate:td);if(dt===td&&rvNowMin()+60>=23*60)dt=ymd(Date.now()+86400000);
  rvEdit=r?JSON.parse(JSON.stringify(r)):{id:null,date:dt,time:(pre&&pre.time)||rvDefTime(dt),dur:c.dur,table:(pre&&pre.table)||'',guests:2,name:'',phone:'',memberId:null,note:''};rvRenderModal();}
-function rvWhenHTML(){var d=rvEdit,td=ymd(Date.now()),tm=ymd(Date.now()+86400000),now=rvNowMin();
+function rvFmt(m){return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+m%60).slice(-2);}
+/* ຂອບເຂດເວລາທີ່ເລື່ອນເລືອກໄດ້: 06:00–23:55 (ມື້ນີ້ = ຕັ້ງແຕ່ຕອນນີ້ເປັນຕົ້ນໄປ) */
+function rvTimeBounds(){var d=rvEdit,td=ymd(Date.now()),lo=6*60,hi=24*60-5;if(d.date===td)lo=Math.max(lo,Math.ceil((rvNowMin()+5)/5)*5);var m=rvMin(d.time);if(m!=null){lo=Math.min(lo,m);hi=Math.max(hi,m);}if(lo>hi)lo=hi;return [lo,hi];}
+function rvWhenHTML(){var d=rvEdit,td=ymd(Date.now()),tm=ymd(Date.now()+86400000),now=rvNowMin(),b=rvTimeBounds(),cur=rvMin(d.time);if(cur==null){cur=b[0];d.time=rvFmt(cur);}
  var ch=function(k,v,l){return '<button type="button" class="rv-chip'+(d[k]===v?' on':'')+'" onclick="rvSet(\''+k+'\',\''+v+'\')">'+l+'</button>';};
  var ts=RV_TIMES.filter(function(t){return d.date!==td||rvMin(t)>now;});
  return '<div class="rv-chips">'+ch('date',td,'ມື້ນີ້')+ch('date',tm,'ມື້ອື່ນ')+'<input type="date" class="rv-din'+(d.date!==td&&d.date!==tm?' on':'')+'" value="'+d.date+'" min="'+td+'" onchange="rvSet(\'date\',this.value)"></div>'+
-  '<div class="rv-chips">'+ts.map(function(t){return ch('time',t,t);}).join('')+'<input type="time" class="rv-tin'+(ts.indexOf(d.time)<0?' on':'')+'" value="'+d.time+'" onchange="rvSet(\'time\',this.value)"></div>';}
-function rvSet(k,v){rvEdit[k]=v;if(k==='guests'){var g=document.getElementById('rv_g');if(g)g.value=v;}else{var w=document.getElementById('rv_when');if(w)w.innerHTML=rvWhenHTML();}rvTables();}
+  '<div class="rv-tmwrap"><button type="button" class="rv-tb" onclick="rvStep(-15)">−15</button><div class="rv-tmbig" id="rv_tbig">'+d.time+'</div><button type="button" class="rv-tb" onclick="rvStep(15)">+15</button></div>'+
+  '<input type="range" id="rv_rng" class="rv-rng" min="'+b[0]+'" max="'+b[1]+'" step="5" value="'+cur+'" oninput="rvSlide(this.value)"><div class="rv-rl"><span>'+rvFmt(b[0])+'</span><span>ເລື່ອນເພື່ອເລືອກເວລາ (ຂັ້ນລະ 5 ນາທີ)</span><span>'+rvFmt(b[1])+'</span></div>'+
+  '<div class="rv-chips rv-presets">'+ts.map(function(t){return ch('time',t,t);}).join('')+'</div>';}
+var _rvTT=null;
+function rvSlide(v){rvEdit.time=rvFmt(+v);var e=document.getElementById('rv_tbig');if(e)e.textContent=rvEdit.time;[].forEach.call(document.querySelectorAll('.rv-presets .rv-chip'),function(c){c.classList.toggle('on',c.textContent===rvEdit.time);});clearTimeout(_rvTT);_rvTT=setTimeout(rvTables,120);}
+function rvStep(dl){var b=rvTimeBounds(),m=rvMin(rvEdit.time);if(m==null)m=b[0];m=Math.max(b[0],Math.min(b[1],m+dl));rvSlide(m);var r=document.getElementById('rv_rng');if(r)r.value=m;}
+function rvSet(k,v){rvEdit[k]=v;if(k==='date'&&v===ymd(Date.now())&&(rvMin(rvEdit.time)==null||rvMin(rvEdit.time)<=rvNowMin()))rvEdit.time=rvDefTime(v);if(k==='guests'){var g=document.getElementById('rv_g');if(g)g.value=v;}else{var w=document.getElementById('rv_when');if(w)w.innerHTML=rvWhenHTML();}rvTables();}
 function rvRenderModal(){var d=rvEdit;var mem=d.memberId?(state.customers||[]).find(function(m){return m.id===d.memberId;}):null;
- openModal('<h2>'+(d.id?'ແກ້ການຈອງ '+cesc(d.no||''):'ຈອງໂຕະໃໝ່')+'</h2>'+
+ openModal('<h2>'+(d.id?'ແກ້ການຈອງ '+cesc(d.no||''):'ຈອງໂຕະໃໝ່')+'</h2><div class="rv-bento"><section class="rv-c rv-c1">'+
   '<div class="rv-step"><span>1</span>ລູກຄ້າ</div><div class="rv-grid"><input id="rv_nm" value="'+aesc(d.name)+'" oninput="rvEdit.name=this.value;rvGo()" placeholder="ຊື່ລູກຄ້າ *"><input id="rv_ph" inputmode="tel" value="'+aesc(d.phone)+'" oninput="rvEdit.phone=this.value;rvMemLookup()" placeholder="ເບີໂທ"></div>'+
   '<div id="rv_mem" class="rv-memb">'+(mem?'✓ ສະມາຊິກ: <b>'+cesc(mem.name)+'</b> <button type="button" class="btn-sm" onclick="rvEdit.memberId=null;rvRenderModal()">ບໍ່ເຊື່ອມ</button>':'')+'</div>'+
-  '<div class="rv-step"><span>2</span>ມື້ & ເວລາມາ</div><div id="rv_when">'+rvWhenHTML()+'</div>'+
+  '</section><section class="rv-c rv-c2"><div class="rv-step"><span>2</span>ມື້ & ເວລາມາ</div><div id="rv_when">'+rvWhenHTML()+'</div>'+
   '<div class="rv-row"><div class="rv-stp"><label>ຈຳນວນຄົນ</label><div><button type="button" onclick="rvSet(\'guests\',Math.max(1,(+rvEdit.guests||1)-1))">−</button><input id="rv_g" type="number" min="1" value="'+(d.guests||'')+'" onchange="rvSet(\'guests\',Math.max(1,+this.value||1))"><button type="button" onclick="rvSet(\'guests\',(+rvEdit.guests||0)+1)">+</button></div></div>'+
   '<div><label>ໃຊ້ເວລາ</label><select onchange="rvEdit.dur=+this.value;rvTables()">'+[[60,'1 ຊມ'],[90,'1.5 ຊມ'],[120,'2 ຊມ'],[180,'3 ຊມ'],[240,'4 ຊມ']].map(function(o){return '<option value="'+o[0]+'"'+((+d.dur||120)===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div></div>'+
-  '<div class="rv-step"><span>3</span>ໂຕະ <small>ບໍ່ບັງຄັບ — ເລືອກຕອນລູກຄ້າມາກໍ່ໄດ້</small></div><div id="rv_tables" class="rv-tables"></div>'+
+  '</section><section class="rv-c rv-c3"><div class="rv-step"><span>3</span>ໂຕະ <small>ບໍ່ບັງຄັບ — ເລືອກຕອນລູກຄ້າມາກໍ່ໄດ້</small></div><div id="rv_tables" class="rv-tables"></div></section></div>'+
   '<input class="rv-nt" value="'+aesc(d.note)+'" oninput="rvEdit.note=this.value" placeholder="ໝາຍເຫດ (ຖ້າມີ) ເຊັ່ນ ວັນເກີດ / ຢາກໄດ້ໂຕະແຈ">'+
   (d.dep?'<div class="rv-depbox">ມັດຈຳ <b>'+KIP(d.dep.amt)+' ₭</b> ('+cesc(d.dep.pay)+' · ບິນ '+cesc(d.dep.receipt)+')</div>':'')+
-  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad rv-go" id="rv_go" onclick="rvSave()"></button></div>');rvTables();
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad rv-go" id="rv_go" onclick="rvSave()"></button></div>');var _m=document.querySelector('#modalRoot .modal');if(_m)_m.classList.add('rv-wide');rvTables();
  if(!d.id&&!d.name)setTimeout(function(){var e=document.getElementById('rv_nm');if(e)e.focus();},60);}
 function rvGo(){var d=rvEdit,b=document.getElementById('rv_go');if(!b||!d)return;b.classList.toggle('dis',!String(d.name||'').trim());
  b.innerHTML=d.id?'ບັນທຶກການແກ້ໄຂ':'ຢືນຢັນຈອງ <small>'+cesc(rvDayLbl(d.date))+' '+cesc(d.time||'')+' · '+(+d.guests||0)+' ຄົນ'+(d.table?' · ໂຕະ '+cesc(d.table):'')+'</small>';}
