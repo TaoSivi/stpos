@@ -1463,7 +1463,7 @@ input.rv-din,input.rv-tin{height:40px;border-radius:12px;border:1.5px solid #d6e
 .sa-act{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}.sa-act input{flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--line);border-radius:8px}.sa-act .sa-mut{flex:1}
 .sa-none{padding:40px;text-align:center;color:var(--muted);background:#fff;border-radius:14px}
 .sbento{display:grid;gap:16px;grid-template-columns:1fr}.sbento>.scard{margin:0}
-@media (min-width:1000px){.sbento.auto{grid-template-columns:1fr 1fr;align-items:stretch}.sbento.auto>.wide{grid-column:1/-1}.sbento.bpay{grid-template-columns:1fr 1fr;grid-template-areas:"fee pay" "qr pay" "rate pts";align-items:stretch}.bpay .bx-fee{grid-area:fee}.bpay .bx-pay{grid-area:pay}.bpay .bx-qr{grid-area:qr}.bpay .bx-rate{grid-area:rate}.bpay .bx-pts{grid-area:pts}}
+@media (min-width:1360px){.sbento.auto{grid-template-columns:1fr 1fr;align-items:stretch}.sbento.auto>.wide{grid-column:1/-1}.sbento.bpay{grid-template-columns:1fr 1fr;grid-template-areas:"fee pay" "qr pay" "rate pts";align-items:stretch}.bpay .bx-fee{grid-area:fee}.bpay .bx-pay{grid-area:pay}.bpay .bx-qr{grid-area:qr}.bpay .bx-rate{grid-area:rate}.bpay .bx-pts{grid-area:pts}}
 .mk-p{font-size:13px;color:var(--muted);margin:-4px 0 10px;line-height:1.6}
 .mk-list{max-height:34vh;overflow:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0;padding:4px}
 .modal label.mk-it,.mk-it{display:flex!important;align-items:center;gap:10px!important;padding:8px 10px;border-radius:10px;cursor:pointer;margin:0!important;font-weight:400}.mk-it:hover{background:#f3f9f8}.mk-it.on{background:#e6f6f4}
@@ -1809,6 +1809,13 @@ body.cc-lock{overflow:hidden}
 .me-q small{color:var(--ink);font-size:14px;font-weight:600}.me-q span{font-size:13px}.me-q em{margin-top:2px}
 /* ປຸ່ມຈອງໂຕະເທິງບັດໂຕະ: ມີໄອຄອນປະຕິທິນ + ຄຳວ່າ ຈອງ ໃຫ້ເຫັນວ່າກົດໄດ້ */
 .tablecard .rvbadge{position:absolute;right:7px;bottom:7px;z-index:2;display:flex;align-items:center;gap:5px;border:0;border-radius:999px;padding:5px 11px 5px 9px;background:#7c3aed;color:#fff;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;box-shadow:0 3px 8px rgba(124,58,237,.32);transition:.12s}.tablecard .qrbadge{background:#dff7f5!important;border:1px solid #b5e6e1;width:31px;height:31px}.tablecard .rvbadge:hover{background:#6d28d9;transform:translateY(-1px) scale(1.04)}.tablecard .rvbadge svg{flex:none}
+/* ໂທລະສັບ/ແທັບເລັດ: ຂໍ້ຄວາມແຈ້ງເຕືອນ (toast) ຢູ່ເໜືອແຖບເມນູລຸ່ມ + ແຖບ "ລາຍການໃໝ່" ບໍ່ໃຫ້ບັງ */
+@media (max-width:900px){.toast{bottom:calc(env(safe-area-inset-bottom,0px) + 158px)!important;max-width:92vw}}
+/* ປຸ່ມເງິນດ່ວນ ໃນໜ້າຮັບເງິນ: ບໍ່ໃຫ້ລົ້ນຂອບໃນຈໍແຄບ */
+.p2-quick{grid-template-columns:repeat(4,minmax(0,1fr))}.p2-quick button{min-width:0;white-space:nowrap}@media (max-width:520px){.p2-quick{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* ແທັບເລັດ: ຫນ້າສັ່ງອາຫານ — ເມນູຫຼາຍຖັນຂຶ້ນ ແລະ ກະຕ່າແຄບລົງ (ເດີມ 2 ຖັນໃຫຍ່ ແລະ ກະຕ່າກວ້າງເກືອບເຄິ່ງຈໍ) */
+@media (min-width:600px) and (max-width:900px){.products{grid-template-columns:repeat(auto-fill,minmax(172px,1fr))!important}}
+@media (min-width:901px) and (max-width:1250px){.cart{width:330px!important}.products{grid-template-columns:repeat(auto-fill,minmax(134px,1fr))!important;gap:10px!important}}
 </style>
 </head>
 <body>
