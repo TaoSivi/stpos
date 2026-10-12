@@ -1601,6 +1601,7 @@ body.cc-lock{overflow:hidden}
 .bc-m{display:flex;gap:6px}.bc-m input{flex:1;min-width:0;height:40px;border-radius:10px;border:0;padding:0 10px;font:inherit}
 .bc-bd{background:rgba(255,255,255,.08);border-radius:12px;padding:8px;margin-top:8px}.bc-bd input{width:100%;height:38px;border-radius:8px;border:0;padding:0 10px;margin:6px 0;font:inherit}
 .bc-it{display:block;width:100%;text-align:left;border:0;background:#fff;color:#0f2e2c;border-radius:8px;padding:8px 10px;margin-bottom:4px;font:inherit;font-size:13.5px;cursor:pointer}
+.bc-tg{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 8px}.bc-sw{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700}.bc-sw small{opacity:.7;font-weight:400}.bc-sw input{width:20px;height:20px}
 .bc-in{display:flex;gap:6px;align-items:center}.bc-in input{flex:1;min-width:0}
 .sk-chips{display:flex;gap:7px;flex-wrap:wrap}.chip.sk-lowchip{border-color:#fcd9a8;color:#b45309}.chip.sk-lowchip.active{background:#b45309;border-color:#b45309;color:#fff}
 .sk-wrap{padding:0 18px 18px;overflow-x:auto}
@@ -3498,21 +3499,24 @@ let stockQ='',stockLow=false;
 /* ===== Barcode ວັດຖຸດິບ: ສະແກນດ້ວຍກ້ອງໂທລະສັບ (BarcodeDetector / ZXing) + ເຄື່ອງສະແກນ USB/Bluetooth (ຍິງເຂົ້າຊ່ອງຄົ້ນຫາ + Enter) ===== */
 function bcNorm(s){return String(s==null?'':s).trim().replace(/\s+/g,'').toUpperCase();}
 function bcList(it){return String((it&&it.bc)||'').split(/[,;\s]+/).map(bcNorm).filter(Boolean);}
+function bcKey(v){v=bcNorm(v);return /^[0-9]+$/.test(v)?v.replace(/^0+(?=[0-9])/,''):v;}
 function bcQty(it){return Math.max(0,+(it&&it.bq)||0)||1;}
-function ingByBc(v){v=bcNorm(v);if(!v)return null;var ks=Object.keys(state.ingredients||{});for(var i=0;i<ks.length;i++){if(bcList(state.ingredients[ks[i]]).indexOf(v)>=0)return ks[i];}return null;}
+function ingByBc(v){v=bcNorm(v);if(!v)return null;var kv=bcKey(v),ks=Object.keys(state.ingredients||{});for(var i=0;i<ks.length;i++){if(bcList(state.ingredients[ks[i]]).some(function(b){return bcKey(b)===kv;}))return ks[i];}return null;}
 function bcOwner(v,except){var c=ingByBc(v);return c&&c!==except?c:null;}
 var BC_FMT=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','code_93','itf','codabar'];
-var _bc={on:false,stream:null,det:null,tm:0,zx:null,cb:null,cont:false,last:'',lt:0,busy:false,unk:null,create:false,tOn:false};
+var _bc={paused:false,on:false,stream:null,det:null,tm:0,zx:null,cb:null,cont:false,last:'',lt:0,busy:false,unk:null,create:false,tOn:false};
 function bcBeep(ok){try{if(navigator.vibrate)navigator.vibrate(ok?40:[60,40,60]);var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='square';o.frequency.value=ok?1500:300;g.gain.value=0.07;o.start();setTimeout(function(){try{o.stop();a.close();}catch(e){}},ok?110:260);}catch(e){}}
 function bcMsg(t,bad){var e=document.getElementById('bcmsg');if(e){e.textContent=t;e.className='bc-msg'+(bad?' bad':'');}}
 function bcScan(opt){ /* opt:{title,cont,hint,onCode(code)->string|{msg,bad,keep}} — ແຖບກ້ອງຢູ່ລຸ່ມຈໍ (ບໍ່ປິດໜ້າຕ່າງທີ່ເປີດຢູ່) */
- bcStop();_bc.cb=opt.onCode;_bc.cont=!!opt.cont;_bc.last='';_bc.lt=0;_bc.on=true;_bc.unk=null;
+ bcStop();_bc.cb=opt.onCode;_bc.cont=!!opt.cont;_bc.last='';_bc.lt=0;_bc.on=true;_bc.unk=null;_bc.paused=false;
  var r=document.getElementById('bcRoot');if(!r){r=document.createElement('div');r.id='bcRoot';document.body.appendChild(r);}
  r.innerHTML='<div class="bc-p"><div class="bc-h"><b>📷 '+cesc(opt.title||'ສະແກນ Barcode')+'</b><span id="bctorch"></span><button type="button" class="bc-x" onclick="bcStop()">✕ ປິດ</button></div><div class="bc-v"><video id="bcv" playsinline muted></video><i class="bc-line"></i></div><div id="bcmsg" class="bc-msg">'+cesc(opt.hint||'ເລັງ barcode ໃສ່ເສັ້ນແດງ')+'</div>'+
+  '<div class="bc-tg"><button id="bcpause" type="button" class="bc-x" onclick="bcPause()">⏸ ຢຸດສະແກນຊົ່ວຄາວ</button>'+(opt.lock?'':'<label class="bc-sw"><input id="bccont" type="checkbox"'+(opt.cont?' checked':'')+' onchange="_bc.cont=this.checked"> ສະແກນຕໍ່ເນື່ອງ <small>(ປິດ = ສະແກນ 1 ເທື່ອ ແລ້ວກ້ອງປິດເອງ)</small></label>')+'</div>'+
   '<div class="bc-m"><input id="bcman" autocomplete="off" placeholder="ຫຼືພິມເລກ / ຍິງເຄື່ອງສະແກນ ແລ້ວ Enter" onkeydown="if(event.key===\'Enter\'){event.preventDefault();bcFeed(this.value,1);this.value=\'\';}"><button type="button" class="btn-sm green" onclick="var e=document.getElementById(\'bcman\');bcFeed(e.value,1);e.value=\'\'">ຕົກລົງ</button></div>'+
   '<div style="margin-top:8px"><button id="bcbind" type="button" class="btn-sm" style="display:none" onclick="bcBindDlg()">🏷 ຜູກ barcode ນີ້ກັບວັດຖຸດິບ</button></div><div id="bcbd"></div></div>';
  bcStart();}
-function bcFeed(code,manual){code=String(code||'').trim();if(!code||!_bc.on)return;var now=Date.now();if(!manual){var gap=now-(_bc.seen||0);_bc.seen=now;if(code===_bc.last&&gap<900)return;}_bc.last=code;_bc.lt=now; /* ບາໂຄດດຽວທີ່ຍັງຢູ່ໃນກອບ = ນັບເທື່ອດຽວ; ເອົາອອກກ່ອນ (≥0.9 ວິ) ຈຶ່ງນັບອີກໄດ້ */
+function bcPause(){_bc.paused=!_bc.paused;var b=document.getElementById('bcpause');if(b)b.textContent=_bc.paused?'▶ ສະແກນຕໍ່':'⏸ ຢຸດສະແກນຊົ່ວຄາວ';bcMsg(_bc.paused?'⏸ ຢຸດຊົ່ວຄາວ — ຈະບໍ່ນັບອັນໃດ ຈົນກວ່າຈະກົດ ▶ (ພິມເລກ/ເຄື່ອງສະແກນ USB ຍັງໃຊ້ໄດ້)':'ເລັງ barcode ໃສ່ເສັ້ນແດງ');}
+function bcFeed(code,manual){code=String(code||'').trim();if(!code||!_bc.on)return;if(_bc.paused&&!manual)return;var now=Date.now();if(!manual){var gap=now-(_bc.seen||0);_bc.seen=now;if(code===_bc.last&&gap<900)return;}_bc.last=code;_bc.lt=now; /* ບາໂຄດດຽວທີ່ຍັງຢູ່ໃນກອບ = ນັບເທື່ອດຽວ; ເອົາອອກກ່ອນ (≥0.9 ວິ) ຈຶ່ງນັບອີກໄດ້ */
  var res=null;try{res=_bc.cb&&_bc.cb(code);}catch(e){res={msg:'ຜິດພາດ: '+e.message,bad:1};}
  if(typeof res==='string')res={msg:res};if(!res)res={msg:'✓ '+code};
  bcBeep(!res.bad);if(!_bc.on)return;bcMsg(res.msg,res.bad);var b=document.getElementById('bcbind');if(b&&!res.bad)b.style.display='none';
@@ -3533,7 +3537,7 @@ function bcZX(cons){bcMsg('ກຳລັງໂຫຼດຕົວອ່ານ barc
    var rd=new ZXing.BrowserMultiFormatReader(H,250);_bc.zx=rd;var v=document.getElementById('bcv');
    var pr=rd.decodeFromConstraints(cons,v,function(res,err){if(res)bcFeed(res.getText());});
    Promise.resolve(pr).then(function(){if(!_bc.on)return;_bc.stream=v&&v.srcObject;bcTorchBtn();bcMsg('ເລັງ barcode ໃສ່ເສັ້ນແດງ');}).catch(bcCamErr);}catch(e){bcMsg('ເປີດຕົວອ່ານບໍ່ໄດ້ ('+e.message+') — ພິມເລກແທນໄດ້',1);}};
- if(window.ZXing){go();return;}var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=go;s.onerror=function(){bcMsg('ໂຫຼດຕົວອ່ານບໍ່ໄດ້ (ຕ້ອງມີອິນເຕີເນັດ) — ພິມເລກແທນໄດ້',1);};document.head.appendChild(s);}
+ if(window.ZXing){go();return;}var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=go;s.onerror=function(){var s2=document.createElement('script');s2.src='https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';s2.onload=go;s2.onerror=function(){bcMsg('ໂຫຼດຕົວອ່ານບໍ່ໄດ້ (ຕ້ອງມີອິນເຕີເນັດ) — ພິມເລກແທນໄດ້',1);};document.head.appendChild(s2);};document.head.appendChild(s);}
 function bcStop(){_bc.on=false;clearTimeout(_bc.tm);try{if(_bc.zx)_bc.zx.reset();}catch(e){}_bc.zx=null;try{if(_bc.stream)_bc.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}_bc.stream=null;_bc.det=null;_bc.tOn=false;var r=document.getElementById('bcRoot');if(r)r.innerHTML='';}
 function bcCamErr(e){var n=(e&&e.name)||'';bcMsg(n==='NotAllowedError'?'ບໍ່ອະນຸຍາດໃຊ້ກ້ອງ — ເປີດສິດກ້ອງໃຫ້ເວັບນີ້ໃນການຕັ້ງຄ່າຂອງເບຣາວເຊີ ຫຼື ພິມເລກແທນ':'ເປີດກ້ອງບໍ່ໄດ້ ('+((e&&e.message)||n)+') — ພິມເລກແທນໄດ້',1);}
 function bcTorchBtn(){try{var t=_bc.stream&&_bc.stream.getVideoTracks()[0],c=t&&t.getCapabilities&&t.getCapabilities();var h=document.getElementById('bctorch');if(c&&c.torch&&h)h.innerHTML='<button type="button" class="bc-x" onclick="bcTorch()">🔦 ໄຟ</button>';}catch(e){}}
@@ -3548,11 +3552,11 @@ function bcBind(code){var c=_bc.unk,it=state.ingredients[code];if(!c||!it)return
  var d=document.getElementById('bcbd');if(d)d.innerHTML='';var b=document.getElementById('bcbind');if(b)b.style.display='none';_bc.unk=null;bcFeed(c,1);}
 function bcBindNew(){var c=_bc.unk;bcStop();addIngredient();setTimeout(function(){var e=document.getElementById('ibc');if(e)e.value=c;},80);}
 /* ---- ຈຸດໃຊ້ງານ ---- */
-function bcScanInto(id){bcScan({title:'ສະແກນ Barcode',onCode:function(c){var e=document.getElementById(id);if(e){e.value=c;try{e.dispatchEvent(new Event('input',{bubbles:true}));}catch(x){}}return '✓ '+c;}});}
-function bcScanAppend(id){bcScan({title:'ສະແກນ Barcode ຂອງວັດຖຸດິບນີ້',onCode:function(c){var e=document.getElementById(id);if(e){var l=bcList({bc:e.value});if(l.indexOf(bcNorm(c))<0)l.push(bcNorm(c));e.value=l.join(', ');}return '✓ '+c;}});}
+function bcScanInto(id){bcScan({title:'ສະແກນ Barcode',lock:1,onCode:function(c){var e=document.getElementById(id);if(e){e.value=c;try{e.dispatchEvent(new Event('input',{bubbles:true}));}catch(x){}}return '✓ '+c;}});}
+function bcScanAppend(id){bcScan({title:'ສະແກນ Barcode ຂອງວັດຖຸດິບນີ້',lock:1,onCode:function(c){var e=document.getElementById(id);if(e){var l=bcList({bc:e.value});if(l.indexOf(bcNorm(c))<0)l.push(bcNorm(c));e.value=l.join(', ');}return '✓ '+c;}});}
 function bcScanLine(codeId,qtyId,addFn,cont){bcScan({title:'ສະແກນເພີ່ມລາຍການ',cont:cont!==false,hint:cont===false?'ສະແກນ 1 ຄັ້ງ':'ສະແກນແຕ່ລະຊິ້ນ = ເພີ່ມ 1 (ໃສ່ຈຳນວນໃນຊ່ອງກ່ອນ ຖ້າຢາກເພີ່ມຫຼາຍ)',
  onCode:function(c){var ic=ingByBc(c);if(!ic)return bcUnknown(c);var e=document.getElementById(codeId);if(!e)return {msg:'ໜ້າຕ່າງຖືກປິດ',bad:1};e.value=ic;var q=qtyId?document.getElementById(qtyId):null;if(q&&!(+q.value>0))q.value=1;window[addFn]();return '✓ '+((state.ingredients[ic]||{}).name||ic);}});}
-function bcStockScan(){bcScan({title:'ສະແກນຫາວັດຖຸດິບ',onCode:function(c){var ic=ingByBc(c);if(!ic)return bcUnknown(c,true);stockQ=ic;stockCat='ທັງໝົດ';stockLow=false;render();return '✓ '+((state.ingredients[ic]||{}).name||ic);}});}
+function bcStockScan(){bcScan({title:'ສະແກນຫາວັດຖຸດິບ',lock:1,onCode:function(c){var ic=ingByBc(c);if(!ic)return bcUnknown(c,true);stockQ=ic;stockCat='ທັງໝົດ';stockLow=false;render();return '✓ '+((state.ingredients[ic]||{}).name||ic);}});}
 function bcStockKey(inp,ev){if(ev.key!=='Enter')return;var c=ingByBc(inp.value);if(c){ev.preventDefault();stockQ=c;render();}}
 function bcCountAdd(c){var ic=ingByBc(c);if(!ic)return bcUnknown(c);var it=state.ingredients[ic];window.__stCounts=window.__stCounts||{};window.__stCounts[ic]=Math.round(((+window.__stCounts[ic]||0)+bcQty(it))*1000)/1000;var q=document.getElementById('stq');if(q)q.value=it.name||ic;renderStockTakeList();return '✓ '+(it.name||ic)+' = '+KIP(window.__stCounts[ic])+' '+(it.unit||'');}
 function bcCountScan(){bcScan({title:'ນັບສະຕ໋ອກ',cont:true,hint:'ສະແກນແຕ່ລະຊິ້ນ = ນັບ +1 (ນັບຄົບແລ້ວກົດ ປິດ)',onCode:bcCountAdd});}
@@ -3603,7 +3607,7 @@ function ingEdit(code){if(!can('stockAdjust')){toast('ບໍ່ມີສິດ')
    (sug?'<button type="button" class="ie-sug" onclick="document.getElementById(\'ie_re\').value='+sug+'">ໃຊ້ຄ່າແນະນຳ '+KIP(sug)+' '+u+'<small>ການໃຊ້ '+(lead+2)+' ມື້ (ສົ່ງ '+lead+' + ສຳຮອງ 2)</small></button>':'')+'</div></div>'+
   '<div class="ie-grid" style="margin-top:12px"><div class="ie-f"><label for="ie_mx">Max — ສັ່ງຊື້ເຖິງ</label><div class="ie-in"><input id="ie_mx" type="number" inputmode="decimal" min="0" value="'+(+it.max||'')+'" placeholder="0"><span>'+u+'</span></div><small>ສັ່ງຊື້ໃຫ້ເຕັມຮອດຄ່ານີ້ (ວ່າງ = ບໍ່ກຳນົດ)</small></div>'+
    '<div class="ie-f"><label for="ie_ls">% ສູນເສຍ</label><div class="ie-in"><input id="ie_ls" type="number" inputmode="decimal" min="0" max="95" value="'+(Math.round(100-(+it.yield||100))||'')+'" placeholder="0"><span>%</span></div><small>ຕັດແຕ່ງ / ເສຍ — ໃຊ້ວິເຄາະຕົ້ນທຶນແທ້</small></div></div>'+
-  '<div class="ie-f" style="margin-top:12px"><label for="ie_bc">Barcode (ຫຼາຍອັນແຍກດ້ວຍ , )</label><div class="bc-in"><input id="ie_bc" autocomplete="off" value="'+aesc(it.bc||'')+'" placeholder="ສະແກນ ຫຼື ພິມ — ວ່າງໄດ້"><button type="button" class="btn-sm green" onclick="bcScanAppend(\'ie_bc\')">📷</button></div><small>ສະແກນ 1 ຄັ້ງ = ນັບ <input id="ie_bq" type="number" inputmode="decimal" min="0" value="'+(+it.bq||'')+'" placeholder="1" style="width:80px;display:inline-block;padding:4px 8px"> '+u+' (ວ່າງ = 1) — ໃຊ້ຕອນນັບສາງດ້ວຍ barcode</small></div>'+
+  '<div class="ie-f" style="margin-top:12px"><label for="ie_bc">Barcode (ຫຼາຍອັນແຍກດ້ວຍ , )</label><div class="bc-in"><input id="ie_bc" autocomplete="off" value="'+aesc(it.bc||'')+'" placeholder="ສະແກນ ຫຼື ພິມ — ວ່າງໄດ້"><button type="button" class="btn-sm green" onclick="bcScanAppend(\'ie_bc\')">📷</button><button type="button" class="btn-sm" onclick="document.getElementById(\'ie_bc\').value=\'\'" title="ລ້າງ barcode">✕</button></div><small>ສະແກນ 1 ຄັ້ງ = ນັບ <input id="ie_bq" type="number" inputmode="decimal" min="0" value="'+(+it.bq||'')+'" placeholder="1" style="width:80px;display:inline-block;padding:4px 8px"> '+u+' (ວ່າງ = 1) — ໃຊ້ຕອນນັບສາງດ້ວຍ barcode</small></div>'+
   (ap?'':'<div class="ie-rsn"><label for="ie_rsn">ເຫດຜົນ (ຖ້າປ່ຽນຕົ້ນທຶນ)</label><input id="ie_rsn" placeholder="ເຊັ່ນ ລາຄາຜູ້ສະໜອງຂຶ້ນ"><div class="sa-note">🔒 ການປ່ຽນຕົ້ນທຶນ ຈະສົ່ງໃຫ້ຜູ້ຈັດການອະນຸມັດກ່ອນ · ຈຸດສັ່ງຊື້ ບັນທຶກທັນທີ</div></div>')+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="ingEditSave(\''+q+'\')">ບັນທຶກ</button></div>');
  buDraw();buCalc();setTimeout(function(){var e=document.getElementById('ie_cost');if(e&&!(+it.cost>0))e.focus();},60);}
