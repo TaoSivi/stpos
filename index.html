@@ -1068,6 +1068,13 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .kx-empty{text-align:center;color:#3d5653;font-weight:600;padding:26px 10px;font-size:14px}
 .tk{background:#fff;border-radius:18px;padding:12px;box-shadow:0 2px 10px rgba(6,47,45,.06);border:2px solid transparent;position:relative}
 .tk.warn{border-color:#f6c76b}.tk.late{border-color:#e03131;animation:tkPulse 1.6s ease-in-out infinite}
+.tk[data-b]{border-color:var(--tkc)}
+.tk[data-b]::before{content:'';position:absolute;left:14px;right:14px;top:-2px;height:5px;border-radius:0 0 6px 6px;background:var(--tkc)}
+.tk[data-b] .tk-age{background:var(--tkc);color:#fff}
+.tk[data-b="3"]{animation:tkPulse 1.2s ease-in-out infinite}
+.kds-leg,.kx-leg{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.kds-leg{margin:4px 0 10px}
+.kds-leg span,.kx-leg span{color:#fff;border-radius:9px;padding:3px 9px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.kds-col{width:56px;height:36px;border:0;padding:0;background:none;cursor:pointer}
 @keyframes tkPulse{50%{box-shadow:0 0 0 6px rgba(224,49,49,.12)}}
 .tk-h{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
 .tk-h b{font-size:20px;font-weight:800;color:#062f2d}
@@ -3341,7 +3348,48 @@ function setBillDisc(){if(!can('discount')){toast('ບໍ່ມີສິດໃ�
   doIt();});}
 function numPrompt(title,cur,cb){openModal(`<h2>${title}</h2><input id="nv" type="number" value="${cur}"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="window.__np()">ຕົກລົງ</button></div>`);window.__np=()=>{cb(+document.getElementById('nv').value||0);save();closeModal();renderCart();};}
 /* ===== ຈໍຄົວ / ຈໍບາຣ໌: ໃບອໍເດີຕາມໂຕະ × 3 ຖັນ (ລໍຖ້າ → ກຳລັງເຮັດ → ພ້ອມເສີບ) — ປຸ່ມດຽວຕໍ່ໂຕະ, ແຕະລາຍການເພື່ອເລື່ອນສະເພາະອັນນັ້ນ ===== */
-var KDS_LATE={food:[8,15],drink:[4,8]};
+/* ===== ຕິດຕາມເວລາ ຄົວ/ບາ: ບັດອໍເດີປ່ຽນສີຕາມເວລາທີ່ລໍຖ້າ (ຟ້າ → ຂຽວ → ສົ້ມ → ແດງ) + ສຽງເຕືອນເມື່ອເປັນສີແດງ — ຕັ້ງໄດ້ທັງໝົດ (ຕັ້ງຄ່າ › ການສັ່ງອາຫານ) ===== */
+var KDS_T0={rep:2,food:{a:10,b:15,c:25},drink:{a:10,b:15,c:25},col:{blue:'#1c7ed6',green:'#16a34a',orange:'#f59f00',red:'#e03131'}};
+function kdsT(){var u=(state&&state.kdsT)||{},o={on:u.on!==false,snd:u.snd!==false,rep:u.rep==null?KDS_T0.rep:Math.max(0,+u.rep||0),col:{}};
+ ['blue','green','orange','red'].forEach(function(k){var c=u.col&&u.col[k];o.col[k]=/^#[0-9a-fA-F]{6}$/.test(c||'')?c:KDS_T0.col[k];});
+ ['food','drink'].forEach(function(k){var x=u[k]||{},d=KDS_T0[k],a=+x.a>0?+x.a:d.a,b=+x.b>0?+x.b:d.b,c=+x.c>0?+x.c:d.c;b=Math.max(a,b);c=Math.max(b,c);o[k]={a:a,b:b,c:c};});return o;}
+var KDS_LATE={get food(){var t=kdsT().food;return [t.b,t.c];},get drink(){var t=kdsT().drink;return [t.b,t.c];}};
+function kdsBand(m,kind){var t=kdsT()[kind==='drink'?'drink':'food'];return m<=t.a?0:m<=t.b?1:m<=t.c?2:3;}
+function kdsBandCol(b){var c=kdsT().col;return [c.blue,c.green,c.orange,c.red][b];}
+function kdsTk(t,stage,kind){var T=kdsT(),end=0;if(stage==='ready')end=t.items.reduce(function(m,o){return Math.max(m,o.readyTs||0);},0);var m=((end||Date.now())-t.ts)/60000;return {age:Math.max(0,Math.floor(m)),b:T.on?kdsBand(m,kind):-1,frozen:stage==='ready'&&!!end};}
+function kdsAttr(t,stage,kind){var r=kdsTk(t,stage,kind);return r.b<0?'':' data-b="'+r.b+'" style="--tkc:'+kdsBandCol(r.b)+'"';}
+function kdsAttrMix(t){var T=kdsT();if(!T.on)return '';var b=0;t.items.forEach(function(o){b=Math.max(b,kdsBand((Date.now()-o.ts)/60000,o.k));});return ' data-b="'+b+'" style="--tkc:'+kdsBandCol(b)+'"';}
+function kdsLegend(kind){var T=kdsT(),t=T[kind==='drink'?'drink':'food'];if(!T.on)return '';var c=T.col;return '<span class="kx-leg"><span style="background:'+c.blue+'">≤'+t.a+'</span><span style="background:'+c.green+'">≤'+t.b+'</span><span style="background:'+c.orange+'">≤'+t.c+'</span><span style="background:'+c.red+'">&gt;'+t.c+' ນາທີ</span></span>';}
+var _kdsAl={};
+function kdsAlarmSound(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),t=a.currentTime;for(var i=0;i<3;i++){var o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.value=i%2?740:988;o.connect(g);g.connect(a.destination);var s0=t+i*0.28;g.gain.setValueAtTime(0.0001,s0);g.gain.exponentialRampToValueAtTime(0.22,s0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s0+0.24);o.start(s0);o.stop(s0+0.26);}setTimeout(function(){try{a.close();}catch(e){}},1400);}catch(e){}
+ try{if(navigator.vibrate)navigator.vibrate([300,120,300]);}catch(e){}}
+function kdsSndTest(){kdsAlarmSound();}
+function kdsLegRefresh(){var T=kdsT(),c=T.col,L=document.querySelectorAll('.kds-leg');['food','drink'].forEach(function(kd,i){if(!L[i])return;var t=T[kd];L[i].innerHTML='<span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span>';});}
+function kdsReset(){delete state.kdsT;save();render();toast('ກັບໄປຄ່າຕັ້ງຕົ້ນແລ້ວ');}
+/* ທຸກ 15 ວິ: ອັບເດດນາທີ/ສີໃນຈໍຄົວ·ບາ·ເສີບ + ດັງເຕືອນຖ້າມີອໍເດີເກີນເວລາ (ສີແດງ) ຢູ່ໃນໜ້າຈໍນັ້ນ */
+function kdsTick(){try{if(!state||(typeof isCust==='function'&&isCust())||((HAS_GAS||HAS_API)&&!_loaded))return;
+ var kd=view==='kitchen'?'food':view==='bar'?'drink':null;
+ if((kd||view==='waiter')&&!document.getElementById('modalRoot').innerHTML)render();
+ var T=kdsT();if(!kd||!T.on||!T.snd||state.soundOn===false)return;
+ var now=Date.now(),hit=[];(state.orders||[]).forEach(function(o){if(o.k!==kd||(o.status!=='wait'&&o.status!=='cooking'))return;if(kdsBand((now-o.ts)/60000,kd)<3)return;var k=String(o.id),r=_kdsAl[k];if(!r||(T.rep>0&&now-r>=T.rep*60000)){_kdsAl[k]=now;hit.push(o);}});
+ if(hit.length){kdsAlarmSound();var tb={};hit.forEach(function(o){tb[o.table]=1;});toast('⏰ ເກີນເວລາ — ໂຕະ '+Object.keys(tb).join(', '));}}catch(e){}}
+setInterval(kdsTick,15000);
+function kdsSetCard(){var T=kdsT(),n=function(k,v,u,min){return sNum('kdsT.'+k,v,1,u||'ນາທີ',min==null?1:min);},col=function(k,v){return '<input type="color" class="kds-col" data-k="kdsT.col.'+k+'" data-t="str" value="'+v+'" onchange="setOpt(this);render()">';};
+ var lg=function(kind){var t=T[kind],c=T.col;return '<div class="kds-leg"><span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span></div>';};
+ return sCard('ຕິດຕາມເວລາ ຄົວ / ບາ (ສີ + ສຽງເຕືອນ)','ບັດອໍເດີໃນຈໍຄົວ / ບາ ປ່ຽນສີຕາມເວລາທີ່ລໍຖ້າ — ຕັ້ງໄດ້ຕາມຄວາມເໝາະສົມຂອງແຕ່ລະຮ້ານ','',
+  sRow('ເປີດໃຊ້ສີຕິດຕາມເວລາ','ປິດ = ບັດອໍເດີບໍ່ປ່ຽນສີ ແລະ ບໍ່ມີສຽງເຕືອນ',sSw('kdsT.on',T.on))+
+  sRow('ອາຫານ (ຄົວ): ຟ້າ → ຂຽວ ເມື່ອເກີນ','ບໍ່ເກີນຄ່ານີ້ = ສີຟ້າ (ໄວ)',n('food.a',T.food.a))+
+  sRow('ອາຫານ: ຂຽວ → ສົ້ມ ເມື່ອເກີນ','',n('food.b',T.food.b))+
+  sRow('ອາຫານ: ສົ້ມ → ແດງ ເມື່ອເກີນ','ເກີນຄ່ານີ້ = ສີແດງ + ສຽງເຕືອນ',n('food.c',T.food.c))+lg('food')+
+  sRow('ເຄື່ອງດື່ມ (ບາ): ຟ້າ → ຂຽວ ເມື່ອເກີນ','',n('drink.a',T.drink.a))+
+  sRow('ເຄື່ອງດື່ມ: ຂຽວ → ສົ້ມ ເມື່ອເກີນ','',n('drink.b',T.drink.b))+
+  sRow('ເຄື່ອງດື່ມ: ສົ້ມ → ແດງ ເມື່ອເກີນ','',n('drink.c',T.drink.c))+lg('drink')+
+  sRow('ສີ ໄວ (ຟ້າ)','ກົດເພື່ອປ່ຽນສີ',col('blue',T.col.blue))+sRow('ສີ ປົກກະຕິ (ຂຽວ)','',col('green',T.col.green))+sRow('ສີ ເລີ່ມຊ້າ (ສົ້ມ)','',col('orange',T.col.orange))+sRow('ສີ ເກີນເວລາ (ແດງ)','',col('red',T.col.red))+
+  sRow('ສຽງເຕືອນ ເມື່ອເປັນສີແດງ','ດັງຢູ່ເຄື່ອງທີ່ເປີດໜ້າ ຈໍຄົວ / ຈໍບາ (ຕ້ອງເປີດປຸ່ມ "ສຽງ" ໃນໜ້າຈໍນັ້ນ)',sSw('kdsT.snd',T.snd))+
+  sRow('ດັງຊ້ຳທຸກໆ','0 = ດັງເທື່ອດຽວຕໍ່ອໍເດີ',n('rep',T.rep,'ນາທີ',0))+
+  sRow('ທົດລອງສຽງເຕືອນ','',sBtn('🔔 ເຮັດສຽງ','kdsSndTest()','sm'))+
+  sRow('ກັບໄປຄ່າຕັ້ງຕົ້ນ','ຟ້າ ≤10 · ຂຽວ ≤15 · ສົ້ມ ≤25 · ແດງ >25 ນາທີ',sBtn('ຣີເຊັດ','kdsReset()','sm ghost')),'kds-set');}
+
 function kdsAge(ts){return Math.max(0,Math.floor((Date.now()-ts)/60000));}
 function kdsTickets(list){var g={};list.forEach(function(o){var k=o.table||'-';(g[k]=g[k]||[]).push(o);});
  return Object.keys(g).map(function(k){var it=g[k].sort(function(a,b){return a.ts-b.ts;});return {table:k,items:it,ts:it[0].ts};}).sort(function(a,b){return a.ts-b.ts;});}
@@ -3350,9 +3398,9 @@ function kdsItemHTML(o,act){var mods=(o.mods||[]).filter(function(m){return m!==
  return '<button class="tk-it" '+(act?'onclick="advanceOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເລື່ອນສະເພາະລາຍການນີ້"':'disabled')+'>'+
   '<span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+
   '<span class="n">'+cesc(o.name)+(away?' <em class="away">ກັບບ້ານ</em>':'')+(mods.length?'<small>+ '+cesc(mods.join(', '))+'</small>':'')+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}
-function kdsTicketHTML(t,stage,kind){var age=kdsAge(t.ts),L=KDS_LATE[kind]||[8,15];var late=age>=L[1]?'late':age>=L[0]?'warn':'';var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
+function kdsTicketHTML(t,stage,kind){var kr=kdsTk(t,stage,kind),age=kr.age;var late='';var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
  var go={wait:['ເລີ່ມເຮັດ','go-start'],cooking:['ພ້ອມເສີບ','go-ready']}[stage];
- return '<div class="tk '+late+'"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ</span><span class="tk-age">'+(age?age+' ນາທີ':'ຫາກໍສັ່ງ')+'</span></div>'+
+ return '<div class="tk '+late+'"'+(kr.b<0?'':' data-b="'+kr.b+'" style="--tkc:'+kdsBandCol(kr.b)+'"')+'><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ</span><span class="tk-age">'+(kr.frozen?'ໃຊ້ '+age+' ນາທີ':(age?age+' ນາທີ':'ຫາກໍສັ່ງ'))+'</span></div>'+
   '<div class="tk-its">'+t.items.map(function(o){return kdsItemHTML(o,stage!=='ready');}).join('')+'</div>'+
   (go?'<button class="tk-go '+go[1]+'" onclick="advanceTicket([\''+kdsIds(t)+'\'])">'+go[0]+(t.items.length>1?' ທັງໂຕະ':'')+' →</button>':'<div class="tk-wait">⏳ ລໍພະນັກງານມາຍົກ</div>')+
   (stage!=='wait'?'<button class="tk-undo" title="ຍ້ອນກັບ 1 ຂັ້ນ (ກົດຜິດ)" onclick="backTicket([\''+kdsIds(t)+'\'])">↶ ຍ້ອນ</button>':'')+'</div>';}
@@ -3362,7 +3410,7 @@ function renderKDS(R,kind,title){const all=state.orders.filter(o=>o.k===kind&&o.
  var cols=[['wait','ລໍຖ້າ','c-wait'],['cooking',kind==='food'?'ກຳລັງປຸງ':'ກຳລັງເຮັດ','c-cook'],['ready','ພ້ອມເສີບ','c-ready']];
  var oldest=all.filter(o=>o.status!=='ready').reduce(function(m,o){return Math.max(m,kdsAge(o.ts));},0);
  var chips='<span class="kx-chip">ຄ້າງ <b>'+all.filter(o=>o.status!=='ready').length+'</b></span>'+(oldest?'<span class="kx-chip '+(oldest>=(KDS_LATE[kind]||[8,15])[1]?'late':'')+'">ດົນສຸດ <b>'+oldest+' ນາທີ</b></span>':'');
- R.innerHTML=kdsHead(title.trim(),chips)+'<div class="kx-board">'+cols.map(function(c){var tk=kdsTickets(all.filter(o=>o.status===c[0]));
+ chips+=kdsLegend(kind);R.innerHTML=kdsHead(title.trim(),chips)+'<div class="kx-board">'+cols.map(function(c){var tk=kdsTickets(all.filter(o=>o.status===c[0]));
   return '<section class="kx-col '+c[2]+'"><header><span class="dot"></span>'+c[1]+'<b>'+tk.length+'</b></header><div class="kx-list">'+(tk.length?tk.map(function(t){return kdsTicketHTML(t,c[0],kind);}).join(''):'<div class="kx-empty">'+(c[0]==='wait'?'ບໍ່ມີອໍເດີໃໝ່ 👌':'—')+'</div>')+'</div></section>';}).join('')+'</div>';}
 function advanceTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0&&o.status!=='ready'&&o.status!=='served'){var _now=Date.now();if(o.status==='wait'){o.status='cooking';o.cookTs=_now;o.cookBy=whoBy();}else{o.status='ready';o.readyTs=_now;o.readyBy=whoBy();if(!o.cookTs)o.cookTs=o.ts||_now;}n++;}});if(n){save();render();}}
 function backTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0){if(o.status==='ready'){o.status='cooking';delete o.readyTs;delete o.readyBy;n++;}else if(o.status==='cooking'){o.status='wait';delete o.cookTs;delete o.cookBy;n++;}}});if(n){save();render();toast('ຍ້ອນກັບ 1 ຂັ້ນ');}}
@@ -3394,7 +3442,7 @@ function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');
    return '<div class="tk '+(age>=5?'warn':'')+'"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+t.items.length+' ລາຍການ</span><span class="tk-age">'+(age?'ພ້ອມ '+age+' ນາທີ':'ຫາກໍພ້ອມ')+'</span></div>'+
     '<div class="tk-its">'+t.items.map(function(o){return '<button class="tk-it" onclick="serveOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເສີບສະເພາະລາຍການນີ້"><span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+'<span class="n">'+cesc(o.name)+' <em class="src">'+(o.k==='food'?'ຄົວ':'ບາ')+'</em>'+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}).join('')+'</div>'+
     '<button class="tk-go go-serve" onclick="serveTicket([\''+kdsIds(t)+'\'])">✓ ເສີບແລ້ວ'+(t.items.length>1?' ທັງໂຕະ':'')+'</button></div>';}).join(''):'<div class="kx-empty">ຍັງບໍ່ມີລາຍການພ້ອມເສີບ — ຈະມີສຽງແຈ້ງເຕືອນເມື່ອຄົວ/ບາ ເຮັດແລ້ວ</div>')+'</div></section>'+
-  '<section class="kx-col c-cook side"><header><span class="dot"></span>ກຳລັງກຽມ<b>'+pt.length+'</b></header><div class="kx-list">'+(pt.length?pt.map(function(t){return '<div class="tk mini"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-age">'+kdsAge(t.ts)+' ນາທີ</span></div><div class="mini-its">'+t.items.map(function(o){return o.qty+'× '+cesc(o.name)+' <em>'+(o.status==='wait'?'ລໍ':'ກຳລັງເຮັດ')+'</em>';}).join('<br>')+'</div></div>';}).join(''):'<div class="kx-empty">—</div>')+'</div></section></div>';}
+  '<section class="kx-col c-cook side"><header><span class="dot"></span>ກຳລັງກຽມ<b>'+pt.length+'</b></header><div class="kx-list">'+(pt.length?pt.map(function(t){return '<div class="tk mini"'+kdsAttrMix(t)+'><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-age">'+kdsAge(t.ts)+' ນາທີ</span></div><div class="mini-its">'+t.items.map(function(o){return o.qty+'× '+cesc(o.name)+' <em>'+(o.status==='wait'?'ລໍ':'ກຳລັງເຮັດ')+'</em>';}).join('<br>')+'</div></div>';}).join(''):'<div class="kx-empty">—</div>')+'</div></section></div>';}
 function serveTicket(ids){var n=0;(state.orders||[]).forEach(function(o){if(ids.indexOf(String(o.id))>=0&&o.status==='ready'){o.status='served';o.servedTs=Date.now();o.servedBy=whoBy();kdsArch(o);n++;}});if(n){state.servedToday=(state.servedToday||0)+n;save();render();toast('✓ ເສີບແລ້ວ '+n+' ລາຍການ');}}
 function serveOrder(id){const i=state.orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;state.orders[i].status='served';state.orders[i].servedTs=Date.now();state.orders[i].servedBy=whoBy();kdsArch(state.orders[i]);state.servedToday=(state.servedToday||0)+1;save();render();}
 /* ເກັບເວລາແຕ່ລະຂັ້ນຂອງລາຍການທີ່ເສີບ/ຈ່າຍແລ້ວ ໄວ້ເບິ່ງຍ້ອນຫຼັງ (ຕິດຕາມອາຫານ) */
@@ -6451,6 +6499,7 @@ function setOpt(el){var k=el.dataset.k,t=el.dataset.t||'str',v;if(!k)return;
  else{v=String(el.value==null?'':el.value).trim();if(!v&&SET_DEF[k]){v=SET_DEF[k];el.value=v;}}
  var r=sOpt(k);r[0][r[1]]=v;save();
  if(k.indexOf('cds.')===0){try{cdsPushIdle();}catch(e){}}
+ if(k.indexOf('kdsT.')===0){try{kdsLegRefresh();}catch(e){}}
  if(k==='shopName'){var hb=document.querySelector('.topbar h1');if(hb)hb.textContent=v;}
  sSaved();}
 function setOptV(k,v){var r=sOpt(k);r[0][r[1]]=v;save();render();sSaved();}
@@ -6508,6 +6557,7 @@ function setSecOrder(){
   sRow('ພິມສະລິບເຂົ້າຄົວ / ບາ ອັດຕະໂນມັດ','ເມື່ອກົດ "ຢືນຢັນອໍເດີ"',sSw('printKitchen',!!state.printKitchen))+
   sRow('ກັນຂາຍ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ"',sSw('stockBlock',state.stockBlock!==false))+
   sRow('ຜູ້ຮັບຜິດຊອບ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ເມື່ອສັ່ງແລ້ວວັດຖຸດິບບໍ່ພໍ ພະນັກງານກົດ "ສົ່ງແຈ້ງເຕືອນ" ຫາຄົນນີ້ · ຕັ້ງແລ້ວ = ເລືອກເອງບໍ່ໄດ້ · ບໍ່ຕັ້ງ = ໃຫ້ເລືອກຕອນແຈ້ງ','<select class="ssel" onchange="shortSetFixed(this.value)"><option value="">ໃຫ້ເລືອກເອງຕອນແຈ້ງ</option>'+shortRecipients().map(function(u){return '<option value="'+aesc(u.id)+'"'+((state.shortNotify&&state.shortNotify.uid)===u.id?' selected':'')+'>'+cesc(u.name)+' · '+cesc(ROLE_LABELS[u.role]||u.role)+'</option>';}).join('')+'</select>'))+
+ kdsSetCard()+
  sCard('QR ສັ່ງເອງ (ລູກຄ້າ)','ລູກຄ້າສະແກນ QR ທີ່ໂຕະ ແລ້ວສັ່ງເອງ — ພິມ QR ໄດ້ທີ່ໜ້າ ໂຕະ','',
   sRow('ເປີດ QR ສັ່ງ ທັງຮ້ານ','',sSw('qrGlobal',!!state.qrGlobal))+
   sRow('ລູກຄ້າຕ້ອງໃສ່ PIN ໂຕະ ກ່ອນສັ່ງ','ກັນຄົນນອກຮ້ານສັ່ງມົ່ວ',sSw('qrPinRequired',state.qrPinRequired!==false))+
