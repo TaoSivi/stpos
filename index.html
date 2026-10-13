@@ -1116,6 +1116,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .bk-m{display:flex!important;flex-direction:row!important;gap:12px;align-items:center;padding:7px 9px;border-radius:9px;cursor:pointer;margin:0!important}.bk-m span{display:block;text-align:left}.bk-m:hover{background:#eef8f7}.bk-m input{width:20px!important;height:20px;flex:none;margin:0!important;padding:0}.bk-m small{display:block;color:var(--muted);font-weight:400;font-size:12px}.bk-more{text-align:center;color:var(--muted);font-size:13px;margin:8px}
 .bk-g{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.bk-r{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3f9f8;border-radius:12px;padding:8px 12px}.bk-r small{display:block;color:var(--muted);font-size:12px}
 .bk-sg{display:flex;gap:4px;flex:none}.bk-s{border:1.5px solid #cfe6e4;background:#fff;border-radius:10px;padding:7px 12px;font:inherit;font-weight:700;font-size:13px;color:#1f3d3a;cursor:pointer}.bk-s.on.keep{background:#e4ecec;border-color:#9ab}.bk-s.on.on{background:#0a7e7a;border-color:#0a7e7a;color:#fff}.bk-s.on.off{background:#e03131;border-color:#e03131;color:#fff}
+.md .md-sz.off{opacity:.45}.md .fam-ts{margin:0 0 4px}.md .fam-t{padding:10px 8px;font-size:15px}
 .fam-ts{display:flex;gap:8px;margin:0 0 12px}.fam-t{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 8px;border-radius:14px;border:2px solid #d6e9e7;background:#fff;font:inherit;font-weight:800;font-size:16px;color:#0f2e2c;cursor:pointer}.fam-t i{width:10px;height:10px;border-radius:50%;background:var(--fc)}.fam-t.on{background:var(--fc);border-color:var(--fc);color:#fff}.fam-t.on i{background:#fff}
 .setsq{width:100%;height:40px;border:1px solid #d6e9e7;border-radius:12px;background:#f6fbfa;padding:0 12px 0 36px;margin:0 0 8px;font:inherit;font-size:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b8f8a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:11px 50%;background-size:17px}.setsq.big{height:52px;font-size:16px;border-radius:16px;background-position:15px 50%;padding-left:44px;background-size:20px}
 .sbento>.scard:has(.pm-sum){order:-1}
@@ -2997,14 +2998,14 @@ function famIdx(){var all=allMenu(),k=(state&&state._v||0)+'|'+all.length;if(_fa
  _famC={k:k,map:byCode};return byCode;}
 function famOf(p){if(!p)return null;return famIdx()[p.c]||null;}
 function famTypesTxt(f){return FAM_TYPES.filter(function(t){return f.tp[t];}).join(' · ');}
-function famTap(code,sel){var p=findMenu(code),F=p&&famOf(p);if(!F){if(p)addItem(p);return;}var cust=isCust(),dch=!cust&&curDlCh(),types=FAM_TYPES.filter(function(t){return F.tp[t];});
+function famTap(code,sel){var p=findMenu(code),F=p&&famOf(p);if(!F){if(p)addItem(p);return;}if(!sel&&umTry(F,code))return;var cust=isCust(),dch=!cust&&curDlCh(),types=FAM_TYPES.filter(function(t){return F.tp[t];});
  var own=types.filter(function(t){return F.tp[t].some(function(m){return m.c===code;});})[0]||types[0],cur=sel&&F.tp[sel]?sel:own,L=F.tp[cur];
  openModal('<h2>'+cesc(F.label)+'</h2><div class="fam-ts">'+types.map(function(t){return '<button type="button" class="fam-t'+(t===cur?' on':'')+'" style="--fc:'+FAM_COL[t]+'" onclick="famTap(\''+String(code).replace(/'/g,"\\'")+'\',\''+t+'\')"><i></i>'+t+'</button>';}).join('')+'</div>'+
   '<p style="text-align:center;color:var(--muted);margin:0 0 10px">'+(L.length>1?'ເລືອກຂະໜາດ':'ກົດເພື່ອເພີ່ມ')+'</p><div class="grp-list">'+L.map(function(v){var so=state.soldOut&&state.soldOut[v.c],sh=(!cust&&!so)?menuShort(v):[],off=so||sh.length;return '<button type="button" class="grp-b'+(off?' off':'')+'"'+sKX(v.c)+' onclick="grpPick(this.dataset.k)"'+(off?' disabled':'')+'><b>'+cesc(v.sz||'ມາດຕະຖານ')+'</b><span>'+KIP(dch?dlPrice(dch,v):v.p)+' ₭'+(off?' · '+(so?'ໝົດ':'ວັດຖຸດິບບໍ່ພໍ'):'')+'</span></button>';}).join('')+'</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button></div>');}
 function grpFold(items){var out=[],idx={};items.forEach(function(p){if(!(p.g&&p.sz)){out.push(p);return;}var k=p.k+'|'+p.g;if(idx[k]==null){idx[k]=out.length;out.push({__g:1,list:[p]});}else out[idx[k]].list.push(p);});
  return out.map(function(o){if(!o.__g)return o;if(o.list.length<2)return o.list[0];var L=o.list.slice().sort(function(a,b){return a.p-b.p;}),f=L[0];return Object.assign({},f,{n:f.g,grp:L});});}
 function grpVariants(code){var p=findMenu(code);if(!p||!p.g)return p?[p]:[];return allMenu().filter(function(m){return m.g===p.g&&m.k===p.k&&m.sz;}).sort(function(a,b){return a.p-b.p;});}
-function grpTap(code){var L=grpVariants(code);if(!L.length)return;if(L.length===1){addItem(L[0]);return;}var cust=isCust(),dch=!cust&&curDlCh();
+function grpTap(code){var L=grpVariants(code);if(!L.length)return;if(L.length===1){addItem(L[0]);return;}if(umTry({label:L[0].g,list:L},code))return;var cust=isCust(),dch=!cust&&curDlCh();
  openModal('<h2>'+cesc(L[0].g)+'</h2><p style="text-align:center;color:var(--muted);margin:-4px 0 10px">ເລືອກຂະໜາດ</p><div class="grp-list">'+L.map(function(v){var so=state.soldOut&&state.soldOut[v.c],sh=(!cust&&!so)?menuShort(v):[],off=so||sh.length;return '<button type="button" class="grp-b'+(off?' off':'')+'"'+sKX(v.c)+' onclick="grpPick(this.dataset.k)"'+(off?' disabled':'')+'><b>'+cesc(v.sz)+'</b><span>'+KIP(dch?dlPrice(dch,v):v.p)+' ₭'+(off?' · '+(so?'ໝົດ':'ວັດຖຸດິບບໍ່ພໍ'):'')+'</span></button>';}).join('')+'</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button></div>');}
 function grpPick(code){var v=findMenu(code);closeModal();if(v)addItem(v);}
 function renderProducts(){const q=(document.getElementById('search')?.value||'').toLowerCase();let items=[];const M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];const subs=M[state.activeCat]||{};
@@ -3035,13 +3036,31 @@ let modState=null;
 /* ໜ້າຕ່າງເລືອກ ຂະໜາດ / Topping / ຕົວເລືອກ — ຂະໜາດຂຶ້ນກ່ອນ (ເລືອກໃຫ້ແລ້ວ) · ປຸ່ມເພີ່ມບອກລາຄາລວມ */
 function openModifier(p){var ord={size:0,choice:1,topping:2};var G=modGroupsFor(p).slice().sort(function(a,b){return ord[mgType(a)]-ord[mgType(b)];});
  modState={p:p,groups:G,sel:{},qty:1};G.forEach(function(g,gi){var t=mgType(g);modState.sel[gi]=t==='topping'?[]:(t==='size'?(g.opts[+g.def||0]?(+g.def||0):0):null);});renderModifier();}
+/* ===== ໜ້າຕ່າງດຽວ: ເລືອກ ແບບ (ຮ້ອນ/ເຢັນ/ປັ່ນ) + ຂະໜາດ + ຕົວເລືອກ/Topping + ຈຳນວນ → ເພີ່ມ (ບໍ່ຕ້ອງເປີດ 2 ເທື່ອ) ===== */
+function umOff(v){var cust=isCust(),so=state.soldOut&&state.soldOut[v.c],sh=(!cust&&!so)?menuShort(v):[];return so?'ໝົດ':(sh.length?'ວັດຖຸດິບບໍ່ພໍ':'');}
+function umTry(F,code){var all=F.tp?[].concat.apply([],Object.keys(F.tp).map(function(t){return F.tp[t];})):F.list;if(!all.some(function(v){return modGroupsFor(v).length;}))return false;
+ var cur='';if(F.tp)Object.keys(F.tp).forEach(function(t){if(F.tp[t].some(function(v){return v.c===code;}))cur=t;});
+ modState={p:null,groups:[],sel:{},qty:1,U:{label:F.label,tp:F.tp||null,list:F.list||null,cur:cur}};umSelect(code);return true;}
+function umSelect(code){var U=modState.U,p=findMenu(code);if(!p)return;var dch=!isCust()&&curDlCh();if(dch)p=Object.assign({},p,{p:dlPrice(dch,p)});
+ var old=modState,ord={size:0,choice:1,topping:2},G=modGroupsFor(p).slice().sort(function(a,b){return ord[mgType(a)]-ord[mgType(b)];}),sel={};
+ G.forEach(function(g,gi){var t=mgType(g),oi=old.groups.findIndex(function(x){return x.id===g.id;}),prev=oi>=0?old.sel[oi]:undefined,nm=function(i){var o=oi>=0&&old.groups[oi].opts[i];return o?g.opts.findIndex(function(y){return y.n===o.n;}):-1;};
+  if(t==='topping')sel[gi]=Array.isArray(prev)?prev.map(nm).filter(function(i){return i>=0;}):[];
+  else{var ni=(prev!=null&&prev!==undefined)?nm(prev):-1;sel[gi]=ni>=0?ni:(t==='size'?(g.opts[+g.def||0]?(+g.def||0):0):null);}});
+ modState={p:p,groups:G,sel:sel,qty:old.qty||1,U:U};renderModifier();}
+function umType(t){var U=modState.U;if(!U.tp||!U.tp[t])return;U.cur=t;var L=U.tp[t],cs=modState.p&&modState.p.sz,pick=L.find(function(v){return v.sz===cs&&!umOff(v);})||L.find(function(v){return !umOff(v);})||L[0];umSelect(pick.c);}
+function umPick(code){umSelect(code);}
+function umRows(){var U=modState.U,p=modState.p,cust=isCust(),dch=!cust&&curDlCh(),h='';
+ if(U.tp){var types=FAM_TYPES.filter(function(t){return U.tp[t];});h+='<div class="md-g"><div class="md-gt"><b>ແບບ</b><span class="md-req">ຕ້ອງເລືອກ</span></div><div class="fam-ts">'+types.map(function(t){return '<button type="button" class="fam-t'+(t===U.cur?' on':'')+'" style="--fc:'+FAM_COL[t]+'" onclick="umType(\''+t+'\')"><i></i>'+t+'</button>';}).join('')+'</div></div>';}
+ var L=U.tp?U.tp[U.cur]:U.list;
+ if(L&&L.length>1)h+='<div class="md-g"><div class="md-gt"><b>ຂະໜາດ</b><span class="md-req">ຕ້ອງເລືອກ</span></div><div class="md-size">'+L.map(function(v){var off=umOff(v);return '<button type="button" class="md-sz'+(v.c===p.c?' on':'')+(off?' off':'')+'"'+(off?' disabled':'')+' onclick="umPick(\''+String(v.c).replace(/'/g,"\\'")+'\')"><b>'+cesc(v.sz||'ມາດຕະຖານ')+'</b><span>'+KIP(dch?dlPrice(dch,v):v.p)+' ₭'+(off?' · '+off:'')+'</span></button>';}).join('')+'</div></div>';
+ return h;}
 function modCalc(){var p=modState.p,mods=[state.dineType],extra=0,bm=1,xb=[];
  modState.groups.forEach(function(g,gi){var t=mgType(g),sv=modState.sel[gi],ix=t==='topping'?sv:(sv==null?[]:[sv]);
   ix.forEach(function(oi){var o=g.opts[oi];if(!o)return;mods.push(o.n);extra+=dlAdj(optP(g,o,p));if(t==='size'&&+o.bm>0)bm*=+o.bm;if(o.ing&&+o.iq>0)xb.push([o.ing,+o.iq]);});});
  return {mods:mods,extra:extra,bm:Math.round(bm*1000)/1000,xb:xb,unit:(+p.p||0)+extra};}
 function modalSet(h,cls){var m=document.querySelector('#modalRoot .modal.'+cls);if(m){var st=m.scrollTop;m.innerHTML=h;m.scrollTop=st;return;}openModal(h);m=document.querySelector('#modalRoot .modal');if(m)m.classList.add(cls);}
 function renderModifier(){var p=modState.p,G=modState.groups,c=modCalc(),img=(state.menuImg||{})[p.c]||'';
- var h='<div class="md-head">'+(img?'<img class="md-img" src="'+img+'" alt="">':'')+'<div><h2>'+cesc(p.n)+'</h2><div class="md-sub">'+KIP(p.p)+' ₭'+(isCust()?'':' · '+cesc(state.dineType))+'</div></div></div>';
+ var h='<div class="md-head">'+(img?'<img class="md-img" src="'+img+'" alt="">':'')+'<div><h2>'+cesc(p.n)+'</h2><div class="md-sub">'+KIP(p.p)+' ₭'+(isCust()?'':' · '+cesc(state.dineType))+'</div></div></div>'+(modState.U?umRows():'');
  G.forEach(function(g,gi){var t=mgType(g),sv=modState.sel[gi],req=t==='size'||!!g.req,mx=t==='topping'&&+g.max>0?+g.max:0;
   h+='<div class="md-g"><div class="md-gt"><b>'+cesc(g.title)+'</b>'+(req?'<span class="md-req">ຕ້ອງເລືອກ</span>':'<span class="md-opt">'+(t==='topping'?(mx?'ເລືອກໄດ້ສູງສຸດ '+mx:'ເລືອກໄດ້ຫຼາຍອັນ'):'ບໍ່ບັງຄັບ')+'</span>')+'</div>';
   if(t==='size')h+='<div class="md-size">'+g.opts.map(function(o,oi){return '<button type="button" class="md-sz'+(sv===oi?' on':'')+'" onclick="toggleMod('+gi+','+oi+')"><b>'+cesc(o.n)+'</b><span>'+KIP((+p.p||0)+dlAdj(optP(g,o,p)))+' ₭</span></button>';}).join('')+'</div>';
