@@ -1077,7 +1077,10 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .tk[data-b="3"]{animation:tkRed 1.1s ease-in-out infinite}.tk[data-b="3"] .tk-h{animation:tkFlash 1.1s ease-in-out infinite}
 @keyframes tkRed{0%,100%{box-shadow:0 0 0 0 rgba(224,49,49,.6)}50%{box-shadow:0 0 0 9px rgba(224,49,49,0)}}
 @keyframes tkFlash{50%{filter:brightness(1.25)}}
-.tk-mood{margin-left:auto;margin-right:2px;font-size:22px;line-height:1;display:inline-block}
+.tk-mood{margin-left:auto;margin-right:2px;line-height:1;display:inline-flex;color:#fff}.kic{display:block}
+.tk[data-b] .tk-it[data-b]{border:1px solid rgba(0,0,0,.06);border-left:7px solid var(--tkc);background:#fff;background:color-mix(in srgb,var(--tkc) 11%,#fff)}
+.tk-it .ia{margin-left:auto;display:inline-flex;gap:3px;align-items:center;background:var(--tkc);color:#fff;font-weight:800;font-size:13px;border-radius:9px;padding:2px 9px;white-space:nowrap;flex:none}
+.tk-it[data-b="3"] .ia{animation:kdsPop 1s ease-in-out infinite}
 .tk[data-b] .tk-age{margin-left:0}
 .tk[data-b="3"] .tk-mood{animation:kdsShake .45s ease-in-out infinite}.tk[data-b="2"] .tk-mood{animation:kdsBob 1.8s ease-in-out infinite}.tk[data-b="0"] .tk-mood{animation:kdsBob 3s ease-in-out infinite}
 @keyframes kdsShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.1)}75%{transform:rotate(14deg) scale(1.1)}}
@@ -1087,7 +1090,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .tk-badge{background:#fff;color:#0a7e7a;font-size:11.5px;font-weight:900;border-radius:9px;padding:2px 8px;margin-left:6px;animation:kdsPop 1s ease-in-out infinite;display:inline-block}
 @keyframes kdsPop{50%{transform:scale(1.18)}}
 #kdsFx{position:fixed;inset:0;pointer-events:none;z-index:99998;overflow:hidden}
-#kdsFx i{position:absolute;bottom:-30px;font-style:normal;font-size:28px;animation:kdsUp 1.7s ease-out forwards}
+#kdsFx i{position:absolute;bottom:-30px;font-style:normal;line-height:1;animation:kdsUp 1.7s ease-out forwards}
 @keyframes kdsUp{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-78vh) rotate(var(--r,200deg));opacity:0}}
 @media (prefers-reduced-motion:reduce){.tk-mood,.tk-new,.tk-badge,.tk[data-b="3"],.tk[data-b="3"] .tk-h{animation:none!important}}
 .kx-leg span.cnt{font-size:15px;padding:5px 12px;border-radius:12px}.kx-leg span.cnt b{font-size:18px;margin-right:4px}
@@ -3375,6 +3378,9 @@ function kdsT(){var u=(state&&state.kdsT)||{},o={on:u.on!==false,snd:u.snd!==fal
 var KDS_LATE={get food(){var t=kdsT().food;return [t.b,t.c];},get drink(){var t=kdsT().drink;return [t.b,t.c];}};
 function kdsBand(m,kind){var t=kdsT()[kind==='drink'?'drink':'food'];return m<=t.a?0:m<=t.b?1:m<=t.c?2:3;}
 function kdsBandCol(b){var c=kdsT().col;return [c.blue,c.green,c.orange,c.red][b];}
+var KDS_IC={smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.2c1.4 1.7 5.6 1.7 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.3 9.2"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',bolt:'<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/>',hourglass:'<path d="M6 3h12M6 21h12M7.5 3c0 5 4.5 6 4.5 9s-4.5 4-4.5 9M16.5 3c0 5-4.5 6-4.5 9s4.5 4 4.5 9"/>',star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>',spark:'<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'};
+function kdsIc(n,sz){return '<svg class="kic" width="'+(sz||24)+'" height="'+(sz||24)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(KDS_IC[n]||'')+'</svg>';}
+function kdsItBand(o){var T=kdsT();if(!T.on)return null;var end=o.status==='ready'&&o.readyTs?o.readyTs:Date.now(),m=(end-o.ts)/60000;return {b:kdsBand(m,o.k),age:Math.max(0,Math.floor(m)),frozen:o.status==='ready'&&!!o.readyTs};}
 function kdsTk(t,stage,kind){var T=kdsT(),end=0;if(stage==='ready')end=t.items.reduce(function(m,o){return Math.max(m,o.readyTs||0);},0);var m=((end||Date.now())-t.ts)/60000;return {age:Math.max(0,Math.floor(m)),b:T.on?kdsBand(m,kind):-1,frozen:stage==='ready'&&!!end,pct:Math.min(100,Math.round(m/(T[kind==='drink'?'drink':'food'].c||1)*100))};}
 function kdsAttr(t,stage,kind){var r=kdsTk(t,stage,kind);return r.b<0?'':' data-b="'+r.b+'" style="--tkc:'+kdsBandCol(r.b)+'"';}
 function kdsAttrMix(t){var T=kdsT();if(!T.on)return '';var b=0;t.items.forEach(function(o){b=Math.max(b,kdsBand((Date.now()-o.ts)/60000,o.k));});return ' data-b="'+b+'" style="--tkc:'+kdsBandCol(b)+'"';}
@@ -3382,7 +3388,7 @@ function kdsLegend(kind,list){var T=kdsT(),t=T[kind==='drink'?'drink':'food'];if
 var _kdsAl={},_kdsSeen={};
 function kdsAlarmSound(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),t=a.currentTime;for(var i=0;i<3;i++){var o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.value=i%2?740:988;o.connect(g);g.connect(a.destination);var s0=t+i*0.28;g.gain.setValueAtTime(0.0001,s0);g.gain.exponentialRampToValueAtTime(0.22,s0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s0+0.24);o.start(s0);o.stop(s0+0.26);}setTimeout(function(){try{a.close();}catch(e){}},1400);}catch(e){}
  try{if(navigator.vibrate)navigator.vibrate([300,120,300]);}catch(e){}}
-function kdsConfetti(){try{if((typeof UI_CALM!=='undefined'&&UI_CALM)||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;var r=document.getElementById('kdsFx');if(!r){r=document.createElement('div');r.id='kdsFx';document.body.appendChild(r);}var E=['🎉','✨','⭐','⚡','🌟'];for(var i=0;i<16;i++){var e=document.createElement('i');e.textContent=E[i%E.length];e.style.left=(8+Math.random()*84)+'%';e.style.animationDelay=(Math.random()*0.35)+'s';e.style.setProperty('--r',(Math.random()*500-250)+'deg');r.appendChild(e);}setTimeout(function(){r.innerHTML='';},2300);}catch(e){}}
+function kdsConfetti(){try{if((typeof UI_CALM!=='undefined'&&UI_CALM)||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;var r=document.getElementById('kdsFx');if(!r){r=document.createElement('div');r.id='kdsFx';document.body.appendChild(r);}var E=['star','spark','star','bolt','spark'],CL=[kdsBandCol(0),kdsBandCol(1),kdsBandCol(2),kdsBandCol(3),'#0a7e7a'];for(var i=0;i<16;i++){var e=document.createElement('i');e.innerHTML=kdsIc(E[i%E.length],26+Math.round(Math.random()*10));e.style.color=CL[i%CL.length];e.style.left=(8+Math.random()*84)+'%';e.style.animationDelay=(Math.random()*0.35)+'s';e.style.setProperty('--r',(Math.random()*500-250)+'deg');r.appendChild(e);}setTimeout(function(){r.innerHTML='';},2300);}catch(e){}}
 function kdsSndTest(){kdsAlarmSound();}
 function kdsLegRefresh(){var T=kdsT(),c=T.col,L=document.querySelectorAll('.kds-leg');['food','drink'].forEach(function(kd,i){if(!L[i])return;var t=T[kd];L[i].innerHTML='<span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span>';});}
 function kdsReset(){delete state.kdsT;save();render();toast('ກັບໄປຄ່າຕັ້ງຕົ້ນແລ້ວ');}
@@ -3414,11 +3420,11 @@ function kdsAge(ts){return Math.max(0,Math.floor((Date.now()-ts)/60000));}
 function kdsTickets(list){var g={};list.forEach(function(o){var k=o.table||'-';(g[k]=g[k]||[]).push(o);});
  return Object.keys(g).map(function(k){var it=g[k].sort(function(a,b){return a.ts-b.ts;});return {table:k,items:it,ts:it[0].ts};}).sort(function(a,b){return a.ts-b.ts;});}
 function kdsIds(t){return t.items.map(function(o){return String(o.id).replace(/'/g,"\\'");}).join("','");}
-function kdsItemHTML(o,act){var mods=(o.mods||[]).filter(function(m){return m!==state.dineType&&m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});var away=(o.mods||[]).indexOf('ກັບບ້ານ')>=0;
- return '<button class="tk-it" '+(act?'onclick="advanceOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເລື່ອນສະເພາະລາຍການນີ້"':'disabled')+'>'+
+function kdsItemHTML(o,act){var ib=kdsItBand(o),mods=(o.mods||[]).filter(function(m){return m!==state.dineType&&m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});var away=(o.mods||[]).indexOf('ກັບບ້ານ')>=0;
+ return '<button class="tk-it"'+(ib?' data-b="'+ib.b+'" style="--tkc:'+kdsBandCol(ib.b)+'"':'')+' '+(act?'onclick="advanceOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເລື່ອນສະເພາະລາຍການນີ້"':'disabled')+'>'+
   '<span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+
-  '<span class="n">'+cesc(o.name)+(away?' <em class="away">ກັບບ້ານ</em>':'')+(mods.length?'<small>+ '+cesc(mods.join(', '))+'</small>':'')+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}
-function kdsTicketHTML(t,stage,kind){var kr=kdsTk(t,stage,kind),age=kr.age;var late='';var _kk=kind+'|'+t.table+'|'+(t.items[0]&&t.items[0].id),isNew=stage==='wait'&&age<=1&&!_kdsSeen[_kk];_kdsSeen[_kk]=1;var mood=kr.b<0?'':(kr.frozen?['⚡','👍','😅','🐢'][kr.b]:['😎','🙂','😰','🔥'][kr.b]);var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
+  '<span class="n">'+cesc(o.name)+(away?' <em class="away">ກັບບ້ານ</em>':'')+(mods.length?'<small>+ '+cesc(mods.join(', '))+'</small>':'')+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span>'+(ib?'<span class="ia">'+(ib.b===3&&!ib.frozen?kdsIc('flame',15):'')+ib.age+' ນາທີ</span>':'')+'</button>';}
+function kdsTicketHTML(t,stage,kind){var kr=kdsTk(t,stage,kind),age=kr.age;var late='';var _kk=kind+'|'+t.table+'|'+(t.items[0]&&t.items[0].id),isNew=stage==='wait'&&age<=1&&!_kdsSeen[_kk];_kdsSeen[_kk]=1;var mood=kr.b<0?'':kdsIc(kr.frozen?['bolt','check','clock','hourglass'][kr.b]:['smile','check','clock','flame'][kr.b],24);var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
  var go={wait:['ເລີ່ມເຮັດ','go-start'],cooking:['ພ້ອມເສີບ','go-ready']}[stage];
  return '<div class="tk '+late+(isNew?' tk-new':'')+'"'+(kr.b<0?'':' data-b="'+kr.b+'" style="--tkc:'+kdsBandCol(kr.b)+'"')+'><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ</span>'+(isNew?'<span class="tk-badge">ໃໝ່!</span>':'')+(mood?'<span class="tk-mood">'+mood+'</span>':'')+'<span class="tk-age">'+(kr.frozen?'ໃຊ້ '+age+' ນາທີ':(age?age+' ນາທີ':'ຫາກໍສັ່ງ'))+'</span></div>'+(kr.b<0?'':'<i class="tk-bar"><b style="width:'+kr.pct+'%"></b></i>')+
   '<div class="tk-its">'+t.items.map(function(o){return kdsItemHTML(o,stage!=='ready');}).join('')+'</div>'+
