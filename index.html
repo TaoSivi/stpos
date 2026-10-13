@@ -1130,6 +1130,27 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .kds-dark .go-start{background:linear-gradient(135deg,#ff9f1a,#ff5a00)}.kds-dark .go-ready{background:linear-gradient(135deg,#22d680,#0c9a57)}.kds-dark .go-serve{background:linear-gradient(135deg,#2dd4bf,#0a8f86)}
 .kds-dark .tk-undo{color:#9fc7c2}.kds-dark .tk-wait{background:rgba(18,183,106,.14);color:#6ee7a8}
 .kds-dark .tk.mini .mini-its{color:#cfe8e5}.kds-dark .tk-mood{color:var(--tkc)}
+
+/* ບັດອໍເດີ ແບບໃໝ່: ຕົວເລກນາທີໃຫຍ່ເປັນບລັອກສີ + ແຖວເມນູຖົມສີເຕັມ — ຈື່ງ່າຍ ເຫັນຊັດ */
+.kds-dark .tk{padding:12px;background:#13292700;background:linear-gradient(180deg,#183532,#132b29);border:2px solid #28504b;border-radius:20px}
+.kds-dark .tk[data-b]{background:linear-gradient(180deg,#183532,#132b29);border-color:#28504b}
+.kds-dark .tk-h{display:flex;align-items:center;gap:12px;margin:0 0 10px;padding:0}
+.kds-dark .tk[data-b] .tk-h{margin:0 0 10px;padding:0;background:none}
+.kds-dark .tk-big{flex:none;min-width:70px;height:70px;border-radius:18px;background:var(--tkc,#35524e);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;box-shadow:0 8px 20px color-mix(in srgb,var(--tkc,#35524e) 45%,transparent),inset 0 -4px 0 rgba(0,0,0,.18)}
+.kds-dark .tk-big b{font-size:34px;font-weight:900;letter-spacing:-1px}.kds-dark .tk-big small{font-size:11px;font-weight:800;opacity:.9;margin-top:3px}
+.kds-dark .tk-t{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}.kds-dark .tk-t b{font-size:27px;font-weight:900;color:#fff;line-height:1.05}
+.kds-dark .tk-t .tk-n{font-size:12.5px;color:#9fc7c2;font-weight:700}
+.kds-dark .tk-mood{margin:0;color:var(--tkc,#6b8f8a)}.kds-dark .tk-mood .kic{width:30px;height:30px}
+.kds-dark .tk[data-b="-1"] .tk-big{background:#27413f;color:#cfe8e5;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+.kds-dark .tk-it{background:rgba(255,255,255,.07);border:0;border-radius:14px;padding:10px 12px;color:#fff}
+.kds-dark .tk[data-b] .tk-it[data-b]{border:0;border-left:0;background:var(--tkc);color:#fff;box-shadow:0 5px 14px color-mix(in srgb,var(--tkc) 40%,transparent)}
+.kds-dark .tk[data-b] .tk-it[data-b="-1"]{background:rgba(255,255,255,.08);box-shadow:none}
+.kds-dark .tk[data-b] .tk-it[data-b="2"]{color:#1a0f00}.kds-dark .tk[data-b] .tk-it[data-b="2"] .q,.kds-dark .tk[data-b] .tk-it[data-b="2"] .n{color:#1a0f00}.kds-dark .tk[data-b] .tk-it[data-b="2"] small{color:rgba(26,15,0,.75)}
+.kds-dark .tk[data-b] .tk-it[data-b] .ia{background:rgba(0,0,0,.28);color:#fff;box-shadow:none;font-size:14px;padding:3px 10px}
+.kds-dark .tk[data-b] .tk-it[data-b="-1"] .ia{background:rgba(255,255,255,.14)}
+.kds-dark .tk[data-b] .tk-it[data-b="2"] .ia{background:rgba(26,15,0,.22);color:#1a0f00}
+.kds-dark .tk-it .q{font-size:22px}.kds-dark .tk-it .n{font-size:18px;font-weight:800}
+.kds-dark .tk[data-b="3"]{border-color:var(--tkc)}
 .kds-col{width:56px;height:36px;border:0;padding:0;background:none;cursor:pointer}
 @keyframes tkPulse{50%{box-shadow:0 0 0 6px rgba(224,49,49,.12)}}
 .tk-h{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
@@ -3460,26 +3481,26 @@ function eiWalk(root){try{if(!root)return;if(root.nodeType===3){eiNode(root);ret
 function eiBoot(){eiWalk(document.body);try{new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData'){eiWalk(m.target);return;}m.addedNodes.forEach(function(n){eiWalk(n);});});}).observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}}
 if(document.body)eiBoot();else document.addEventListener('DOMContentLoaded',eiBoot);
 /* ===== ຕິດຕາມເວລາ ຄົວ/ບາ: ບັດອໍເດີປ່ຽນສີຕາມເວລາທີ່ລໍຖ້າ (ຟ້າ → ຂຽວ → ສົ້ມ → ແດງ) + ສຽງເຕືອນເມື່ອເປັນສີແດງ — ຕັ້ງໄດ້ທັງໝົດ (ຕັ້ງຄ່າ › ການສັ່ງອາຫານ) ===== */
-var KDS_T0={rep:2,food:{a:10,b:15,c:25},drink:{a:10,b:15,c:25},col:{blue:'#2b7fff',green:'#12b76a',orange:'#ff9500',red:'#ff3b30'}};
-function kdsT(){var u=(state&&state.kdsT)||{},o={on:u.on!==false,snd:u.snd!==false,rep:u.rep==null?KDS_T0.rep:Math.max(0,+u.rep||0),col:{}};
+var KDS_T0={n0:5,rep:2,food:{a:10,b:15,c:25},drink:{a:10,b:15,c:25},col:{blue:'#2b7fff',green:'#12b76a',orange:'#ff9500',red:'#ff3b30'}};
+function kdsT(){var u=(state&&state.kdsT)||{},o={on:u.on!==false,snd:u.snd!==false,n0:u.n0==null?KDS_T0.n0:Math.max(0,+u.n0||0),rep:u.rep==null?KDS_T0.rep:Math.max(0,+u.rep||0),col:{}};
  ['blue','green','orange','red'].forEach(function(k){var c=u.col&&u.col[k];o.col[k]=/^#[0-9a-fA-F]{6}$/.test(c||'')?c:KDS_T0.col[k];});
- ['food','drink'].forEach(function(k){var x=u[k]||{},d=KDS_T0[k],a=+x.a>0?+x.a:d.a,b=+x.b>0?+x.b:d.b,c=+x.c>0?+x.c:d.c;b=Math.max(a,b);c=Math.max(b,c);o[k]={a:a,b:b,c:c};});return o;}
+ ['food','drink'].forEach(function(k){var x=u[k]||{},d=KDS_T0[k],a=+x.a>0?+x.a:d.a,b=+x.b>0?+x.b:d.b,c=+x.c>0?+x.c:d.c;a=Math.max(a,o.n0);b=Math.max(a,b);c=Math.max(b,c);o[k]={a:a,b:b,c:c};});return o;}
 var KDS_LATE={get food(){var t=kdsT().food;return [t.b,t.c];},get drink(){var t=kdsT().drink;return [t.b,t.c];}};
-function kdsBand(m,kind){var t=kdsT()[kind==='drink'?'drink':'food'];return m<=t.a?0:m<=t.b?1:m<=t.c?2:3;}
-function kdsBandCol(b){var c=kdsT().col;return [c.blue,c.green,c.orange,c.red][b];}
+function kdsBand(m,kind){var T=kdsT(),t=T[kind==='drink'?'drink':'food'];return m<=T.n0?-1:m<=t.a?0:m<=t.b?1:m<=t.c?2:3;} /* -1 = ຍັງບໍ່ເຖິງເວລາ (ບໍ່ໃສ່ສີ) */
+function kdsBandCol(b){var c=kdsT().col;return b<0?'#35524e':[c.blue,c.green,c.orange,c.red][b];}
 var KDS_IC={smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.2c1.4 1.7 5.6 1.7 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.3 9.2"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',bolt:'<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/>',hourglass:'<path d="M6 3h12M6 21h12M7.5 3c0 5 4.5 6 4.5 9s-4.5 4-4.5 9M16.5 3c0 5-4.5 6-4.5 9s4.5 4 4.5 9"/>',star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>',spark:'<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'};
 function kdsIc(n,sz){return '<svg class="kic" width="'+(sz||24)+'" height="'+(sz||24)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(KDS_IC[n]||'')+'</svg>';}
 function kdsItBand(o){var T=kdsT();if(!T.on)return null;var end=o.status==='ready'&&o.readyTs?o.readyTs:Date.now(),m=(end-o.ts)/60000;return {b:kdsBand(m,o.k),age:Math.max(0,Math.floor(m)),frozen:o.status==='ready'&&!!o.readyTs};}
-function kdsTk(t,stage,kind){var T=kdsT(),end=0;if(stage==='ready')end=t.items.reduce(function(m,o){return Math.max(m,o.readyTs||0);},0);var m=((end||Date.now())-t.ts)/60000;return {age:Math.max(0,Math.floor(m)),b:T.on?kdsBand(m,kind):-1,frozen:stage==='ready'&&!!end,pct:Math.min(100,Math.round(m/(T[kind==='drink'?'drink':'food'].c||1)*100))};}
-function kdsAttr(t,stage,kind){var r=kdsTk(t,stage,kind);return r.b<0?'':' data-b="'+r.b+'" style="--tkc:'+kdsBandCol(r.b)+'"';}
-function kdsAttrMix(t){var T=kdsT();if(!T.on)return '';var b=0;t.items.forEach(function(o){b=Math.max(b,kdsBand((Date.now()-o.ts)/60000,o.k));});return ' data-b="'+b+'" style="--tkc:'+kdsBandCol(b)+'"';}
-function kdsLegend(kind,list){var T=kdsT(),t=T[kind==='drink'?'drink':'food'];if(!T.on)return '';var c=T.col,n=[0,0,0,0],now=Date.now();kdsTickets(list||[]).forEach(function(k){n[kdsBand((now-k.ts)/60000,kind)]++;});var sp=function(i,col,lab){return '<span class="cnt" style="'+(n[i]?'background:'+col+';color:#fff':'background:transparent;color:'+col+';box-shadow:inset 0 0 0 2px '+col)+'"><b>'+n[i]+'</b>'+lab+'</span>';};return '<span class="kx-leg">'+sp(0,c.blue,'ຟ້າ ≤'+t.a)+sp(1,c.green,'ຂຽວ ≤'+t.b)+sp(2,c.orange,'ສົ້ມ ≤'+t.c)+sp(3,c.red,'ແດງ >'+t.c)+'</span>';}
+function kdsTk(t,stage,kind){var T=kdsT(),end=0;if(stage==='ready')end=t.items.reduce(function(m,o){return Math.max(m,o.readyTs||0);},0);var m=((end||Date.now())-t.ts)/60000;return {age:Math.max(0,Math.floor(m)),b:T.on?kdsBand(m,kind):-2,frozen:stage==='ready'&&!!end,pct:Math.min(100,Math.round(m/(T[kind==='drink'?'drink':'food'].c||1)*100))};}
+function kdsAttr(t,stage,kind){var r=kdsTk(t,stage,kind);return r.b<=-2?'':' data-b="'+r.b+'" style="--tkc:'+kdsBandCol(r.b)+'"';}
+function kdsAttrMix(t){var T=kdsT();if(!T.on)return '';var b=-1;t.items.forEach(function(o){b=Math.max(b,kdsBand((Date.now()-o.ts)/60000,o.k));});return ' data-b="'+b+'" style="--tkc:'+kdsBandCol(b)+'"';}
+function kdsLegend(kind,list){var T=kdsT(),t=T[kind==='drink'?'drink':'food'];if(!T.on)return '';var c=T.col,n=[0,0,0,0,0],now=Date.now();kdsTickets(list||[]).forEach(function(k){n[kdsBand((now-k.ts)/60000,kind)+1]++;});var sp=function(i,col,lab){return '<span class="cnt" style="'+(n[i]?'background:'+col+';color:#fff':'background:transparent;color:'+col+';box-shadow:inset 0 0 0 2px '+col)+'"><b>'+n[i]+'</b>'+lab+'</span>';};return '<span class="kx-leg">'+(T.n0>0?sp(0,'#6b8f8a','ໃໝ່ ≤'+T.n0):'')+sp(1,c.blue,'ຟ້າ ≤'+t.a)+sp(2,c.green,'ຂຽວ ≤'+t.b)+sp(3,c.orange,'ສົ້ມ ≤'+t.c)+sp(4,c.red,'ແດງ >'+t.c)+'</span>';}
 var _kdsAl={},_kdsSeen={};
 function kdsAlarmSound(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;var a=new A(),t=a.currentTime;for(var i=0;i<3;i++){var o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.value=i%2?740:988;o.connect(g);g.connect(a.destination);var s0=t+i*0.28;g.gain.setValueAtTime(0.0001,s0);g.gain.exponentialRampToValueAtTime(0.22,s0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s0+0.24);o.start(s0);o.stop(s0+0.26);}setTimeout(function(){try{a.close();}catch(e){}},1400);}catch(e){}
  try{if(navigator.vibrate)navigator.vibrate([300,120,300]);}catch(e){}}
 function kdsConfetti(){try{if((typeof UI_CALM!=='undefined'&&UI_CALM)||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;var r=document.getElementById('kdsFx');if(!r){r=document.createElement('div');r.id='kdsFx';document.body.appendChild(r);}var E=['star','spark','star','bolt','spark'],CL=[kdsBandCol(0),kdsBandCol(1),kdsBandCol(2),kdsBandCol(3),'#0a7e7a'];for(var i=0;i<16;i++){var e=document.createElement('i');e.innerHTML=kdsIc(E[i%E.length],26+Math.round(Math.random()*10));e.style.color=CL[i%CL.length];e.style.left=(8+Math.random()*84)+'%';e.style.animationDelay=(Math.random()*0.35)+'s';e.style.setProperty('--r',(Math.random()*500-250)+'deg');r.appendChild(e);}setTimeout(function(){r.innerHTML='';},2300);}catch(e){}}
 function kdsSndTest(){kdsAlarmSound();}
-function kdsLegRefresh(){var T=kdsT(),c=T.col,L=document.querySelectorAll('.kds-leg');['food','drink'].forEach(function(kd,i){if(!L[i])return;var t=T[kd];L[i].innerHTML='<span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span>';});}
+function kdsLegRefresh(){var T=kdsT(),c=T.col,L=document.querySelectorAll('.kds-leg');['food','drink'].forEach(function(kd,i){if(!L[i])return;var t=T[kd];L[i].innerHTML=(T.n0>0?'<span style="background:#6b8f8a">ໃໝ່ ≤'+T.n0+'</span>':'')+'<span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span>';});}
 function kdsReset(){delete state.kdsT;save();render();toast('ກັບໄປຄ່າຕັ້ງຕົ້ນແລ້ວ');}
 /* ທຸກ 15 ວິ: ອັບເດດນາທີ/ສີໃນຈໍຄົວ·ບາ·ເສີບ + ດັງເຕືອນຖ້າມີອໍເດີເກີນເວລາ (ສີແດງ) ຢູ່ໃນໜ້າຈໍນັ້ນ */
 function kdsTick(){try{if(!state||(typeof isCust==='function'&&isCust())||((HAS_GAS||HAS_API)&&!_loaded))return;
@@ -3490,10 +3511,11 @@ function kdsTick(){try{if(!state||(typeof isCust==='function'&&isCust())||((HAS_
  if(hit.length){kdsAlarmSound();var tb={};hit.forEach(function(o){tb[o.table]=1;});toast('⏰ ເກີນເວລາ — ໂຕະ '+Object.keys(tb).join(', '));}}catch(e){}}
 setInterval(kdsTick,15000);
 function kdsSetCard(){var T=kdsT(),n=function(k,v,u,min){return sNum('kdsT.'+k,v,1,u||'ນາທີ',min==null?1:min);},col=function(k,v){return '<input type="color" class="kds-col" data-k="kdsT.col.'+k+'" data-t="str" value="'+v+'" onchange="setOpt(this);render()">';};
- var lg=function(kind){var t=T[kind],c=T.col;return '<div class="kds-leg"><span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span></div>';};
+ var lg=function(kind){var t=T[kind],c=T.col;return '<div class="kds-leg">'+(T.n0>0?'<span style="background:#6b8f8a">ໃໝ່ ≤'+T.n0+'</span>':'')+'<span style="background:'+c.blue+'">ຟ້າ ≤'+t.a+'</span><span style="background:'+c.green+'">ຂຽວ ≤'+t.b+'</span><span style="background:'+c.orange+'">ສົ້ມ ≤'+t.c+'</span><span style="background:'+c.red+'">ແດງ &gt;'+t.c+'</span></div>';};
  return sCard('ຕິດຕາມເວລາ ຄົວ / ບາ (ສີ + ສຽງເຕືອນ)','ບັດອໍເດີໃນຈໍຄົວ / ບາ ປ່ຽນສີຕາມເວລາທີ່ລໍຖ້າ — ຕັ້ງໄດ້ຕາມຄວາມເໝາະສົມຂອງແຕ່ລະຮ້ານ','',
   sRow('ເປີດໃຊ້ສີຕິດຕາມເວລາ','ປິດ = ບັດອໍເດີບໍ່ປ່ຽນສີ ແລະ ບໍ່ມີສຽງເຕືອນ',sSw('kdsT.on',T.on))+
-  sRow('ອາຫານ (ຄົວ): ຟ້າ → ຂຽວ ເມື່ອເກີນ','ບໍ່ເກີນຄ່ານີ້ = ສີຟ້າ (ໄວ)',n('food.a',T.food.a))+
+  sRow('ບໍ່ໃສ່ສີ ຖ້າຍັງບໍ່ເກີນ','ອໍເດີທີ່ຫາກໍເຂົ້າ — ຍັງບໍ່ເກີນເວລານີ້ ບັດເປັນສີກາງ (ບໍ່ມີສີສະຖານະ)',n('n0',T.n0,'ນາທີ',0))+
+  sRow('ອາຫານ (ຄົວ): ເລີ່ມສີຟ້າ ຈົນເຖິງ','ເກີນຄ່າຂ້າງເທິງ ແຕ່ບໍ່ເກີນຄ່ານີ້ = ສີຟ້າ',n('food.a',T.food.a))+
   sRow('ອາຫານ: ຂຽວ → ສົ້ມ ເມື່ອເກີນ','',n('food.b',T.food.b))+
   sRow('ອາຫານ: ສົ້ມ → ແດງ ເມື່ອເກີນ','ເກີນຄ່ານີ້ = ສີແດງ + ສຽງເຕືອນ',n('food.c',T.food.c))+lg('food')+
   sRow('ເຄື່ອງດື່ມ (ບາ): ຟ້າ → ຂຽວ ເມື່ອເກີນ','',n('drink.a',T.drink.a))+
@@ -3515,7 +3537,7 @@ function kdsItemHTML(o,act){var ib=kdsItBand(o),mods=(o.mods||[]).filter(functio
   '<span class="n">'+cesc(o.name)+(away?' <em class="away">ກັບບ້ານ</em>':'')+(mods.length?'<small>+ '+cesc(mods.join(', '))+'</small>':'')+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span>'+(ib?'<span class="ia">'+(ib.b===3&&!ib.frozen?kdsIc('flame',15):'')+ib.age+' ນາທີ</span>':'')+'</button>';}
 function kdsTicketHTML(t,stage,kind){var kr=kdsTk(t,stage,kind),age=kr.age;var late='';var _kk=kind+'|'+t.table+'|'+(t.items[0]&&t.items[0].id),isNew=stage==='wait'&&age<=1&&!_kdsSeen[_kk];_kdsSeen[_kk]=1;var mood=kr.b<0?'':kdsIc(kr.frozen?['bolt','check','clock','hourglass'][kr.b]:['smile','check','clock','flame'][kr.b],24);var n=t.items.reduce(function(a,o){return a+(+o.qty||0);},0);
  var go={wait:['ເລີ່ມເຮັດ','go-start'],cooking:['ພ້ອມເສີບ','go-ready']}[stage];
- return '<div class="tk '+late+(isNew?' tk-new':'')+'"'+(kr.b<0?'':' data-b="'+kr.b+'" style="--tkc:'+kdsBandCol(kr.b)+'"')+'><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ</span>'+(isNew?'<span class="tk-badge">ໃໝ່!</span>':'')+(mood?'<span class="tk-mood">'+mood+'</span>':'')+'<span class="tk-age">'+(kr.frozen?'ໃຊ້ '+age+' ນາທີ':(age?age+' ນາທີ':'ຫາກໍສັ່ງ'))+'</span></div>'+(kr.b<0?'':'<i class="tk-bar"><b style="width:'+kr.pct+'%"></b></i>')+
+ return '<div class="tk '+late+(isNew?' tk-new':'')+'"'+(kr.b<=-2?'':' data-b="'+kr.b+'" style="--tkc:'+kdsBandCol(kr.b)+'"')+'><div class="tk-h"><span class="tk-big"><b>'+(age||'<1')+'</b><small>ນາທີ</small></span><div class="tk-t"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+n+' ລາຍການ'+(kr.frozen?' · ໃຊ້ເວລາເຮັດ':'')+'</span></div>'+(isNew?'<span class="tk-badge">ໃໝ່!</span>':'')+(mood?'<span class="tk-mood">'+mood+'</span>':'')+'</div>'+
   '<div class="tk-its">'+t.items.map(function(o){return kdsItemHTML(o,stage!=='ready');}).join('')+'</div>'+
   (go?'<button class="tk-go '+go[1]+'" onclick="advanceTicket([\''+kdsIds(t)+'\'])">'+go[0]+(t.items.length>1?' ທັງໂຕະ':'')+' →</button>':'<div class="tk-wait">⏳ ລໍພະນັກງານມາຍົກ</div>')+
   (stage!=='wait'?'<button class="tk-undo" title="ຍ້ອນກັບ 1 ຂັ້ນ (ກົດຜິດ)" onclick="backTicket([\''+kdsIds(t)+'\'])">↶ ຍ້ອນ</button>':'')+'</div>';}
