@@ -1117,6 +1117,17 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .bk-g{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}.bk-r{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f3f9f8;border-radius:12px;padding:8px 12px}.bk-r small{display:block;color:var(--muted);font-size:12px}
 .bk-sg{display:flex;gap:4px;flex:none}.bk-s{border:1.5px solid #cfe6e4;background:#fff;border-radius:10px;padding:7px 12px;font:inherit;font-weight:700;font-size:13px;color:#1f3d3a;cursor:pointer}.bk-s.on.keep{background:#e4ecec;border-color:#9ab}.bk-s.on.on{background:#0a7e7a;border-color:#0a7e7a;color:#fff}.bk-s.on.off{background:#e03131;border-color:#e03131;color:#fff}
 .fam-ts{display:flex;gap:8px;margin:0 0 12px}.fam-t{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 8px;border-radius:14px;border:2px solid #d6e9e7;background:#fff;font:inherit;font-weight:800;font-size:16px;color:#0f2e2c;cursor:pointer}.fam-t i{width:10px;height:10px;border-radius:50%;background:var(--fc)}.fam-t.on{background:var(--fc);border-color:var(--fc);color:#fff}.fam-t.on i{background:#fff}
+.setsq{width:100%;height:40px;border:1px solid #d6e9e7;border-radius:12px;background:#f6fbfa;padding:0 12px 0 36px;margin:0 0 8px;font:inherit;font-size:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b8f8a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:11px 50%;background-size:17px}.setsq.big{height:52px;font-size:16px;border-radius:16px;background-position:15px 50%;padding-left:44px;background-size:20px}
+.sh-top p{margin:2px 4px 14px;color:var(--muted);font-size:13.5px}.sh-top p b{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:50%;background:#0a7e7a;color:#fff;font-size:12px;padding:0 5px}
+.sh-g{margin:0 0 20px}.sh-g h3{font-size:15px;font-weight:800;color:#062f2d;margin:0 4px 10px;letter-spacing:.2px}
+.sh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.sh-c{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:#fff;border:1.5px solid #e1efed;border-radius:18px;padding:16px 16px 14px;font:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(6,47,45,.05);transition:transform .15s,box-shadow .15s,border-color .15s}
+.sh-c:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(6,47,45,.12);border-color:#2dd4bf}
+.sh-c i{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#e6f7f5;color:#0a7e7a;margin-bottom:6px}.sh-c i svg{width:22px;height:22px;stroke:currentColor}
+.sh-c b{font-size:16px;font-weight:800;color:#062f2d;line-height:1.25}.sh-c small{font-size:13px;color:#4b6663;line-height:1.4}
+.sh-c em{position:absolute;top:12px;right:12px;font-style:normal;width:24px;height:24px;border-radius:50%;background:#0a7e7a;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+.sh-none{text-align:center;color:var(--muted);padding:30px}
+.setrail .setsq{margin:0 2px 8px;width:calc(100% - 4px)}
 .rg-bar{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
 .rg-cu{display:inline-flex;gap:4px;align-items:center;padding:3px 6px;border-radius:12px;border:1px solid transparent}.rg-cu i{font-style:normal;color:var(--muted)}.rg-cu.on{border-color:#0a7e7a;background:#eef8f7}.rg-cu input{width:auto;padding:6px 8px}
 
@@ -2047,7 +2058,7 @@ function permEffAct(u,r,a){var o=u&&u.perm&&u.perm.a;if(o&&Object.prototype.hasO
 
 let state=null,view='tables',custView='menu',curFloor="ທັງໝົດ",kfilter='all',dashDate=null,dashRange=7,expDate=null,expCat='ທັງໝົດ';
 const EXP_CATS=["ວັດຖຸດິບ/ສິນຄ້າ","ເງິນເດືອນພະນັກງານ","ຄ່າເຊົ່າ","ໄຟຟ້າ-ນ້ຳ-ເນັດ","ອຸປະກອນ/ສ້ອມແປງ","ການຕະຫຼາດ","ອື່ນໆ"];
-let histDate,histView='item';let adminSec='shop';let reportTab='summary',repDate=null;
+let histDate,histView='item';let adminSec='home';let reportTab='summary',repDate=null;
 let _kdsCount={},_kdsInit={};let stockCat='ທັງໝົດ';let stockViewLoc=null;
 const HAS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
 /* ===== GAS DATA API (for GitHub Pages / static hosting) =====
@@ -6671,10 +6682,14 @@ function exportSd(){loadXLSX(function(err){if(err||!window.XLSX){toast('ໂຫ�
 /* ===== ADMIN ===== */
 /* ===== ການຕັ້ງຄ່າ: ເມນູຊ້າຍຈັດກຸ່ມ · ທຸກໝວດໃຊ້ແຖວແບບດຽວກັນ (ຊື່ + ຄຳອະທິບາຍ | ຕົວຄວບຄຸມ) · ປ່ຽນແລ້ວບັນທຶກທັນທີ ===== */
 var SET_NAV=[
- ['ຮ້ານ',[['shop','ຂໍ້ມູນຮ້ານ & ໃບບິນ','store','ຊື່ ທີ່ຢູ່ ໂລໂກ້ ແລະ ເຄື່ອງພິມໃບບິນ'],['pay','ການຄິດເງິນ & ຈ່າຍເງິນ','pay','ຄ່າບໍລິການ ພາສີ ສ່ວນຫຼຸດ ວິທີຈ່າຍ ແລະ QR ໂອນ']]],
- ['ການຂາຍ',[['order','ການສັ່ງ & QR ລູກຄ້າ','order','ສຽງເຕືອນ ການພິມເຂົ້າຄົວ ແລະ QR ສັ່ງເອງ'],['dlv','Delivery & ກັບບ້ານ','dlv','ບັນຈຸພັນກັບບ້ານ · ແອັບ Foodpanda / E-Get · ລາຄາ · ຄ່າຄອມ','settings'],['table','ໂຕະ & ຊັ້ນ','table','ເພີ່ມ / ລຶບ ຊັ້ນ ແລະ ໂຕະ'],['menu','ເມນູ & ຮູບ','menu','ເມນູ ລາຄາ ຮູບ ແລະ ສູດຕັດສະຕ໋ອກ'],['opts','ຕົວເລືອກ & Topping','opts','ກຸ່ມຕົວເລືອກ ທີ່ຂຶ້ນມາຕອນກົດເມນູ'],['promo','ໂປຣໂມຊັນ','promo','ຫຼຸດລາຄາອັດຕະໂນມັດ ຕາມຊ່ວງເວລາ'],['cds','ຈໍລູກຄ້າ','screen','ໜ້າຈໍທີ 2 ທີ່ຫັນໃສ່ລູກຄ້າ']]],
+ ['ເລີ່ມ',[['home','ພາບລວມການຕັ້ງຄ່າ','chart','ເລືອກເລື່ອງທີ່ຢາກຕັ້ງ — ມີຄຳອະທິບາຍທຸກຢ່າງ']]],
+ ['ຮ້ານຂອງເຮົາ',[['shop','ຂໍ້ມູນຮ້ານ & ໃບບິນ','store','ຊື່ ທີ່ຢູ່ ໂລໂກ້ ແລະ ເຄື່ອງພິມໃບບິນ'],['pay','ການຄິດເງິນ & ຈ່າຍເງິນ','pay','ຄ່າບໍລິການ ພາສີ ສ່ວນຫຼຸດ ວິທີຈ່າຍ ແລະ QR ໂອນ']]],
+ ['ເມນູ & ລາຄາ',[['menu','ເມນູ & ຮູບ','menu','ເມນູ ລາຄາ ຮູບ ແລະ ສູດຕັດສະຕ໋ອກ'],['opts','ຕົວເລືອກ & Topping','opts','ກຸ່ມຕົວເລືອກ ທີ່ຂຶ້ນມາຕອນກົດເມນູ'],['promo','ໂປຣໂມຊັນ','promo','ຫຼຸດລາຄາອັດຕະໂນມັດ ຕາມຊ່ວງເວລາ']]],
+ ['ໜ້າຮ້ານ & ການຂາຍ',[['table','ໂຕະ & ຊັ້ນ','table','ເພີ່ມ / ລຶບ ຊັ້ນ ແລະ ໂຕະ'],['order','ການສັ່ງ & QR ລູກຄ້າ','order','ສຽງເຕືອນ ການພິມເຂົ້າຄົວ ແລະ QR ສັ່ງເອງ'],['dlv','Delivery & ກັບບ້ານ','dlv','ບັນຈຸພັນກັບບ້ານ · ແອັບ Foodpanda / E-Get · ລາຄາ · ຄ່າຄອມ','settings'],['cds','ຈໍລູກຄ້າ','screen','ໜ້າຈໍທີ 2 ທີ່ຫັນໃສ່ລູກຄ້າ']]],
+ ['ຄົວ & ບາ',[['kds','ເວລາ & ສຽງເຕືອນ ຄົວ/ບາ','order','ສີຕາມເວລາລໍຖ້າ ແລະ ສຽງເຕືອນເມື່ອອໍເດີຊ້າ']]],
  ['ພະນັກງານ',[['users','ຜູ້ໃຊ້ & ສິດ','users','ໃຜເຂົ້າລະບົບໄດ້ ແລະ ເຮັດຫຍັງໄດ້','userMng'],['staff','ກະເຮັດວຽກ','staff','ຊື່ກະ ແລະ ການບັງຄັບເປີດກະ']]],
- ['ລະບົບ',[['loc','ບ່ອນເກັບ & ສາຂາ','box','ບ່ອນຕັດສະຕ໋ອກ ແລະ ສາຂາ'],['units','ຫົວໜ່ວຍ','box','ຫົວໜ່ວຍສະຕ໋ອກ ແລະ ຫົວໜ່ວຍໃຫຍ່ ເຊັ່ນ 1 kg = 1000 g, 1 ແຕະ = 30 ຟອງ'],['conn','ການເຊື່ອມຕໍ່ & ລາຍງານ','link','ສະຖານະ server ແລະ ລາຍງານປະຈຳວັນ'],['adv','ສຳຮອງ & ຂັ້ນສູງ','shield','ສຳຮອງ ກູ້ຄືນ ແລະ ລ້າງຂໍ້ມູນ','sysAdv'],['perm','ໂມດູນ & ສິດບົດບາດ','key','ເປີດ/ປິດໂມດູນ ແລະ ກຳນົດສິດຂອງແຕ່ລະບົດບາດ — ສະເພາະ Super Admin','super']]]];
+ ['ສາງ',[['loc','ບ່ອນເກັບ & ສາຂາ','box','ບ່ອນຕັດສະຕ໋ອກ ແລະ ສາຂາ'],['units','ຫົວໜ່ວຍ','box','ຫົວໜ່ວຍສະຕ໋ອກ ແລະ ຫົວໜ່ວຍໃຫຍ່ ເຊັ່ນ 1 kg = 1000 g, 1 ແຕະ = 30 ຟອງ']]],
+ ['ລະບົບ',[['conn','ການເຊື່ອມຕໍ່ & ລາຍງານ','link','ສະຖານະ server ແລະ ລາຍງານປະຈຳວັນ'],['adv','ສຳຮອງ & ຂັ້ນສູງ','shield','ສຳຮອງ ກູ້ຄືນ ແລະ ລ້າງຂໍ້ມູນ','sysAdv'],['perm','ໂມດູນ & ສິດບົດບາດ','key','ເປີດ/ປິດໂມດູນ ແລະ ກຳນົດສິດຂອງແຕ່ລະບົດບາດ — ສະເພາະ Super Admin','super']]]];
 var SET_MOD={opts:['opts'],dlv:['delivery','pkg']};
 function setVis(x){var m=SET_MOD[x[0]];return setGate(x[4])&&(!m||m.some(modOn));}
 function setGate(g){if(!g)return true;if(g==='super')return isSuper();return can(g);}
@@ -6769,7 +6784,6 @@ function setSecOrder(){
   sRow('ພິມສະລິບເຂົ້າຄົວ / ບາ ອັດຕະໂນມັດ','ເມື່ອກົດ "ຢືນຢັນອໍເດີ"',sSw('printKitchen',!!state.printKitchen))+
   sRow('ກັນຂາຍ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ"',sSw('stockBlock',state.stockBlock!==false))+
   sRow('ຜູ້ຮັບຜິດຊອບ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ເມື່ອສັ່ງແລ້ວວັດຖຸດິບບໍ່ພໍ ພະນັກງານກົດ "ສົ່ງແຈ້ງເຕືອນ" ຫາຄົນນີ້ · ຕັ້ງແລ້ວ = ເລືອກເອງບໍ່ໄດ້ · ບໍ່ຕັ້ງ = ໃຫ້ເລືອກຕອນແຈ້ງ','<select class="ssel" onchange="shortSetFixed(this.value)"><option value="">ໃຫ້ເລືອກເອງຕອນແຈ້ງ</option>'+shortRecipients().map(function(u){return '<option value="'+aesc(u.id)+'"'+((state.shortNotify&&state.shortNotify.uid)===u.id?' selected':'')+'>'+cesc(u.name)+' · '+cesc(ROLE_LABELS[u.role]||u.role)+'</option>';}).join('')+'</select>'))+
- kdsSetCard()+
  sCard('QR ສັ່ງເອງ (ລູກຄ້າ)','ລູກຄ້າສະແກນ QR ທີ່ໂຕະ ແລ້ວສັ່ງເອງ — ພິມ QR ໄດ້ທີ່ໜ້າ ໂຕະ','',
   sRow('ເປີດ QR ສັ່ງ ທັງຮ້ານ','',sSw('qrGlobal',!!state.qrGlobal))+
   sRow('ລູກຄ້າຕ້ອງໃສ່ PIN ໂຕະ ກ່ອນສັ່ງ','ກັນຄົນນອກຮ້ານສັ່ງມົ່ວ',sSw('qrPinRequired',state.qrPinRequired!==false))+
@@ -7047,15 +7061,28 @@ function setSecAdv(){
  return sCard('ສຳຮອງຂໍ້ມູນ','ສຳຮອງອັດຕະໂນມັດທຸກມື້ 03:00 ເກັບ 14 ມື້ (ເປີດໃນ Apps Script: Run setupBackup ຄັ້ງດຽວ)',sBtn('ລາຍການສຳຮອງ / ກູ້ຄືນ','showBackups()')+sBtn('ສຳຮອງດຽວນີ້','bakNow()','pri'),'')+
  sCard('ຍ້າຍບິນເກົ່າເຂົ້າຄັງ','ບິນປັດຈຸບັນ <b>'+(state.bills||[]).length+'</b> ໃບ — ຫຼາຍພັນໃບ ຈະບັນທຶກຊ້າ · ຍ້າຍໄປ sheet "ບິນ-ຄັງ" ຂໍ້ມູນບໍ່ເສຍ · ບິນຕິດໜີ້ທີ່ຍັງບໍ່ຈ່າຍ ບໍ່ຖືກຍ້າຍ',sBtn('ຍ້າຍບິນເກົ່າ…','archiveModal()'),'')+
  sCard('ລ້າງຂໍ້ມູນ','ລ້າງເປັນຮ້ານເປົ່າ (ເກັບການຕັ້ງຄ່າ ຜູ້ໃຊ້ ໂຕະ) ຫຼື ຂໍ້ມູນຕົວຢ່າງ · ຕ້ອງມີ PIN ຂອງ Super Admin · ສຳຮອງອັດຕະໂນມັດກ່ອນລ້າງ',sBtn('ລ້າງຂໍ້ມູນ…','confirmReset()','danger'),'','danger');}
+/* ===== ໜ້າພາບລວມການຕັ້ງຄ່າ: ກຸ່ມ + ບັດ ມີຄຳອະທິບາຍ + ຄົ້ນຫາ ===== */
+var SET_FIRST={shop:1,menu:2,users:3};
+function setSecHome(){var G=SET_NAV.filter(function(g){return g[0]!=='ເລີ່ມ';});
+ return '<div class="sh-top"><input id="shq" class="setsq big" type="search" placeholder="ພິມຫາ ເຊັ່ນ ໃບບິນ, ລາຄາ, ສຽງ, PIN, ສຳຮອງ…" oninput="setFind(this.value)"><p>ກົດບັດເພື່ອເຂົ້າໄປຕັ້ງ · <b>1 2 3</b> = ຕັ້ງກ່ອນເປີດຮ້ານ</p></div>'+
+  G.map(function(g){var its=g[1].filter(function(x){return setVis(x);});if(!its.length)return '';
+   return '<section class="sh-g"><h3>'+g[0]+'</h3><div class="sh-grid">'+its.map(function(x){return '<button type="button" class="sh-c" data-q="'+aesc((x[1]+' '+(x[3]||'')+' '+g[0]).toLowerCase())+'" onclick="adminSec=\''+x[0]+'\';render();uiEnter()">'+(SET_FIRST[x[0]]?'<em>'+SET_FIRST[x[0]]+'</em>':'')+'<i>'+sIco(x[2])+'</i><b>'+x[1]+'</b><small>'+(x[3]||'')+'</small></button>';}).join('')+'</div></section>';}).join('')+
+  '<p id="shnone" class="sh-none" style="display:none">ບໍ່ພົບ — ລອງຄຳອື່ນ</p>';}
+function setFind(v){v=String(v||'').trim().toLowerCase();document.querySelectorAll('.setsq').forEach(function(e){if(e.value!==v&&e!==document.activeElement)e.value=v;});
+ var any=false;document.querySelectorAll('.setrail button').forEach(function(b){var hit=!v||(b.dataset.q||'').indexOf(v)>=0;b.style.display=hit?'':'none';});
+ document.querySelectorAll('.setrail .sg').forEach(function(h){var n=h.nextElementSibling,any2=false;while(n&&!n.classList.contains('sg')){if(n.tagName==='BUTTON'&&n.style.display!=='none')any2=true;n=n.nextElementSibling;}h.style.display=any2?'':'none';});
+ document.querySelectorAll('.sh-c').forEach(function(c){var hit=!v||c.dataset.q.indexOf(v)>=0;c.style.display=hit?'':'none';if(hit)any=true;});
+ document.querySelectorAll('.sh-g').forEach(function(g){var h=[].some.call(g.querySelectorAll('.sh-c'),function(c){return c.style.display!=='none';});g.style.display=h?'':'none';});
+ var no=document.getElementById('shnone');if(no)no.style.display=(v&&!any)?'':'none';}
 function renderAdmin(R){
  if(adminSec==='bill')adminSec='shop';
  var items=[];SET_NAV.forEach(function(g){g[1].forEach(function(x){if(setVis(x))items.push(x);});});
- if(!items.some(function(x){return x[0]===adminSec;}))adminSec='shop';
+ if(!items.some(function(x){return x[0]===adminSec;}))adminSec='home';
  var cur=items.find(function(x){return x[0]===adminSec;});
- var rail='<h2>ການຕັ້ງຄ່າ</h2>'+SET_NAV.map(function(g){var its=g[1].filter(function(x){return setVis(x);});if(!its.length)return '';
-  return '<div class="sg">'+g[0]+'</div>'+its.map(function(x){return '<button type="button" class="'+(x[0]===adminSec?'on':'')+'" onclick="adminSec=\''+x[0]+'\';render();uiEnter();var m=document.querySelector(\'.setmain\');if(m)m.scrollIntoView({block:\'start\'})">'+sIco(x[2])+'<span>'+x[1]+'</span></button>';}).join('');}).join('');
- var F={shop:setSecShop,pay:setSecPay,order:setSecOrder,table:setSecTable,menu:setSecMenu,opts:setSecOpts,dlv:setSecDlv,promo:setSecPromo,cds:setSecCds,users:setSecUsers,staff:setSecStaff,loc:setSecLoc,units:setSecUnits,conn:setSecConn,adv:setSecAdv,perm:setSecPerm};
- R.innerHTML='<div class="adminbox setpage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain"><div class="sethead"><div><h2>'+cur[1]+'</h2><p>'+cur[3]+'</p></div><span id="setSaved" class="ssaved">✓ ບັນທຶກແລ້ວ</span></div>'+(adminSec==='pay'?F.pay():'<div class="sbento auto">'+F[adminSec]()+'</div>')+'</div></div></div>';setBento(R);
+ var rail='<h2>ການຕັ້ງຄ່າ</h2><input class="setsq" type="search" placeholder="ຄົ້ນຫາການຕັ້ງຄ່າ…" oninput="setFind(this.value)">'+SET_NAV.map(function(g){var its=g[1].filter(function(x){return setVis(x);});if(!its.length)return '';
+  return '<div class="sg">'+g[0]+'</div>'+its.map(function(x){return '<button type="button" data-q="'+aesc((x[1]+' '+(x[3]||'')).toLowerCase())+'" class="'+(x[0]===adminSec?'on':'')+'" onclick="adminSec=\''+x[0]+'\';render();uiEnter();var m=document.querySelector(\'.setmain\');if(m)m.scrollIntoView({block:\'start\'})">'+sIco(x[2])+'<span>'+x[1]+'</span></button>';}).join('');}).join('');
+ var F={home:setSecHome,kds:kdsSetCard,shop:setSecShop,pay:setSecPay,order:setSecOrder,table:setSecTable,menu:setSecMenu,opts:setSecOpts,dlv:setSecDlv,promo:setSecPromo,cds:setSecCds,users:setSecUsers,staff:setSecStaff,loc:setSecLoc,units:setSecUnits,conn:setSecConn,adv:setSecAdv,perm:setSecPerm};
+ R.innerHTML='<div class="adminbox setpage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain"><div class="sethead"><div><h2>'+(adminSec==='home'?'ການຕັ້ງຄ່າ':cur[1])+'</h2><p>'+(adminSec==='home'?'ເລືອກເລື່ອງທີ່ຢາກຕັ້ງ ຈາກບັດດ້ານລຸ່ມ ຫຼື ຄົ້ນຫາ':cur[3])+'</p></div><span id="setSaved" class="ssaved">✓ ບັນທຶກແລ້ວ</span></div>'+(adminSec==='pay'?F.pay():adminSec==='home'?F.home():'<div class="sbento auto">'+F[adminSec]()+'</div>')+'</div></div></div>';setBento(R);
  var on=R.querySelector('.setrail button.on');if(on&&on.scrollIntoView&&window.innerWidth<900){try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}}
 /* Bento: ກ່ອງຈັບຄູ່ 2 ຖັນ · ມີຕາຕະລາງ/ຕາຕະລາງສິດ = ເຕັມແຖວ · ຕົວທີ່ເຫຼືອດ່ຽວ = ເຕັມແຖວ */
 function setBento(R){var b=R&&R.querySelector('.sbento.auto');if(!b)return;var cards=[].slice.call(b.children),run=[];
