@@ -2380,6 +2380,10 @@ html[data-biz="medical"] :is(.dttoggle,.qrbadge,.dl-fl,.ordtools .dttoggle){disp
 html[data-theme="glass"] .rx-form,html[data-theme="glass"] .rx-cat,html[data-theme="glass"] .rx-c{background:linear-gradient(135deg,rgba(255,255,255,var(--l1a,.055)),rgba(255,255,255,var(--l1b,.02)))!important;border:1px solid rgba(255,255,255,.15)}
 html[data-nopay="1"] :is(.actions .b-bill,.actions .b-pay,.actions .b-split,.actions .b-move,.actions .b-merge,.actions .b-cancel,.cart .totals,.cart .paysummary){display:none!important}
 .rx-sy{background:#ede9fe;color:#4c1d95;border-radius:12px;padding:8px 12px;margin:8px 0;font-size:14px}.rx-sy small{display:block;color:#6d28d9;font-size:12.5px;margin-top:2px}
+.rxa-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:8px 0 14px}.rxa-kpi div{background:#fff;border-radius:16px;padding:12px 14px;box-shadow:var(--sh-1)}.rxa-kpi b{font-size:24px;display:block}.rxa-kpi small{color:var(--muted)}
+.rxa-box{background:#fff;border-radius:18px;padding:12px 14px;margin:0 0 12px;box-shadow:var(--sh-1)}.rxa-box h4{font-size:15px;margin:0 0 8px}.rxa-box h4 em{font-style:normal;background:#fee2e2;color:#991b1b;border-radius:999px;padding:1px 9px;font-size:12px;margin-left:6px}.rxa-ok{color:#166534;font-size:13px;margin:4px 0}
+.rxd-l{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0;cursor:pointer}.rxd-l input{width:22px;height:22px;flex:none}.rxd-l small{display:block;color:#0a7e7a}
+html[data-theme="glass"] :is(.rxa-kpi div,.rxa-box){background:linear-gradient(135deg,rgba(255,255,255,var(--l1a,.055)),rgba(255,255,255,var(--l1b,.02)))!important;border:1px solid rgba(255,255,255,.15)}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
@@ -3359,7 +3363,7 @@ function scanAdd(){var el=document.getElementById('search');if(!el)return;var co
  var p=allMenu().find(function(x){return String(x.c).toLowerCase()===code.toLowerCase();});
  if(!p){ /* ຄົ້ນຄຳດຽວທີ່ກົງ */ var ms=allMenu().filter(function(x){return x.n.toLowerCase().indexOf(code.toLowerCase())>=0||String(x.c).toLowerCase().indexOf(code.toLowerCase())>=0;});if(ms.length===1)p=ms[0];}
  if(p){addItem(p);el.value='';renderProducts();el.focus();}else{toast('ບໍ່ພົບ barcode/ລະຫັດ: '+code+' — ຕັ້ງລະຫັດເມນູ = barcode ໃນ Excel ຫຼືໃຊ້ "ຂາຍລາຄາເປີດ"');}}
-function openPriceItem(){openModal('<h2>＋ ຂາຍລາຄາເປີດ (ສິນຄ້າ/ບໍລິການທົ່ວໄປ)</h2>'+
+function openPriceItem(){if(bizCur()==='medical'&&!can('override')){toast('ຂາຍລາຄາເປີດ — ສະເພາະຜູ້ຈັດການ/ເຈົ້າຂອງ (ບໍ່ຕັດສະຕ໋ອກ)');return;}openModal('<h2>＋ ຂາຍລາຄາເປີດ (ສິນຄ້າ/ບໍລິການທົ່ວໄປ)</h2>'+
  '<label>ຊື່ລາຍການ</label><input id="op_nm" placeholder="ເຊັ່ນ ສິນຄ້າທົ່ວໄປ / ຄ່າບໍລິການ">'+
  '<label style="margin-top:8px">ລາຄາ (ກີບ)</label><input id="op_p" type="number" inputmode="numeric" value="0">'+
  '<label style="margin-top:8px">ປະເພດ (ໄປຈໍໃດ)</label><select id="op_k"><option value="food">ອາຫານ (ຈໍຄົວ)</option><option value="drink">ເຄື່ອງດື່ມ (ຈໍບາຣ໌)</option></select>'+
@@ -3367,7 +3371,7 @@ function openPriceItem(){openModal('<h2>＋ ຂາຍລາຄາເປີດ (�
  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doOpenPrice()">ເພີ່ມ</button></div>');}
 function doOpenPrice(){var nm=(document.getElementById('op_nm').value||'').trim();var p=+document.getElementById('op_p').value||0;var k=document.getElementById('op_k').value||'food';
  if(!nm){toast('ໃສ່ຊື່');return;}if(p<=0){toast('ໃສ່ລາຄາ > 0');return;}
- pushToDraft({c:'OPEN'+Date.now(),n:nm,p:p,k:k,bom:[]},[state.dineType],0);closeModal();toast('ເພີ່ມ '+nm+' '+KIP(p)+' ກີບ');}
+ pushToDraft({c:'OPEN'+Date.now(),n:nm,p:p,k:k,bom:[]},[state.dineType],0);try{logOrder('ຂາຍລາຄາເປີດ',nm+' · '+KIP(p)+' ກີບ ('+((curUser()||{}).name||'')+')',state.activeTable);}catch(e){}closeModal();toast('ເພີ່ມ '+nm+' '+KIP(p)+' ກີບ');}
 /* ===== ຮູບຕົວຢ່າງອັດຕະໂນມັດ (ສ້າງຕອນສະແດງ — ບໍ່ບັນທຶກລົງຂໍ້ມູນ) ===== */
 const _thumbCache={};
 const THUMB_RULES=[[/mojito|margarita|cocktail|sour|martini|ຄັອກເທວ/i,'🍸'],[/wine|ວາຍ/i,'🍷'],[/whisk|rum|vodka|gin|tequila|liqueur|ເຫຼົ້າ|ເຫລົ້າ/i,'🥃'],[/beer|ເບຍ|lager|weizen|ipa|ale/i,'🍺'],
@@ -3439,7 +3443,7 @@ function mgType(g){return g.type||(g.multi?'topping':'choice');}
 /* ລາຄາເພີ່ມຂອງຕົວເລືອກ — ເມນູກຳນົດເອງໄດ້ (item.op) ຖ້າບໍ່ມີ ໃຊ້ລາຄາຂອງກຸ່ມ */
 function optP(g,o,p){var t=p&&p.op&&p.op[g.id];return (t&&t[o.n]!=null&&t[o.n]!=='')?+t[o.n]:(+o.p||0);}
 function modGroupsFor(p){if(!modOn('opts'))return [];return (state.modGroups||[]).filter(function(g){return g.opts&&g.opts.length&&mgApplies(g,p)&&!(p&&p.sz&&mgType(g)==='size');});} /* ເມນູທີ່ມີຂະໜາດໃນຕົວ (12/16/20 Oz) ບໍ່ຖາມຂະໜາດຊ້ຳຈາກກຸ່ມຕົວເລືອກ */
-function addItem(p){var _dch=!isCust()&&curDlCh();if(_dch)p=Object.assign({},p,{p:dlPrice(_dch,p)});if(state.soldOut&&state.soldOut[p.c]){toast('"'+p.n+'" ໝົດ / ງົດຂາຍຊົ່ວຄາວ');return;}
+function addItem(p){if(bizCur()==='medical'&&rxIsRxItem(p)&&!can('rxWrite')&&!can('override')){toast('ຢາ Rx ຕ້ອງຜ່ານໃບສັ່ງຂອງແພດ — ຜູ້ຈັດການອະນຸມັດໄດ້');return;}var _dch=!isCust()&&curDlCh();if(_dch)p=Object.assign({},p,{p:dlPrice(_dch,p)});if(state.soldOut&&state.soldOut[p.c]){toast('"'+p.n+'" ໝົດ / ງົດຂາຍຊົ່ວຄາວ');return;}
  if(p.mod||modGroupsFor(p).length){openModifier(p);return;}pushToDraft(p,[state.dineType],0);if(!isCust())toast('ເພີ່ມ '+p.n+' ('+state.dineType+')');}
 function toggleSoldOut(code){if(!can('soldout')){toast('ບໍ່ມີສິດ');return;}if(!state.soldOut)state.soldOut={};
  var m=findMenu(code);if(state.soldOut[code]){delete state.soldOut[code];toast((m?m.n:code)+' ກັບມາຂາຍແລ້ວ');}else{state.soldOut[code]=true;toast((m?m.n:code)+' ໝົດ/ງົດຂາຍ');}
@@ -6383,19 +6387,20 @@ function printReportBody(title){var body=document.getElementById('repbody');if(!
  setTimeout(function(){window.print();},200);}
 function codeCatMap(){var M=MSRC(),m={};for(var c in M)for(var s in M[c])M[c][s].forEach(function(x){m[x.c]=c;});return m;}
 var REP_MOD={menu:'costing',dlprofit:'delivery'};
-function repNav(){var med=(typeof bizCur==='function'&&bizCur()==='medical');return REP_NAV.map(function(g){return [g[0],g[1].filter(function(x){if(med&&(x[0]==='food'||x[0]==='dlprofit'))return false;return (!REP_MOD[x[0]]||modOn(REP_MOD[x[0]]))&&(x[0]!=='data'||can('export')||can('import'));})];}).filter(function(g){return g[1].length;});}
+function repNav(){var med=(typeof bizCur==='function'&&bizCur()==='medical');return REP_NAV.map(function(g){return [g[0],g[1].filter(function(x){if(med&&(x[0]==='food'||x[0]==='dlprofit'))return false;if(!med&&x[0]==='rxaudit')return false;return (!REP_MOD[x[0]]||modOn(REP_MOD[x[0]]))&&(x[0]!=='data'||can('export')||can('import'));})];}).filter(function(g){return g[1].length;});}
 var REP_NAV=[['ພາບລວມ',[['summary','ສະຫຼຸບການຂາຍ','chart'],['profit','ຕົ້ນທຶນ & ກຳໄລ','pay'],['branch','ລວມທຸກສາຂາ','store']]],
  ['ສິນຄ້າ & ສະຕ໋ອກ',[['product','ສິນຄ້າຂາຍດີ','menu'],['food','ຕິດຕາມອາຫານ','order'],['loss','ສູນເສຍ % (ສະຕ໋ອກ)','box']]],
  ['ກຳໄລ & ລາຄາ',[['menu','ກຳໄລຕໍ່ເມນູ & ລາຄາ','chart'],['dlprofit','Delivery ກຳໄລ/ຂາດທຶນ','pay']]],
  ['ພະນັກງານ',[['staff','ຜົນງານພະນັກງານ','users']]],
- ['ກວດສອບ',[['cancel','ລຶບເມນູ / ຍ້າຍໂຕະ','trash'],['audit','ການປ່ຽນແປງອໍເດີ','edit']]],
+ ['ກວດສອບ',[['rxaudit','ກວດສອບໃບສັ່ງຢາ','shield'],['cancel','ລຶບເມນູ / ຍ້າຍໂຕະ','trash'],['audit','ການປ່ຽນແປງອໍເດີ','edit']]],
  ['ຂໍ້ມູນ',[['data','ສູນຂໍ້ມູນ Export / Import','box']]]];
 function renderReports(R){if(reportTab==='sdisc'){reportTab='summary';memberTab='sdh';setView('members');return;}if(reportTab==='dash'||reportTab==='sales'||!repNav().some(function(g){return g[1].some(function(x){return x[0]===reportTab;});}))reportTab='summary';
  var td=ymd(Date.now()),nc=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===td;}).length;
  var rail='<h2>ລາຍງານ</h2>'+repNav().map(function(g){return '<div class="sg">'+g[0]+'</div>'+g[1].map(function(x){return '<button type="button" class="'+(reportTab===x[0]?'on':'')+'" onclick="reportTab=\''+x[0]+'\';render()">'+sIco(x[2])+'<span>'+x[1]+'</span>'+(x[0]==='cancel'&&nc?'<em class="rbadge">'+nc+'</em>':'')+(x[0]==='menu'&&costAlertsOpen().length?'<em class="rbadge">'+costAlertsOpen().length+'</em>':'')+'</button>';}).join('');}).join('');
  R.innerHTML='<div class="adminbox setpage reppage"><div class="setwrap"><nav class="setrail">'+rail+'</nav><div class="setmain repmain"><div id="repbody"></div></div></div></div>';
  var body=document.getElementById('repbody');if(!body)return;
- if(reportTab==='data')renderRepData(body);
+ if(reportTab==='rxaudit')renderRxAudit(body);
+ else if(reportTab==='data')renderRepData(body);
  else if(reportTab==='menu')renderRepMenu(body);
  else if(reportTab==='dlprofit')renderRepDl(body);
  else if(reportTab==='product')renderRepProduct(body);
@@ -8141,6 +8146,7 @@ function editUser(id){if(!can('userMng')){toast('ບໍ່ມີສິດຈັ�
   '<label>ຊື່</label><input id="us_nm" value="'+cesc(u?u.name:'')+'" placeholder="ຊື່ພະນັກງານ">'+
   '<label style="margin-top:8px">ບົດບາດ</label><select id="us_rl" onchange="permRoleChanged()">'+assignableRoles().map(function(r){return '<option value="'+r+'"'+(u&&u.role===r?' selected':'')+'>'+ROLE_LABELS[r]+'</option>';}).join('')+'</select>'+
   '<label style="margin-top:8px">PIN (4 ຕົວເລກ)</label><input id="us_pin" type="tel" inputmode="numeric" maxlength="4" value="" placeholder="'+(u?'ປະຫວ່າງ = ບໍ່ປ່ຽນ PIN ເກົ່າ':'ເຊັ່ນ 5678')+'">'+
+  (bizCur()==='medical'?'<label style="margin-top:8px">ບັດແພດ (ສຳລັບບົດບາດ ແພດ — ແພດຈະສັ່ງໄດ້ສະເພາະບັດນີ້)</label><select id="us_room"><option value="">— ບໍ່ກຳນົດ —</option>'+Object.values(state.tables).filter(function(t){return !t.dl&&t.status!=='merged';}).map(function(t){return '<option value="'+aesc(t.name)+'"'+(u&&u.room===t.name?' selected':'')+'>'+cesc(t.name)+'</option>';}).join('')+'</select>':'')+
   '<div id="permBox"></div>'+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="saveUser(\''+(u?u.id:'')+'\')">ບັນທຶກ</button></div>');
  window.__permEdit={u:u,v:JSON.parse(JSON.stringify((u&&u.perm&&u.perm.v)||{})),a:JSON.parse(JSON.stringify((u&&u.perm&&u.perm.a)||{}))};renderPermBox();}
@@ -8156,7 +8162,8 @@ function renderPermBox(){var el=document.getElementById('permBox');if(!el)return
   '<div class="permnote">ຕິກ = ອະນຸຍາດ · ລາຍການ "ປັບແລ້ວ" ຈະບໍ່ປ່ຽນຕາມບົດບາດ · ສ່ວນຫຼຸດເພດານ '+(state.discLimit||0)+'% (ຕັ້ງທີ່ ຮ້ານ & ການຄິດເງິນ)</div>';}
 function permToggle(kind,key,on){var E=window.__permEdit,r=document.getElementById('us_rl').value,def=kind==='v'?roleView(r,key):roleCan(r,key);if(on===def)delete E[kind][key];else E[kind][key]=on;renderPermBox();}
 function permReset(){var E=window.__permEdit;E.v={};E.a={};renderPermBox();}
-function saveUser(id){var nm=(document.getElementById('us_nm').value||'').trim(),rl=document.getElementById('us_rl').value,pin=(document.getElementById('us_pin').value||'').trim();
+function saveUser(id){var rmEl=document.getElementById('us_room'),rm=rmEl?rmEl.value:null,nm0=(document.getElementById('us_nm')||{}).value;_saveUser0(id);if(rm!==null){var uu=(state.users||[]).find(function(x){return x.name===String(nm0||'').trim();});if(uu&&uu.role==='doctor'){if(rm)uu.room=rm;else delete uu.room;save();}}}
+function _saveUser0(id){var nm=(document.getElementById('us_nm').value||'').trim(),rl=document.getElementById('us_rl').value,pin=(document.getElementById('us_pin').value||'').trim();
  if(!nm){toast('ໃສ່ຊື່');return;}
  if(assignableRoles().indexOf(rl)<0){toast('ບໍ່ມີສິດມອບບົດບາດນີ້');return;}
  if(!id&&!/^\d{4}$/.test(pin)){toast('PIN ຕ້ອງເປັນເລກ 4 ຕົວ');return;}
@@ -8533,7 +8540,7 @@ function demoInit(){if(!window.__DEMO||!state)return;if(state._demo&&state._demo
  state.bills=(state.bills||[]).concat(bills);if(t==='medical'){try{rxDemo();}catch(e){}}save();render();demoBar();toast('ໂໝດທົດລອງ — ລອງໄດ້ເລີຍ ຂໍ້ມູນນີ້ຢູ່ໃນເຄື່ອງທ່ານເທົ່ານັ້ນ');}
 /* ===== ໃບສັ່ງຢາ (Rx): ແພດ ກົດສັ່ງຢາ → ແຄັດເຊຍ ເບີກບິນ/ຮັບເງິນ → ຫ້ອງຢາ ຈ່າຍຢາ → ຄົນເຈັບໄປເອົາຢາ ===== */
 var _rxc={patient:'',mid:'',room:'',dx:'',items:[],q:''},_rxTab=null;
-var RX_ST={sent:['ລໍຈ່າຍເງິນ','#b45309','#fef3c7'],paid:['ຈ່າຍເງິນແລ້ວ · ລໍຈ່າຍຢາ','#075A57','#d5f5f2'],dispensed:['ຈ່າຍຢາແລ້ວ','#166534','#dcfce7'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9'],intake:['ລໍພົບແພດ','#6d28d9','#ede9fe'],seen:['ແພດກວດແລ້ວ','#166534','#dcfce7']};
+var RX_ST={sent:['ລໍຈ່າຍເງິນ','#b45309','#fef3c7'],paid:['ຈ່າຍເງິນແລ້ວ · ລໍຈ່າຍຢາ','#075A57','#d5f5f2'],dispensed:['ຈ່າຍຢາແລ້ວ','#166534','#dcfce7'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9'],intake:['ລໍພົບແພດ','#6d28d9','#ede9fe'],voided:['ບິນຖືກ Void','#991b1b','#fee2e2'],seen:['ແພດກວດແລ້ວ','#166534','#dcfce7']};
 function rxInit(){if(!Array.isArray(state.rx))state.rx=[];return state.rx;}
 function rxQueueNo(){rxInit();var d=ymd(Date.now()),n=state.rx.filter(function(r){return ymd(r.ts)===d;}).length+1;return 'Q'+('00'+n).slice(-3);}
 function rxCreate(o){rxInit();var t=state.tables[o.room],now=Date.now(),u=curUser()||{},lines=[],items=[];
@@ -8546,6 +8553,7 @@ function rxSend(){if(!can('rxWrite')){toast('ບໍ່ມີສິດສັ່�
  if(!String(c.patient).trim()){toast('ໃສ່ຊື່ຄົນເຈັບ');return;}if(!c.room||!state.tables[c.room]){toast('ເລືອກແພດ / ແຄັດເຊຍ');return;}if(!c.items.length){toast('ເລືອກຢາ / ບໍລິການ ຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
  var t=state.tables[c.room];if(t.status==='merged'){toast('ບັດນີ້ຖືກລວມແລ້ວ');return;}
  if(state.stockBlock!==false&&modOn('stock')){var sh=draftShortage(c.items.map(function(i){return {code:i.c,qty:i.qty,mods:[]};}));if(sh.length){toast('ສະຕ໋ອກບໍ່ພໍ: '+sh.map(function(x){return x.name+' (ມີ '+x.have+')';}).join(', '));return;}}
+ var mr=rxMyRoomOnly();if(mr&&c.room!==mr){toast('ແພດສັ່ງໄດ້ສະເພາະບັດຂອງຕົນເອງ ('+mr+')');return;}
  var r=rxCreate({patient:String(c.patient).trim(),mid:c.mid,room:c.room,dx:c.dx,items:c.items,no:c.intakeNo,symptoms:c.symptoms,vitals:c.vitals});if(c.intakeId){var it0=state.rx.find(function(x){return x.id===c.intakeId;});if(it0){it0.status='seen';it0.upd=Date.now();}}logOrder('ໃບສັ່ງຢາ',r.no+' → '+r.room+' · '+r.patient+' · '+KIP(r.total)+' ກີບ',r.room);
  _rxc={patient:'',mid:'',room:'',dx:'',items:[],q:''};_rxTab='sent';save();render();showSuccess('ສົ່ງໃບສັ່ງຢາແລ້ວ ('+r.no+')','ໄປຫາແຄັດເຊຍ — ຄົນເຈັບໄປຈ່າຍເງິນທີ່ແຄັດເຊຍ');}
 function rxBill(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;if(!can('pay')){toast('ບໍ່ມີສິດຮັບເງິນ');return;}var t=state.tables[r.room];if(!t||!t.items.length){toast('ບໍ່ພົບລາຍການໃນບັດແພດ');return;}state.activeTable=r.room;state.draft=[];checkBill();}
@@ -8564,6 +8572,33 @@ function rxIntakeSave(){if(!can('rxIntake')){toast('ບໍ່ມີສິດ');r
 function rxStart(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='intake')return;_rxc={patient:r.patient,mid:r.memberId||'',room:r.room,dx:'',items:[],q:'',intakeId:r.id,intakeNo:r.no,symptoms:r.symptoms,vitals:r.vitals};_rxTab='new';render();}
 function rxIntakeCancel(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='intake')return;if(!confirm('ຍົກເລີກຄິວ '+r.no+' ?'))return;r.status='cancelled';r.upd=Date.now();save();render();}
 function rxVit(v){if(!v)return '';var a=[];if(v.t)a.push('ອຸນຫະພູມ '+v.t+'°C');if(v.bp)a.push('ຄວາມດັນ '+v.bp);if(v.w)a.push('ນ້ຳໜັກ '+v.w+' kg');return a.join(' · ');}
+/* ===== ຄວບຄຸມ: Void/Refund ບິນ → ໃບສັ່ງຢາ ບໍ່ໃຫ້ຈ່າຍຢາ; ຍົກເລີກຕ້ອງມີເຫດຜົນ; ຈ່າຍຢາຕ້ອງຢືນຢັນລາຍການ; ແພດໃຊ້ບັດຕົນເອງ; ຢາ Rx ຕ້ອງຜ່ານແພດ ===== */
+function rxOnVoid(rno,rsn){if(!Array.isArray(state.rx))return;state.rx.forEach(function(r){if(r.receipt===rno&&(r.status==='paid'||r.status==='dispensed')){r.voidedFrom=r.status;r.status='voided';r.voidReason=rsn;r.voidBy=(curUser()||{}).name||'';r.voidTs=Date.now();r.upd=Date.now();logOrder('ໃບສັ່ງຢາ ຖືກ Void',r.no+' ('+(r.voidedFrom==='dispensed'?'⚠ ຈ່າຍຢາໄປແລ້ວ':'ຍັງບໍ່ຈ່າຍຢາ')+') · '+rsn,r.room);}});}
+function rxOnRefund(rno,amt,rsn){if(!Array.isArray(state.rx))return;state.rx.forEach(function(r){if(r.receipt===rno){r.refunded=(r.refunded||0)+amt;r.refundReason=rsn;r.refundBy=(curUser()||{}).name||'';r.upd=Date.now();logOrder('ໃບສັ່ງຢາ ມີການຄືນເງິນ',r.no+' · '+KIP(amt)+' · '+rsn,r.room);}});}
+function rxIsRxItem(p){return !!p&&/\(Rx\)/i.test(p.n||'');}
+function rxCancelAsk(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;
+ var go=function(){openModal('<h2 style="color:var(--red)">ຍົກເລີກໃບສັ່ງຢາ '+r.no+'</h2><div class="paysummary"><div class="row"><span>ຄົນເຈັບ</span><b>'+cesc(r.patient)+'</b></div><div class="row"><span>ຍອດ</span><b>'+KIP(r.total)+' ກີບ</b></div></div>'+rsnBox('rx_rsn')+'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ກັບ</button><button class="btn-ok" style="background:var(--red)" data-k="'+aesc(id)+'" onclick="rxCancelGo(this.dataset.k)">ຍົກເລີກໃບ</button></div>');};
+ if(!(can('cancel')))requireOverride('cancel','ຍົກເລີກໃບສັ່ງຢາ '+r.no+' ('+r.patient+')',go);else go();}
+function rxCancelGo(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;var rsn=((document.getElementById('rx_rsn')||{}).value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
+ var t=state.tables[r.room],ids={};r.items.forEach(function(i){ids[String(i.lid)]=1;});if(t){t.items=t.items.filter(function(l){if(ids[String(l.id)]){try{lineBomOf(l).forEach(function(b){addStockAt(b[0],curLoc(),b[1]*l.qty,'ຄືນ-ຍົກເລີກໃບສັ່ງຢາ',r.no);});}catch(e){}logCancel('ຍົກເລີກໃບສັ່ງຢາ',l.code,l.name,l.qty,lineTotal(l),r.room,r.no+' — '+rsn);return false;}return true;});if(!t.items.length){t.status='free';t.customer=null;t.memberId=null;t.callTs=null;t.billTs=null;}}
+ r.status='cancelled';r.cancelReason=rsn;r.cancelBy=(curUser()||{}).name||'';r.cancelTs=Date.now();r.upd=Date.now();logOrder('ຍົກເລີກໃບສັ່ງຢາ',r.no+' · '+rsn,r.room);save();closeModal();render();toast('ຍົກເລີກໃບສັ່ງຢາແລ້ວ');}
+function rxDispenseAsk(id){if(!can('rxDispense')){toast('ບໍ່ມີສິດຈ່າຍຢາ');return;}var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='paid')return;
+ openModal('<h2>ຢືນຢັນຈ່າຍຢາ · '+r.no+'</h2><p style="text-align:center;color:var(--muted);font-size:13px">ຄົນເຈັບ: <b>'+cesc(r.patient)+'</b> · ບິນ '+cesc(r.receipt||'-')+'<br>ຕິກທຸກລາຍການ ເມື່ອໃຫ້ຢາ/ອຸປະກອນຄົບແລ້ວ</p>'+
+  '<div style="max-height:44vh;overflow:auto">'+r.items.map(function(i,ix){return '<label class="rxd-l"><input type="checkbox" class="rxd-c"><span><b>'+i.qty+'× '+cesc(i.name)+'</b>'+(i.dose?'<small>'+cesc(i.dose)+'</small>':'')+'</span></label>';}).join('')+'</div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" data-k="'+aesc(id)+'" onclick="rxDispenseGo(this.dataset.k)">✓ ຈ່າຍຢາແລ້ວ</button></div>');}
+function rxDispenseGo(id){var cs=document.querySelectorAll('.rxd-c');for(var i=0;i<cs.length;i++){if(!cs[i].checked){toast('ຕ້ອງຕິກຢືນຢັນທຸກລາຍການ');return;}}closeModal();rxDispense(id);}
+function rxMyRoomOnly(){var u=curUser()||{};return u.role==='doctor'&&u.room&&state.tables[u.room]?u.room:'';}
+function renderRxAudit(R){rxInit();var L=state.rx,now=Date.now(),bills=state.bills||[],tbl=function(h,rows,cols){return '<div class="rxa-box"><h4>'+h+' <em>'+rows.length+'</em></h4>'+(rows.length?'<div style="overflow:auto"><table class="tbl"><thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>':'<p class="rxa-ok">✓ ບໍ່ມີລາຍການຜິດປົກກະຕິ</p>')+'</div>';};
+ var dt=function(t){return t?ymd(t)+' '+new Date(t).toLocaleTimeString('en-GB').slice(0,5):'-';};
+ var canc=L.filter(function(r){return r.status==='cancelled'&&r.cancelReason;}).map(function(r){return [r.no,cesc(r.patient),cesc(r.room),KIP(r.total),cesc(r.cancelBy||'-'),cesc(r.cancelReason),dt(r.cancelTs)];});
+ var vd=L.filter(function(r){return r.status==='voided';}).map(function(r){return [r.no,cesc(r.patient),KIP(r.total),r.voidedFrom==='dispensed'?'<b style="color:#dc2626">ຈ່າຍຢາໄປແລ້ວ ⚠</b>':'ຍັງບໍ່ຈ່າຍຢາ',cesc(r.voidBy||'-'),cesc(r.voidReason||''),dt(r.voidTs)];});
+ var rf=L.filter(function(r){return r.refunded;}).map(function(r){return [r.no,cesc(r.patient),KIP(r.refunded),cesc(r.refundBy||'-'),cesc(r.refundReason||''),r.status==='dispensed'?'<b style="color:#dc2626">ຈ່າຍຢາແລ້ວ ⚠</b>':RX_ST[r.status]?RX_ST[r.status][0]:r.status];});
+ var un=L.filter(function(r){return r.status==='paid'&&now-(r.paidTs||r.ts)>24*3600000;}).map(function(r){return [r.no,cesc(r.patient),KIP(r.total),dt(r.paidTs),Math.floor((now-(r.paidTs||r.ts))/3600000)+' ຊມ'];});
+ var op=[];bills.forEach(function(b){if(b.voided)return;(b.items||[]).forEach(function(i){if(String(i.code).indexOf('OPEN')===0)op.push([cesc(b.receipt),dt(b.ts),cesc(i.name),i.qty,KIP(i.price),cesc(b.cashier||b.by||'')]);});});
+ var sold=L.filter(function(r){return r.status==='dispensed';}).length,paid=L.filter(function(r){return r.status==='paid';}).length,sent=L.filter(function(r){return r.status==='sent';}).length;
+ R.innerHTML='<div class="toolbar"><span style="font-size:18px;font-weight:800">ກວດສອບໃບສັ່ງຢາ & ຄວາມສ່ຽງ</span></div><div style="padding:0 18px 18px"><div class="rxa-kpi"><div><b>'+L.length+'</b><small>ໃບທັງໝົດ</small></div><div><b>'+sent+'</b><small>ລໍຈ່າຍເງິນ</small></div><div><b>'+paid+'</b><small>ລໍຈ່າຍຢາ</small></div><div><b>'+sold+'</b><small>ຈ່າຍຢາແລ້ວ</small></div></div>'+
+  tbl('Void ບິນ ທີ່ມີໃບສັ່ງຢາ (ສຳຄັນ)',vd,['ຄິວ','ຄົນເຈັບ','ຍອດ','ສະຖານະກ່ອນ Void','ຜູ້ເຮັດ','ເຫດຜົນ','ເວລາ'])+tbl('ຄືນເງິນ (Refund) ທີ່ມີໃບສັ່ງຢາ',rf,['ຄິວ','ຄົນເຈັບ','ຄືນ','ຜູ້ເຮັດ','ເຫດຜົນ','ສະຖານະ'])+
+  tbl('ໃບສັ່ງຢາທີ່ຖືກຍົກເລີກ',canc,['ຄິວ','ຄົນເຈັບ','ບັດ','ຍອດ','ຜູ້ຍົກເລີກ','ເຫດຜົນ','ເວລາ'])+tbl('ຈ່າຍເງິນແລ້ວ ແຕ່ຍັງບໍ່ໄດ້ເອົາຢາ ເກີນ 24 ຊົ່ວໂມງ',un,['ຄິວ','ຄົນເຈັບ','ຍອດ','ຈ່າຍເມື່ອ','ຄ້າງ'])+tbl('ການຂາຍ "ລາຄາເປີດ" (ບໍ່ຕັດສະຕ໋ອກ)',op,['ບິນ','ເວລາ','ລາຍການ','ຈຳນວນ','ລາຄາ','ແຄັດເຊຍ'])+'</div>';}
 function rxBadge(){var el=document.getElementById('rxBadge');if(!el)return;var n=0;if(Array.isArray(state.rx)){state.rx.forEach(function(r){if((r.status==='sent'&&can('pay'))||(r.status==='paid'&&can('rxDispense')))n++;});}el.textContent=n;el.style.display=n?'':'none';}
 function rxAdd(code){var p=findMenu(code);if(!p)return;var e=_rxc.items.find(function(i){return i.c===code;});if(e)e.qty++;else _rxc.items.push({c:code,n:p.n,p:p.p,qty:1,dose:''});render();}
 function rxQty(i,d){var e=_rxc.items[i];if(!e)return;e.qty+=d;if(e.qty<1)_rxc.items.splice(i,1);render();}
@@ -8571,8 +8606,8 @@ function rxPatient(v){_rxc.patient=v;var m=(state.customers||[]).find(function(c
 function rxSetTab(t){_rxTab=t;render();}
 function rxCard(r){var st=RX_ST[r.status]||RX_ST.sent,b='';
  if(r.status==='intake'){if(can('rxWrite'))b+='<button class="btn-ok grad" onclick="rxStart(\''+r.id+'\')">ເລີ່ມກວດ / ສັ່ງຢາ</button>';if(can('rxIntake')&&r.byId===(curUser()||{}).id)b+='<button class="btn-cancel" onclick="rxIntakeCancel(\''+r.id+'\')">ຍົກເລີກ</button>';}
- if(r.status==='sent'){if(can('pay'))b+='<button class="btn-ok grad" onclick="rxBill(\''+r.id+'\')">ເບີກບິນ & ຮັບເງິນ</button>';if(can('rxWrite')||can('pay'))b+='<button class="btn-cancel" onclick="rxCancel(\''+r.id+'\')">ຍົກເລີກ</button>';}
- if(r.status==='paid'){if(can('rxDispense'))b+='<button class="btn-ok grad" onclick="rxDispense(\''+r.id+'\')">✓ ຈ່າຍຢາແລ້ວ</button>';b+='<button class="btn-cancel" onclick="rxPrint(\''+r.id+'\')">ພິມໃບຢາ</button>';}
+ if(r.status==='sent'){if(can('pay'))b+='<button class="btn-ok grad" onclick="rxBill(\''+r.id+'\')">ເບີກບິນ & ຮັບເງິນ</button>';if(can('rxWrite')||can('pay'))b+='<button class="btn-cancel" onclick="rxCancelAsk(\''+r.id+'\')">ຍົກເລີກ</button>';}
+ if(r.status==='paid'){if(can('rxDispense'))b+='<button class="btn-ok grad" onclick="rxDispenseAsk(\''+r.id+'\')">✓ ຈ່າຍຢາແລ້ວ</button>';b+='<button class="btn-cancel" onclick="rxPrint(\''+r.id+'\')">ພິມໃບຢາ</button>';}
  if(r.status==='dispensed')b+='<button class="btn-cancel" onclick="rxPrint(\''+r.id+'\')">ພິມໃບຢາ</button>';
  return '<div class="rx-c"><div class="rx-h"><b class="rx-q">'+r.no+'</b><div class="rx-p"><b>'+cesc(r.patient)+'</b><small>'+cesc(r.room)+(r.doctor?' · ແພດ '+cesc(r.doctor):'')+' · '+new Date(r.ts).toLocaleTimeString('en-GB').slice(0,5)+'</small></div><span class="rx-st" style="color:'+st[1]+';background:'+st[2]+'">'+st[0]+'</span></div>'+
   (r.symptoms?'<div class="rx-sy">🩺 ອາການ: <b>'+cesc(r.symptoms)+'</b>'+(rxVit(r.vitals)?'<small>'+cesc(rxVit(r.vitals))+'</small>':'')+'</div>':'')+(r.dx?'<div class="rx-dx">ການວິນິໄສ: '+cesc(r.dx)+'</div>':'')+(r.items.length?'<div class="rx-it">'+r.items.map(function(i){return '<div><span>'+i.qty+'× '+cesc(i.name)+(i.dose?'<small>'+cesc(i.dose)+'</small>':'')+'</span><b>'+KIP(i.price*i.qty)+'</b></div>';}).join('')+'</div>':'')+
@@ -8586,7 +8621,7 @@ function renderRx(R){rxInit();var L=state.rx.filter(rxVisible),cnt={sent:0,paid:
   h+='<div class="rx-form" style="max-width:560px"><label>ຊື່ຄົນເຈັບ</label><input id="inPat" list="inMem" placeholder="ພິມຊື່ ຫຼື ເລືອກຄົນເຈັບເກົ່າ"><datalist id="inMem">'+(state.customers||[]).map(function(m){return '<option value="'+aesc(m.name)+'">';}).join('')+'</datalist><label>ສົ່ງຫາແພດ</label><select id="inDoc"><option value="">— ເລືອກແພດ —</option>'+docs.map(function(t){return '<option value="'+aesc(t.name)+'">'+cesc(t.name)+'</option>';}).join('')+'</select><label>ອາການ / ເຫດຜົນທີ່ມາກວດ <b style="color:#dc2626">*ຕ້ອງໃສ່</b></label><textarea id="inSym" rows="3" placeholder="ເຊັ່ນ ໄຂ້ 3 ວັນ, ໄອ, ເຈັບຄໍ, ປວດຫົວ…"></textarea><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><label>ອຸນຫະພູມ °C</label><input id="inT" inputmode="decimal" placeholder="37.5"></div><div><label>ຄວາມດັນ</label><input id="inBP" placeholder="120/80"></div><div><label>ນ້ຳໜັກ kg</label><input id="inW" inputmode="decimal" placeholder="60"></div></div><button class="btn-ok grad rx-send" style="margin-top:14px" onclick="rxIntakeSave()">ສົ່ງຫາແພດ →</button></div>';}
  else if(_rxTab==='queue'){var ql=L.filter(function(r){return r.status==='intake';}).sort(function(a,b){return a.ts-b.ts;});h+=ql.length?'<div class="rx-list">'+ql.map(rxCard).join('')+'</div>':'<div class="empty" style="padding:40px;text-align:center;color:var(--muted)">ບໍ່ມີຄົນເຈັບລໍ</div>';}
  else if(_rxTab==='new'){var c=_rxc,q=(c.q||'').toLowerCase(),flat=[];Object.values(MSRC()).forEach(function(cat){Object.values(cat).forEach(function(l){l.forEach(function(i){if(!q||(i.n+' '+i.c).toLowerCase().indexOf(q)>=0)flat.push(i);});});});
-  var rooms=Object.values(state.tables).filter(function(t){return !t.dl&&t.status!=='merged';});var tot=c.items.reduce(function(a,i){return a+i.p*i.qty;},0);
+  var rooms=Object.values(state.tables).filter(function(t){return !t.dl&&t.status!=='merged'&&(!rxMyRoomOnly()||t.name===rxMyRoomOnly());});var tot=c.items.reduce(function(a,i){return a+i.p*i.qty;},0);
   h+='<div class="rx-new"><div class="rx-form">'+(c.symptoms?'<div class="rx-sy">🩺 ອາການ (ພະຍາບານ): <b>'+cesc(c.symptoms)+'</b>'+(rxVit(c.vitals)?'<small>'+cesc(rxVit(c.vitals))+'</small>':'')+'</div>':'')+'<label>ຊື່ຄົນເຈັບ</label>'+(function(){var mm=(state.customers||[]).find(function(x){return x.id===c.mid;});return mm&&mm.note?'<div style="background:#fef3c7;color:#92400e;border-radius:10px;padding:6px 10px;font-size:13px;margin:4px 0">⚠ ແພ້ຢາ / ພະຍາດ: '+cesc(mm.note)+'</div>':'';})()+'<input id="rxPat" list="rxMem" value="'+aesc(c.patient)+'" placeholder="ພິມຊື່ ຫຼື ເລືອກສະມາຊິກ" oninput="rxPatient(this.value)"><datalist id="rxMem">'+(state.customers||[]).map(function(m){return '<option value="'+aesc(m.name)+'">';}).join('')+'</datalist>'+
    '<label>ແພດ / ແຄັດເຊຍ</label><select id="rxRoom" onchange="_rxc.room=this.value"><option value="">— ເລືອກ —</option>'+rooms.map(function(t){return '<option value="'+aesc(t.name)+'"'+(c.room===t.name?' selected':'')+'>'+cesc(t.name)+(t.status!=='free'?' (ມີລາຍການ)':'')+'</option>';}).join('')+'</select>'+
    '<label>ການວິນິໄສ / ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label><textarea id="rxDx" rows="2" oninput="_rxc.dx=this.value" placeholder="ເຊັ່ນ ໄຂ້ຫວັດ, ຕິດເຊື້ອທາງເດີນຫາຍໃຈ">'+cesc(c.dx)+'</textarea>'+
@@ -8747,7 +8782,7 @@ function doVoidBill(rno){var b=(state.bills||[]).find(function(x){return x.recei
  if(retStk)(b.items||[]).forEach(function(line){lineBomOf(line).forEach(function(bm){if(state.ingredients[bm[0]])addStockAt(bm[0],b.loc||curLoc(),bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);});});
  if(retStk)pkoReturn(b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ',rno+' ບັນຈຸພັນຕໍ່ອໍເດີ');
  else if(!b.deposit&&(b.items||[]).length)cxWaste(b.items.map(function(x){return {line:x,n:x.qty};}),b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ','Void ບິນ '+rno,rsn);
- b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();
+ b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();try{rxOnVoid(rno,rsn);}catch(e){}
  var memMsg=billMemberReverse(b,1,rno+' Void');
  (b.items||[]).forEach(function(line){logCancel('Void ບິນ',line.code,line.name,line.qty,lineTotal(line),b.table,rno+' — '+rsn);});
  logOrder('Void ບິນ',rno+' '+KIP(b.total)+' ກີບ — '+rsn+(retStk?' (ຄືນສະຕ໋ອກ)':''),b.table);
@@ -8799,7 +8834,7 @@ function doRefund(rno){var b=(state.bills||[]).find(function(x){return x.receipt
  if(!items.length){toast('ຍັງບໍ່ໄດ້ເລືອກຈຳນວນ');return;}
  amt=Math.round(amt);
  if(!Array.isArray(b.refunds))b.refunds=[];b.refunds.push({items:items,amount:amt,reason:rsn,by:(curUser()?curUser().name:''),ts:Date.now()});
- b.refundAmt=(b.refundAmt||0)+amt;
+ b.refundAmt=(b.refundAmt||0)+amt;try{rxOnRefund(rno,amt,rsn);}catch(e){}
  try{billMemberReverse(b,b.total?Math.min(1,amt/b.total):0,rno+' ຄືນເງິນ');}catch(e){}
  /* ຄືນເງິນສົດ = ເງິນອອກລີ້ນຊັກ (ຖ້າກະເປີດ ແລະ ບິນມີສ່ວນຈ່າຍສົດ) */
  var pm=billPayMap(b);var cashPortion=pm['ເງິນສົດ']||0;
