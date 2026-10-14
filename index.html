@@ -2008,10 +2008,10 @@ body,#viewRoot,#app.cust #viewRoot{background:#fff!important}
 .p2-due,.cart-top,.kds-head{background:var(--glow-teal)!important}
 .p2-due.credit{background:radial-gradient(circle at 20% 8%,rgba(255,214,130,.5),transparent 58%),linear-gradient(135deg,#7a4a00,#c27400)!important}
 .outstanding,.shiftbar{background:var(--glow-amber)!important}
-.dashcards .kpi:first-child{background:var(--glow-teal)!important}
+html:not([data-theme="glass"]) .dashcards .kpi:first-child{background:var(--glow-teal)!important}
 .dashcards .kpi:first-child::after{display:none}
 .kds-dark .tk,.kds-dark .tk[data-b]{background:radial-gradient(circle at 20% 6%,rgba(95,217,210,.2),transparent 58%),linear-gradient(180deg,#183532,#132b29)!important}
-.kpi.on-dark{background:var(--glow-teal)!important}
+html:not([data-theme="glass"]) .kpi.on-dark{background:var(--glow-teal)!important}
 .scard small,.scard .sub{white-space:normal!important;overflow-wrap:anywhere}
 .fit{display:inline-block!important;max-width:100%;white-space:nowrap!important;vertical-align:bottom}
 .tablecard .tamt b.fit,.totrow b.fit{white-space:normal!important;line-height:1.25;text-align:right}
@@ -2103,7 +2103,7 @@ html[data-theme="glass"]{
  color-scheme:dark;
 }
 html[data-theme="glass"] body,html[data-theme="glass"] #viewRoot,html[data-theme="glass"] #app.cust #viewRoot{
- background:radial-gradient(900px 600px at 8% -8%,rgba(10,186,181,.42),transparent 62%),radial-gradient(800px 700px at 105% 105%,rgba(95,217,210,.2),transparent 60%),radial-gradient(600px 500px at 90% 5%,rgba(10,90,84,.55),transparent 65%),#041d1b!important;
+ background:radial-gradient(900px 600px at 8% -8%,rgba(10,186,181,.2),transparent 62%),radial-gradient(800px 700px at 105% 105%,rgba(95,217,210,.09),transparent 60%),radial-gradient(600px 500px at 90% 5%,rgba(10,90,84,.28),transparent 65%),#041d1b!important;
  background-attachment:fixed!important;color:var(--cf-txt)}
 html[data-theme="glass"] #viewRoot{background:transparent!important}
 html[data-theme="glass"] body{color:var(--cf-txt)}
@@ -2175,7 +2175,6 @@ html[data-theme="glass"] .product .add,html[data-theme="glass"] .product button:
 /* ---------- ກະຕ່າ / ຮັບເງິນ ---------- */
 html[data-theme="glass"] :is(.cart-top,.kds-head){background:linear-gradient(135deg,#0a4f4a,#073d39)!important}
 html[data-theme="glass"] .p2-due{background:radial-gradient(ellipse at 25% 0%,rgba(22,208,201,.55),transparent 65%),linear-gradient(160deg,#0b5a54,#052a27)!important;border:1px solid var(--glass-line)}
-html[data-theme="glass"] .dashcards .kpi:first-child,html[data-theme="glass"] .kpi.on-dark{background:radial-gradient(ellipse at 25% 0%,rgba(22,208,201,.6),transparent 65%),linear-gradient(160deg,#0b5a54,#052a27)!important}
 html[data-theme="glass"] .outstanding,html[data-theme="glass"] .shiftbar{background:linear-gradient(135deg,rgba(189,243,238,.3),rgba(10,186,181,.18))!important;color:var(--cf-latte)!important}
 html[data-theme="glass"] .totrow,html[data-theme="glass"] .paysummary{color:var(--cf-txt)}
 html[data-theme="glass"] .paysummary{background:rgba(255,255,255,.07)!important;border:1px solid var(--glass-line)}
@@ -2214,7 +2213,6 @@ html[data-theme="glass"] .legend,html[data-theme="glass"] .legend span,html[data
 html[data-theme="glass"] .legend span{color:var(--cf-txt)!important}
 html[data-theme="glass"] .outstanding{color:var(--cf-latte)!important}
 html[data-theme="glass"] :is(.lnk,.kpi .sub a,.kpi .sub b,.kpi a){color:var(--cf-latte)!important}
-html[data-theme="glass"] .dashcards .kpi:first-child:not(.on-dark){background:var(--glass)!important}
 html[data-theme="glass"] .tablecard .qrbadge{background:rgba(255,255,255,.16)!important;border:1px solid var(--glass-line)}
 html[data-theme="glass"] .tablecard .qrbadge svg{color:var(--cf-latte);fill:var(--cf-latte)}
 html[data-theme="glass"] .tablecard .rvbadge{background:linear-gradient(135deg,#0a4f4a,#0a4f4a)!important;color:var(--cf-latte)!important;border:1px solid var(--glass-line)}
@@ -2300,8 +2298,8 @@ html[data-theme="glass"] .kds-leg span[style*="f59f00"],html[data-theme="glass"]
 .calltag{background:#c2410c!important}
 html[data-theme="glass"] .cb-l b,html[data-theme="glass"] .cartbar b:first-child{background:#0a918c!important;color:#fff!important}
 /* ---------- Glass: ລະດັບຄວາມຂຸ້ນ (ໄລ່ຕາມຊັ້ນ) ----------
-   L0 ພື້ນຫຼັງ → L1 ບັດ (ຂາວ 10%→3.5%) → L2 ບັດຊ້ອນ (15%→6.5%) → L3 (20%→10%) · ເອົາເມົາໄປວາງ +5% · ຂອບເພີ່ມຕາມລະດັບ */
-html[data-theme="glass"]{--l1a:.10;--l1b:.035;--l2a:.15;--l2b:.065;--l3a:.20;--l3b:.10;--hv:.05}
+   L0 ພື້ນຫຼັງ → L1 ບັດ (ຂາວ 5.5%→2%) → L2 ບັດຊ້ອນ (10%→4%) → L3 (15%→7%) · ເອົາເມົາໄປວາງ +4% · ຂອບເພີ່ມຕາມລະດັບ */
+html[data-theme="glass"]{--l1a:.055;--l1b:.02;--l2a:.10;--l2b:.04;--l3a:.15;--l3b:.07;--hv:.04}
 html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2){background:linear-gradient(135deg,rgba(255,255,255,var(--l1a)),rgba(255,255,255,var(--l1b)))!important;border:1px solid rgba(255,255,255,.15)!important}
 html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2) :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2){background:linear-gradient(135deg,rgba(255,255,255,var(--l2a)),rgba(255,255,255,var(--l2b)))!important;border:1px solid rgba(255,255,255,.2)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2) :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2) :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2){background:linear-gradient(135deg,rgba(255,255,255,var(--l3a)),rgba(255,255,255,var(--l3b)))!important;border:1px solid rgba(255,255,255,.26)!important}
