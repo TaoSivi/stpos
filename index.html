@@ -2364,6 +2364,7 @@ html[data-theme="glass"] .biz-c{background:rgba(255,255,255,.06)!important}html[
 #demoBar{position:fixed;z-index:9000;left:50%;transform:translateX(-50%);bottom:12px;display:flex;align-items:center;gap:8px;background:#062f2d;color:#fff;border-radius:999px;padding:6px 8px 6px 14px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:13px;max-width:96vw}
 #demoBar b{background:#f4b740;color:#3b2600;border-radius:999px;padding:2px 9px;font-weight:800}#demoBar select{background:#0a5a56;color:#fff;border:0;border-radius:999px;padding:6px 10px;font:inherit;max-width:180px}#demoBar button{background:#fff;color:#062f2d;border-radius:999px;padding:6px 12px;font:inherit;font-weight:700}
 @media(max-width:900px){#demoBar{bottom:78px;font-size:12px}#demoBar span{display:none}}
+html[data-biz="medical"] :is(.dttoggle,.qrbadge,.dl-fl,.ordtools .dttoggle){display:none!important}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
@@ -8419,12 +8420,12 @@ var BIZ={
 /* ຮ້ານຂາຍຢາ + ຄລີນິກ = ປະເພດດຽວ "ຮ້ານຢາ & ຄລີນິກ" (ເພສັດ + ຄົນເຈັບ) */
 BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂາຍຢາ + ກວດ/ປິ່ນປົວ — ເຄົາເຕີຂາຍຢາ, ຫ້ອງກວດ, ແລັບ, ຫ້ອງຢາ, ນັດໝາຍ, ສະຕ໋ອກຢາ',
  labels:{owner:'ເຈົ້າຂອງຮ້ານຢາ & ຄລີນິກ',manager:'ເພສັດຊະກອນ / ຜູ້ອຳນວຍການ',cashier:'ເຈົ້າໜ້າທີ່ຂາຍ & ຮັບເງິນ',waiter:'ພະຍາບານ / ຜູ້ຊ່ວຍເພສັດ',kitchen:'ຫ້ອງຢາ (ເພສັດ)',bar:'ຫ້ອງແລັບ / ກວດ',storekeeper:'ນາຍສາງຢາ & ອຸປະກອນ',purchasing:'ຈັດຊື້ຢາ'},
- mods:{kds:false,chat:false,delivery:false},navNames:{tables:'ຂາຍ / ຮັບຄົນເຈັບ',resv:'ນັດໝາຍຄົນເຈັບ',members:'ຄົນເຈັບ / ສະມາຊິກ',stock:'ສະຕ໋ອກຢາ & ອຸປະກອນ',history:'ປະຫວັດການຂາຍ / ການກວດ'},roles:BIZ.clinic.roles,
+ mods:{kds:false,chat:false,delivery:false,opts:false,pkg:false},navNames:{tables:'ຂາຍ / ຮັບຄົນເຈັບ',resv:'ນັດໝາຍຄົນເຈັບ',members:'ຄົນເຈັບ / ສະມາຊິກ',stock:'ສະຕ໋ອກຢາ & ອຸປະກອນ',history:'ປະຫວັດການຂາຍ / ການກວດ'},roles:BIZ.clinic.roles,
  floors:['ເຄົາເຕີຢາ','ຫ້ອງກວດ'],tables:['ເຄົາເຕີ 1','ເຄົາເຕີ 2','ສັ່ງລ່ວງໜ້າ / ສົ່ງຢາ','ຕ້ອນຮັບ','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງແລັບ','ຫ້ອງຢາ']};
 delete BIZ.pharmacy;delete BIZ.clinic;
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
 function bizNav(){var N=BIZ[bizCur()].navNames||{};document.querySelectorAll('#sidebar .navitem').forEach(function(el){var v=el.dataset.v;if(!el.__tn){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];if(n.nodeType===3&&n.nodeValue.trim()){el.__tn=n;el.__on=n.nodeValue.trim();break;}}}if(el.__tn)el.__tn.nodeValue=' '+(N[v]||el.__on)+' ';});}
-function bizLabels(){var b=BIZ[bizCur()];try{bizNav();}catch(e){}Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
+function bizLabels(){var b=BIZ[bizCur()];try{document.documentElement.setAttribute('data-biz',bizCur());}catch(e){}try{bizNav();}catch(e){}Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
 /* ໃຊ້ສິດ/ໂມດູນ ຂອງປະເພດທຸລະກິດ (ບໍ່ລຶບຂໍ້ມູນ) — ສະເພາະ Super Admin */
 function bizApply(t,quiet){if(!BIZ[t])return;if(!quiet&&!isSuper()){toast('ສະເພາະ Super Admin');return;}
  if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};if(!state.modules||typeof state.modules!=='object')state.modules={};
@@ -8478,7 +8479,7 @@ var BIZ_SAMPLE={
 BIZ_SAMPLE.medical={cats:Object.assign({},{'ຄ່າກວດ · ບໍລິການ':BIZ_SAMPLE.clinic.cats['ຄ່າກວດ · ບໍລິການ'],'ກວດແລັບ':BIZ_SAMPLE.clinic.cats['ກວດແລັບ']},BIZ_SAMPLE.pharmacy.cats),tables:BIZ.medical.tables,customers:BIZ_SAMPLE.pharmacy.customers.concat(BIZ_SAMPLE.clinic.customers.slice(0,2)),shop:'ຮ້ານຢາ & ຄລີນິກ ຕົວຢ່າງ'};
 delete BIZ_SAMPLE.pharmacy;delete BIZ_SAMPLE.clinic;
 function bizLoad(t){var S=BIZ_SAMPLE[t];if(!S)return;var now=Date.now(),loc=curLoc();
- state.catalog={};state.menuImg={};state.ingredients={};state.promos=[];state.customers=[];
+ state.catalog={};state.menuImg={};state.ingredients={};state.promos=[];state.customers=[];state.modGroups=[];
  Object.keys(S.cats).forEach(function(cat){state.catalog[cat]={'ທັງໝົດ':[]};S.cats[cat].forEach(function(r){
   var stocked=r[7]>0||r[3]>0;var it={c:r[0],n:r[1],p:r[2],k:'food',bom:stocked?[[r[0],1]]:[]};state.catalog[cat]['ທັງໝົດ'].push(it);
   state.menuImg[r[0]]=bizSvg(r[5],r[6]);
