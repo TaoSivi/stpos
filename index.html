@@ -2352,6 +2352,11 @@ html[data-theme="glass"] .product .pname{border-radius:14px 14px 0 0;padding-top
 html[data-theme="glass"] .product .ptop{border-radius:0 0 16px 16px;padding-bottom:8px!important;margin-top:-1px}
 html[data-theme="glass"] .tablecard :is(.tname,.tamt,.tamt b){text-shadow:none!important}
 html[data-theme="glass"] :is(.kpi .val,.tname){font-family:inherit!important}
+.biz-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:4px 0 8px}.biz-c{border:2px solid var(--line);border-radius:18px;padding:14px;background:#fff}.biz-c.on{border-color:#0ABAB5;box-shadow:0 0 0 3px rgba(10,186,181,.2)}
+.biz-h{display:flex;align-items:center;gap:8px}.biz-h b{font-size:16px}.biz-h em{margin-left:auto;font-style:normal;font-size:12px;font-weight:800;background:#0ABAB5;color:#fff;border-radius:999px;padding:2px 9px}.biz-i{font-size:22px}
+.biz-c p{margin:6px 0;color:var(--muted);font-size:13px}.biz-roles{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.biz-roles span{background:#e6f7f5;color:#075A57;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.biz-act{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.biz-note{font-size:12.5px;color:var(--muted);margin:6px 2px 4px}
+html[data-theme="glass"] .biz-c{background:rgba(255,255,255,.06)!important}html[data-theme="glass"] .biz-roles span{background:rgba(255,255,255,.12);color:#BDF3EE}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
@@ -2890,7 +2895,7 @@ function renderUserChip(){var el=document.getElementById('userChip');if(!el)retu
  el.innerHTML=u?('<div class="userchip" onclick="openUserMenu()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><span>'+cesc(u.name)+' <small>'+(ROLE_LABELS[u.role]||'')+(state.curShift?' · '+cesc(state.curShift.name):'')+(multiLoc?' · 📍'+cesc(locName(curLoc())):'')+'</small></span></div>'):'';}
 function openUserMenu(){var u=curUser();if(!u)return;
  openModal('<h2>'+cesc(u.name)+'</h2><p style="text-align:center;margin-bottom:10px"><span class="rolebadge">'+(ROLE_LABELS[u.role]||u.role)+'</span>'+(state.curShift?'<span class="rolebadge" style="margin-left:6px;background:#fef3c7;color:#92400e">'+cesc(state.curShift.name)+' (ເປີດຢູ່)</span>':'<span class="rolebadge" style="margin-left:6px;background:#fee2e2;color:#991b1b">ຍັງບໍ່ເປີດກະ</span>')+'</p><div class="modal-btns" style="margin-top:4px"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" style="background:var(--orange)" onclick="logout()"> ອອກ / ສະຫຼັບຜູ້ໃຊ້</button></div>');}
-function render(){if(!state)return;try{draftCheck();}catch(e){}try{xpFab();}catch(e){}if(state.ingredients)syncStockView();document.getElementById('ordNo').textContent=state.orderNo;
+function render(){if(!state)return;try{bizLabels();}catch(e){}try{draftCheck();}catch(e){}try{xpFab();}catch(e){}if(state.ingredients)syncStockView();document.getElementById('ordNo').textContent=state.orderNo;
  const hb=document.querySelector('.topbar h1');if(hb)hb.textContent=state.shopName||'ST POS';
  const R=document.getElementById('viewRoot');
  if(isCust())return renderCust(R);
@@ -7240,7 +7245,7 @@ function sKX(k){return ' data-k="'+aesc(k)+'"';}
 function sCdsPreset(c1,c2){state.cds.c1=c1;state.cds.c2=c2;save();render();try{cdsPushIdle();}catch(e){}sSaved();}
 /* ---- ແຕ່ລະໝວດ ---- */
 function setSecShop(){
- return sCard('ຂໍ້ມູນຮ້ານ','ສະແດງເທິງແອັບ ແລະ ໃບບິນ','',
+ return bizCardHTML()+sCard('ຂໍ້ມູນຮ້ານ','ສະແດງເທິງແອັບ ແລະ ໃບບິນ','',
   sRow('ຊື່ຮ້ານ','',sTxt('shopName',state.shopName))+
   sRow('ທີ່ຢູ່','',sTxt('shopAddr',state.shopAddr,'ເຊັ່ນ ບ້ານ… ເມືອງ… ແຂວງ…'))+
   sRow('ເບີໂທ','',sTxt('shopPhone',state.shopPhone,'020 …',' inputmode="tel"'))+
@@ -8372,14 +8377,106 @@ function removeStaff(name){if(state.staff.length<=1){toast('ຕ້ອງມີ�
 /* ===== ລ້າງຂໍ້ມູນ — 2 ແບບ: ຮ້ານເປົ່າ (ເກັບການຕັ້ງຄ່າ ຜູ້ໃຊ້ ໂຕະ) ຫຼື ຂໍ້ມູນຕົວຢ່າງ
  * ຕ້ອງມີ PIN ຂອງ Super Admin ທຸກເທື່ອ: Super Admin ໃສ່ PIN ຕົນເອງ · Admin ຕ້ອງໃຫ້ Super Admin ມາໃສ່ PIN ອະນຸມັດ
  * ກ່ອນລ້າງ ສຳຮອງໃນ server ອັດຕະໂນມັດ (ກູ້ຄືນໄດ້ທີ່ ສຳຮອງ & ຂັ້ນສູງ) */
+/* ===== ປະເພດທຸລະກິດ: ຮ້ານອາຫານ/ກາເຟ (ເດີມ) · ຮ້ານຂາຍຢາ (Medical) · ຄລີນິກ — ກຳນົດຊື່ບົດບາດ + ສິດ + ໂມດູນ ໃຫ້ເໝາະ + ຕົວຢ່າງເມນູ/ສິນຄ້າ/ຮູບ ===== */
+var ROLE_LABELS_DEF=JSON.parse(JSON.stringify(ROLE_LABELS));
+var BIZ={
+ fnb:{name:'ຮ້ານອາຫານ / ກາເຟ',ico:'☕',desc:'ແບບເດີມ — ໂຕະ, ຄົວ, ບາ, ພະນັກງານເສີບ',labels:{},mods:{},roles:{}},
+ pharmacy:{name:'ຮ້ານຂາຍຢາ (Medical)',ico:'💊',desc:'ຂາຍຢາ / ອຸປະກອນການແພດ — ເຄົາເຕີຂາຍ, ສາງຢາ, ຢາໝົດອາຍຸ, ສະມາຊິກ',
+  labels:{owner:'ເຈົ້າຂອງຮ້ານຢາ',manager:'ເພສັດຊະກອນ (ຜູ້ຮັບຜິດຊອບ)',cashier:'ພະນັກງານຂາຍຢາ',waiter:'ຜູ້ຊ່ວຍເພສັດ',kitchen:'(ບໍ່ໃຊ້)',bar:'(ບໍ່ໃຊ້)',storekeeper:'ນາຍສາງຢາ',purchasing:'ຈັດຊື້ຢາ'},
+  mods:{kds:false,resv:false,chat:false},
+  roles:{
+   manager:{view:['tables','order','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk','waste','delivery'],act:['chkDo','chkApprove','chkEdit','reqCreate','reqIssue','wasteCreate','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','import','override','memberMng','promoMng','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
+   cashier:{view:['tables','order','history','shift','members','debt','chk','delivery'],act:['chkDo','pay','discount','soldout','shiftMng','export','memberMng','debtCollect']},
+   waiter:{view:['tables','order','members','chk'],act:['chkDo','soldout']},
+   storekeeper:{view:['stock','req','count','waste','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','wasteCreate','countDo','prCreate','grnReceive','export','import']},
+   purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng','export','import']},
+   kitchen:{view:['chk'],act:['chkDo']},bar:{view:['chk'],act:['chkDo']}},
+  floors:['ຫນ້າຮ້ານ'],tables:['ເຄົາເຕີ 1','ເຄົາເຕີ 2','ເຄົາເຕີ 3','ສັ່ງລ່ວງໜ້າ','ສົ່ງຢາ']},
+ clinic:{name:'ຄລີນິກ',ico:'🩺',desc:'ກວດ / ປິ່ນປົວ / ຢາ — ນັດໝາຍຄົນເຈັບ, ຫ້ອງກວດ, ແລັບ, ຫ້ອງຢາ',
+  labels:{owner:'ເຈົ້າຂອງຄລີນິກ',manager:'ຜູ້ອຳນວຍການຄລີນິກ',cashier:'ເຈົ້າໜ້າທີ່ຕ້ອນຮັບ & ຮັບເງິນ',waiter:'ພະຍາບານ',kitchen:'ຫ້ອງຢາ (ເພສັດ)',bar:'ຫ້ອງແລັບ / ກວດ',storekeeper:'ນາຍສາງຢາ & ອຸປະກອນ',purchasing:'ຈັດຊື້'},
+  mods:{kds:false,chat:false},
+  roles:{
+   manager:{view:['tables','order','history','dash','reports','stock','transfer','purchase','expense','admin','shift','members','debt','req','count','chk','resv','waste'],act:['resvMng','chkDo','chkApprove','chkEdit','reqCreate','reqIssue','wasteCreate','countDo','countApprove','pay','discount','discountOver','cancel','voidBill','stockAdjust','stockApprove','menuEdit','soldout','settings','shiftMng','expenseAdd','expenseDel','export','import','override','memberMng','promoMng','debtCollect','prCreate','prApprove','poCreate','poApprove','grnReceive','grnVoid','vendorMng']},
+   cashier:{view:['tables','order','history','shift','members','debt','chk','resv'],act:['resvMng','chkDo','pay','discount','shiftMng','export','memberMng','debtCollect']},
+   waiter:{view:['tables','order','members','chk','resv'],act:['chkDo','resvMng']},
+   kitchen:{view:['stock','req','count','waste','chk'],act:['chkDo','reqCreate','reqIssue','wasteCreate','countDo']},
+   bar:{view:['tables','order','members','chk'],act:['chkDo']},
+   storekeeper:{view:['stock','req','count','waste','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','wasteCreate','countDo','prCreate','grnReceive','export','import']},
+   purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng','export','import']}},
+  floors:['ຕ້ອນຮັບ','ຫ້ອງກວດ'],tables:['ຕ້ອນຮັບ 1','ຕ້ອນຮັບ 2','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງກວດ 3','ຫ້ອງແລັບ','ຫ້ອງຢາ']}};
+function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
+function bizLabels(){var b=BIZ[bizCur()];Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
+/* ໃຊ້ສິດ/ໂມດູນ ຂອງປະເພດທຸລະກິດ (ບໍ່ລຶບຂໍ້ມູນ) — ສະເພາະ Super Admin */
+function bizApply(t,quiet){if(!BIZ[t])return;if(!quiet&&!isSuper()){toast('ສະເພາະ Super Admin');return;}
+ if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};if(!state.modules||typeof state.modules!=='object')state.modules={};
+ var all={};Object.keys(BIZ).forEach(function(k){Object.keys(BIZ[k].roles||{}).forEach(function(r){all[r]=1;});});
+ Object.keys(all).forEach(function(r){delete state.roleDefs[r];});['kds','resv','chat'].forEach(function(m){delete state.modules[m];});
+ var b=BIZ[t];Object.keys(b.roles||{}).forEach(function(r){state.roleDefs[r]=JSON.parse(JSON.stringify(b.roles[r]));});Object.keys(b.mods||{}).forEach(function(m){state.modules[m]=b.mods[m];});
+ state.bizType=t;bizLabels();if(!quiet){save();render();sSaved&&sSaved();toast('ໃຊ້ສິດ & ບົດບາດ ຂອງ "'+b.name+'" ແລ້ວ');}}
+function bizCardHTML(){var cur=bizCur();
+ return sCard('ປະເພດທຸລະກິດ & ສິດ','ເລືອກປະເພດ → ຊື່ບົດບາດ, ສິດ, ແລະ ໂມດູນ ຈະປັບໃຫ້ເໝາະກັບທຸລະກິດນັ້ນ (ບໍ່ລຶບຂໍ້ມູນ) · ສະເພາະ Super Admin','',
+  '<div class="biz-pick">'+Object.keys(BIZ).map(function(k){var b=BIZ[k];return '<div class="biz-c'+(k===cur?' on':'')+'"><div class="biz-h"><span class="biz-i">'+b.ico+'</span><b>'+b.name+'</b>'+(k===cur?'<em>ໃຊ້ຢູ່</em>':'')+'</div><p>'+b.desc+'</p>'+
+   (k==='fnb'?'':'<div class="biz-roles">'+['manager','cashier','waiter','storekeeper'].map(function(r){return '<span>'+b.labels[r]+'</span>';}).join('')+'</div>')+
+   '<div class="biz-act"><button type="button" class="btn-sm" onclick="bizApply(\''+k+'\')">ໃຊ້ສິດ & ບົດບາດນີ້</button>'+(k==='fnb'?'':'<button type="button" class="btn-sm ghost" onclick="confirmReset(\''+k+'\')">ໂຫຼດຕົວຢ່າງ + ຮູບ…</button>')+'</div></div>';}).join('')+'</div>'+
+  '<p class="biz-note">"ໂຫຼດຕົວຢ່າງ" ຈະ <b>ລຶບເມນູ/ສະຕ໋ອກ/ບິນເດີມ</b> ແລ້ວໃສ່ສິນຄ້າຕົວຢ່າງ ເພື່ອລອງເບິ່ງ — ຕ້ອງມີ PIN Super Admin ແລະ ສຳຮອງອັດຕະໂນມັດກ່ອນ. ຖ້າພຽງແຕ່ຢາກປ່ຽນສິດ ໃຫ້ກົດ "ໃຊ້ສິດ & ບົດບາດນີ້" ຢ່າງດຽວ.</p>');}
+/* ---- ຮູບປະກອບ (SVG ສ້າງເອງ — ບໍ່ມີລິຂະສິດ, ໃຊ້ອອບໄລນ໌ໄດ້) ---- */
+function bizSvg(kind,c){c=c||'#0ABAB5';var bg='<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eefbfa"/><stop offset="1" stop-color="#cfeeee"/></linearGradient></defs><rect width="200" height="200" rx="24" fill="url(#g)"/>',sh='<ellipse cx="100" cy="172" rx="52" ry="7" fill="#00000018"/>',b='';
+ var K={
+  capsule:'<g transform="rotate(-30 100 100)"><rect x="52" y="72" width="96" height="48" rx="24" fill="#fff" stroke="#7aa" stroke-width="3"/><path d="M100 72h24a24 24 0 0 1 0 48h-24z" fill="'+c+'"/><rect x="52" y="72" width="96" height="48" rx="24" fill="none" stroke="#0a5a56" stroke-width="3"/><path d="M62 84a12 12 0 0 1 10-6" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/></g>',
+  tablet:'<g><ellipse cx="100" cy="112" rx="60" ry="22" fill="#00000020"/><rect x="40" y="66" width="120" height="58" rx="29" fill="#fff" stroke="#0a5a56" stroke-width="3"/><rect x="40" y="66" width="60" height="58" rx="29" fill="'+c+'" opacity=".25"/><path d="M100 66v58" stroke="#0a5a56" stroke-width="2.5" opacity=".5"/></g>',
+  blister:'<g><rect x="34" y="52" width="132" height="96" rx="12" fill="#e9f3f3" stroke="#0a5a56" stroke-width="3"/>'+[0,1,2].map(function(i){return [0,1].map(function(j){return '<ellipse cx="'+(62+i*38)+'" cy="'+(80+j*40)+'" rx="14" ry="10" fill="#fff" stroke="#0a5a56" stroke-width="2.5"/><ellipse cx="'+(62+i*38)+'" cy="'+(80+j*40)+'" rx="8" ry="5" fill="'+c+'"/>';}).join('');}).join('')+'</g>',
+  bottle:'<g><rect x="76" y="40" width="48" height="22" rx="6" fill="#0a5a56"/><rect x="66" y="58" width="68" height="100" rx="14" fill="'+c+'" opacity=".9" stroke="#0a5a56" stroke-width="3"/><rect x="74" y="86" width="52" height="46" rx="6" fill="#fff"/><path d="M82 100h36M82 110h28M82 120h32" stroke="#0a5a56" stroke-width="3" stroke-linecap="round" opacity=".7"/><rect x="92" y="90" width="16" height="4" fill="'+c+'"/></g>',
+  syrup:'<g><rect x="84" y="34" width="32" height="20" rx="5" fill="#0a5a56"/><path d="M78 54h44l10 24v76a8 8 0 0 1-8 8H76a8 8 0 0 1-8-8V78z" fill="'+c+'" opacity=".92" stroke="#0a5a56" stroke-width="3"/><rect x="76" y="92" width="48" height="44" rx="5" fill="#fff"/><path d="M84 106h32M84 116h24" stroke="#0a5a56" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M86 76h28" stroke="#fff" stroke-width="3" opacity=".6"/></g>',
+  box:'<g><path d="M44 70l56-20 56 20v76l-56 20-56-20z" fill="#fff" stroke="#0a5a56" stroke-width="3"/><path d="M44 70l56 20 56-20M100 90v76" stroke="#0a5a56" stroke-width="3" fill="none"/><path d="M100 90l56-20v76l-56 20z" fill="'+c+'" opacity=".35"/><path d="M62 112h22M62 124h16" stroke="#0a5a56" stroke-width="3" stroke-linecap="round"/><rect x="112" y="98" width="30" height="24" rx="4" fill="'+c+'" opacity=".85"/></g>',
+  tube:'<g transform="rotate(-18 100 100)"><path d="M70 150l8-84h44l8 84z" fill="'+c+'" stroke="#0a5a56" stroke-width="3"/><rect x="82" y="46" width="36" height="22" rx="4" fill="#0a5a56"/><rect x="66" y="150" width="68" height="10" rx="3" fill="#fff" stroke="#0a5a56" stroke-width="3"/><path d="M84 100h32M86 114h28" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/></g>',
+  mask:'<g><path d="M40 78c20-14 100-14 120 0v44c-20 16-100 16-120 0z" fill="#fff" stroke="#0a5a56" stroke-width="3"/><path d="M52 88h96M52 100h96M52 112h96" stroke="'+c+'" stroke-width="3" opacity=".6"/><path d="M40 86c-16 2-18 24 0 30M160 86c16 2 18 24 0 30" fill="none" stroke="#0a5a56" stroke-width="3"/></g>',
+  thermo:'<g transform="rotate(35 100 100)"><rect x="82" y="30" width="36" height="120" rx="18" fill="#fff" stroke="#0a5a56" stroke-width="3"/><circle cx="100" cy="150" r="22" fill="'+c+'" stroke="#0a5a56" stroke-width="3"/><rect x="95" y="62" width="10" height="82" rx="5" fill="'+c+'"/><path d="M118 52h14M118 70h10M118 88h14M118 106h10" stroke="#0a5a56" stroke-width="3" stroke-linecap="round"/></g>',
+  bandage:'<g transform="rotate(-35 100 100)"><rect x="30" y="76" width="140" height="48" rx="24" fill="#f4d3b0" stroke="#0a5a56" stroke-width="3"/><rect x="76" y="76" width="48" height="48" fill="#fff" stroke="#0a5a56" stroke-width="2.5"/><path d="M90 90h20M90 100h20M90 110h20" stroke="'+c+'" stroke-width="3" opacity=".7"/></g>',
+  jar:'<g><rect x="62" y="40" width="76" height="24" rx="7" fill="#0a5a56"/><rect x="56" y="62" width="88" height="100" rx="14" fill="'+c+'" opacity=".92" stroke="#0a5a56" stroke-width="3"/><rect x="66" y="88" width="68" height="48" rx="6" fill="#fff"/><path d="M76 104h48M76 116h34" stroke="#0a5a56" stroke-width="3" stroke-linecap="round" opacity=".7"/><circle cx="100" cy="76" r="5" fill="#fff" opacity=".8"/></g>',
+  syringe:'<g transform="rotate(-40 100 100)"><rect x="52" y="86" width="92" height="28" rx="6" fill="#fff" stroke="#0a5a56" stroke-width="3"/><rect x="52" y="86" width="52" height="28" rx="6" fill="'+c+'" opacity=".55"/><path d="M144 100h30M30 100h22M30 88v24" stroke="#0a5a56" stroke-width="4" stroke-linecap="round"/><path d="M70 86v10M84 86v10M98 86v10M112 86v10" stroke="#0a5a56" stroke-width="2.5"/></g>',
+  drop:'<g><path d="M100 36c28 34 46 56 46 82a46 46 0 0 1-92 0c0-26 18-48 46-82z" fill="'+c+'" stroke="#0a5a56" stroke-width="3"/><path d="M78 118a24 24 0 0 0 20 24" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/></g>',
+  steth:'<g fill="none" stroke="#0a5a56" stroke-width="5" stroke-linecap="round"><path d="M60 44v44a30 30 0 0 0 60 0V44"/><path d="M90 118v18a26 26 0 0 0 52 0v-12"/></g><circle cx="142" cy="116" r="12" fill="'+c+'" stroke="#0a5a56" stroke-width="4"/><circle cx="60" cy="44" r="6" fill="#0a5a56"/><circle cx="120" cy="44" r="6" fill="#0a5a56"/>',
+  tube2:'<g><rect x="76" y="34" width="48" height="132" rx="20" fill="#fff" stroke="#0a5a56" stroke-width="3"/><rect x="76" y="86" width="48" height="80" rx="20" fill="'+c+'" opacity=".85"/><rect x="70" y="26" width="60" height="16" rx="6" fill="#0a5a56"/><path d="M92 62h16" stroke="#0a5a56" stroke-width="3" stroke-linecap="round"/></g>',
+  cross:'<g><rect x="60" y="60" width="80" height="80" rx="16" fill="#fff" stroke="#0a5a56" stroke-width="3"/><path d="M100 76v48M76 100h48" stroke="'+c+'" stroke-width="16" stroke-linecap="round"/></g>',
+  heart:'<g><path d="M100 150s-50-30-50-66a28 28 0 0 1 50-14 28 28 0 0 1 50 14c0 36-50 66-50 66z" fill="'+c+'" stroke="#0a5a56" stroke-width="3"/><path d="M62 100h26l8-18 12 34 10-16h22" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>'};
+ b=K[kind]||K.cross;return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">'+bg+sh+b+'</svg>');}
+/* ສິນຄ້າຕົວຢ່າງ: [ລະຫັດ, ຊື່, ລາຄາຂາຍ, ຕົ້ນທຶນ, ໜ່ວຍ, ຮູບ, ສີ, ສະຕ໋ອກ, ຈຸດສັ່ງຊື້] */
+var BIZ_SAMPLE={
+ pharmacy:{cats:{
+  'ຢາແກ້ປວດ · ລົດໄຂ້':[['MED001','Paracetamol 500mg (10 ເມັດ)',8000,4500,'ແຜງ','blister','#0ABAB5',120,30],['MED002','Ibuprofen 400mg (10 ເມັດ)',15000,9000,'ແຜງ','blister','#f4b740',80,20],['MED003','Aspirin 81mg (30 ເມັດ)',12000,7000,'ແຜງ','tablet','#ef6a5e',60,15],['MED004','Diclofenac Gel 30g',35000,22000,'ຫຼອດ','tube','#5FD9D2',40,10]],
+  'ຢາຕ້ານເຊື້ອ (Rx)':[['MED010','Amoxicillin 500mg (Rx)',25000,15000,'ແຜງ','capsule','#ef6a5e',50,15],['MED011','Azithromycin 250mg (Rx)',45000,28000,'ແຜງ','capsule','#0ABAB5',30,10],['MED012','Ciprofloxacin 500mg (Rx)',38000,22000,'ແຜງ','tablet','#f4b740',30,10]],
+  'ຢາກະເພາະ · ລຳໄສ້':[['MED020','Omeprazole 20mg (14 ແຄບຊູນ)',30000,18000,'ແຜງ','capsule','#f4b740',60,15],['MED021','ORS ເກືອແຮ່ (ຊອງ)',3000,1500,'ຊອງ','box','#0ABAB5',200,50],['MED022','Domperidone 10mg',14000,8000,'ແຜງ','blister','#5FD9D2',40,10],['MED023','Smecta ຜົງ (ຊອງ)',6000,3500,'ຊອງ','box','#f4b740',100,30]],
+  'ຢາຫວັດ · ໄອ · ແພ້':[['MED030','Cetirizine 10mg (10 ເມັດ)',10000,5500,'ແຜງ','blister','#5FD9D2',70,20],['MED031','Bromhexine ຢານ້ຳ 60ml',22000,13000,'ຂວດ','syrup','#ef6a5e',45,10],['MED032','Strepsils ເມັດອົມ',18000,11000,'ກ່ອງ','box','#f4b740',50,12],['MED033','ນ້ຳເກືອລ້າງຈມູກ',16000,9500,'ຂວດ','drop','#0ABAB5',35,10]],
+  'ວິຕາມິນ · ອາຫານເສີມ':[['VIT001','Vitamin C 1000mg (20 ເມັດຟູ່)',55000,35000,'ຫຼອດ','jar','#f4b740',40,10],['VIT002','Multivitamin (30 ເມັດ)',120000,80000,'ກະປ໋ອງ','jar','#0ABAB5',25,8],['VIT003','Calcium + D3 (60 ເມັດ)',95000,62000,'ກະປ໋ອງ','jar','#5FD9D2',25,8],['VIT004','Zinc 15mg (30 ເມັດ)',48000,30000,'ກະປ໋ອງ','jar','#ef6a5e',30,8]],
+  'ອຸປະກອນການແພດ':[['EQP001','ໜ້າກາກອະນາໄມ (50 ຊິ້ນ)',30000,17000,'ກ່ອງ','mask','#0ABAB5',80,20],['EQP002','ເຄື່ອງວັດອຸນຫະພູມດິຈິຕອນ',65000,40000,'ອັນ','thermo','#ef6a5e',20,5],['EQP003','ແຜ່ນປິດບາດແຜ (20 ແຜ່ນ)',12000,6500,'ກ່ອງ','bandage','#f4b740',60,15],['EQP004','ເຄື່ອງວັດຄວາມດັນ',420000,300000,'ເຄື່ອງ','heart','#ef6a5e',6,2],['EQP005','ເຂັມສັກຢາ 3ml (10 ອັນ)',15000,8000,'ກ່ອງ','syringe','#5FD9D2',40,10]],
+  'ຜິວ · ທຳຄວາມສະອາດ':[['SKN001','Betadine 60ml',25000,15000,'ຂວດ','bottle','#f4b740',45,12],['SKN002','ແອວກໍຮໍ 70% 100ml',9000,4500,'ຂວດ','bottle','#5FD9D2',90,25],['SKN003','ຄີມທາແມງກະເບື້ອກັດ',20000,12000,'ຫຼອດ','tube2','#0ABAB5',40,10]]},
+  tables:BIZ.pharmacy.tables,customers:[['ທ້າວ ບຸນມີ ສີວິໄລ','02055501001'],['ນາງ ຄຳແກ້ວ ພົມມະວົງ','02055501002'],['ແມ່ຄ້າ ນວນຈັນ (ລູກຄ້າປະຈຳ)','02055501003']],shop:'ຮ້ານຂາຍຢາ ຕົວຢ່າງ'},
+ clinic:{cats:{
+  'ຄ່າກວດ · ບໍລິການ':[['SRV001','ຄ່າກວດທົ່ວໄປ (ທ່ານໝໍ)',50000,0,'ຄັ້ງ','steth','#0ABAB5',0,0],['SRV002','ກວດສຸຂະພາບເດັກ',60000,0,'ຄັ້ງ','heart','#f4b740',0,0],['SRV003','ວັດຄວາມດັນ / ນ້ຳໜັກ',10000,0,'ຄັ້ງ','heart','#ef6a5e',0,0],['SRV004','ໃຫ້ນ້ຳເກືອ / ຢາທາງເສັ້ນເລືອດ',100000,0,'ຄັ້ງ','syringe','#5FD9D2',0,0],['SRV005','ເຢັບບາດແຜ (ຂະໜາດນ້ອຍ)',80000,0,'ຄັ້ງ','bandage','#f4b740',0,0],['SRV006','ວັກຊີນໄຂ້ຫວັດໃຫຍ່',250000,180000,'ເຂັມ','syringe','#0ABAB5',20,5]],
+  'ກວດແລັບ':[['LAB001','ກວດເລືອດຄົບ (CBC)',60000,0,'ຄັ້ງ','drop','#ef6a5e',0,0],['LAB002','ກວດນ້ຳຕານໃນເລືອດ',30000,0,'ຄັ້ງ','drop','#f4b740',0,0],['LAB003','ກວດປັດສະວະ',30000,0,'ຄັ້ງ','tube2','#5FD9D2',0,0],['LAB004','ກວດມາລາເລຍ (Rapid test)',40000,18000,'ຊຸດ','tube2','#0ABAB5',40,10],['LAB005','ກວດຖືພາ',25000,10000,'ຊຸດ','tube2','#f4b740',40,10]],
+  'ຢາ (ຫ້ອງຢາ)':[['MED001','Paracetamol 500mg (10 ເມັດ)',8000,4500,'ແຜງ','blister','#0ABAB5',120,30],['MED010','Amoxicillin 500mg (Rx)',25000,15000,'ແຜງ','capsule','#ef6a5e',50,15],['MED020','Omeprazole 20mg (14 ແຄບຊູນ)',30000,18000,'ແຜງ','capsule','#f4b740',60,15],['MED021','ORS ເກືອແຮ່ (ຊອງ)',3000,1500,'ຊອງ','box','#0ABAB5',200,50],['MED030','Cetirizine 10mg (10 ເມັດ)',10000,5500,'ແຜງ','blister','#5FD9D2',70,20],['VIT001','Vitamin C 1000mg',55000,35000,'ຫຼອດ','jar','#f4b740',40,10]]},
+  tables:BIZ.clinic.tables,customers:[['ດ.ຍ. ສົມຊາຍ ວົງສະຫວັນ','02055502001'],['ນາງ ຈັນທະວອນ ແສງດາວ','02055502002'],['ເດັກນ້ອຍ ກ້າ (ພໍ່ແມ່ ມະນີ)','02055502003']],shop:'ຄລີນິກ ຕົວຢ່າງ'}};
+function bizLoad(t){var S=BIZ_SAMPLE[t];if(!S)return;var now=Date.now(),loc=curLoc();
+ state.catalog={};state.menuImg={};state.ingredients={};state.promos=[];state.customers=[];
+ Object.keys(S.cats).forEach(function(cat){state.catalog[cat]={'ທັງໝົດ':[]};S.cats[cat].forEach(function(r){
+  var stocked=r[7]>0||r[3]>0;var it={c:r[0],n:r[1],p:r[2],k:'food',bom:stocked?[[r[0],1]]:[]};state.catalog[cat]['ທັງໝົດ'].push(it);
+  state.menuImg[r[0]]=bizSvg(r[5],r[6]);
+  if(stocked){var g={code:r[0],name:r[1],unit:r[4],stock:r[7],cost:r[3],reorder:r[8],cat:'ສິນຄ້າ',addTs:now,locs:{}};g.locs[loc]=r[7];state.ingredients[r[0]]=g;}});});
+ state.customers=S.customers.map(function(c,i){return {id:'m'+now+'_'+i,name:c[0],phone:c[1],points:0,wallet:0,ledger:[],ts:now};});
+ var b=BIZ[t];state.floors=b.floors.slice();state.tables={};S.tables.forEach(function(nm,i){state.tables[nm]={name:nm,floor:b.floors[i<Math.ceil(S.tables.length/2)?0:b.floors.length-1],status:'free',items:[],customer:null,main:false,mergedInto:null};});
+ if(!state.shopName||/ຊື່ຮ້ານຂອງທ່ານ|ຕົວຢ່າງ/.test(state.shopName))state.shopName=S.shop;
+ state.emptyShop=true;state.menuV=now;state.activeCat=Object.keys(state.catalog)[0];state.activeSub=null;state.activeTable=Object.keys(state.tables)[0];
+ bizApply(t,true);}
 var EMPTY_KEYS={catalog:{},menuImg:{},modGroups:[],ingredients:{},ingDel:{},bills:[],orders:[],draft:[],expenses:[],menuLog:[],orderLog:[],shiftLog:[],stockLog:[],cancelLog:[],prs:[],pos:[],grns:[],transfers:[],reqs:[],chkSubs:[],stockCounts:[],resv:[],stockAdj:[],wastes:[],dlSettles:[],costAlerts:[],kdsLog:[],customers:[],_custDel:[],vendors:[],promos:[],qr:{},soldOut:{}};
 var _rst={mode:'empty',fail:0,until:0};
-function confirmReset(){if(!can('sysAdv')){toast('ບໍ່ມີສິດ');return;}var me=curUser()||{},sup=me.role==='superadmin',S=(state.users||[]).filter(function(u){return u.role==='superadmin'&&u.active!==false;});
- if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode='empty';
+function confirmReset(pre){if(!can('sysAdv')){toast('ບໍ່ມີສິດ');return;}var me=curUser()||{},sup=me.role==='superadmin',S=(state.users||[]).filter(function(u){return u.role==='superadmin'&&u.active!==false;});
+ if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode=(pre==='pharmacy'||pre==='clinic')?pre:'empty';
  var card=function(m,t,d){return '<button type="button" class="rst-card" data-m="'+m+'" onclick="_rst.mode=this.dataset.m;document.querySelectorAll(\'.rst-card\').forEach(function(b){b.classList.toggle(\'on\',b.dataset.m===_rst.mode);})"><b>'+t+'</b><small>'+d+'</small></button>';};
  openModal('<h2 style="color:var(--red)">ລ້າງຂໍ້ມູນ</h2><p class="uc-lead">ລ້າງແລ້ວ ໃຊ້ສຳຮອງທີ່ສ້າງອັດຕະໂນມັດກ່ອນລ້າງ ເພື່ອກູ້ຄືນໄດ້ (ສຳຮອງ & ຂັ້ນສູງ)</p>'+
   '<div class="rst-cards">'+card('empty','ລ້າງເປັນຮ້ານເປົ່າ','<u>ລຶບ</u>: ເມນູ ສູດ ຮູບ · ວັດຖຸດິບ & ສະຕ໋ອກ · ບິນ ອໍເດີ ລາຍຈ່າຍ · ເອກະສານສາງ / ຈັດຊື້ · ສະມາຊິກ ຜູ້ຂາຍ ໂປຣ · ປະຫວັດ<br><u>ເກັບໄວ້</u>: ຂໍ້ມູນຮ້ານ & ໃບບິນ · ການຊຳລະ · ຜູ້ໃຊ້ & PIN · ໂຕະ & ຊັ້ນ · ບ່ອນເກັບ · ຫົວໜ່ວຍ · ການຕັ້ງຄ່າ')+
-   card('demo','ລ້າງເປັນຂໍ້ມູນຕົວຢ່າງ','ລຶບທຸກຢ່າງ ແລ້ວໃສ່ເມນູ ວັດຖຸດິບ ແລະ ຜູ້ໃຊ້ຕົວຢ່າງ (Admin) — ສຳລັບທົດລອງ / ສາທິດ')+'</div>'+
+   card('demo','ລ້າງເປັນຂໍ້ມູນຕົວຢ່າງ','ລຶບທຸກຢ່າງ ແລ້ວໃສ່ເມນູ ວັດຖຸດິບ ແລະ ຜູ້ໃຊ້ຕົວຢ່າງ (Admin) — ສຳລັບທົດລອງ / ສາທິດ')+
+   card('pharmacy','ຕົວຢ່າງ: ຮ້ານຂາຍຢາ (Medical)','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ເຄົາເຕີຂາຍ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ')+
+   card('clinic','ຕົວຢ່າງ: ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ + ຮູບ + ຫ້ອງກວດ/ຕ້ອນຮັບ · ໃຊ້ສິດ/ບົດບາດຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
   '<div class="rst-auth"><b>'+(sup?'ຢືນຢັນດ້ວຍ PIN ຂອງທ່ານ (Super Admin)':'ຕ້ອງໃຫ້ Super Admin ອະນຸມັດ — ໃຫ້ Super Admin ໃສ່ PIN')+'</b>'+
    (sup?'<input type="hidden" id="rst_u" value="'+aesc(me.id)+'">':'<select id="rst_u">'+S.map(function(u){return '<option value="'+aesc(u.id)+'">'+cesc(u.name)+'</option>';}).join('')+'</select>')+
    '<input id="rst_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="PIN 4 ຕົວ"></div>'+
@@ -8390,7 +8487,7 @@ function rstGo(){if(!can('sysAdv'))return;if(Date.now()<_rst.until){toast('ໃ�
  if(!a||a.role!=='superadmin'){toast('ຕ້ອງເປັນ Super Admin');return;}if(!/^\d{4}$/.test(pin)){toast('ໃສ່ PIN 4 ຕົວ');return;}
  var ok=a.pinH?a.pinH===pinHash(pin):String(a.pin)===pin;if(!ok){_rst.fail++;if(_rst.fail>=5){_rst.until=Date.now()+5*60000;_rst.fail=0;}toast('PIN ບໍ່ຖືກຕ້ອງ');var e=document.getElementById('rst_pin');if(e){e.value='';e.focus();}return;}
  _rst.fail=0;var mode=_rst.mode,me=curUser()||{},by=(me.name||'')+(a.id!==me.id?' · ອະນຸມັດໂດຍ '+a.name:''),bt=document.getElementById('rst_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງສຳຮອງ…';}
- var go=function(){if(mode==='empty')doResetEmpty(by);else doReset(by);};
+ var go=function(){if(mode==='empty')doResetEmpty(by);else if(mode==='pharmacy'||mode==='clinic'){doResetEmpty(by);bizLoad(mode);save();render();showSuccess('ໂຫຼດຕົວຢ່າງ '+BIZ[mode].name+' ແລ້ວ','ລອງຂາຍ / ເບິ່ງສະຕ໋ອກ ໄດ້ເລີຍ');}else doReset(by);};
  if(HAS_API&&!/script\.google/.test(API_URL))jsonp_('bak=now&token='+encodeURIComponent(TOKEN),function(r){if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ລ້າງເລີຍ';}toast('ສຳຮອງບໍ່ສຳເລັດ — ຍັງບໍ່ລ້າງ (ກວດອິນເຕີເນັດ)');return;}go();});else go();}
 function doResetEmpty(by){var ns=JSON.parse(JSON.stringify(state)),now=Date.now();
  Object.keys(EMPTY_KEYS).forEach(function(k){ns[k]=JSON.parse(JSON.stringify(EMPTY_KEYS[k]));});
