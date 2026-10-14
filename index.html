@@ -2912,7 +2912,8 @@ function startSync(){
  else{window.addEventListener('storage',e=>{if(e.key==='stpos'&&e.newValue){try{state=JSON.parse(e.newValue);render();}catch(_){}}});}}
 function playBeep(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.12;o.start();o.frequency.setValueAtTime(660,a.currentTime+0.15);setTimeout(()=>{o.stop();a.close();},320);}catch(e){}}
 function setView(v){if(v==='cancellog'){reportTab='cancel';repDate=ymd(Date.now());cxFrom=cxTo=ymd(Date.now());cancelFilter='all';v='reports';}if(!isCust()&&curUser()&&!canView(v)){toast('ບໍ່ມີສິດເຂົ້າໜ້ານີ້ ('+(ROLE_LABELS[curUser().role]||'')+')');return;}
- view=v;document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===v));try{navReveal();}catch(e){}render();try{uiEnter();}catch(e){}
+ var _nv=v;if(v==='tables'&&bizCur()==='medical'&&!isCust()){if(!state.tables[state.activeTable]||state.activeTable!=='ແຄັດເຊຍ'&&!state.draft.length)state.activeTable=state.tables['ແຄັດເຊຍ']?'ແຄັດເຊຍ':state.activeTable;v='order';}
+ view=v;document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===_nv||(v==='order'&&b.dataset.v==='tables')));try{navReveal();}catch(e){}render();try{uiEnter();}catch(e){}
  if(!isCust()&&v!=='order')pushCDS({type:'idle'});}
 /* ===== LOGIN ===== */
 let _loginSel=null,_loginPin='';
@@ -3359,7 +3360,7 @@ function regenQR(name){try{chatClear(name);}catch(e){}delete state.qr[name];ensu
 function renderOrder(R){const t=state.tables[state.activeTable];
  R.innerHTML=`<div id="orderWrap"><div class="menupane"><div class="ordbar"><div class="cats">${Object.keys(MSRC()).map(cat=>`<button class="cat ${cat===state.activeCat?'active':''}" data-cat="${cat.replace(/"/g,'&quot;')}" onclick="setCat(this.getAttribute('data-cat'))"><span class="ci">${catIcon(cat,22)}</span><span class="ct"><b>${cat}</b><small>${catCount(cat)} ເມນູ</small></span></button>`).join('')}</div><div class="ordtools" id="ordTools"></div></div>
   <div class="subcats" id="subcats"></div><div class="products" id="products"></div></div>
-  <button class="cartbar" id="cartBar" onclick="toggleCartSheet(true)"></button><div class="cartmask" onclick="toggleCartSheet(false)"></div><div class="cart"><div class="cart-grab" onclick="toggleCartSheet(false)"></div><div class="cart-top">${t.dl?`<div class="dl-head">${dlTag(t)}</div>`:`<button onclick="openMoveTable()"> ${state.activeTable}</button>`}<button onclick="openCustomer()" title="${cesc(t.customer||'')}">${t.customer?cesc(String(t.customer).replace(/\s*\([^)]*\)\s*$/,''))+(t.memberId?'<span class="ct-sub">ສະມາຊິກ</span>':''):'+ ເລືອກລູກຄ້າ'}</button><button class="cart-x" aria-label="ປິດກະຕ່າ" onclick="toggleCartSheet(false)">✕</button></div>
+  <button class="cartbar" id="cartBar" onclick="toggleCartSheet(true)"></button><div class="cartmask" onclick="toggleCartSheet(false)"></div><div class="cart"><div class="cart-grab" onclick="toggleCartSheet(false)"></div><div class="cart-top">${t.dl?`<div class="dl-head">${dlTag(t)}</div>`:`<button onclick="${bizCur()==='medical'?'openCardPick()':'openMoveTable()'}"> ${state.activeTable}${bizCur()==='medical'?' ▾':''}</button>`}<button onclick="openCustomer()" title="${cesc(t.customer||'')}">${t.customer?cesc(String(t.customer).replace(/\s*\([^)]*\)\s*$/,''))+(t.memberId?'<span class="ct-sub">ສະມາຊິກ</span>':''):'+ ເລືອກລູກຄ້າ'}</button><button class="cart-x" aria-label="ປິດກະຕ່າ" onclick="toggleCartSheet(false)">✕</button></div>
    <div class="cart-items" id="cartItems"></div><div class="cart-foot" id="cartFoot"></div></div></div>`;renderSubcats();renderProducts();renderCart();}
 function setCat(cat){state.activeCat=cat;state.activeSub=null;var bs=document.querySelectorAll('.cats .cat');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('active',bs[i].getAttribute('data-cat')===cat);renderSubcats();renderProducts();}
 function renderSubcats(){const M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];const subs=Object.keys(M[state.activeCat]||{});if(bizCur()==='medical'&&subs.length<=1){state.activeSub=null;var _se=document.getElementById('subcats');if(_se)_se.innerHTML='';return;}
@@ -3916,9 +3917,10 @@ function confirmSplitByItem(){const t=state.tables[state.activeTable];var ids=t.
  closeModal();receivePayment(ids);}
 var _tpFl='ທັງໝົດ';
 function tpNo(w){toast(w);}
-function tpGo(el){var m=el.closest('#tpGrid').dataset.m;if(m==='move')moveTo(el.dataset.k);else mergeFrom(el.dataset.k);}
+function tpGo(el){var m=el.closest('#tpGrid').dataset.m;if(m==='move')moveTo(el.dataset.k);else if(m==='switch'){state.activeTable=el.dataset.k;closeModal();render();}else mergeFrom(el.dataset.k);}
+function openCardPick(){_tpFl='ທັງໝົດ';tpModal('switch','ເລືອກບັນຊີທີ່ຈະຄິດເງິນ','ແຄັດເຊຍ = ຂາຍຢາໜ້າເຄົາເຕີ · ບັດແພດ = ເພີ່ມຄ່າກວດ/ບໍລິການໃສ່ບັດຂອງແພດ');}
 function tpGrid(mode){var cur=state.activeTable,fl=_tpFl,all=Object.values(state.tables).filter(function(t){return !t.dl&&(fl==='ທັງໝົດ'||t.floor===fl);});
- return all.map(function(t){var isCur=t.name===cur,free=t.status==='free',merged=t.status==='merged',occ=!free&&!merged,ok=mode==='move'?(free&&!isCur):(occ&&!isCur),tag='',amt='',why='';
+ return all.map(function(t){var isCur=t.name===cur,free=t.status==='free',merged=t.status==='merged',occ=!free&&!merged,ok=mode==='move'?(free&&!isCur):mode==='switch'?(!merged&&!isCur):(occ&&!isCur),tag='',amt='',why='';
   if(isCur){tag='<span class="tp-tag">ໂຕະນີ້</span>';why='ນີ້ແມ່ນໂຕະປັດຈຸບັນ';}
   else if(mode==='move'&&occ){tag='<span class="tp-tag">ມີລູກຄ້າ</span>';why='ໂຕະ '+t.name+' ມີລູກຄ້າ — ຍ້າຍທັບບໍ່ໄດ້';}
   else if(mode==='move'&&merged){tag='<span class="tp-tag">ລວມໄປ '+cesc(t.mergedInto||'')+'</span>';why='ໂຕະນີ້ຖືກລວມໄປແລ້ວ';}
