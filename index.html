@@ -8,6 +8,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>ST POS</title>
+<script>(function(){try{var q=(location.search.match(/[?&]theme=(\w+)/)||[])[1];if(q)localStorage.setItem('stpos_theme',q);document.documentElement.setAttribute('data-theme',localStorage.getItem('stpos_theme')||'classic');}catch(e){document.documentElement.setAttribute('data-theme','classic');}})();</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23062f2d%22/%3E%3Ctext x=%2232%22 y=%2242%22 font-size=%2226%22 font-weight=%22800%22 text-anchor=%22middle%22 fill=%22%237ff0e9%22 font-family=%22Arial%22%3EST%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2083,6 +2084,168 @@ svg[data-ic] .ring{transform-origin:50% 8%}svg[data-ic] .wr{transform-origin:20%
 .sh-c i,.setrail button i{--ic-a:#13c1ba}.sh-c i{color:#0a4f4c}
 .ei svg[data-ic]{--ic-a:#13b5ae}
 @media (prefers-reduced-motion:reduce){svg[data-ic] *{animation:none!important}}
+/* =====================================================================
+   THEME "Glass Coffee" — ມືດ + Glassmorphism + ສີ Caramel (ອ້າງອີງ Dribbble Coffee Shop Mobile App)
+   ເປີດ/ປິດ: html[data-theme="glass"]  · ຄືນທີມເກົ່າ: ?theme=classic ຫຼື ປຸ່ມ "ທີມ" ໃນແຖບເທິງ ຫຼື ການຕັ້ງຄ່າ → ຮູບແບບໜ້າຕາ
+   ທີມເກົ່າ (classic) ບໍ່ຖືກແກ້ໄຂ — ສຳຮອງໄວ້ທີ່ git tag theme-classic-v1
+   ===================================================================== */
+html[data-theme="glass"]{
+ --cf-0:#0B0603;--cf-1:#1a0f0a;--cf-2:#562510;--cf-caramel:#B6642E;--cf-latte:#E3C7AF;--cf-mauve:#D0BCC9;--cf-rose:#C0AFAF;--cf-txt:#F3E9E1;
+ --bg:#0B0603;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.14);--text:#F3E9E1;--ink:#F3E9E1;--muted:#C0AFAF;
+ --tiff:#B6642E;--tiff2:#C9743A;--tiff-lite:#E3C7AF;--tiff-deep:#E3C7AF;--tiff-ink:#F3E9E1;
+ --grad:linear-gradient(135deg,#CF7A3C,#B6642E 55%,#8a4a22);--grad-deep:linear-gradient(135deg,#B6642E,#8a4a22);
+ --free:#E3C7AF;--busy:#B6642E;--bill:#E3C7AF;--new:#562510;--merge:#D0BCC9;--callbill:#d98a4e;
+ --green:#7fc48a;--red:#ef6a5e;--gold:#E3C7AF;--pink:#D0BCC9;--orange:#d98a4e;--blue:#D0BCC9;
+ --sh-in:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -10px 18px -10px rgba(0,0,0,.45);
+ --sh-1:var(--sh-in),0 14px 34px rgba(0,0,0,.38);--sh-2:var(--sh-in),0 18px 44px rgba(0,0,0,.5);
+ --glass:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.05));
+ --glass-line:rgba(255,255,255,.17);
+ color-scheme:dark;
+}
+html[data-theme="glass"] body,html[data-theme="glass"] #viewRoot,html[data-theme="glass"] #app.cust #viewRoot{
+ background:radial-gradient(900px 600px at 8% -8%,rgba(182,100,46,.42),transparent 62%),radial-gradient(800px 700px at 105% 105%,rgba(208,188,201,.2),transparent 60%),radial-gradient(600px 500px at 90% 5%,rgba(86,37,16,.55),transparent 65%),#0B0603!important;
+ background-attachment:fixed!important;color:var(--cf-txt)}
+html[data-theme="glass"] #viewRoot{background:transparent!important}
+html[data-theme="glass"] body{color:var(--cf-txt)}
+
+/* ---------- Card: ແກ້ວຝ້າ ---------- */
+html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.legend,.outstanding,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.cart-foot,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.shiftbar,.cart,.sethead,.setrail,.pay2,.p2-seg,.layoutbtns){
+ background:var(--glass)!important;-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);
+ border:1px solid var(--glass-line)!important;box-shadow:var(--sh-1)!important;color:var(--cf-txt)}
+html[data-theme="glass"] .modal{background:linear-gradient(135deg,rgba(60,32,20,.92),rgba(24,12,8,.94))!important;-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);border:1px solid var(--glass-line)!important;box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.2)!important;color:var(--cf-txt)}
+html[data-theme="glass"] .overlay{background:rgba(5,2,1,.62)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html[data-theme="glass"] :is(.kpi,.scard,.sh-c,.pm-c,.product,.tablecard):hover{box-shadow:var(--sh-2)!important}
+
+/* ---------- ຕົວໜັງສື ---------- */
+html[data-theme="glass"] :is(h1,h2,h3,h4,.ttl,.toolbar>span:first-child,.tb-hi,.tb-date,.sub,.lbl){color:var(--cf-txt)!important;-webkit-text-fill-color:currentColor!important}
+html[data-theme="glass"] :is(.kpi .lbl,.kpi .sub,.sub,small,.muted,.hint,label){color:var(--cf-rose)!important}
+html[data-theme="glass"] :is(.kpi .val,.product .pname,.tname,.tamt b,.hps-c b,.sh-c b,.pm-t,.totrow b,.rpt-card b){color:var(--cf-txt)!important}
+html[data-theme="glass"] .kpi .val{font-family:'Noto Serif Lao','Noto Serif',Georgia,serif!important}
+html[data-theme="glass"] :is(.product .pname,.sh-c b,.sethead h2,.modal h2,h1.t){font-family:'Noto Serif Lao','Noto Serif',Georgia,serif}
+html[data-theme="glass"] :is(.product .price,.price){color:var(--cf-latte)!important}
+html[data-theme="glass"] a{color:var(--cf-latte)}
+
+/* ---------- ແຖບຂ້າງ ---------- */
+html[data-theme="glass"] #sidebar{background:linear-gradient(180deg,rgba(40,22,14,.88),rgba(14,7,4,.92))!important;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--glass-line)!important;box-shadow:0 20px 50px rgba(0,0,0,.55)!important;color:#e9dccf}
+html[data-theme="glass"] #sidebar .navitem{color:#e9dccf}
+html[data-theme="glass"] #sidebar .navitem:hover{background:rgba(255,255,255,.09)!important}
+html[data-theme="glass"] #sidebar .navitem.active{background:linear-gradient(135deg,#CF7A3C,#B6642E 60%,#8a4a22)!important;color:#fff;box-shadow:0 8px 22px rgba(182,100,46,.45)}
+html[data-theme="glass"] #sidebar svg[data-ic]{--ic-a:#E3C7AF}
+html[data-theme="glass"] #sidebar .navitem.active svg[data-ic]{--ic-a:#3a1c0b}
+html[data-theme="glass"] #sidebar .navsec{color:#b79b86}
+html[data-theme="glass"] #sidebar .brand .logo{background:var(--grad)}
+html[data-theme="glass"] .topbar{background:rgba(14,7,4,.55)!important;border-bottom:1px solid var(--glass-line)!important;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+html[data-theme="glass"] .userchip,html[data-theme="glass"] .ordno{background:var(--glass)!important;border:1px solid var(--glass-line)!important;color:var(--cf-txt)!important}
+
+/* ---------- ປຸ່ມ / ແຊບ / ຊ່ອງພິມ ---------- */
+html[data-theme="glass"] :is(.btn-ok,.btn-ok.grad,.grad,.btn-sm,.b-pay,.go-start){background:var(--grad)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(182,100,46,.4),inset 0 1px 0 rgba(255,255,255,.3)!important}
+html[data-theme="glass"] :is(.btn-cancel,.chip,.cat,.subcat,.layoutbtns button,.dttoggle button,.ck-seg button,.sseg button,.stog){background:rgba(255,255,255,.09)!important;color:var(--cf-txt)!important;border:1px solid var(--glass-line)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important}
+html[data-theme="glass"] :is(.chip.active,.cat.active,.subcat.active,.layoutbtns button.on,.dttoggle button.on,.stog.on,.ck-seg button.on){background:var(--grad)!important;color:#fff!important;border-color:transparent!important}
+html[data-theme="glass"] .actions button{background:rgba(255,255,255,.1)!important;color:var(--cf-txt)!important;border:1px solid var(--glass-line)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 6px 16px rgba(0,0,0,.3)!important}
+html[data-theme="glass"] .actions .b-bill{background:linear-gradient(135deg,#562510,#3a1a0b)!important}
+html[data-theme="glass"] .actions .b-pay{background:var(--grad)!important}
+html[data-theme="glass"] .actions button.b-cancel{color:#f2a79c!important}
+html[data-theme="glass"] :is(input,select,textarea),html[data-theme="glass"] .modal :is(input,select,textarea),html[data-theme="glass"] .toolbar :is(input,select){background:rgba(255,255,255,.08)!important;color:var(--cf-txt)!important;border:1px solid var(--glass-line)!important}
+html[data-theme="glass"] ::placeholder{color:#a89485!important}
+html[data-theme="glass"] option{background:#1a0f0a;color:#F3E9E1}
+
+/* ---------- ຕາຕະລາງ ---------- */
+html[data-theme="glass"] table.tbl,html[data-theme="glass"] .tbl{background:var(--glass)!important;border:1px solid var(--glass-line)!important;color:var(--cf-txt)}
+html[data-theme="glass"] table.tbl th,html[data-theme="glass"] .tbl th{background:rgba(255,255,255,.08)!important;color:var(--cf-latte)!important;border-bottom:1px solid var(--glass-line)!important}
+html[data-theme="glass"] table.tbl td,html[data-theme="glass"] .tbl td{color:var(--cf-txt)!important;border-bottom:1px solid rgba(255,255,255,.08)!important;background:transparent!important}
+html[data-theme="glass"] table.tbl tr:hover td{background:rgba(255,255,255,.05)!important}
+
+/* ---------- ບັດໂຕະ ---------- */
+html[data-theme="glass"] .tablecard{color:var(--cf-txt);border:1px solid var(--glass-line)!important;box-shadow:var(--sh-1)!important}
+html[data-theme="glass"] .tablecard.s-free{background:var(--glass)!important;border:1.5px dashed rgba(227,199,175,.45)!important}
+html[data-theme="glass"] .tablecard.s-busy{background:linear-gradient(150deg,#D5803F,#B6642E 55%,#8a4a22)!important;color:#fff;border-color:rgba(255,255,255,.25)!important}
+html[data-theme="glass"] .tablecard.s-bill,html[data-theme="glass"] .tablecard.s-callbill{background:linear-gradient(150deg,#F0DCC8,#E3C7AF 60%,#c9a583)!important;color:#3a1c0b}
+html[data-theme="glass"] .tablecard.s-new{background:linear-gradient(150deg,#7a3516,#562510 60%,#3a1a0b)!important;color:#fff}
+html[data-theme="glass"] .tablecard.s-main{background:linear-gradient(150deg,#E2D4E8,#D0BCC9 60%,#b4a0b2)!important;color:#2d1a2a}
+html[data-theme="glass"] .tablecard .tname,html[data-theme="glass"] .tablecard .tamt,html[data-theme="glass"] .tablecard .tamt b{color:inherit!important}
+html[data-theme="glass"] .tablecard.s-callbill{border:2px solid #B6642E!important}
+html[data-theme="glass"] .tablecard.s-new .tamt,html[data-theme="glass"] .tablecard.s-new .tamt b{color:#E3C7AF!important}
+html[data-theme="glass"] .legend .d-free{background:transparent;border-color:rgba(227,199,175,.6)}html[data-theme="glass"] .legend .d-busy{background:#B6642E}html[data-theme="glass"] .legend .d-callbill{background:#E3C7AF;border-color:#B6642E}html[data-theme="glass"] .legend .d-bill{background:#E3C7AF}html[data-theme="glass"] .legend .d-new{background:#562510}html[data-theme="glass"] .legend .d-main{background:#D0BCC9}
+
+/* ---------- ເມນູສັ່ງ: ບັດສິນຄ້າ ---------- */
+html[data-theme="glass"] .product{border-radius:26px!important}
+html[data-theme="glass"] .product .thumb{background:rgba(255,255,255,.06)!important;border-radius:20px}
+html[data-theme="glass"] .product .add,html[data-theme="glass"] .product button:not(.qbadge){background:#1a0b05!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important;box-shadow:0 6px 14px rgba(0,0,0,.5)!important}
+
+/* ---------- ກະຕ່າ / ຮັບເງິນ ---------- */
+html[data-theme="glass"] :is(.cart-top,.kds-head){background:linear-gradient(135deg,#562510,#2b140a)!important}
+html[data-theme="glass"] .p2-due{background:radial-gradient(ellipse at 25% 0%,rgba(207,122,60,.55),transparent 65%),linear-gradient(160deg,#4a2010,#220f07)!important;border:1px solid var(--glass-line)}
+html[data-theme="glass"] .dashcards .kpi:first-child,html[data-theme="glass"] .kpi.on-dark{background:radial-gradient(ellipse at 25% 0%,rgba(207,122,60,.6),transparent 65%),linear-gradient(160deg,#4a2010,#220f07)!important}
+html[data-theme="glass"] .outstanding,html[data-theme="glass"] .shiftbar{background:linear-gradient(135deg,rgba(227,199,175,.3),rgba(182,100,46,.18))!important;color:var(--cf-latte)!important}
+html[data-theme="glass"] .totrow,html[data-theme="glass"] .paysummary{color:var(--cf-txt)}
+html[data-theme="glass"] .paysummary{background:rgba(255,255,255,.07)!important;border:1px solid var(--glass-line)}
+
+/* ---------- ໄອຄອນ ---------- */
+html[data-theme="glass"] svg[data-ic]{--ic-a:#E3C7AF}
+html[data-theme="glass"] .sh-c i,html[data-theme="glass"] .pm-c header i{background:rgba(255,255,255,.1)!important;color:var(--cf-txt)!important}
+html[data-theme="glass"] .sh-c i{--ic-a:#E3C7AF}
+html[data-theme="glass"] .ei svg[data-ic]{--ic-a:#E3C7AF}
+
+/* ---------- ຕັ້ງຄ່າ ---------- */
+html[data-theme="glass"] .setrail button{color:#e9dccf!important}
+html[data-theme="glass"] .setrail button.on{background:var(--grad)!important;color:#fff!important}
+html[data-theme="glass"] .setrail button:hover{background:rgba(255,255,255,.08)!important}
+html[data-theme="glass"] .setsq{background-color:rgba(255,255,255,.08)!important;color:var(--cf-txt)!important}
+html[data-theme="glass"] .sh-c em,html[data-theme="glass"] .pm-n{background:var(--grad)!important;color:#fff}
+html[data-theme="glass"] .pm-r .pm-t{color:var(--cf-txt)!important}
+html[data-theme="glass"] .pm-r:not(.on) .pm-t{color:#a89485!important}
+
+/* ---------- ຫຼາຍໆ inline style ທີ່ຕັ້ງສີຂາວ/ຂຽວ ---------- */
+html[data-theme="glass"] [style*="background:#fff"],html[data-theme="glass"] [style*="background: #fff"],html[data-theme="glass"] [style*="background:white"]{background:rgba(255,255,255,.08)!important}
+html[data-theme="glass"] [style*="color:#062f2d"],html[data-theme="glass"] [style*="color:var(--ink)"],html[data-theme="glass"] [style*="color:#0f2e2c"],html[data-theme="glass"] [style*="color:#1f3d3a"]{color:var(--cf-txt)!important}
+html[data-theme="glass"] [style*="color:var(--muted)"]{color:var(--cf-rose)!important}
+html[data-theme="glass"] [style*="color:var(--tiff-deep)"]{color:var(--cf-latte)!important}
+html[data-theme="glass"] [style*="border:1px solid var(--line)"]{border-color:var(--glass-line)!important}
+
+/* ---------- ຈໍລູກຄ້າ / ໂທລະສັບ ---------- */
+html[data-theme="glass"] #bnav{background:rgba(20,10,6,.8)!important;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);border:1px solid var(--glass-line)!important}
+
+/* ---------- Glass: ແກ້ໄຂຮອບທີ 2 ---------- */
+html[data-theme="glass"]{--sb1:#2b160d;--sb2:#120804}
+html[data-theme="glass"] #sidebar{background:linear-gradient(180deg,rgba(46,25,16,.9),rgba(16,8,5,.94))!important}
+html[data-theme="glass"] .sethead{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-theme="glass"] .sethead p,html[data-theme="glass"] .sethead small{color:var(--cf-rose)!important}
+html[data-theme="glass"] .legend,html[data-theme="glass"] .legend span,html[data-theme="glass"] .legend b{color:var(--cf-txt)!important}
+html[data-theme="glass"] .legend span{color:var(--cf-txt)!important}
+html[data-theme="glass"] .outstanding{color:var(--cf-latte)!important}
+html[data-theme="glass"] :is(.lnk,.kpi .sub a,.kpi .sub b,.kpi a){color:var(--cf-latte)!important}
+html[data-theme="glass"] .dashcards .kpi:first-child:not(.on-dark){background:var(--glass)!important}
+html[data-theme="glass"] .tablecard .qrbadge{background:rgba(255,255,255,.16)!important;border:1px solid var(--glass-line)}
+html[data-theme="glass"] .tablecard .qrbadge svg{color:var(--cf-latte);fill:var(--cf-latte)}
+html[data-theme="glass"] .tablecard .rvbadge{background:linear-gradient(135deg,#562510,#3a1a0b)!important;color:var(--cf-latte)!important;border:1px solid var(--glass-line)}
+html[data-theme="glass"] .tablecard.s-busy .qrbadge,html[data-theme="glass"] .tablecard.s-new .qrbadge{background:rgba(255,255,255,.22)!important}
+html[data-theme="glass"] :is(.cats,.ordtools .dttoggle,.dttoggle,.topcats,.ordtypes){background:rgba(255,255,255,.07)!important;border:1px solid var(--glass-line)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)!important}
+html[data-theme="glass"] .cats .cat{background:transparent!important;border-color:transparent!important;color:var(--cf-rose)!important;box-shadow:none!important}
+html[data-theme="glass"] .cats .cat.active{background:var(--grad)!important;color:#fff!important}
+html[data-theme="glass"] .dttoggle button{background:transparent!important;color:var(--cf-rose)!important;border:0!important;box-shadow:none!important}
+html[data-theme="glass"] .dttoggle button.on{background:var(--grad)!important;color:#fff!important}
+html[data-theme="glass"] .cart-top{background:transparent!important}
+html[data-theme="glass"] .cart-top button{background:rgba(255,255,255,.1)!important;color:var(--cf-txt)!important;border:1px solid var(--glass-line)!important}
+html[data-theme="glass"] .cart-top button:first-child{background:linear-gradient(135deg,#562510,#2b140a)!important;color:#fff!important}
+html[data-theme="glass"] .cart-top button+button{background:rgba(255,255,255,.1)!important;color:var(--cf-txt)!important}
+html[data-theme="glass"] .product .price,html[data-theme="glass"] .product .pcode,html[data-theme="glass"] .product small{color:var(--cf-latte)!important}
+html[data-theme="glass"] .product .pname{color:var(--cf-txt)!important}
+html[data-theme="glass"] .p2-due,html[data-theme="glass"] .p2-due *{color:#fff}
+html[data-theme="glass"] .cart-foot,html[data-theme="glass"] .cart{color:var(--cf-txt)}
+html[data-theme="glass"] .sc-it,html[data-theme="glass"] .sc-hb,html[data-theme="glass"] .rcpt-prev{color:var(--cf-txt)}
+html[data-theme="glass"] #sidebar{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-theme="glass"] #sidebar::before{background:linear-gradient(180deg,rgba(54,29,18,.92),rgba(18,9,5,.95))!important;border:1px solid var(--glass-line);box-shadow:0 20px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+html[data-theme="glass"] #loginScreen{background:radial-gradient(900px 600px at 15% 0%,rgba(182,100,46,.45),transparent 62%),radial-gradient(700px 600px at 100% 100%,rgba(208,188,201,.2),transparent 60%),#0B0603!important;color:var(--cf-txt)}
+html[data-theme="glass"] #loginScreen :is(h1,h2,h3,b,p,div,span,small){color:var(--cf-txt)}
+html[data-theme="glass"] #loginScreen button{background:rgba(255,255,255,.1)!important;color:var(--cf-txt)!important;border:1px solid var(--glass-line)!important}
+html:not([data-theme="glass"]) .tb-theme{display:none!important}
+.tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
+.tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
+.thm-pick{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}.thm-pick button{flex:1;min-width:200px;text-align:left;border-radius:18px;padding:14px 16px;border:2px solid transparent;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.thm-pick b{font-size:16px}.thm-pick small{font-size:13px;opacity:.85}
+.thm-pick .t-cls{background:linear-gradient(135deg,#f3fbfb,#dff3f1);color:#062f2d}.thm-pick .t-gls{background:linear-gradient(135deg,#562510,#0B0603);color:#F3E9E1}
+.thm-pick button.on{border-color:#0ABAB5;box-shadow:0 0 0 3px rgba(10,186,181,.25)}.thm-pick .t-gls.on{border-color:#CF7A3C;box-shadow:0 0 0 3px rgba(207,122,60,.3)}
 </style>
 </head>
 <body>
@@ -2124,7 +2287,7 @@ svg[data-ic] .ring{transform-origin:50% 8%}svg[data-ic] .wr{transform-origin:20%
   <div id="drawerMask" onclick="toggleDrawer(false)"></div>
   <div id="main">
     <div class="topbar"><button class="tb-menu" onclick="toggleDrawer()" aria-label="ເມນູ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      <div class="tb-title"><h1>ST POS</h1><div class="tb-date" id="tbDate"></div></div><span id="netDot" title="ສະຖານະເນັດ"></span><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
+      <div class="tb-title"><h1>ST POS</h1><div class="tb-date" id="tbDate"></div></div><span id="netDot" title="ສະຖານະເນັດ"></span><button class="tb-theme" id="themeBtn" onclick="toggleTheme()" title="ປ່ຽນທີມ ມືດ/ສະຫວ່າງ" aria-label="ປ່ຽນທີມ"></button><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
     <div id="viewRoot"></div>
   </div>
   <nav id="bnav"></nav>
@@ -7277,9 +7440,35 @@ function setSecAdv(){
  sCard('ຍ້າຍບິນເກົ່າເຂົ້າຄັງ','ບິນປັດຈຸບັນ <b>'+(state.bills||[]).length+'</b> ໃບ — ຫຼາຍພັນໃບ ຈະບັນທຶກຊ້າ · ຍ້າຍໄປ sheet "ບິນ-ຄັງ" ຂໍ້ມູນບໍ່ເສຍ · ບິນຕິດໜີ້ທີ່ຍັງບໍ່ຈ່າຍ ບໍ່ຖືກຍ້າຍ',sBtn('ຍ້າຍບິນເກົ່າ…','archiveModal()'),'')+
  sCard('ລ້າງຂໍ້ມູນ','ລ້າງເປັນຮ້ານເປົ່າ (ເກັບການຕັ້ງຄ່າ ຜູ້ໃຊ້ ໂຕະ) ຫຼື ຂໍ້ມູນຕົວຢ່າງ · ຕ້ອງມີ PIN ຂອງ Super Admin · ສຳຮອງອັດຕະໂນມັດກ່ອນລ້າງ',sBtn('ລ້າງຂໍ້ມູນ…','confirmReset()','danger'),'','danger');}
 /* ===== ໜ້າພາບລວມການຕັ້ງຄ່າ: ກຸ່ມ + ບັດ ມີຄຳອະທິບາຍ + ຄົ້ນຫາ ===== */
+/* ===== ທີມ: classic (ເກົ່າ) / glass (Glass Coffee ມືດ) — ເກັບຕໍ່ເຄື່ອງ (localStorage stpos_theme) ===== */
+function curTheme(){return document.documentElement.getAttribute('data-theme')||'classic';}
+function setTheme(t){try{localStorage.setItem('stpos_theme',t);}catch(e){}document.documentElement.setAttribute('data-theme',t);themeBtnPaint();var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='glass'?'#0B0603':'#063b39';/* ປ່ຽນທີມ: ໂຫຼດໃໝ່ເພື່ອລ້າງສີທີ່ປັບໃຫ້ອັດຕະໂນມັດ */setTimeout(function(){location.reload();},60);}
+function toggleTheme(){setTheme(curTheme()==='glass'?'classic':'glass');}
+/* ===== Glass: ປ່ຽນສີທີ່ຕັ້ງຕາຍໂຕ (ຂາວ/ພາສເທວ/ຟ້າຂຽວ/ຕົວໜັງສືເຂັ້ມ) ໃຫ້ເຂົ້າກັບທີມມືດ ອັດຕະໂນມັດ — ເຮັດສະເພາະເມື່ອໃຊ້ທີມ glass ===== */
+function gxRGB(c){var m=/rgba?\(([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:[ ,/]+([\d.]+))?/.exec(c);return m?[+m[1],+m[2],+m[3],m[4]==null?1:+m[4]]:null;}
+function gxHSL(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,h=0,s=0,d=mx-mn;if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return [h,s,l];}
+function gxHue(h,s){return (s>.25&&h>=160&&h<=200)?26:h;}
+function gxBg(el,cs){var c=gxRGB(cs.backgroundColor);if(!c||c[3]<.5)return;var hsl=gxHSL(c[0],c[1],c[2]),h=gxHue(hsl[0],hsl[1]),s=hsl[1],l=hsl[2];
+ if(l>.78){if(s<.3||l>.96)el.style.setProperty('background-color','rgba(255,255,255,.09)','important');else el.style.setProperty('background-color','hsla('+h+','+Math.round(Math.min(s,.75)*100)+'%,38%,.32)','important');}
+ else if(h!==hsl[0]){el.style.setProperty('background-color','hsl('+h+','+Math.round(Math.max(s*.85,.55)*100)+'%,'+Math.round(Math.min(l*100+4,48))+'%)','important');}}
+function gxFg(el,cs){var c=gxRGB(cs.color);if(!c)return;var hsl=gxHSL(c[0],c[1],c[2]),h=gxHue(hsl[0],hsl[1]),s=hsl[1],l=hsl[2];
+ if(l<.5){if(s<.35)el.style.setProperty('color','#F3E9E1','important');else el.style.setProperty('color','hsl('+h+','+Math.round(Math.min(s,.8)*100)+'%,72%)','important');}else if(h!==hsl[0]&&l<.8)el.style.setProperty('color','hsl('+h+','+Math.round(s*100)+'%,'+Math.round(Math.max(l*100,62))+'%)','important');}
+function gxBd(el,cs){var c=gxRGB(cs.borderTopColor);if(!c||cs.borderTopWidth==='0px'||cs.borderTopStyle==='none')return;var hsl=gxHSL(c[0],c[1],c[2]);if(hsl[2]>.8)el.style.setProperty('border-color','rgba(255,255,255,.17)','important');else if(gxHue(hsl[0],hsl[1])!==hsl[0])el.style.setProperty('border-color','hsl(26,60%,48%)','important');}
+function gxFix(root){if(curTheme()!=='glass')return;try{var rt=root||document.body,all=[].slice.call(rt.querySelectorAll('*')),i=0;if(rt!==document.body)all.unshift(rt);
+ (function step(){var end=Math.min(i+500,all.length);for(;i<end;i++){var el=all[i];if(el.__gx||el.closest('svg,.tablecard')||el.id==='loginScreen'||el.tagName==='SCRIPT'||el.tagName==='STYLE')continue;el.__gx=1;
+   var cs=getComputedStyle(el);if(cs.backgroundImage!=='none'&&el.tagName!=='BUTTON')continue;gxBg(el,cs);
+   if([].some.call(el.childNodes,function(n){return n.nodeType===3&&n.nodeValue.trim();})||el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.tagName==='BUTTON')gxFg(el,cs);gxBd(el,cs);}
+  if(i<all.length)requestAnimationFrame(step);})();}catch(e){}}
+(function(){var q=0,pend=new Set();function flush(){q=0;if(curTheme()!=='glass'){pend.clear();return;}pend.forEach(function(n){if(n.isConnected)gxFix(n);});pend.clear();}
+ if(window.MutationObserver)new MutationObserver(function(ms){if(curTheme()!=='glass')return;ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1)pend.add(n);});});if(!q&&pend.size)q=requestAnimationFrame(flush);}).observe(document.body,{childList:true,subtree:true});
+ window.gxRun=function(){document.querySelectorAll('*').forEach(function(e){e.__gx=0;});gxFix(document.body);};
+ if(curTheme()==='glass')setTimeout(function(){gxFix(document.body);},50);})();
+function themeBtnPaint(){var b=document.getElementById('themeBtn');if(!b)return;b.innerHTML=curTheme()==='glass'?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>':'<svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>';}
+function themePickHTML(){var t=curTheme();return '<div class="thm-pick"><button type="button" class="t-cls'+(t==='classic'?' on':'')+'" onclick="setTheme(\'classic\')"><b>ທີມເກົ່າ (ສະຫວ່າງ · ຟ້າຂຽວ)</b><small>ໜ້າຕາເດີມທີ່ໃຊ້ຢູ່ — ປອດໄພ ແລະ ຄຸ້ນເຄີຍ</small></button><button type="button" class="t-gls'+(t==='glass'?' on':'')+'" onclick="setTheme(\'glass\')"><b>Glass Coffee (ມືດ · ກາເຟ)</b><small>ບັດແກ້ວຝ້າ ສີ Caramel ແບບ Premium</small></button></div><p style="font-size:12.5px;color:var(--muted);margin:-8px 4px 14px">ຕັ້ງແຍກຕາມແຕ່ລະເຄື່ອງ · ຄືນທີມເກົ່າໄດ້ທຸກເວລາ ຫຼື ເພີ່ມ <b>?theme=classic</b> ທ້າຍລິ້ງ</p>';}
+themeBtnPaint();
 var SET_FIRST={shop:1,menu:2,users:3};
-function setSecHome(){var G=SET_NAV.filter(function(g){return g[0]!=='ເລີ່ມ';});
- return '<div class="sh-top"><input id="shq" class="setsq big" type="search" placeholder="ພິມຫາ ເຊັ່ນ ໃບບິນ, ລາຄາ, ສຽງ, PIN, ສຳຮອງ…" oninput="setFind(this.value)"><p>ກົດບັດເພື່ອເຂົ້າໄປຕັ້ງ · <b>1 2 3</b> = ຕັ້ງກ່ອນເປີດຮ້ານ</p></div>'+
+function setSecHome(){/*THEME*/var G=SET_NAV.filter(function(g){return g[0]!=='ເລີ່ມ';});
+ return '<div class="sh-g"><h3>ຮູບແບບໜ້າຕາ (ທີມ)</h3>'+themePickHTML()+'</div><div class="sh-top"><input id="shq" class="setsq big" type="search" placeholder="ພິມຫາ ເຊັ່ນ ໃບບິນ, ລາຄາ, ສຽງ, PIN, ສຳຮອງ…" oninput="setFind(this.value)"><p>ກົດບັດເພື່ອເຂົ້າໄປຕັ້ງ · <b>1 2 3</b> = ຕັ້ງກ່ອນເປີດຮ້ານ</p></div>'+
   G.map(function(g){var its=g[1].filter(function(x){return setVis(x);});if(!its.length)return '';
    return '<section class="sh-g"><h3>'+g[0]+'</h3><div class="sh-grid">'+its.map(function(x){return '<button type="button" class="sh-c" data-q="'+aesc((x[1]+' '+(x[3]||'')+' '+g[0]).toLowerCase())+'" onclick="adminSec=\''+x[0]+'\';render();uiEnter()">'+(SET_FIRST[x[0]]?'<em>'+SET_FIRST[x[0]]+'</em>':'')+'<i>'+sIco(x[2])+'</i><b>'+x[1]+'</b><small>'+(x[3]||'')+'</small></button>';}).join('')+'</div></section>';}).join('')+
   '<p id="shnone" class="sh-none" style="display:none">ບໍ່ພົບ — ລອງຄຳອື່ນ</p>';}
