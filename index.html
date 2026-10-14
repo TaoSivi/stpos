@@ -2098,7 +2098,7 @@ html[data-theme="glass"]{
  --green:#7fc48a;--red:#ef6a5e;--gold:#BDF3EE;--pink:#5FD9D2;--orange:#f4b740;--blue:#5FD9D2;
  --sh-in:inset 0 1px 0 rgba(255,255,255,.22);
  --sh-1:var(--sh-in),0 8px 24px rgba(0,0,0,.28);--sh-2:var(--sh-in),0 12px 32px rgba(0,0,0,.4);
- --glass:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.05));
+ --glass:linear-gradient(135deg,rgba(255,255,255,var(--l1a,.055)),rgba(255,255,255,var(--l1b,.02)));
  --glass-line:rgba(255,255,255,.17);
  color-scheme:dark;
 }
@@ -2298,7 +2298,7 @@ html[data-theme="glass"] .kds-leg span[style*="f59f00"],html[data-theme="glass"]
 .calltag{background:#c2410c!important}
 html[data-theme="glass"] .cb-l b,html[data-theme="glass"] .cartbar b:first-child{background:#0a918c!important;color:#fff!important}
 /* ---------- Glass: ລະດັບຄວາມຂຸ້ນ (ໄລ່ຕາມຊັ້ນ) ----------
-   L0 ພື້ນຫຼັງ → L1 ບັດ (ຂາວ 5.5%→2%) → L2 ບັດຊ້ອນ (10%→4%) → L3 (15%→7%) · ເອົາເມົາໄປວາງ +4% · ຂອບເພີ່ມຕາມລະດັບ */
+   L0 ພື້ນຫຼັງ → L1 ບັດ (ຂາວ 5.5%→2% = ບັດເມນູ ຄ່າເລີ່ມຕົ້ນ) → L2 (10%→4%) → L3 (15%→7%) · ເອົາເມົາໄປວາງ +4% · ຂອບເພີ່ມຕາມລະດັບ */
 html[data-theme="glass"]{--l1a:.055;--l1b:.02;--l2a:.10;--l2b:.04;--l3a:.15;--l3b:.07;--hv:.04}
 html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2){background:linear-gradient(135deg,rgba(255,255,255,var(--l1a)),rgba(255,255,255,var(--l1b)))!important;border:1px solid rgba(255,255,255,.15)!important}
 html[data-theme="glass"] :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2) :is(.kpi,.scard,.asec,.sh-c,.pm-c,.kcard,.tk,.kx-col,.ucard,.rv-card,.dcard,.dl-card,.paycard,.cxcard,.ck-card,.ap-card,.ca-card,.sa-card,.su-card,.pd-card,.fdx-card,.esig-card,.product,.p2-card,.rpt-card,.hq-card,.mcard,.ap-box,.bk-bar,.dbill,.dc-empty,.dl-sum,.fdx-tile,.fdx-empty,.hps-c,.mk-sum,.p2-box,.pd-doc,.pd-top,.pm-sum,.pprops,.rv-c,.rv-dpick,.rv-hc,.rvitem,.sd-sum,.sempty,.sn-bar,.sn-box,.uc-card,.sk-alert,.ws-route,.xi-list,.mg-rows,.sigpad,.permcol,.cart,.pay2){background:linear-gradient(135deg,rgba(255,255,255,var(--l2a)),rgba(255,255,255,var(--l2b)))!important;border:1px solid rgba(255,255,255,.2)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
@@ -7539,14 +7539,14 @@ function gxRGB(c){var m=/rgba?\(([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:[ ,/]+([\d.
 function gxHSL(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,h=0,s=0,d=mx-mn;if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return [h,s,l];}
 function gxHue(h,s){return h;}
 function gxBg(el,cs){var c=gxRGB(cs.backgroundColor);if(!c||c[3]<.5)return;var hsl=gxHSL(c[0],c[1],c[2]),h=gxHue(hsl[0],hsl[1]),s=hsl[1],l=hsl[2];
- if(l>.78){if(s<.3||l>.96)el.style.setProperty('background-color','rgba(255,255,255,.09)','important');else el.style.setProperty('background-color','hsla('+h+','+Math.round(Math.min(s,.75)*100)+'%,38%,.32)','important');}
+ if(l>.78){if(s<.3||l>.96)el.style.setProperty('background-color',/^(TR|TD|TH|TBODY|THEAD|TFOOT|TABLE)$/.test(el.tagName)?'transparent':'rgba(255,255,255,.09)','important');else el.style.setProperty('background-color','hsla('+h+','+Math.round(Math.min(s,.75)*100)+'%,38%,.32)','important');}
  else if(h!==hsl[0]){el.style.setProperty('background-color','hsl('+h+','+Math.round(Math.max(s*.85,.55)*100)+'%,'+Math.round(Math.min(l*100+4,48))+'%)','important');}}
 function gxFg(el,cs){var c=gxRGB(cs.color);if(!c)return;var hsl=gxHSL(c[0],c[1],c[2]),h=gxHue(hsl[0],hsl[1]),s=hsl[1],l=hsl[2];
  if(l<.5){if(s<.35)el.style.setProperty('color','#F3E9E1','important');else el.style.setProperty('color','hsl('+h+','+Math.round(Math.min(s,.8)*100)+'%,72%)','important');}else if(h!==hsl[0]&&l<.8)el.style.setProperty('color','hsl('+h+','+Math.round(s*100)+'%,'+Math.round(Math.max(l*100,62))+'%)','important');}
 function gxBd(el,cs){var c=gxRGB(cs.borderTopColor);if(!c||cs.borderTopWidth==='0px'||cs.borderTopStyle==='none')return;var hsl=gxHSL(c[0],c[1],c[2]);if(hsl[2]>.8)el.style.setProperty('border-color','rgba(255,255,255,.17)','important');else if(gxHue(hsl[0],hsl[1])!==hsl[0])el.style.setProperty('border-color','hsl(26,60%,48%)','important');}
 function gxFix(root){if(curTheme()!=='glass')return;try{var rt=root||document.body,all=[].slice.call(rt.querySelectorAll('*')),i=0;if(rt!==document.body)all.unshift(rt);
  (function step(){var end=Math.min(i+500,all.length);for(;i<end;i++){var el=all[i];if(el.__gx||el.closest('svg,.tablecard,.thm-pick,.navitem,.brand,.calltag,.sk-add,.kds-leg')||el.id==='loginScreen'||el.tagName==='SCRIPT'||el.tagName==='STYLE')continue;el.__gx=1;
-   var cs=getComputedStyle(el);if(cs.backgroundImage!=='none'&&el.tagName!=='BUTTON')continue;gxBg(el,cs);
+   var cs=getComputedStyle(el);if(cs.backgroundImage!=='none'&&el.tagName!=='BUTTON')continue;if(!(cs.backdropFilter&&cs.backdropFilter!=='none'))gxBg(el,cs);
    if([].some.call(el.childNodes,function(n){return n.nodeType===3&&n.nodeValue.trim();})||el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.tagName==='BUTTON')gxFg(el,cs);gxBd(el,cs);}
   if(i<all.length)requestAnimationFrame(step);})();}catch(e){}}
 (function(){var q=0,pend=new Set();function flush(){q=0;if(curTheme()!=='glass'){pend.clear();return;}pend.forEach(function(n){if(n.isConnected)gxFix(n);});pend.clear();}
