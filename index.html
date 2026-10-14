@@ -2266,6 +2266,14 @@ html[data-theme="glass"] .tablecard.s-bill,html[data-theme="glass"] .tablecard.s
 html[data-theme="glass"] .tablecard.s-main{background:linear-gradient(150deg,#9AEAE4,#5FD9D2 60%,#3fc4bd)!important;color:#06312e}
 html[data-theme="glass"] .legend .d-free{background:transparent;border:2px dashed rgba(189,243,238,.6)}html[data-theme="glass"] .legend .d-busy{background:#0ABAB5}html[data-theme="glass"] .legend .d-callbill{background:#f4b740;border:3px solid #f97316}html[data-theme="glass"] .legend .d-bill{background:#f4b740}html[data-theme="glass"] .legend .d-new{background:#0a4f4a;border:1px solid rgba(255,255,255,.3)}html[data-theme="glass"] .legend .d-main{background:#5FD9D2}html[data-theme="glass"] .legend .d-merged{background:transparent;border:2px solid #5FD9D2;opacity:.6}
 @media(max-width:700px){html[data-theme="glass"] .kpi{padding:15px}html[data-theme="glass"] #viewRoot .pad{padding:16px}}
+/* ---------- Glass: badge QR/ຈອງ ບໍ່ໃຫ້ກືນກັບສີບັດ ---------- */
+html[data-theme="glass"] .tablecard .qrbadge{background:rgba(4,29,27,.62)!important;border:1px solid rgba(255,255,255,.38)!important;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+html[data-theme="glass"] .tablecard .qrbadge svg{color:#EAF7F5!important;fill:#EAF7F5!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill,.s-main) .qrbadge{background:rgba(255,255,255,.7)!important;border-color:rgba(6,49,46,.25)!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill,.s-main) .qrbadge svg{color:#073d39!important;fill:#073d39!important}
+html[data-theme="glass"] .tablecard.s-free .qrbadge{background:rgba(95,217,210,.22)!important;border-color:rgba(95,217,210,.55)!important}
+html[data-theme="glass"] .tablecard .calltag{background:#f97316!important;color:#fff!important;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+html[data-theme="glass"] .tablecard .rvbadge{background:#0a4f4a!important;color:#BDF3EE!important;border:1px solid rgba(189,243,238,.5)!important}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
