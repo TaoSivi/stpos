@@ -140,6 +140,9 @@ body{background:var(--bg);color:var(--text);overflow:hidden}button{cursor:pointe
 .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.numpad button{padding:14px;font-size:16px;font-weight:700;background:#eafbfa;border-radius:11px;color:var(--tiff-deep)}
 .paysummary{background:#f3fbfb;border-radius:12px;padding:12px;font-size:14px}.paysummary .row{display:flex;justify-content:space-between;margin:4px 0}.paysummary .change{font-size:18px;font-weight:900;color:var(--green)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0f2e2c;color:#fff;padding:11px 20px;border-radius:11px;font-size:14px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:80vw}
+.p2-split{margin-top:8px;background:rgba(255,255,255,.18);border-radius:10px;padding:6px 10px;font-size:14px}.p2-split b{font-size:17px}
+.splitnote{background:#eafbfa;border:1.5px solid var(--tiff);color:#064e4b;border-radius:12px;padding:8px 12px;text-align:center;font-size:14px;margin:0 0 8px}.splitnote b{color:var(--tiff-deep);font-size:16px}
+.tpk{max-height:min(56vh,440px);overflow:auto;padding:2px;grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important;gap:10px!important}.tpk .tablecard{min-height:86px;padding:10px 12px!important;cursor:pointer;border-radius:18px!important}.tpk .tablecard .tname{font-size:20px!important}.tpk .tablecard .tamt{font-size:13px!important}.tpk .tablecard.tp-off{opacity:.9;cursor:not-allowed}.tpk .tablecard.tp-off:hover{transform:none}.tpk .tablecard.tp-cur{outline:3px solid #f59e0b;outline-offset:2px}.tp-tag{font-size:11px;font-weight:800;border-radius:8px;padding:1px 7px;background:rgba(255,255,255,.75);color:#7c2d12;align-self:flex-start;margin-bottom:2px}.tp-leg{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--muted);margin:2px 0 8px}.tp-leg span{display:inline-flex;align-items:center;gap:5px}.tp-leg i{width:12px;height:12px;border-radius:4px;display:inline-block}
 .tableselect{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-height:280px;overflow:auto}.tableselect .ts{padding:11px 4px;border:1px solid var(--line);border-radius:11px;text-align:center;font-weight:600;font-size:12px}
 .ts.free{border-color:var(--free)}.ts.busy{background:#fffbeb;border-color:var(--busy)}
 .paytype{display:flex;gap:7px;margin:9px 0;flex-wrap:wrap}.paytype .pt{flex:1;min-width:92px;padding:10px;border:1px solid var(--line);border-radius:11px;text-align:center;font-weight:600;font-size:12px}.paytype .pt.sel{background:var(--green);color:#fff;border-color:transparent}
@@ -3329,7 +3332,7 @@ function setRecvCurr(c){payState.recvCurr=c;payState.recvAmt=0;renderPayment();}
 function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=payRecvLAK(),chg=rl-g;
  var quick=curr==='LAK'?[10000,20000,50000,100000,500000,1000000]:curr==='THB'?[20,50,100,500,1000,2000]:[1,5,10,20,50,100];
  var lbl=function(v){return curr==='LAK'?KIP(v):v;};
- var head=`<h2> ຮັບເງິນ${payState.partial?' <span style="font-size:13px;color:var(--tiff-deep)">(ແບ່ງບິນ)</span>':''}</h2><div class="paysummary"><div class="row"><span>ຍອດສິນຄ້າ:</span><b>${KIP(g)} ກີບ</b></div>`;
+ var head=`<h2> ຮັບເງິນ${payState.partial?' <span style="font-size:13px;color:var(--tiff-deep)">(ແບ່ງບິນ)</span>':''}</h2>${payState.split>1?'<div class="splitnote">ຫານ <b>'+payState.split+'</b> ຄົນ · ຄົນລະ <b>'+KIP(Math.ceil(g/payState.split))+'</b> ກີບ</div>':''}<div class="paysummary"><div class="row"><span>ຍອດສິນຄ້າ:</span><b>${KIP(g)} ກີບ</b></div>`;
  if(payState.parts){ /* ---- ຈ່າຍ ສົດ + ໂອນ: ໃສ່ເງິນສົດ → ສ່ວນທີ່ເຫຼືອໄປວິທີທີ່ເລືອກອັດຕະໂນມັດ ---- */
   var others=activePayTypes().filter(function(x){return x!=='ເງິນສົດ'&&x!=='ຕິດໜີ້';});
   if(!payState.mixType||others.indexOf(payState.mixType)<0)payState.mixType=others[0]||'';
@@ -3354,7 +3357,7 @@ function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=p
    var nItems=payItemsNow().reduce(function(a,i){return a+(+i.qty||0);},0);
   var brk=[];brk.push('ສິນຄ້າ '+KIP(g));if(rv)brk.push('ແຕ້ມ −'+KIP(rv));if(payState.tip)brk.push('ທິບ +'+KIP(payState.tip));if(fee)brk.push('ຄ່າທຳນຽມ '+feePct+'% +'+KIP(fee));
   var seg=function(arr,cur,on){return '<div class="p2-seg">'+arr.map(function(a){return '<button class="'+(cur===a[0]?'on':'')+'" onclick="'+on(a[0])+'">'+a[1]+'</button>';}).join('')+'</div>';};
-  var left='<div class="p2-due'+(isCredit?' credit':'')+'"><small>'+(isCredit?'ບັນທຶກຕິດໜີ້':'ຕ້ອງຮັບ')+'</small><div class="amt">'+KIP(due)+'<span>ກີບ</span></div><div class="brk">'+brk.join(' · ')+'</div></div>';
+  var left='<div class="p2-due'+(isCredit?' credit':'')+'"><small>'+(isCredit?'ບັນທຶກຕິດໜີ້':'ຕ້ອງຮັບ')+'</small><div class="amt">'+KIP(due)+'<span>ກີບ</span></div><div class="brk">'+brk.join(' · ')+'</div>'+(payState.split>1?'<div class="p2-split">ຫານ <b>'+payState.split+'</b> ຄົນ · ຄົນລະ <b>'+KIP(Math.ceil(due/payState.split))+'</b> ກີບ</div>':'')+'</div>';
   if(isCredit){
    left+='<div class="p2-box"><div class="p2-lbl">ຕິດໜີ້ໃສ່</div><div class="p2-who">'+(mem0?cesc(mem0.name)+' <small>ໜີ້ເກົ່າ '+KIP(mem0.debt||0)+'</small>':'ໂຕະ '+cesc(tt0?tt0.name:'')+(tt0&&tt0.customer?' · '+cesc(tt0.customer):'')+' <small>ບໍ່ຕ້ອງເປັນສະມາຊິກ</small>')+'</div>'+
     '<textarea id="pay_crnote" rows="2" oninput="payState.crNote=this.value" placeholder="ລາຍລະອຽດ (ບໍ່ບັງຄັບ) — ເຊັ່ນ ອ້າຍຄຳ, ນັດຈ່າຍທ້າຍເດືອນ">'+cesc(payState.crNote!=null?payState.crNote:(tt0&&!mem0&&tt0.customer?tt0.customer:''))+'</textarea>'+
@@ -3423,7 +3426,7 @@ function finishPayment(){const t=state.tables[state.activeTable];
  var _sub=billItems.reduce(function(s,i){return s+lineTotal(i);},0);
  var _discAmt=Math.round(_sub*state.billDiscPct/100)+billItems.reduce(function(s,i){return s+Math.round(((i.price+(i.modPrice||0))*i.qty)*((i.disc||0)/100));},0)+redeemVal;
  var bill={receipt:rno,table:t.name,items:JSON.parse(JSON.stringify(billItems)),total:(mixed?payState.grand:goodsNet),pay:payLabel,cashier:whoBy(),by:(curUser()?curUser().name:''),sub:_sub,discAmt:_discAmt,cogs:billCOGS(billItems),shiftId:state.curShift?state.curShift.id:null,loc:curLoc(),ts:Date.now()};
- if(payParts)bill.payParts=payParts;if(payState.partial)bill.partial=true;if(mem)bill.memberId=mem.id;if(payState.tip>0)bill.tip=payState.tip;if(fee>0)bill.cardFee=fee;
+ if(payState.split>1)bill.split={n:payState.split,per:Math.ceil(bill.total/payState.split)};if(payParts)bill.payParts=payParts;if(payState.partial)bill.partial=true;if(mem)bill.memberId=mem.id;if(payState.tip>0)bill.tip=payState.tip;if(fee>0)bill.cardFee=fee;
  if(redeemPts>0){bill.pointsUsed=redeemPts;bill.pointRedeemed=redeemVal;}
  var _sdr=sdBillRec(t,billItems);if(_sdr)bill.sd=_sdr;
  if(credit){bill.credit=true;bill.creditMemberId=mem?mem.id:null;bill.creditName=mem?mem.name:('ໂຕະ '+t.name+(t.customer?' · '+t.customer:''));var cpEl=document.getElementById('pay_crphone');bill.creditPhone=mem?(mem.phone||''):String(cpEl?cpEl.value:(payState.crPhone||'')).trim().slice(0,40);
@@ -3462,9 +3465,10 @@ function splitPayment(){const t=state.tables[state.activeTable];if(!t.items.leng
   '<div style="display:flex;flex-direction:column;gap:8px"><button class="btn-ok grad" style="padding:13px;border-radius:12px;font-weight:800" onclick="splitByItem()"> ແບ່ງຕາມລາຍການ (ໃຜສັ່ງອັນໃດຈ່າຍອັນນັ້ນ)</button>'+
   '<button class="btn-ok" style="background:var(--tiff);padding:13px;border-radius:12px;font-weight:800" onclick="splitEven()"> ແບ່ງເທົ່າກັນຕາມຈຳນວນຄົນ</button></div>'+
   '<div class="modal-btns" style="margin-top:12px"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button></div>');}
+function splitEvenGo(){var n=Math.max(2,Math.floor(+(document.getElementById('np')||{}).value||2));closeModal();receivePayment();if(typeof payState==='object'&&payState&&payState.grand!=null){payState.split=n;renderPayment();}}
 function splitEven(){const t=state.tables[state.activeTable];const g=grandTotal(t);
- openModal(`<h2> ແບ່ງເທົ່າກັນ</h2><div class="paysummary"><div class="row"><span>ຍອດສຸດທິ:</span><b>${KIP(g)} ກີບ</b></div></div><label>ແບ່ງເປັນຈຳນວນຄົນ</label><input id="np" type="number" min="2" value="2" oninput="document.getElementById('per').textContent=KIP(Math.ceil(${g}/(+this.value||1)))">
-  <div class="paysummary" style="margin-top:8px"><div class="row"><span>ຄົນລະ:</span><b id="per">${KIP(Math.ceil(g/2))} ກີບ</b></div></div><p style="font-size:11px;color:var(--muted)">ໝາຍເຫດ: ແບ່ງເທົ່າກັນ ຮັບເງິນເປັນບິນດຽວ (ໃຫ້ແຕ່ລະຄົນຈ່າຍຄົນລະສ່ວນ) — ຖ້າຢາກອອກບິນແຍກ ໃຫ້ໃຊ້ "ແບ່ງຕາມລາຍການ"</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="closeModal();receivePayment()">ໄປຮັບເງິນ</button></div>`);}
+ openModal(`<h2> ແບ່ງເທົ່າກັນ</h2><div class="paysummary"><div class="row"><span>ຍອດສຸດທິ:</span><b>${KIP(g)} ກີບ</b></div></div><label>ແບ່ງເປັນຈຳນວນຄົນ</label><input id="np" type="number" min="2" value="2" oninput="document.getElementById('per').textContent=KIP(Math.ceil(${g}/Math.max(1,+this.value||1)))">
+  <div class="paysummary" style="margin-top:8px"><div class="row"><span>ຄົນລະ:</span><b id="per">${KIP(Math.ceil(g/2))} ກີບ</b></div></div><p style="font-size:11px;color:var(--muted)">ໝາຍເຫດ: ແບ່ງເທົ່າກັນ ຮັບເງິນເປັນບິນດຽວ (ໃຫ້ແຕ່ລະຄົນຈ່າຍຄົນລະສ່ວນ) — ຖ້າຢາກອອກບິນແຍກ ໃຫ້ໃຊ້ "ແບ່ງຕາມລາຍການ"</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="splitEvenGo()">ໄປຮັບເງິນ</button></div>`);}
 let _splitSel={};
 function splitByItem(){const t=state.tables[state.activeTable];_splitSel={};renderSplitByItem();}
 function renderSplitByItem(){const t=state.tables[state.activeTable];
@@ -3478,15 +3482,31 @@ function t_toggleAllSplit(){const t=state.tables[state.activeTable];var allSel=t
 function confirmSplitByItem(){const t=state.tables[state.activeTable];var ids=t.items.filter(function(it){return _splitSel[it.id];}).map(function(it){return it.id;});
  if(!ids.length){toast('ເລືອກຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
  closeModal();receivePayment(ids);}
-function openMoveTable(){const list=Object.values(state.tables).filter(t=>!t.dl&&(t.status==='free'||t.name===state.activeTable));
- openModal(`<h2> ຍ້າຍໄປໂຕະ</h2><p style="font-size:13px;color:var(--muted);margin-bottom:8px">ໂຕະປະຈຸບັນ: <b>${state.activeTable}</b> (ເລືອກໂຕະວ່າງ)</p><div class="tableselect">${list.map(t=>`<div class="ts ${t.status==='free'?'free':'busy'}" onclick="moveTo('${t.name.replace(/'/g,"\\'")}')">${t.name}</div>`).join('')}</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>`);}
+var _tpFl='ທັງໝົດ';
+function tpNo(w){toast(w);}
+function tpGo(el){var m=el.closest('#tpGrid').dataset.m;if(m==='move')moveTo(el.dataset.k);else mergeFrom(el.dataset.k);}
+function tpGrid(mode){var cur=state.activeTable,fl=_tpFl,all=Object.values(state.tables).filter(function(t){return !t.dl&&(fl==='ທັງໝົດ'||t.floor===fl);});
+ return all.map(function(t){var isCur=t.name===cur,free=t.status==='free',merged=t.status==='merged',occ=!free&&!merged,ok=mode==='move'?(free&&!isCur):(occ&&!isCur),tag='',amt='',why='';
+  if(isCur){tag='<span class="tp-tag">ໂຕະນີ້</span>';why='ນີ້ແມ່ນໂຕະປັດຈຸບັນ';}
+  else if(mode==='move'&&occ){tag='<span class="tp-tag">ມີລູກຄ້າ</span>';why='ໂຕະ '+t.name+' ມີລູກຄ້າ — ຍ້າຍທັບບໍ່ໄດ້';}
+  else if(mode==='move'&&merged){tag='<span class="tp-tag">ລວມໄປ '+cesc(t.mergedInto||'')+'</span>';why='ໂຕະນີ້ຖືກລວມໄປແລ້ວ';}
+  else if(mode==='merge'&&free){tag='<span class="tp-tag">ວ່າງ</span>';why='ໂຕະ '+t.name+' ວ່າງ — ບໍ່ມີອໍເດີໃຫ້ລວມ';}
+  else if(mode==='merge'&&merged){tag='<span class="tp-tag">ລວມແລ້ວ</span>';why='ໂຕະນີ້ຖືກລວມໄປແລ້ວ';}
+  if(occ)amt='<b>'+KIP(tableTotal(t))+' ກີບ</b>';
+  return '<div class="tablecard s-'+t.status+(ok?'':' tp-off')+(isCur?' tp-cur':'')+'"'+sKX(t.name)+(ok?' onclick="tpGo(this)"':' data-w="'+aesc(why)+'" onclick="tpNo(this.dataset.w)"')+'>'+tag+'<div class="tname">'+cesc(t.name)+'</div><div class="tamt">'+amt+'</div></div>';}).join('')||'<div class="empty">ບໍ່ມີໂຕະ</div>';}
+function tpFloor(f){_tpFl=f;var g=document.getElementById('tpGrid');if(g)g.innerHTML=tpGrid(g.dataset.m);document.querySelectorAll('.tp-fl .chip').forEach(function(c){c.classList.toggle('active',c.dataset.f===f);});}
+function tpModal(mode,title,sub){var fls=floorsAll();if(fls.indexOf(_tpFl)<0)_tpFl='ທັງໝົດ';
+ openModal('<h2>'+title+'</h2><p style="font-size:13px;color:var(--muted);margin:0 0 8px">'+sub+'</p>'+(fls.length>2?'<div class="floors tp-fl" style="margin-bottom:8px">'+fls.map(function(f){return '<button type="button" class="chip'+(f===_tpFl?' active':'')+'" data-f="'+aesc(f)+'" onclick="tpFloor(this.dataset.f)">'+cesc(f)+'</button>';}).join('')+'</div>':'')+
+  '<div class="tp-leg"><span><i style="background:#fff;border:2px dashed #9ccfcb"></i>ວ່າງ</span><span><i style="background:#0ABAB5"></i>ມີລູກຄ້າ</span><span><i style="background:#f4b740"></i>ເຊັກບິນ</span></div>'+
+  '<div class="tablegrid tpk" id="tpGrid" data-m="'+mode+'">'+tpGrid(mode)+'</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');}
+function openMoveTable(){_tpFl='ທັງໝົດ';tpModal('move','ຍ້າຍໄປໂຕະ','ໂຕະປະຈຸບັນ: <b>'+cesc(state.activeTable)+'</b> · ກົດໂຕະ <b>ວ່າງ</b> ເພື່ອຍ້າຍ (ໂຕະທີ່ມີລູກຄ້າຍ້າຍທັບບໍ່ໄດ້)');}
 function moveTo(name){if(name===state.activeTable){closeModal();return;}const from=state.tables[state.activeTable],to=state.tables[name];
  var mvQty=from.items.reduce(function(a,i){return a+(i.qty||0);},0),mvAmt=tableTotal(from),mvNames=from.items.map(function(i){return i.qty+'× '+i.name;}).join(', ');
  logCancel('ຍ້າຍໂຕະ','',mvNames,mvQty,mvAmt,from.name+' → '+name,'',{from:from.name,to:name,bill:(from.billTs||from.status==='bill')?'after':'before'});to.billTs=from.billTs||null;
  to.items=from.items;to.status=from.status==='free'?'busy':from.status;to.customer=from.customer;to.memberId=from.memberId||null;from.memberId=null;to.sd=from.sd||null;from.sd=null;to.pkO=from.pkO||null;from.pkO=null;state.orders.forEach(o=>{if(o.table===from.name)o.table=name;});
  logOrder('ຍ້າຍໂຕະ',from.name+' → '+name,from.name);from.items=[];from.status='free';from.billTs=null;from.customer=null;from.main=false;try{chatClear(from.name);}catch(e){}state.activeTable=name;state.draft=[];save();closeModal();render();showSuccess('ຍ້າຍໂຕະສຳເລັດ!','ໄປໂຕະ '+name);}
-function mergeTable(){const list=Object.values(state.tables).filter(t=>!t.dl&&t.status!=='free'&&t.status!=='merged'&&t.name!==state.activeTable);if(!list.length){toast('ບໍ່ມີໂຕະອື່ນໃຫ້ລວມ');return;}
- openModal(`<h2> ລວມໂຕະເຂົ້າ ${state.activeTable}</h2><p style="font-size:12px;color:var(--muted)">${state.activeTable} ຈະເປັນ "ໂຕະຫຼັກ"</p><div class="tableselect">${list.map(t=>`<div class="ts busy" onclick="mergeFrom('${t.name.replace(/'/g,"\\'")}')">${t.name}<br><small>${KIP(tableTotal(t))}</small></div>`).join('')}</div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>`);}
+function mergeTable(){if(!Object.values(state.tables).some(function(t){return !t.dl&&t.status!=='free'&&t.status!=='merged'&&t.name!==state.activeTable;})){toast('ບໍ່ມີໂຕະອື່ນໃຫ້ລວມ');return;}
+ _tpFl='ທັງໝົດ';tpModal('merge','ລວມໂຕະເຂົ້າ '+cesc(state.activeTable),cesc(state.activeTable)+' ຈະເປັນ "ໂຕະຫຼັກ" · ກົດໂຕະທີ່ <b>ມີລູກຄ້າ</b> ທີ່ຈະເອົາມາລວມ');}
 function mergeFrom(name){const main=state.tables[state.activeTable],other=state.tables[name];logOrder('ລວມໂຕະ',name+' → '+main.name,name);logCancel('ລວມໂຕະ','',other.items.map(function(i){return i.qty+'× '+i.name;}).join(', '),other.items.reduce(function(a,i){return a+(i.qty||0);},0),tableTotal(other),name+' → '+main.name,'',{from:name,to:main.name,bill:(other.billTs||other.status==='bill')?'after':'before'});main.items=main.items.concat(other.items);main.status='main';main.main=true;state.orders.forEach(o=>{if(o.table===name)o.table=main.name;});
  if(!main.sd&&other.sd)main.sd=other.sd;other.sd=null;if((other.pkO||[]).length){main.pkO=(main.pkO||[]).concat(other.pkO);other.pkO=null;}other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;try{chatClear(other.name);}catch(e){}save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
@@ -8024,6 +8044,7 @@ function buildReceiptHTML(b){
   '<div class="dash"></div>'+
   (b.pointRedeemed?'<div class="row"><span>ໃຊ້ແຕ້ມ '+(b.pointsUsed||0)+'★</span><span>−'+KIP(b.pointRedeemed)+'</span></div>':'')+
   '<div class="row grand"><span>ສຸດທິ (LAK)</span><span>'+KIP(b.total)+'</span></div>'+
+  (b.split&&b.split.n>1?'<div class="row" style="font-weight:700"><span>ຫານ '+b.split.n+' ຄົນ · ຄົນລະ</span><span>'+KIP(b.split.per)+'</span></div>':'')+
   ((b.tip||b.cardFee)?((b.tip?'<div class="row"><span>ທິບ</span><span>'+KIP(b.tip)+'</span></div>':'')+(b.cardFee?'<div class="row"><span>ຄ່າທຳນຽມ</span><span>'+KIP(b.cardFee)+'</span></div>':'')+'<div class="row grand"><span>ລວມຈ່າຍ</span><span>'+KIP(b.total+(+b.tip||0)+(+b.cardFee||0))+'</span></div>'):'')+
   (b.credit?'<div class="row" style="color:#b45309;font-weight:700"><span>ຕິດໜີ້ (ຍັງບໍ່ຈ່າຍ)</span><span>'+KIP(b.creditOwed||b.total)+'</span></div>'+(b.creditName?'<div class="row"><span>ຜູ້ຕິດ</span><span>'+cesc(b.creditName)+'</span></div>':'')+(b.creditNote?'<div style="font-size:11px">'+cesc(b.creditNote)+'</div>':''):'')+
   '<div class="dash"></div>'+cur+qrblock+
