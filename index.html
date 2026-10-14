@@ -8434,14 +8434,14 @@ var BIZ={
    purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng','export','import']}},
   floors:['ຕ້ອນຮັບ','ຫ້ອງກວດ'],tables:['ຕ້ອນຮັບ 1','ຕ້ອນຮັບ 2','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງກວດ 3','ຫ້ອງແລັບ','ຫ້ອງຢາ']}};
 /* ຮ້ານຂາຍຢາ + ຄລີນິກ = ປະເພດດຽວ "ຮ້ານຢາ & ຄລີນິກ" (ເພສັດ + ຄົນເຈັບ) */
-BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂາຍຢາ + ກວດ/ປິ່ນປົວ — ເຄົາເຕີດຽວ + ບັດແພດແຕ່ລະທ່ານ (ແຄັດເຊຍເຫັນຄ່າກວດ/ຢາ ແລ້ວອອກບິນ), ນັດໝາຍ, ສະຕ໋ອກຢາ',
+BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂາຍຢາ + ກວດ/ປິ່ນປົວ — ແຄັດເຊຍ 1 ຈຸດ + ບັດແພດແຕ່ລະທ່ານ (ແຄັດເຊຍເຫັນຄ່າກວດ/ຢາ ແລ້ວອອກບິນ), ນັດໝາຍ, ສະຕ໋ອກຢາ',
  labels:{owner:'ເຈົ້າຂອງຮ້ານຢາ & ຄລີນິກ',manager:'ເພສັດຊະກອນ / ຜູ້ອຳນວຍການ',cashier:'ເຈົ້າໜ້າທີ່ຂາຍ & ຮັບເງິນ',waiter:'ພະຍາບານ / ຜູ້ຊ່ວຍເພສັດ',kitchen:'ຫ້ອງຢາ (ເພສັດ)',bar:'ຫ້ອງແລັບ / ກວດ',storekeeper:'ນາຍສາງຢາ & ອຸປະກອນ',purchasing:'ຈັດຊື້ຢາ'},
  mods:{kds:false,chat:false,delivery:false,opts:false,pkg:false},navNames:{tables:'ຂາຍ / ຮັບຄົນເຈັບ',resv:'ນັດໝາຍຄົນເຈັບ',members:'ຄົນເຈັບ / ສະມາຊິກ',stock:'ສະຕ໋ອກຢາ & ອຸປະກອນ',history:'ປະຫວັດການຂາຍ / ການກວດ'},roles:BIZ.clinic.roles,
- floors:['ເຄົາເຕີ','ແພດ'],tables:['ເຄົາເຕີ','ໝໍ ສົມສັກ','ໝໍ ວັນນາ','ໝໍ ບຸນທອນ']};
+ floors:['ແຄັດເຊຍ','ແພດ'],tables:['ແຄັດເຊຍ','ໝໍ ສົມສັກ','ໝໍ ວັນນາ','ໝໍ ບຸນທອນ']};
 delete BIZ.pharmacy;delete BIZ.clinic;
 (function(){var R=BIZ.medical.roles;R.doctor={view:['rx','tables','members','history','chk','resv'],act:['rxWrite','resvMng','chkDo']};['manager','cashier','waiter','kitchen'].forEach(function(r){if(R[r].view.indexOf('rx')<0)R[r].view.push('rx');});R.manager.act.push('rxWrite','rxDispense');R.kitchen.act.push('rxDispense');BIZ.medical.labels.doctor='ແພດ / ທ່ານໝໍ';})();
 /* ===== ຮ້ານຢາ & ຄລີນິກ: ປ່ຽນຄຳສັບຮ້ານອາຫານ (ໂຕະ / ສັ່ງອາຫານ) ເປັນ ເຄົາເຕີ / ຫ້ອງ / ຂາຍ ໃນທຸກໜ້າ ອັດຕະໂນມັດ ===== */
-var BIZ_WORDS=[[/ເລືອກໂຕະ/g,'ເລືອກແພດ / ເຄົາເຕີ'],[/ສັ່ງອາຫານ/g,'ຂາຍ / ບໍລິການ'],[/ໂຕະ/g,'ເຄົາເຕີ'],[/ຈອງ/g,'ນັດໝາຍ']];
+var BIZ_WORDS=[[/ເລືອກໂຕະ/g,'ເລືອກແພດ / ແຄັດເຊຍ'],[/ສັ່ງອາຫານ/g,'ຂາຍ / ບໍລິການ'],[/ໂຕະ/g,'ບັດ'],[/ຈອງ/g,'ນັດໝາຍ']];
 function bizTxt(root){if(bizCur()!=='medical')return;try{var w=document.createTreeWalker(root||document.body,4,null),n,L=[];while((n=w.nextNode()))L.push(n);L.forEach(function(t){var v=t.nodeValue;if(!v||v.indexOf('ໂຕະ')<0&&v.indexOf('ສັ່ງອາຫານ')<0&&v.indexOf('ຈອງ')<0)return;var p=t.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/.test(p.nodeName)||(p.closest&&p.closest('[data-notr]')))return;var o=v;BIZ_WORDS.forEach(function(r){v=v.replace(r[0],r[1]);});if(v!==o)t.nodeValue=v;});}catch(e){}}
 (function(){var q=0;function sch(){if(q)return;q=requestAnimationFrame(function(){q=0;bizTxt();});}if(window.MutationObserver)new MutationObserver(sch).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('load',sch);sch();})();
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
@@ -8538,12 +8538,12 @@ function rxCreate(o){rxInit();var t=state.tables[o.room],now=Date.now(),u=curUse
  if(!o.noTable&&t){lines.forEach(function(l){t.items.push(l);deductStock(l);});t.customer=o.patient;t.memberId=o.mid||null;t.status='callbill';t.callTs=now;}
  state.rx.push(r);return r;}
 function rxSend(){if(!can('rxWrite')){toast('ບໍ່ມີສິດສັ່ງຢາ');return;}var c=_rxc;
- if(!String(c.patient).trim()){toast('ໃສ່ຊື່ຄົນເຈັບ');return;}if(!c.room||!state.tables[c.room]){toast('ເລືອກຫ້ອງ / ເຄົາເຕີ');return;}if(!c.items.length){toast('ເລືອກຢາ / ບໍລິການ ຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
- var t=state.tables[c.room];if(t.status==='merged'){toast('ເຄົາເຕີນີ້ຖືກລວມແລ້ວ');return;}
+ if(!String(c.patient).trim()){toast('ໃສ່ຊື່ຄົນເຈັບ');return;}if(!c.room||!state.tables[c.room]){toast('ເລືອກແພດ / ແຄັດເຊຍ');return;}if(!c.items.length){toast('ເລືອກຢາ / ບໍລິການ ຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
+ var t=state.tables[c.room];if(t.status==='merged'){toast('ບັດນີ້ຖືກລວມແລ້ວ');return;}
  if(state.stockBlock!==false&&modOn('stock')){var sh=draftShortage(c.items.map(function(i){return {code:i.c,qty:i.qty,mods:[]};}));if(sh.length){toast('ສະຕ໋ອກບໍ່ພໍ: '+sh.map(function(x){return x.name+' (ມີ '+x.have+')';}).join(', '));return;}}
  var r=rxCreate({patient:String(c.patient).trim(),mid:c.mid,room:c.room,dx:c.dx,items:c.items});logOrder('ໃບສັ່ງຢາ',r.no+' → '+r.room+' · '+r.patient+' · '+KIP(r.total)+' ກີບ',r.room);
  _rxc={patient:'',mid:'',room:'',dx:'',items:[],q:''};_rxTab='sent';save();render();showSuccess('ສົ່ງໃບສັ່ງຢາແລ້ວ ('+r.no+')','ໄປຫາແຄັດເຊຍ — ຄົນເຈັບໄປຈ່າຍເງິນທີ່ແຄັດເຊຍ');}
-function rxBill(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;if(!can('pay')){toast('ບໍ່ມີສິດຮັບເງິນ');return;}var t=state.tables[r.room];if(!t||!t.items.length){toast('ບໍ່ພົບລາຍການໃນເຄົາເຕີ');return;}state.activeTable=r.room;state.draft=[];checkBill();}
+function rxBill(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;if(!can('pay')){toast('ບໍ່ມີສິດຮັບເງິນ');return;}var t=state.tables[r.room];if(!t||!t.items.length){toast('ບໍ່ພົບລາຍການໃນບັດແພດ');return;}state.activeTable=r.room;state.draft=[];checkBill();}
 function rxOnPaid(room,billItems,rno){if(!Array.isArray(state.rx))return;var ids={};(billItems||[]).forEach(function(i){ids[String(i.id)]=1;});var n=0;state.rx.forEach(function(r){if(r.status==='sent'&&r.room===room&&r.items.every(function(i){return ids[String(i.lid)];})){r.status='paid';r.paidTs=Date.now();r.receipt=rno;r.upd=Date.now();n++;}});if(n)toast('ໃບສັ່ງຢາ ຈ່າຍເງິນແລ້ວ → ສົ່ງໄປຫ້ອງຢາ');}
 function rxDispense(id){if(!can('rxDispense')){toast('ບໍ່ມີສິດຈ່າຍຢາ');return;}var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='paid')return;r.status='dispensed';r.dispTs=Date.now();r.dispBy=(curUser()||{}).name||'';r.upd=Date.now();logOrder('ຈ່າຍຢາ',r.no+' · '+r.patient,r.room);save();render();toast('ຈ່າຍຢາແລ້ວ · '+r.patient);}
 function rxCancel(id){var r=(state.rx||[]).find(function(x){return x.id===id;});if(!r||r.status!=='sent')return;if(!(can('rxWrite')||can('pay'))){toast('ບໍ່ມີສິດ');return;}if(!confirm('ຍົກເລີກໃບສັ່ງຢາ '+r.no+' ? (ຄືນສະຕ໋ອກ)'))return;
@@ -8570,7 +8570,7 @@ function renderRx(R){rxInit();var L=state.rx,cnt={sent:0,paid:0,done:0};var td=y
  if(_rxTab==='new'){var c=_rxc,q=(c.q||'').toLowerCase(),flat=[];Object.values(MSRC()).forEach(function(cat){Object.values(cat).forEach(function(l){l.forEach(function(i){if(!q||(i.n+' '+i.c).toLowerCase().indexOf(q)>=0)flat.push(i);});});});
   var rooms=Object.values(state.tables).filter(function(t){return !t.dl&&t.status!=='merged';});var tot=c.items.reduce(function(a,i){return a+i.p*i.qty;},0);
   h+='<div class="rx-new"><div class="rx-form"><label>ຊື່ຄົນເຈັບ</label><input id="rxPat" list="rxMem" value="'+aesc(c.patient)+'" placeholder="ພິມຊື່ ຫຼື ເລືອກສະມາຊິກ" oninput="rxPatient(this.value)"><datalist id="rxMem">'+(state.customers||[]).map(function(m){return '<option value="'+aesc(m.name)+'">';}).join('')+'</datalist>'+
-   '<label>ແພດ / ເຄົາເຕີ</label><select id="rxRoom" onchange="_rxc.room=this.value"><option value="">— ເລືອກ —</option>'+rooms.map(function(t){return '<option value="'+aesc(t.name)+'"'+(c.room===t.name?' selected':'')+'>'+cesc(t.name)+(t.status!=='free'?' (ມີລາຍການ)':'')+'</option>';}).join('')+'</select>'+
+   '<label>ແພດ / ແຄັດເຊຍ</label><select id="rxRoom" onchange="_rxc.room=this.value"><option value="">— ເລືອກ —</option>'+rooms.map(function(t){return '<option value="'+aesc(t.name)+'"'+(c.room===t.name?' selected':'')+'>'+cesc(t.name)+(t.status!=='free'?' (ມີລາຍການ)':'')+'</option>';}).join('')+'</select>'+
    '<label>ການວິນິໄສ / ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label><textarea id="rxDx" rows="2" oninput="_rxc.dx=this.value" placeholder="ເຊັ່ນ ໄຂ້ຫວັດ, ຕິດເຊື້ອທາງເດີນຫາຍໃຈ">'+cesc(c.dx)+'</textarea>'+
    '<div class="rx-sel"><b>ລາຍການທີ່ສັ່ງ ('+c.items.length+')</b>'+(c.items.length?c.items.map(function(i,ix){return '<div class="rx-l"><div class="rx-l1"><span>'+cesc(i.n)+'</span><div class="rx-q2"><button type="button" onclick="rxQty('+ix+',-1)">−</button><b>'+i.qty+'</b><button type="button" onclick="rxQty('+ix+',1)">+</button></div><b>'+KIP(i.p*i.qty)+'</b></div><input value="'+aesc(i.dose)+'" placeholder="ວິທີກິນ ເຊັ່ນ 1 ເມັດ × 3 ເທື່ອ/ມື້ ຫຼັງອາຫານ" onchange="_rxc.items['+ix+'].dose=this.value"></div>';}).join(''):'<p class="rx-em">ກົດເລືອກຢາ / ບໍລິການ ຈາກລາຍການຂວາ</p>')+'</div>'+
    '<div class="rx-tot">ລວມ <b>'+KIP(tot)+' ກີບ</b></div><button class="btn-ok grad rx-send" onclick="rxSend()">ສົ່ງໄປແຄັດເຊຍ →</button></div>'+
@@ -8591,7 +8591,7 @@ function confirmReset(pre){if(!can('sysAdv')){toast('ບໍ່ມີສິດ');
  openModal('<h2 style="color:var(--red)">ລ້າງຂໍ້ມູນ</h2><p class="uc-lead">ລ້າງແລ້ວ ໃຊ້ສຳຮອງທີ່ສ້າງອັດຕະໂນມັດກ່ອນລ້າງ ເພື່ອກູ້ຄືນໄດ້ (ສຳຮອງ & ຂັ້ນສູງ)</p>'+
   '<div class="rst-cards">'+card('empty','ລ້າງເປັນຮ້ານເປົ່າ','<u>ລຶບ</u>: ເມນູ ສູດ ຮູບ · ວັດຖຸດິບ & ສະຕ໋ອກ · ບິນ ອໍເດີ ລາຍຈ່າຍ · ເອກະສານສາງ / ຈັດຊື້ · ສະມາຊິກ ຜູ້ຂາຍ ໂປຣ · ປະຫວັດ<br><u>ເກັບໄວ້</u>: ຂໍ້ມູນຮ້ານ & ໃບບິນ · ການຊຳລະ · ຜູ້ໃຊ້ & PIN · ໂຕະ & ຊັ້ນ · ບ່ອນເກັບ · ຫົວໜ່ວຍ · ການຕັ້ງຄ່າ')+
    card('demo','ລ້າງເປັນຂໍ້ມູນຕົວຢ່າງ','ລຶບທຸກຢ່າງ ແລ້ວໃສ່ເມນູ ວັດຖຸດິບ ແລະ ຜູ້ໃຊ້ຕົວຢ່າງ (Admin) — ສຳລັບທົດລອງ / ສາທິດ')+
-   card('medical','ຕົວຢ່າງ: ຮ້ານຢາ & ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ເຄົາເຕີ + ບັດແພດ 3 ທ່ານ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ & ຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
+   card('medical','ຕົວຢ່າງ: ຮ້ານຢາ & ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ແຄັດເຊຍ + ບັດແພດ 3 ທ່ານ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ & ຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
   '<div class="rst-auth"><b>'+(sup?'ຢືນຢັນດ້ວຍ PIN ຂອງທ່ານ (Super Admin)':'ຕ້ອງໃຫ້ Super Admin ອະນຸມັດ — ໃຫ້ Super Admin ໃສ່ PIN')+'</b>'+
    (sup?'<input type="hidden" id="rst_u" value="'+aesc(me.id)+'">':'<select id="rst_u">'+S.map(function(u){return '<option value="'+aesc(u.id)+'">'+cesc(u.name)+'</option>';}).join('')+'</select>')+
    '<input id="rst_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="PIN 4 ຕົວ"></div>'+
