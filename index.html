@@ -8518,7 +8518,8 @@ function demoReset(){try{var R=window.__rawLS,ks=[];for(var i=0;i<localStorage.l
 function demoRole(id){SESSION.uid=id;try{localStorage.setItem('stpos_uid',id);}catch(e){}state.activeStaff=(curUser()||{}).name||state.activeStaff;try{setView(homeView());}catch(e){}render();demoBar();}
 function demoBar(){var o=document.getElementById('demoBar');if(o)o.remove();var u=curUser()||{},all=[{id:'u1',name:'Admin (ເຈົ້າຂອງ)'}].concat(demoUsers().map(function(x){return {id:x[0],name:x[1]};}));
  var d=document.createElement('div');d.id='demoBar';d.innerHTML='<b>DEMO</b><span>ເບິ່ງແບບ:</span><select onchange="demoRole(this.value)">'+all.map(function(x){return '<option value="'+x.id+'"'+(x.id===u.id?' selected':'')+'>'+x.name+'</option>';}).join('')+'</select><button onclick="demoReset()">ເລີ່ມໃໝ່</button>';document.body.appendChild(d);}
-function demoInit(){if(!window.__DEMO||!state||state._demo)return;var t=window.__DEMO;state._demo=1;
+var DEMO_VER=20261014.3;
+function demoInit(){if(!window.__DEMO||!state)return;if(state._demo&&state._demoVer!==DEMO_VER){demoReset();return;}if(state._demo)return;var t=window.__DEMO;state._demo=1;state._demoVer=DEMO_VER;
  if(t==='medical'||t==='pharmacy'||t==='clinic'){t='medical';window.__DEMO=t;bizLoad(t);}else{bizApply('fnb',true);Object.keys(state.ingredients||{}).forEach(function(k){var g=state.ingredients[k];ensLocs(g);g.locs[curLoc()]=2000;g.stock=2000;});}
  state.requireShift=false;state.shopName='DEMO · '+(t==='medical'?'ຮ້ານຢາ & ຄລີນິກ':'ຮ້ານກາເຟ');
  state.users=(state.users||[]).filter(function(u){return u.id==='u1';});state.users[0].name='Admin';demoUsers().forEach(function(x){var uo={id:x[0],name:x[1],role:x[2],pin:x[3],active:true};if(x[0]==='d_doc')uo.room='ໝໍ ສົມສັກ';state.users.push(uo);});
