@@ -2052,6 +2052,36 @@ svg[data-ic] .d2{animation-delay:.08s!important}svg[data-ic] .d3{animation-delay
 :is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .pl{animation:icPulse .6s ease}
 :is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .dv{animation:icDrive .6s ease}
 :is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .lid{animation:icLid .55s ease}
+@keyframes icFlp{0%{transform:rotate(0)}100%{transform:rotate(180deg)}}
+@keyframes icShk{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-7deg)}80%{transform:rotate(4deg)}}
+@keyframes icPop{0%,100%{transform:scale(1)}40%{transform:scale(1.28)}70%{transform:scale(.94)}}
+@keyframes icUd{0%,100%{transform:translateY(0)}35%{transform:translateY(-2.6px)}70%{transform:translateY(2.4px)}}
+@keyframes icWr{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg) translateX(-.5px)}65%{transform:rotate(8deg)}}
+@keyframes icRing{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg)}35%{transform:rotate(-14deg)}55%{transform:rotate(9deg)}75%{transform:rotate(-5deg)}}
+@keyframes icUnl{0%,100%{transform:translateY(0)}40%{transform:translateY(-2.6px)}}
+svg[data-ic] .ring{transform-origin:50% 8%}svg[data-ic] .wr{transform-origin:20% 85%}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .flp{animation:icFlp .7s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .shk{animation:icShk .6s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .pop{animation:icPop .55s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .ud{animation:icUd .6s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .wr{animation:icWr .6s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .ring{animation:icRing .7s ease}
+:is(.navitem,button,.sh-c,.setrail button,[onclick],a,.chip,.tablecard):hover svg[data-ic] .unl{animation:icUnl .55s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .sw-l{animation:icSwL .6s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .sw-r{animation:icSwR .6s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .hop{animation:icHop .55s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .rise{animation:icRise .8s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .dr{animation:icDraw .55s ease both}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .gr{animation:icGrow .5s cubic-bezier(.2,.8,.3,1.2) both}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .spin{animation:icSpin .7s cubic-bezier(.4,0,.2,1)}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .flip{animation:icFlip .6s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .sl{animation:icSlide .55s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .bn{animation:icBn .5s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .pl{animation:icPulse .6s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .dv{animation:icDrive .6s ease}
+:is([onclick],a,.chip,.tablecard):hover svg[data-ic] .lid{animation:icLid .55s ease}
+.sh-c i,.setrail button i{--ic-a:#13c1ba}.sh-c i{color:#0a4f4c}
+.ei svg[data-ic]{--ic-a:#13b5ae}
 @media (prefers-reduced-motion:reduce){svg[data-ic] *{animation:none!important}}
 </style>
 </head>
@@ -3610,56 +3640,56 @@ function setBillDisc(){if(!can('discount')){toast('ບໍ່ມີສິດໃ�
 function numPrompt(title,cur,cb){openModal(`<h2>${title}</h2><input id="nv" type="number" value="${cur}"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="window.__np()">ຕົກລົງ</button></div>`);window.__np=()=>{cb(+document.getElementById('nv').value||0);save();closeModal();renderCart();};}
 /* ===== ຈໍຄົວ / ຈໍບາຣ໌: ໃບອໍເດີຕາມໂຕະ × 3 ຖັນ (ລໍຖ້າ → ກຳລັງເຮັດ → ພ້ອມເສີບ) — ປຸ່ມດຽວຕໍ່ໂຕະ, ແຕະລາຍການເພື່ອເລື່ອນສະເພາະອັນນັ້ນ ===== */
 /* ===== ໄອຄອນລາຍເສັ້ນ (line / stroke) ທັງແອັບ: ປ່ຽນ emoji / ສັນຍາລັກ ທີ່ໃຊ້ເປັນໄອຄອນໃນໜ້າຈໍ ໃຫ້ເປັນ SVG ເສັ້ນບາງ ອັດຕະໂນມັດ (ສີຕາມຂໍ້ຄວາມ) ===== */
-var EI_P={camera:'<path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
- hourglass:'<path d="M6 3h12M6 21h12M7.5 3c0 5 4.5 6 4.5 9s-4.5 4-4.5 9M16.5 3c0 5-4.5 6-4.5 9s4.5 4 4.5 9"/>',
- box:'<path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/>',
- scooter:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h6M15 17l-2-9h-3M13 8h3l2 5"/>',
- chat:'<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
- lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
- plus:'<path d="M12 5v14M5 12h14"/>',
- bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
- bellOff:'<path d="M6 9a6 6 0 0 1 9.5-4.8M18 9c0 4 1.3 6 2.5 7.5h-17M10 20a2 2 0 0 0 4 0M3 3l18 18"/>',
- trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
- alarm:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M4 5l3-2M20 5l-3-2"/>',
- phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>',
- plate:'<path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 5-3.5 8H17"/>',
- pause:'<path d="M8 5v14M16 5v14"/>',
- bolt:'<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/>',
- thumb:'<path d="M7 11v9H4v-9zM7 11l4-8c1.5 0 2.5 1 2 3l-.7 3H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.9 20H7"/>',
- star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>',
- pen:'<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/>',
- pin:'<path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
- drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
- tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
- chart:'<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
- map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>',
- users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
- ban:'<circle cx="12" cy="12" r="9"/><path d="M5.7 5.7l12.6 12.6"/>',
- service:'<path d="M4 17h16M6 17a6 6 0 0 1 12 0M12 6V4M10 4h4M3 20h18"/>',
- flash:'<path d="M8 3h8l-1 5H9zM9 8v13h6V8M12 12v2"/>',
- inbox:'<path d="M4 13l2-8h12l2 8v6H4zM4 13h5l1 2h4l1-2h5"/>',
- checkc:'<circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.3 9.2"/>',
- save:'<path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-7h8v7"/>',
- spark:'<path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',
- ruler:'<path d="M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/>',
- sliders:'<path d="M5 4v16M12 4v16M19 4v16"/><circle cx="5" cy="9" r="2.2"/><circle cx="12" cy="15" r="2.2"/><circle cx="19" cy="8" r="2.2"/>',
- tick:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
- cross:'<path d="M6 6l12 12M18 6L6 18"/>',
- warn:'<path d="M12 3.5L2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/>',
- spoon:'<path d="M12 22v-9M8 3c-1.5 3 0 6.5 4 6.5S17.5 6 16 3"/>',
- tissue:'<rect x="4" y="7" width="13" height="12" rx="6"/><circle cx="10.5" cy="13" r="1.8"/><path d="M17 11h3v6h-3"/>',
- ice:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12L4 7.5M12 12v9"/>',
- chili:'<path d="M18 5c-1.5 4-6 9-12 11 1 3 5 4 8 2 4-2.500 5-8 4-13z"/><path d="M18 5c.5-1.500 1.500-2 2.500-2"/>',
- hand:'<path d="M8 13V6a1.500 1.500 0 0 1 3 0v5M11 11V4.500a1.500 1.500 0 0 1 3 0V11M14 11V6a1.500 1.500 0 0 1 3 0v8c0 4-2.500 6-6 6-3 0-4.500-1.500-6-4l-1-2a1.500 1.500 0 0 1 2.500-1.500L8 13"/>',
- heart:'<path d="M12 20s-8-4.800-8-10.500A4.500 4.500 0 0 1 12 7a4.500 4.500 0 0 1 8 2.500C20 15.200 12 20 12 20z"/>',
- run:'<circle cx="14" cy="5" r="2"/><path d="M12 9l-3 3 3 2v5M12 9l4 2 2 3M9 12l-3 1"/>',
+var EI_P={camera:'<path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle class="a pl" cx="12" cy="13" r="3.5"/>',
+ hourglass:'<path d="M6 3h12M6 21h12"/><g class="a flp"><path d="M7.5 3c0 5 4.5 6 4.5 9s-4.5 4-4.5 9M16.5 3c0 5-4.5 6-4.5 9s4.5 4 4.5 9"/></g>',
+ box:'<g class="hop"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/></g><path class="a" d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/>',
+ scooter:'<g class="dv"><path d="M9 17h6M15 17l-2-9h-3M13 8h3l2 5"/></g><circle class="a" cx="6" cy="17" r="3"/><circle class="a" cx="18" cy="17" r="3"/>',
+ chat:'<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path class="a bn" d="M8 11h.01"/><path class="a bn d2" d="M12 11h.01"/><path class="a bn d3" d="M16 11h.01"/>',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path class="a unl" d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+ plus:'<path class="a spin" d="M12 5v14M5 12h14"/>',
+ bell:'<g class="ring"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/></g><path class="a" d="M10 20a2 2 0 0 0 4 0"/>',
+ bellOff:'<path d="M6 9a6 6 0 0 1 9.5-4.8M18 9c0 4 1.3 6 2.5 7.5h-17M10 20a2 2 0 0 0 4 0"/><path class="a dr" d="M3 3l18 18"/>',
+ trash:'<path d="M6 7l1 13h10l1-13M10 11v6M14 11v6"/><g class="a lid"><path d="M4 7h16M9 7V4h6v3"/></g>',
+ alarm:'<g class="shk"><circle cx="12" cy="13" r="8"/><path class="a" d="M12 9v4l2.5 1.5"/></g><path class="a shk" d="M4 5l3-2M20 5l-3-2"/>',
+ phone:'<g class="shk"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/></g><path class="a pl" d="M15 3.5a5.5 5.5 0 0 1 5.5 5.5"/>',
+ plate:'<path class="sw-l" d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10"/><path class="a sw-r" d="M17 21V3c-2.5 1.5-3.5 5-3.5 8H17"/>',
+ pause:'<path class="pl" d="M8 5v14"/><path class="a pl d2" d="M16 5v14"/>',
+ bolt:'<path class="a pop" d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/>',
+ thumb:'<path d="M7 11v9H4v-9z"/><path class="a hop" d="M7 11l4-8c1.5 0 2.5 1 2 3l-.7 3H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.9 20H7"/>',
+ star:'<path class="a pop" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>',
+ pen:'<g class="wr"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path class="a" d="M14 7l3 3"/></g>',
+ pin:'<g class="hop"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.8 12 21 12 21z"/></g><circle class="a" cx="12" cy="9.5" r="2.5"/>',
+ drop:'<g class="hop"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></g><path class="a" d="M9.5 14.5a2.7 2.7 0 0 0 2.5 2.5"/>',
+ tag:'<g class="sw-l"><path d="M3 12V4h8l10 10-8 8z"/><circle class="a" cx="7.5" cy="8.5" r="1.3"/></g>',
+ chart:'<path d="M3 3v18h18"/><path class="a dr" d="M7 15l4-5 3 3 5-7"/>',
+ map:'<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path class="a sl" d="M9 4v14M15 6v14"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path class="a sl" d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
+ ban:'<circle cx="12" cy="12" r="9"/><path class="a pl" d="M5.7 5.7l12.6 12.6"/>',
+ service:'<path d="M4 17h16M3 20h18"/><g class="lid"><path d="M6 17a6 6 0 0 1 12 0"/><path class="a" d="M12 6V4M10 4h4"/></g>',
+ flash:'<path d="M8 3h8l-1 5H9z"/><path class="a pl" d="M9 8v13h6V8M12 12v2"/>',
+ inbox:'<path d="M4 13l2-8h12l2 8v6H4z"/><path class="a hop" d="M4 13h5l1 2h4l1-2h5"/>',
+ checkc:'<circle cx="12" cy="12" r="9"/><path class="a dr" d="M8 12.3l2.8 2.8L16.3 9.2"/>',
+ save:'<path d="M5 3h11l3 3v15H5z"/><path class="a hop" d="M8 3v5h7V3M8 21v-7h8v7"/>',
+ spark:'<path class="a spin" d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',
+ ruler:'<path d="M3 17L17 3l4 4L7 21z"/><path class="a sl" d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+ sliders:'<path d="M5 4v16M12 4v16M19 4v16"/><circle class="a ud" cx="5" cy="9" r="2.2"/><circle class="a ud d2" cx="12" cy="15" r="2.2"/><circle class="a ud d3" cx="19" cy="8" r="2.2"/>',
+ tick:'<path class="a dr" d="M5 12.5l4.5 4.5L19 7.5"/>',
+ cross:'<path class="pop" d="M6 6l12 12M18 6L6 18"/>',
+ warn:'<path d="M12 3.5L2.8 19.5h18.4z"/><g class="a shk"><path d="M12 10v4.5M12 17.2v.1"/></g>',
+ spoon:'<path d="M12 22v-9"/><path class="a sw-l" d="M8 3c-1.5 3 0 6.5 4 6.5S17.5 6 16 3"/>',
+ tissue:'<rect x="4" y="7" width="13" height="12" rx="6"/><circle class="a pl" cx="10.5" cy="13" r="1.8"/><path d="M17 11h3v6h-3"/>',
+ ice:'<g class="hop"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/></g><path class="a" d="M12 12l8-4.5M12 12L4 7.5M12 12v9"/>',
+ chili:'<path class="sw-r" d="M18 5c-1.5 4-6 9-12 11 1 3 5 4 8 2 4-2.5 5-8 4-13z"/><path class="a" d="M18 5c.5-1.5 1.5-2 2.5-2"/>',
+ hand:'<path class="a sw-l" d="M8 13V6a1.5 1.5 0 0 1 3 0v5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v8c0 4-2.5 6-6 6-3 0-4.5-1.5-6-4l-1-2a1.5 1.5 0 0 1 2.5-1.5L8 13"/>',
+ heart:'<path class="a pop" d="M12 20s-8-4.8-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.2 12 20 12 20z"/>',
+ run:'<circle class="a" cx="14" cy="5" r="2"/><g class="sl"><path d="M12 9l-3 3 3 2v5M12 9l4 2 2 3M9 12l-3 1"/></g>',
  dot:'<circle class="fl" cx="12" cy="12" r="6"/>'};
 var EI_M={'📷':'camera','⏳':'hourglass','📦':'box','🛵':'scooter','💬':'chat','🔒':'lock','➕':'plus','🔔':'bell','🔕':'bellOff','🗑':'trash','⏰':'alarm','📞':'phone','📲':'phone','🍽':'plate','⏸':'pause','⚡':'bolt','👍':'thumb','⭐':'star','★':'star','✎':'pen','✏':'pen','✍':'pen','📍':'pin','💧':'drop','🏷':'tag','📈':'chart','🗺':'map','👥':'users','🚫':'ban','🛎':'service','🔦':'flash','📥':'inbox','✅':'checkc','👌':'checkc','💾':'save','🎉':'spark','📏':'ruler','🎚':'sliders','✓':'tick','✔':'tick','✕':'cross','✖':'cross','✗':'cross','⚠':'warn','🥄':'spoon','🧻':'tissue','🧊':'ice','🌶':'chili','🙋':'hand','👋':'hand','🙏':'heart','🏃':'run','🟢':'dot','🟠':'dot','🔴':'dot'};
 var EI_C={'🟢':'#16a34a','🟠':'#f59f00','🔴':'#e03131'};
 var EI_RE=new RegExp('('+Object.keys(EI_M).join('|')+')\uFE0F?','gu'),EI_T=new RegExp('(?:'+Object.keys(EI_M).join('|')+')','u'),EI_SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1,SELECT:1,OPTION:1,TITLE:1,svg:1,CANVAS:1,NOSCRIPT:1};
 function eiNode(t){var s=t.nodeValue;if(!s||!EI_T.test(s))return;var p=t.parentNode;if(!p||EI_SKIP[p.nodeName]||(p.closest&&p.closest('[data-noic],svg,textarea')))return;
  EI_RE.lastIndex=0;var m,last=0,fr=document.createDocumentFragment(),any=false;
- while((m=EI_RE.exec(s))){any=true;if(m.index>last)fr.appendChild(document.createTextNode(s.slice(last,m.index)));var sp=document.createElement('span');sp.className='ei';sp.setAttribute('aria-hidden','true');sp.innerHTML='<svg viewBox="0 0 24 24">'+(EI_P[EI_M[m[1]]]||'')+'</svg>';if(EI_C[m[1]])sp.style.color=EI_C[m[1]];fr.appendChild(sp);last=EI_RE.lastIndex;}
+ while((m=EI_RE.exec(s))){any=true;if(m.index>last)fr.appendChild(document.createTextNode(s.slice(last,m.index)));var sp=document.createElement('span');sp.className='ei';sp.setAttribute('aria-hidden','true');sp.innerHTML='<svg data-ic="ei-'+EI_M[m[1]]+'" viewBox="0 0 24 24">'+(EI_P[EI_M[m[1]]]||'')+'</svg>';if(EI_C[m[1]])sp.style.color=EI_C[m[1]];fr.appendChild(sp);last=EI_RE.lastIndex;}
  if(!any)return;if(last<s.length)fr.appendChild(document.createTextNode(s.slice(last)));p.replaceChild(fr,t);}
 function eiWalk(root){try{if(!root)return;if(root.nodeType===3){eiNode(root);return;}if(root.nodeType!==1&&root.nodeType!==11)return;var w=document.createTreeWalker(root,4,null),n,L=[];while((n=w.nextNode()))L.push(n);L.forEach(eiNode);}catch(e){}}
 /* ===== fitText: ຍໍ່ຕົວເລກ/ຍອດເງິນໃຫ້ພໍດີກັບ Card ບໍ່ລົ້ນ (ຕ່ຳສຸດ 11px) — ຖ້າຍັງລົ້ນ ຫຍໍ້ເປັນ ລ້ານ/ຕື້ (ກົດຄ້າງ/hover ເຫັນເລກເຕັມ) ===== */
@@ -6882,7 +6912,25 @@ function permRoleHTML(){var roles=Object.keys(ROLE_LABELS).filter(function(r){re
 
 var SIC={store:'M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18M9 20v-6h6v6',pay:'M3 7h18v10H3zM3 11h18M7 15h3',order:'M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 2-2 6 0 8v10',table:'M3 9h18M5 9v10M19 9v10M8 5h8',menu:'M4 6h16M4 12h16M4 18h10',opts:'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',promo:'M3 12V3h9l9 9-9 9zM8 8h.01',screen:'M3 4h18v12H3zM8 20h8M12 16v4',users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-5-6',staff:'M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1',box:'M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10',link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',key:'M15 7a4 4 0 1 1-3.9 4.9L4 19v2h3v-2h2v-2h2l1.1-1.1A4 4 0 0 1 15 7zM16 9h.01',chart:'M4 20V10M10 20V4M16 20v-7M22 20H2',trash:'M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6',edit:'M4 20h4L19 9l-4-4L4 16zM13 7l4 4'};
 SIC.dlv='M3 7h11v8H3z M14 10h4l3 3v2h-7 M5 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0 M15 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0';
-function sIco(k){return '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+SIC[k]+'"/></svg>';}
+var SIC2={store:'<path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M3 9h18"/><path class="a hop" d="M9 20v-6h6v6"/>',
+ pay:'<path d="M3 7h18v10H3zM3 11h18"/><path class="a sl" d="M7 15h3"/>',
+ order:'<path class="sw-l" d="M6 3v8a3 3 0 0 0 6 0V3M9 3v18"/><path class="a sw-r" d="M17 3c-2 2-2 6 0 8v10"/>',
+ table:'<path d="M3 9h18"/><path class="a hop" d="M5 9v10M19 9v10M8 5h8"/>',
+ menu:'<path class="sl" d="M4 6h16"/><path class="a sl d2" d="M4 12h16"/><path class="sl d3" d="M4 18h10"/>',
+ opts:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><path class="a ud" d="M15 5v4"/><path class="a ud d2" d="M9 15v4"/>',
+ promo:'<g class="sw-l"><path d="M3 12V3h9l9 9-9 9z"/><path class="a" d="M8 8h.01"/></g>',
+ screen:'<path d="M3 4h18v12H3z"/><path class="a hop" d="M8 20h8M12 16v4"/>',
+ users:'<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0"/><path class="a sl" d="M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-5-6"/>',
+ staff:'<path class="a" d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0"/><path class="hop" d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+ box:'<g class="hop"><path d="M3 7l9-4 9 4-9 4z"/></g><path class="a" d="M3 7v10l9 4 9-4V7M12 11v10"/>',
+ link:'<path class="sw-l" d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path class="a sw-r" d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path class="a dr" d="M8.5 12l2.5 2.5L15.5 9.5"/>',
+ key:'<path class="a sw-r" d="M15 7a4 4 0 1 1-3.9 4.9L4 19v2h3v-2h2v-2h2l1.1-1.1A4 4 0 0 1 15 7zM16 9h.01"/>',
+ chart:'<path d="M22 20H2"/><path class="a gr" d="M4 20V10"/><path class="a gr d2" d="M10 20V4"/><path class="a gr d3" d="M16 20v-7"/>',
+ trash:'<path d="M6 6l1 15h10l1-15M10 11v6M14 11v6"/><g class="a lid"><path d="M3 6h18M8 6V4h8v2"/></g>',
+ edit:'<g class="wr"><path d="M4 20h4L19 9l-4-4L4 16z"/><path class="a" d="M13 7l4 4"/></g>',
+ dlv:'<g class="dv"><path d="M3 7h11v8H3zM14 10h4l3 3v2h-7"/></g><circle class="a" cx="7" cy="17" r="2"/><circle class="a" cx="17" cy="17" r="2"/>'};
+function sIco(k){return '<svg data-ic="s-'+k+'" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(SIC2[k]||'<path d="'+SIC[k]+'"/>')+'</svg>';}
 function aesc(s){return cesc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 /* ---- ບັນທຶກທັນທີ: data-k = ທີ່ຢູ່ໃນ state (ໃຊ້ຈຸດໄດ້ ເຊັ່ນ cds.welcome), data-t = bool | num | str ---- */
 var SET_DEF={shopName:'ST POS','cds.welcome':'ຍິນດີຕ້ອນຮັບ','cds.thanks':'ຂອບໃຈ'};
