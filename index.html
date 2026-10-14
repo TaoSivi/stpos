@@ -8423,6 +8423,10 @@ BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂ
  mods:{kds:false,chat:false,delivery:false,opts:false,pkg:false},navNames:{tables:'ຂາຍ / ຮັບຄົນເຈັບ',resv:'ນັດໝາຍຄົນເຈັບ',members:'ຄົນເຈັບ / ສະມາຊິກ',stock:'ສະຕ໋ອກຢາ & ອຸປະກອນ',history:'ປະຫວັດການຂາຍ / ການກວດ'},roles:BIZ.clinic.roles,
  floors:['ເຄົາເຕີຢາ','ຫ້ອງກວດ'],tables:['ເຄົາເຕີ 1','ເຄົາເຕີ 2','ສັ່ງລ່ວງໜ້າ / ສົ່ງຢາ','ຕ້ອນຮັບ','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງແລັບ','ຫ້ອງຢາ']};
 delete BIZ.pharmacy;delete BIZ.clinic;
+/* ===== ຮ້ານຢາ & ຄລີນິກ: ປ່ຽນຄຳສັບຮ້ານອາຫານ (ໂຕະ / ສັ່ງອາຫານ) ເປັນ ເຄົາເຕີ / ຫ້ອງ / ຂາຍ ໃນທຸກໜ້າ ອັດຕະໂນມັດ ===== */
+var BIZ_WORDS=[[/ເລືອກໂຕະ/g,'ເລືອກເຄົາເຕີ / ຫ້ອງ'],[/ສັ່ງອາຫານ/g,'ຂາຍ / ບໍລິການ'],[/ໂຕະ/g,'ເຄົາເຕີ']];
+function bizTxt(root){if(bizCur()!=='medical')return;try{var w=document.createTreeWalker(root||document.body,4,null),n,L=[];while((n=w.nextNode()))L.push(n);L.forEach(function(t){var v=t.nodeValue;if(!v||v.indexOf('ໂຕະ')<0&&v.indexOf('ສັ່ງອາຫານ')<0)return;var p=t.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/.test(p.nodeName)||(p.closest&&p.closest('[data-notr]')))return;var o=v;BIZ_WORDS.forEach(function(r){v=v.replace(r[0],r[1]);});if(v!==o)t.nodeValue=v;});}catch(e){}}
+(function(){var q=0;function sch(){if(q)return;q=requestAnimationFrame(function(){q=0;bizTxt();});}if(window.MutationObserver)new MutationObserver(sch).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('load',sch);sch();})();
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
 function bizNav(){var N=BIZ[bizCur()].navNames||{};document.querySelectorAll('#sidebar .navitem').forEach(function(el){var v=el.dataset.v;if(!el.__tn){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];if(n.nodeType===3&&n.nodeValue.trim()){el.__tn=n;el.__on=n.nodeValue.trim();break;}}}if(el.__tn)el.__tn.nodeValue=' '+(N[v]||el.__on)+' ';});}
 function bizLabels(){var b=BIZ[bizCur()];try{document.documentElement.setAttribute('data-biz',bizCur());}catch(e){}try{bizNav();}catch(e){}Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
