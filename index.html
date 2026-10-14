@@ -2332,6 +2332,26 @@ html[data-theme="glass"] #sidebar .navitem.active .live{background:#f4b740;color
 .gl-ctl{margin:0 0 14px;padding:14px 16px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text)}
 .gl-ctl b{font-size:15px}.gl-row{display:flex;align-items:center;gap:14px;margin:10px 0}.gl-row input{flex:1;accent-color:#12a8a2;height:28px}.gl-row span{min-width:120px;text-align:right;font-weight:800;font-size:16px}
 .gl-pre{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}.gl-pre button{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:inherit;font:inherit;font-weight:700;font-size:13px;cursor:pointer}.gl-ctl small{color:var(--muted);font-size:12.5px}
+/* ---------- Glass: ແຖບໝວດ (ບໍ່ໃຫ້ເປັນທໍ່ມົນເວລາຕັດແຖວ), ໄອຄອນໝວດ, ປຸ່ມ +, ຕົວໜັງສືໃນບັດ ---------- */
+html[data-theme="glass"] .ordbar .cats{border-radius:26px!important;padding:8px!important;gap:8px!important;flex-wrap:wrap!important;overflow:visible!important;background:linear-gradient(135deg,rgba(255,255,255,var(--l1a)),rgba(255,255,255,var(--l1b)))!important}
+html[data-theme="glass"] .ordbar .cat{height:56px;border-radius:18px!important;background:linear-gradient(135deg,rgba(255,255,255,var(--l2a)),rgba(255,255,255,var(--l2b)))!important;border:1px solid rgba(255,255,255,.14)!important;color:var(--cf-txt)!important}
+html[data-theme="glass"] .ordbar .cat .ct b{color:var(--cf-txt)!important}
+html[data-theme="glass"] .ordbar .cat .ct small{color:#9FC7C2!important;opacity:1}
+html[data-theme="glass"] .ordbar .cat .ci{background:rgba(4,29,27,.55)!important;border:1px solid rgba(255,255,255,.16);border-radius:14px!important;color:#BDF3EE!important}
+html[data-theme="glass"] .ordbar .cat .ci svg{stroke:#BDF3EE}
+html[data-theme="glass"] .ordbar .cat.active{background:var(--grad)!important;border-color:rgba(255,255,255,.32)!important}
+html[data-theme="glass"] .ordbar .cat.active .ci{background:rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glass"] .ordbar .cat.active .ci svg{stroke:#fff}
+html[data-theme="glass"] .ordbar .cat.active .ct b,html[data-theme="glass"] .ordbar .cat.active .ct small{color:#fff!important}
+html[data-theme="glass"] .product .ptop::after{background:linear-gradient(100deg,#031d1b,#0a918c)!important;color:#fff!important;border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 3px 8px rgba(0,0,0,.35)!important}
+html[data-theme="glass"] .product .pname{font-family:inherit!important;font-weight:800!important;color:#fff!important;letter-spacing:0;text-shadow:none}
+html[data-theme="glass"] .product .price{color:#7fe0d9!important;font-weight:800}
+html[data-theme="glass"] .product .code{color:#9FC7C2!important}
+html[data-theme="glass"] .product .pname,html[data-theme="glass"] .product .ptop{background:rgba(4,29,27,.5);margin:0 -2px;padding-left:10px!important;padding-right:10px!important}
+html[data-theme="glass"] .product .pname{border-radius:14px 14px 0 0;padding-top:8px!important;margin-top:6px}
+html[data-theme="glass"] .product .ptop{border-radius:0 0 16px 16px;padding-bottom:8px!important;margin-top:-1px}
+html[data-theme="glass"] .tablecard :is(.tname,.tamt,.tamt b){text-shadow:none!important}
+html[data-theme="glass"] :is(.kpi .val,.tname){font-family:inherit!important}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
@@ -7548,7 +7568,7 @@ function gxFg(el,cs){var c=gxRGB(cs.color);if(!c)return;var hsl=gxHSL(c[0],c[1],
  if(l<.5){if(s<.35)el.style.setProperty('color','#F3E9E1','important');else el.style.setProperty('color','hsl('+h+','+Math.round(Math.min(s,.8)*100)+'%,72%)','important');}else if(h!==hsl[0]&&l<.8)el.style.setProperty('color','hsl('+h+','+Math.round(s*100)+'%,'+Math.round(Math.max(l*100,62))+'%)','important');}
 function gxBd(el,cs){var c=gxRGB(cs.borderTopColor);if(!c||cs.borderTopWidth==='0px'||cs.borderTopStyle==='none')return;var hsl=gxHSL(c[0],c[1],c[2]);if(hsl[2]>.8)el.style.setProperty('border-color','rgba(255,255,255,.17)','important');else if(gxHue(hsl[0],hsl[1])!==hsl[0])el.style.setProperty('border-color','hsl(26,60%,48%)','important');}
 function gxFix(root){if(curTheme()!=='glass')return;try{var rt=root||document.body,all=[].slice.call(rt.querySelectorAll('*')),i=0;if(rt!==document.body)all.unshift(rt);
- (function step(){var end=Math.min(i+500,all.length);for(;i<end;i++){var el=all[i];if(el.__gx||el.closest('svg,.tablecard,.thm-pick,.navitem,.brand,.calltag,.sk-add,.kds-leg')||el.id==='loginScreen'||el.tagName==='SCRIPT'||el.tagName==='STYLE')continue;el.__gx=1;
+ (function step(){var end=Math.min(i+500,all.length);for(;i<end;i++){var el=all[i];if(el.__gx||el.closest('svg,.tablecard,.thm-pick,.navitem,.brand,.calltag,.sk-add,.kds-leg,.product,.ordbar')||el.id==='loginScreen'||el.tagName==='SCRIPT'||el.tagName==='STYLE')continue;el.__gx=1;
    var cs=getComputedStyle(el);if(cs.backgroundImage!=='none'&&el.tagName!=='BUTTON')continue;if(!(cs.backdropFilter&&cs.backdropFilter!=='none'))gxBg(el,cs);
    if([].some.call(el.childNodes,function(n){return n.nodeType===3&&n.nodeValue.trim();})||el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.tagName==='BUTTON')gxFg(el,cs);gxBd(el,cs);}
   if(i<all.length)requestAnimationFrame(step);})();}catch(e){}}
