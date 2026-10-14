@@ -2018,6 +2018,41 @@ body,#viewRoot,#app.cust #viewRoot{background:#fff!important}
 .tablecard .tname,.product .pname,.kcard h3,.sh-c b,.sh-c small,.pm-r .pm-t,.ucard b,.rv-card b{overflow-wrap:anywhere;word-break:break-word}
 .product .pname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tablecard .tname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* ===== ໄອຄອນ 2 ສີ (ສີຫຼັກ + ສີເນັ້ນ) ມີ Micro-interaction ເວລາເອົາເມົາສ໌/ແຕະ ===== */
+svg[data-ic]{--ic-a:#0ABAB5;overflow:visible}
+svg[data-ic] .a{stroke:var(--ic-a)}
+#sidebar svg[data-ic]{--ic-a:#3EDCCB}
+#sidebar .navitem.active svg[data-ic]{--ic-a:#063b39}
+svg[data-ic] *{transform-box:fill-box;transform-origin:center}
+@keyframes icSwL{0%,100%{transform:rotate(0)}35%{transform:rotate(-16deg)}70%{transform:rotate(6deg)}}
+@keyframes icSwR{0%,100%{transform:rotate(0)}35%{transform:rotate(16deg)}70%{transform:rotate(-6deg)}}
+@keyframes icHop{0%,100%{transform:translateY(0)}40%{transform:translateY(-3px)}70%{transform:translateY(.5px)}}
+@keyframes icRise{0%{transform:translateY(0);opacity:1}50%{transform:translateY(-2.5px);opacity:.25}51%{transform:translateY(2px);opacity:.25}100%{transform:translateY(0);opacity:1}}
+@keyframes icDraw{from{stroke-dasharray:16;stroke-dashoffset:16}to{stroke-dasharray:16;stroke-dashoffset:0}}
+@keyframes icGrow{0%{transform:scaleY(.25)}100%{transform:scaleY(1)}}
+@keyframes icSpin{to{transform:rotate(90deg)}}
+@keyframes icFlip{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.08)}}
+@keyframes icSlide{0%,100%{transform:translateX(0)}50%{transform:translateX(2.5px)}}
+@keyframes icBn{0%,100%{transform:translateY(0)}40%{transform:translateY(-2.6px)}}
+@keyframes icPulse{0%,100%{transform:scale(1)}50%{transform:scale(.72)}}
+@keyframes icDrive{0%,100%{transform:translateX(0)}40%{transform:translateX(3px)}}
+@keyframes icLid{0%,100%{transform:rotate(0) translateY(0)}40%{transform:rotate(-18deg) translateY(-2px)}}
+svg[data-ic] .sw-l{transform-origin:50% 100%}svg[data-ic] .sw-r{transform-origin:50% 100%}svg[data-ic] .gr{transform-origin:50% 100%}svg[data-ic] .lid{transform-origin:0 100%}
+svg[data-ic] .d2{animation-delay:.08s!important}svg[data-ic] .d3{animation-delay:.16s!important}svg[data-ic] .d4{animation-delay:.24s!important}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .sw-l{animation:icSwL .6s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .sw-r{animation:icSwR .6s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .hop{animation:icHop .55s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .rise{animation:icRise .8s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .dr{animation:icDraw .55s ease both}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .gr{animation:icGrow .5s cubic-bezier(.2,.8,.3,1.2) both}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .spin{animation:icSpin .7s cubic-bezier(.4,0,.2,1)}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .flip{animation:icFlip .6s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .sl{animation:icSlide .55s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .bn{animation:icBn .5s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .pl{animation:icPulse .6s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .dv{animation:icDrive .6s ease}
+:is(.navitem,button,.sh-c,.setrail button):hover svg[data-ic] .lid{animation:icLid .55s ease}
+@media (prefers-reduced-motion:reduce){svg[data-ic] *{animation:none!important}}
 </style>
 </head>
 <body>
@@ -4443,30 +4478,31 @@ function doAddIngredient(){const c=(document.getElementById('ic').value||'').tri
  save();closeModal();render();showSuccess('ເພີ່ມວັດຖຸດິບສຳເລັດ!',c+(unitIsPack(unit)?' · ⚠ ຫົວໜ່ວຍບັນຈຸ ('+unit+') ຄວນໃຊ້ g / ml / ອັນ':''));}
 function resetStockAll(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ');return;}if(!confirm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?'))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
 /* ===== THEME v7: icons, drawer, bottom nav, clock ===== */
-const NAV_IC={tables:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
- kitchen:'<path d="M6 13.9A4 4 0 0 1 7.4 6a5 5 0 0 1 9.2 0A4 4 0 0 1 18 13.9V21H6z"/><path d="M6 17h12"/>',
- bar:'<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M6 2v2M10 2v2M14 2v2"/>',
- waiter:'<path d="M2 18h20M4 18a8 8 0 0 1 16 0M12 6v4M10 6h4"/>',
- history:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M16 8H8M16 12H8M13 16H8"/>',
- members:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
- debt:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
- shift:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 14h4"/>',
- dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
- reports:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
- delivery:'<path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
- chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/>',
- resv:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 15h2M14 15h2"/>',
- chk:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
- req:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M9 12h6M9 16h4"/>',
- waste:'<path d="M4 7h16M10 11v6M14 11v6"/><path d="M5 7l1 13h12l1-13M9 7V4h6v3"/>',
- count:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path d="M8.5 13l2 2 4-4"/>',
- cancellog:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>',
- stock:'<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
- expense:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
- purchase:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/>',
- admin:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
- more:'<path d="M4 6h16M4 12h16M4 18h16"/>'};
-function navSvg(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(NAV_IC[k]||'')+'</svg>';}
+const NAV_IC={
+ tables:'<path class="sw-l" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20"/><path class="a sw-r" d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+ kitchen:'<g class="hop"><path d="M6 13.9A4 4 0 0 1 7.4 6a5 5 0 0 1 9.2 0A4 4 0 0 1 18 13.9V21H6z"/></g><path class="a" d="M6 17h12"/>',
+ bar:'<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path class="a rise" d="M6 2v2M10 2v2M14 2v2"/>',
+ waiter:'<path d="M2 18h20"/><g class="lid"><path d="M4 18a8 8 0 0 1 16 0"/><path class="a" d="M12 6v4M10 6h4"/></g>',
+ history:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path class="a dr" d="M16 8H8M16 12H8M13 16H8"/>',
+ members:'<path class="a sl" d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+ debt:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path class="a sl" d="M6 15h4"/>',
+ shift:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path class="a sl" d="M10 14h4"/>',
+ dash:'<rect class="pl" x="3" y="3" width="7" height="9" rx="1.5"/><rect class="a pl d2" x="14" y="3" width="7" height="5" rx="1.5"/><rect class="pl d3" x="14" y="12" width="7" height="9" rx="1.5"/><rect class="a pl d4" x="3" y="16" width="7" height="5" rx="1.5"/>',
+ reports:'<path d="M3 3v18h18"/><path class="a gr" d="M18 17V9"/><path class="a gr d2" d="M13 17V5"/><path class="a gr d3" d="M8 17v-3"/>',
+ delivery:'<g class="dv"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7"/></g><circle class="a" cx="7" cy="17" r="2"/><circle class="a" cx="17" cy="17" r="2"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path class="a bn" d="M8.5 11h.01"/><path class="a bn d2" d="M12 11h.01"/><path class="a bn d3" d="M15.5 11h.01"/>',
+ resv:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path class="a rise" d="M16 3v4M8 3v4"/><path class="a" d="M8 15h2M14 15h2"/>',
+ chk:'<path d="M9 6h11M9 12h11M9 18h11"/><path class="a dr" d="M3.5 6l1.5 1.5L7.5 5"/><path class="a dr d2" d="M3.5 12l1.5 1.5L7.5 11"/><path class="a dr d3" d="M3.5 18l1.5 1.5L7.5 17"/>',
+ req:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path class="a dr" d="M9 12h6M9 16h4"/>',
+ waste:'<path d="M10 11v6M14 11v6"/><path d="M5 7l1 13h12l1-13"/><g class="a lid"><path d="M4 7h16M9 7V4h6v3"/></g>',
+ count:'<path d="M9 3h6v3H9z"/><path d="M7 4H5v17h14V4h-2"/><path class="a dr" d="M8.5 13l2 2 4-4"/>',
+ cancellog:'<path d="M10 11v6M14 11v6"/><path d="M6 6l1 15h10l1-15"/><g class="a lid"><path d="M3 6h18M8 6V4h8v2"/></g>',
+ stock:'<g class="hop"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/></g><path class="a" d="M3.3 7 12 12l8.7-5M12 22V12"/>',
+ expense:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle class="a flip" cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+ purchase:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><path class="a dr" d="M9 10h6M9 14h6M9 18h3"/>',
+ admin:'<circle cx="12" cy="12" r="3"/><g class="a spin"><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></g>',
+ more:'<path class="sl" d="M4 6h16"/><path class="a sl d2" d="M4 12h16"/><path class="sl d3" d="M4 18h16"/>'};
+function navSvg(k){return '<svg data-ic="'+k+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+(NAV_IC[k]||'')+'</svg>';}
 /* ===== ເມນູຊ້າຍ: ຈັດກຸ່ມຕາມການໃຊ້ງານ · ຍຸບ/ຂະຫຍາຍກຸ່ມ (ຈື່ໄວ້) · ຄົ້ນຫາໜ້າ · ປ້າຍແຈ້ງເຕືອນລວມຕອນຍຸບ ===== */
 var NAV_CH='<svg class="ngc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 function navClosed(){try{return JSON.parse(localStorage.getItem('stpos_navc')||'[]');}catch(e){return [];}}
