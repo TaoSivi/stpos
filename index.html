@@ -2093,7 +2093,7 @@ html[data-theme="glass"]{
  --cf-0:#041d1b;--cf-1:#062b28;--cf-2:#0a4f4a;--cf-caramel:#0ABAB5;--cf-latte:#BDF3EE;--cf-mauve:#5FD9D2;--cf-rose:#9FC7C2;--cf-txt:#EAF7F5;
  --bg:#041d1b;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.14);--text:#EAF7F5;--ink:#EAF7F5;--muted:#9FC7C2;
  --tiff:#0ABAB5;--tiff2:#13C7C1;--tiff-lite:#BDF3EE;--tiff-deep:#BDF3EE;--tiff-ink:#EAF7F5;
- --grad:linear-gradient(135deg,#12a8a2,#0a918c 55%,#0A7E7A);--grad-deep:linear-gradient(135deg,#0a918c,#0A7E7A);
+ --grad:linear-gradient(100deg,#031d1b 0%,#07504b 48%,#10a8a1 118%);--grad-deep:linear-gradient(100deg,#031d1b 0%,#07504b 50%,#0e9a94 118%);
  --free:#BDF3EE;--busy:#0ABAB5;--bill:#BDF3EE;--new:#0a4f4a;--merge:#5FD9D2;--callbill:#f4b740;
  --green:#7fc48a;--red:#ef6a5e;--gold:#BDF3EE;--pink:#5FD9D2;--orange:#f4b740;--blue:#5FD9D2;
  --sh-in:inset 0 1px 0 rgba(255,255,255,.22);
@@ -2312,6 +2312,23 @@ html[data-theme="glass"] :is(.btn-sm,.sb.ghost-danger,.schip button,.more-pop bu
 html[data-theme="glass"] table.tbl th:hover,html[data-theme="glass"] table.tbl thead tr:hover{background:rgba(255,255,255,.12)!important}
 html[data-theme="glass"] .sc-it:hover *,html[data-theme="glass"] .sc-it.on *{color:inherit}
 html[data-theme="glass"] .sc-it:hover .sc-pv,html[data-theme="glass"] .sc-it:hover b{color:var(--cf-txt)!important}
+/* ---------- Glass: ໄລ່ສີ ມືດ → ສີ (ຊ້າຍ→ຂວາ) ແບບປຸ່ມ "Get started" ---------- */
+html[data-theme="glass"] :is(.btn-ok,.btn-ok.grad,.grad,.btn-sm,.b-pay,.go-start,.chip.active,.cat.active,.subcat.active,.layoutbtns button.on,.dttoggle button.on,.stog.on,.ck-seg button.on,.navitem.active,.cats .cat.active,.pm-n.all,.sh-c em){background:var(--grad)!important;border:1px solid rgba(255,255,255,.28)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 16px rgba(0,0,0,.35)!important}
+html[data-theme="glass"] #sidebar .navitem.active{background:linear-gradient(100deg,#031d1b 0%,#07504b 48%,#10a8a1 118%)!important}
+html[data-theme="glass"] .tablecard.s-busy{background:linear-gradient(105deg,#031f1d 0%,#06504b 46%,#0fb0a9 120%)!important;color:#fff!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill){background:linear-gradient(105deg,#1c1304 0%,#6a4a10 46%,#f4b740 120%)!important;color:#fff!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill) :is(.tname,.tamt,.tamt b){color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+html[data-theme="glass"] .tablecard.s-new{background:linear-gradient(105deg,#020f0e 0%,#0a3a36 55%,#0e6f68 120%)!important}
+html[data-theme="glass"] .tablecard.s-main{background:linear-gradient(105deg,#041d1b 0%,#2a8f89 56%,#7fe0d9 120%)!important;color:#fff!important}
+html[data-theme="glass"] .tablecard.s-main :is(.tname,.tamt,.tamt b){color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+html[data-theme="glass"] .tablecard:is(.s-busy,.s-bill,.s-callbill,.s-new,.s-main){border:1px solid rgba(255,255,255,.28)!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill,.s-main) .qrbadge{background:rgba(4,29,27,.62)!important;border-color:rgba(255,255,255,.38)!important}
+html[data-theme="glass"] .tablecard:is(.s-bill,.s-callbill,.s-main) .qrbadge svg{color:#EAF7F5!important;fill:#EAF7F5!important}
+html[data-theme="glass"] .tablecard.s-callbill{border:2px solid #f97316!important}
+html[data-theme="glass"] .legend .d-busy{background:linear-gradient(100deg,#031f1d,#0fb0a9)}html[data-theme="glass"] .legend .d-bill{background:linear-gradient(100deg,#1c1304,#f4b740)}html[data-theme="glass"] .legend .d-main{background:linear-gradient(100deg,#041d1b,#7fe0d9)}html[data-theme="glass"] .legend .d-callbill{background:linear-gradient(100deg,#1c1304,#f4b740);border:3px solid #f97316}
+html[data-theme="glass"] #sidebar .navitem.active,html[data-theme="glass"] #sidebar .navitem.active *{color:#fff!important}
+html[data-theme="glass"] #sidebar .navitem.active svg[data-ic]{--ic-a:#7fe0d9}
+html[data-theme="glass"] #sidebar .navitem.active .live{background:#f4b740;color:#3b2600!important}
 .tb-theme{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:#0a7e7a;border:1px solid #e3efee;box-shadow:var(--sh-1)}
 .tb-theme svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="glass"] .tb-theme{background:var(--glass)!important;color:var(--cf-latte);border:1px solid var(--glass-line)!important}
