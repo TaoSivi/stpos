@@ -2013,6 +2013,7 @@ body,#viewRoot,#app.cust #viewRoot{background:#fff!important}
 .kpi.on-dark{background:var(--glow-teal)!important}
 .scard small,.scard .sub{white-space:normal!important;overflow-wrap:anywhere}
 .fit{display:inline-block!important;max-width:100%;white-space:nowrap!important;vertical-align:bottom}
+.tablecard .tamt b.fit,.totrow b.fit{white-space:normal!important;line-height:1.25;text-align:right}
 .kpi .val.fit,.p2-due .amt.fit{display:block!important}
 .tablecard .tname,.product .pname,.kcard h3,.sh-c b,.sh-c small,.pm-r .pm-t,.ucard b,.rv-card b{overflow-wrap:anywhere;word-break:break-word}
 .product .pname{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -3629,10 +3630,10 @@ function eiWalk(root){try{if(!root)return;if(root.nodeType===3){eiNode(root);ret
 /* ===== fitText: ຍໍ່ຕົວເລກ/ຍອດເງິນໃຫ້ພໍດີກັບ Card ບໍ່ລົ້ນ (ຕ່ຳສຸດ 11px) — ຖ້າຍັງລົ້ນ ຫຍໍ້ເປັນ ລ້ານ/ຕື້ (ກົດຄ້າງ/hover ເຫັນເລກເຕັມ) ===== */
 var FIT_SEL='.kpi .val,.tablecard .tamt b,.product .price,.p2-due .amt,.hqk .kpi .val,.totrow b,.kpi .sub,.hps-c b,.kpi b';
 function fitCompact(el){var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),n,ch=false;while((n=w.nextNode())){var t=n.nodeValue.replace(/\d[\d,]{8,}/g,function(m){var v=+m.replace(/,/g,'');if(v>=1e9)return (v/1e9).toFixed(2).replace(/\.?0+$/,'')+' ຕື້';if(v>=1e6)return (v/1e6).toFixed(1).replace(/\.0$/,'')+' ລ້ານ';return m;});if(t!==n.nodeValue){n.nodeValue=t;ch=true;}}return ch;}
-function fitText(root){try{(root||document).querySelectorAll(FIT_SEL).forEach(function(el){el.classList.add('fit');if(el.dataset.fh!=null&&el.dataset.fc===el.innerHTML){el.innerHTML=el.dataset.fh;}delete el.dataset.fh;delete el.dataset.fc;el.removeAttribute('title');el.style.fontSize='';
+function fitText(root){try{(root||document).querySelectorAll(FIT_SEL).forEach(function(el){el.classList.add('fit');if(el.dataset.fh!=null&&el.dataset.fc===el.innerHTML){el.innerHTML=el.dataset.fh;}delete el.dataset.fh;delete el.dataset.fc;el.removeAttribute('title');el.style.removeProperty('font-size');
   var par=el.parentElement;if(!par||el.offsetParent===null)return;var base=parseFloat(getComputedStyle(el).fontSize)||16,sz=base,cs=getComputedStyle(par),avail=par.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0);if(cs.display==='flex'&&cs.flexDirection.indexOf('row')===0){var gp=parseFloat(cs.columnGap)||0;[].forEach.call(par.children,function(c){if(c!==el&&c.offsetParent!==null)avail-=c.offsetWidth+gp;});}if(avail<=0)avail=Math.max(par.clientWidth*0.5,40);
-  var g=0;while(el.scrollWidth>avail+1&&sz>12&&g++<40){sz-=0.5;el.style.fontSize=sz+'px';}
-  if(el.scrollWidth>avail+1){var full=el.innerHTML;if(fitCompact(el)){el.dataset.fh=full;el.dataset.fc=el.innerHTML;el.title=el.textContent+' (ເຕັມ: '+full.replace(/<[^>]*>/g,'')+')';sz=Math.min(base,sz);el.style.fontSize=sz+'px';g=0;while(el.scrollWidth>avail+1&&sz>11&&g++<20){sz-=0.5;el.style.fontSize=sz+'px';}}}});}catch(e){}}
+  var g=0;while(el.scrollWidth>avail+1&&sz>10&&g++<60){sz-=0.5;el.style.setProperty('font-size',sz+'px','important');}
+});}catch(e){}}
 (function(){var q=0,mo=null;function run(){if(mo)mo.disconnect();fitText();if(mo)mo.observe(document.body,{childList:true,subtree:true,characterData:true});}
  function sched(){if(q)return;q=requestAnimationFrame(function(){q=0;run();});}
  if(window.MutationObserver){mo=new MutationObserver(sched);mo.observe(document.body,{childList:true,subtree:true,characterData:true});}window.addEventListener('resize',sched);window.addEventListener('load',sched);sched();})();
