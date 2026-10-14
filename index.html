@@ -2001,6 +2001,16 @@ body.cc-lock{overflow:hidden}
 .product:hover,.tablecard:hover,.sh-c:hover,.kpi:hover,.scard:hover{box-shadow:var(--sh-2)!important}
 .tpk .tablecard,.tp-off{box-shadow:var(--sh-1)!important}
 /* ===== ຕົວໜັງສືພໍດີ Card: ເລກຍາວຫຍໍ້ຂະໜາດເອງ (JS fitText), ຊື່ຍາວຂຶ້ນແຖວໃໝ່/ຕັດ 2 ແຖວ ===== */
+/* ===== ພື້ນຫຼັງຂາວ + Card ທີ່ໄລ່ສີ ໃຊ້ແບບດຽວກັນ (ແສງ radial ຢູ່ຊ້າຍເທິງ + ໄລ່ 135°) ===== */
+:root{--bg:#fff;--glow-teal:radial-gradient(ellipse at 30% 0%,rgba(56,160,150,.6),transparent 68%),linear-gradient(160deg,#07403d 0%,#063633 100%);--glow-amber:radial-gradient(circle at 20% 8%,rgba(255,255,255,.75),transparent 58%),linear-gradient(135deg,#fff7e6,#fef0c7)}
+body,#viewRoot,#app.cust #viewRoot{background:#fff!important}
+.p2-due,.cart-top,.kds-head{background:var(--glow-teal)!important}
+.p2-due.credit{background:radial-gradient(circle at 20% 8%,rgba(255,214,130,.5),transparent 58%),linear-gradient(135deg,#7a4a00,#c27400)!important}
+.outstanding,.shiftbar{background:var(--glow-amber)!important}
+.dashcards .kpi:first-child{background:var(--glow-teal)!important}
+.dashcards .kpi:first-child::after{display:none}
+.kds-dark .tk,.kds-dark .tk[data-b]{background:radial-gradient(circle at 20% 6%,rgba(95,217,210,.2),transparent 58%),linear-gradient(180deg,#183532,#132b29)!important}
+.kpi.on-dark{background:var(--glow-teal)!important}
 .scard small,.scard .sub{white-space:normal!important;overflow-wrap:anywhere}
 .fit{display:inline-block!important;max-width:100%;white-space:nowrap!important;vertical-align:bottom}
 .kpi .val.fit,.p2-due .amt.fit{display:block!important}
