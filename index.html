@@ -8411,6 +8411,12 @@ var BIZ={
    storekeeper:{view:['stock','req','count','waste','chk','transfer','purchase'],act:['chkDo','stockAdjust','reqCreate','reqIssue','wasteCreate','countDo','prCreate','grnReceive','export','import']},
    purchasing:{view:['purchase','stock','chk'],act:['chkDo','prCreate','poCreate','grnReceive','vendorMng','export','import']}},
   floors:['ຕ້ອນຮັບ','ຫ້ອງກວດ'],tables:['ຕ້ອນຮັບ 1','ຕ້ອນຮັບ 2','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງກວດ 3','ຫ້ອງແລັບ','ຫ້ອງຢາ']}};
+/* ຮ້ານຂາຍຢາ + ຄລີນິກ = ປະເພດດຽວ "ຮ້ານຢາ & ຄລີນິກ" (ເພສັດ + ຄົນເຈັບ) */
+BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂາຍຢາ + ກວດ/ປິ່ນປົວ — ເຄົາເຕີຂາຍຢາ, ຫ້ອງກວດ, ແລັບ, ຫ້ອງຢາ, ນັດໝາຍ, ສະຕ໋ອກຢາ',
+ labels:{owner:'ເຈົ້າຂອງຮ້ານຢາ & ຄລີນິກ',manager:'ເພສັດຊະກອນ / ຜູ້ອຳນວຍການ',cashier:'ເຈົ້າໜ້າທີ່ຂາຍ & ຮັບເງິນ',waiter:'ພະຍາບານ / ຜູ້ຊ່ວຍເພສັດ',kitchen:'ຫ້ອງຢາ (ເພສັດ)',bar:'ຫ້ອງແລັບ / ກວດ',storekeeper:'ນາຍສາງຢາ & ອຸປະກອນ',purchasing:'ຈັດຊື້ຢາ'},
+ mods:{kds:false,chat:false},roles:BIZ.clinic.roles,
+ floors:['ເຄົາເຕີຢາ','ຫ້ອງກວດ'],tables:['ເຄົາເຕີ 1','ເຄົາເຕີ 2','ສັ່ງລ່ວງໜ້າ / ສົ່ງຢາ','ຕ້ອນຮັບ','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງແລັບ','ຫ້ອງຢາ']};
+delete BIZ.pharmacy;delete BIZ.clinic;
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
 function bizLabels(){var b=BIZ[bizCur()];Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
 /* ໃຊ້ສິດ/ໂມດູນ ຂອງປະເພດທຸລະກິດ (ບໍ່ລຶບຂໍ້ມູນ) — ສະເພາະ Super Admin */
@@ -8457,12 +8463,14 @@ var BIZ_SAMPLE={
   'ວິຕາມິນ · ອາຫານເສີມ':[['VIT001','Vitamin C 1000mg (20 ເມັດຟູ່)',55000,35000,'ຫຼອດ','jar','#f4b740',40,10],['VIT002','Multivitamin (30 ເມັດ)',120000,80000,'ກະປ໋ອງ','jar','#0ABAB5',25,8],['VIT003','Calcium + D3 (60 ເມັດ)',95000,62000,'ກະປ໋ອງ','jar','#5FD9D2',25,8],['VIT004','Zinc 15mg (30 ເມັດ)',48000,30000,'ກະປ໋ອງ','jar','#ef6a5e',30,8]],
   'ອຸປະກອນການແພດ':[['EQP001','ໜ້າກາກອະນາໄມ (50 ຊິ້ນ)',30000,17000,'ກ່ອງ','mask','#0ABAB5',80,20],['EQP002','ເຄື່ອງວັດອຸນຫະພູມດິຈິຕອນ',65000,40000,'ອັນ','thermo','#ef6a5e',20,5],['EQP003','ແຜ່ນປິດບາດແຜ (20 ແຜ່ນ)',12000,6500,'ກ່ອງ','bandage','#f4b740',60,15],['EQP004','ເຄື່ອງວັດຄວາມດັນ',420000,300000,'ເຄື່ອງ','heart','#ef6a5e',6,2],['EQP005','ເຂັມສັກຢາ 3ml (10 ອັນ)',15000,8000,'ກ່ອງ','syringe','#5FD9D2',40,10]],
   'ຜິວ · ທຳຄວາມສະອາດ':[['SKN001','Betadine 60ml',25000,15000,'ຂວດ','bottle','#f4b740',45,12],['SKN002','ແອວກໍຮໍ 70% 100ml',9000,4500,'ຂວດ','bottle','#5FD9D2',90,25],['SKN003','ຄີມທາແມງກະເບື້ອກັດ',20000,12000,'ຫຼອດ','tube2','#0ABAB5',40,10]]},
-  tables:BIZ.pharmacy.tables,customers:[['ທ້າວ ບຸນມີ ສີວິໄລ','02055501001'],['ນາງ ຄຳແກ້ວ ພົມມະວົງ','02055501002'],['ແມ່ຄ້າ ນວນຈັນ (ລູກຄ້າປະຈຳ)','02055501003']],shop:'ຮ້ານຂາຍຢາ ຕົວຢ່າງ'},
+  tables:['ເຄົາເຕີ 1'],customers:[['ທ້າວ ບຸນມີ ສີວິໄລ','02055501001'],['ນາງ ຄຳແກ້ວ ພົມມະວົງ','02055501002'],['ແມ່ຄ້າ ນວນຈັນ (ລູກຄ້າປະຈຳ)','02055501003']],shop:'ຮ້ານຂາຍຢາ ຕົວຢ່າງ'},
  clinic:{cats:{
   'ຄ່າກວດ · ບໍລິການ':[['SRV001','ຄ່າກວດທົ່ວໄປ (ທ່ານໝໍ)',50000,0,'ຄັ້ງ','steth','#0ABAB5',0,0],['SRV002','ກວດສຸຂະພາບເດັກ',60000,0,'ຄັ້ງ','heart','#f4b740',0,0],['SRV003','ວັດຄວາມດັນ / ນ້ຳໜັກ',10000,0,'ຄັ້ງ','heart','#ef6a5e',0,0],['SRV004','ໃຫ້ນ້ຳເກືອ / ຢາທາງເສັ້ນເລືອດ',100000,0,'ຄັ້ງ','syringe','#5FD9D2',0,0],['SRV005','ເຢັບບາດແຜ (ຂະໜາດນ້ອຍ)',80000,0,'ຄັ້ງ','bandage','#f4b740',0,0],['SRV006','ວັກຊີນໄຂ້ຫວັດໃຫຍ່',250000,180000,'ເຂັມ','syringe','#0ABAB5',20,5]],
   'ກວດແລັບ':[['LAB001','ກວດເລືອດຄົບ (CBC)',60000,0,'ຄັ້ງ','drop','#ef6a5e',0,0],['LAB002','ກວດນ້ຳຕານໃນເລືອດ',30000,0,'ຄັ້ງ','drop','#f4b740',0,0],['LAB003','ກວດປັດສະວະ',30000,0,'ຄັ້ງ','tube2','#5FD9D2',0,0],['LAB004','ກວດມາລາເລຍ (Rapid test)',40000,18000,'ຊຸດ','tube2','#0ABAB5',40,10],['LAB005','ກວດຖືພາ',25000,10000,'ຊຸດ','tube2','#f4b740',40,10]],
   'ຢາ (ຫ້ອງຢາ)':[['MED001','Paracetamol 500mg (10 ເມັດ)',8000,4500,'ແຜງ','blister','#0ABAB5',120,30],['MED010','Amoxicillin 500mg (Rx)',25000,15000,'ແຜງ','capsule','#ef6a5e',50,15],['MED020','Omeprazole 20mg (14 ແຄບຊູນ)',30000,18000,'ແຜງ','capsule','#f4b740',60,15],['MED021','ORS ເກືອແຮ່ (ຊອງ)',3000,1500,'ຊອງ','box','#0ABAB5',200,50],['MED030','Cetirizine 10mg (10 ເມັດ)',10000,5500,'ແຜງ','blister','#5FD9D2',70,20],['VIT001','Vitamin C 1000mg',55000,35000,'ຫຼອດ','jar','#f4b740',40,10]]},
-  tables:BIZ.clinic.tables,customers:[['ດ.ຍ. ສົມຊາຍ ວົງສະຫວັນ','02055502001'],['ນາງ ຈັນທະວອນ ແສງດາວ','02055502002'],['ເດັກນ້ອຍ ກ້າ (ພໍ່ແມ່ ມະນີ)','02055502003']],shop:'ຄລີນິກ ຕົວຢ່າງ'}};
+  tables:['ຕ້ອນຮັບ 1'],customers:[['ດ.ຍ. ສົມຊາຍ ວົງສະຫວັນ','02055502001'],['ນາງ ຈັນທະວອນ ແສງດາວ','02055502002'],['ເດັກນ້ອຍ ກ້າ (ພໍ່ແມ່ ມະນີ)','02055502003']],shop:'ຄລີນິກ ຕົວຢ່າງ'}};
+BIZ_SAMPLE.medical={cats:Object.assign({},{'ຄ່າກວດ · ບໍລິການ':BIZ_SAMPLE.clinic.cats['ຄ່າກວດ · ບໍລິການ'],'ກວດແລັບ':BIZ_SAMPLE.clinic.cats['ກວດແລັບ']},BIZ_SAMPLE.pharmacy.cats),tables:BIZ.medical.tables,customers:BIZ_SAMPLE.pharmacy.customers.concat(BIZ_SAMPLE.clinic.customers.slice(0,2)),shop:'ຮ້ານຢາ & ຄລີນິກ ຕົວຢ່າງ'};
+delete BIZ_SAMPLE.pharmacy;delete BIZ_SAMPLE.clinic;
 function bizLoad(t){var S=BIZ_SAMPLE[t];if(!S)return;var now=Date.now(),loc=curLoc();
  state.catalog={};state.menuImg={};state.ingredients={};state.promos=[];state.customers=[];
  Object.keys(S.cats).forEach(function(cat){state.catalog[cat]={'ທັງໝົດ':[]};S.cats[cat].forEach(function(r){
@@ -8474,16 +8482,16 @@ function bizLoad(t){var S=BIZ_SAMPLE[t];if(!S)return;var now=Date.now(),loc=curL
  if(!state.shopName||/ຊື່ຮ້ານຂອງທ່ານ|ຕົວຢ່າງ/.test(state.shopName))state.shopName=S.shop;
  state.emptyShop=true;state.menuV=now;state.activeCat=Object.keys(state.catalog)[0];state.activeSub=null;state.activeTable=Object.keys(state.tables)[0];
  bizApply(t,true);}
-/* ===== ໂໝດທົດລອງ (Demo): ໃຫ້ລູກຄ້າເຂົ້າລອງໄດ້ເລີຍ ບໍ່ຕ້ອງຕິດຕັ້ງ/ບໍ່ມີລະຫັດ — ເປີດຜ່ານ ?demo=pharmacy | clinic | cafe ===== */
+/* ===== ໂໝດທົດລອງ (Demo): ໃຫ້ລູກຄ້າເຂົ້າລອງໄດ້ເລີຍ ບໍ່ຕ້ອງຕິດຕັ້ງ/ບໍ່ມີລະຫັດ — ເປີດຜ່ານ ?demo=medical | cafe ===== */
 var DEMO_USERS=[['d_mgr','ຜູ້ຈັດການ','manager','2222'],['d_cash','ແຄັດເຊຍ / ພະນັກງານຂາຍ','cashier','1111'],['d_wait','ພະນັກງານ / ພະຍາບານ','waiter','3333'],['d_stk','ນາຍສາງ','storekeeper','4444']];
-function demoChooser(){document.body.innerHTML='<div class="dm-ch"><h1>ST POS</h1><p>ລອງໃຊ້ໂປຣແກຣມ ຟຣີ — ບໍ່ຕ້ອງລົງທະບຽນ · ຂໍ້ມູນຕົວຢ່າງ ບໍ່ກະທົບຮ້ານຈິງ</p><div class="dm-g">'+[['pharmacy','💊','ຮ້ານຂາຍຢາ','ຢາ · ວິຕາມິນ · ອຸປະກອນການແພດ'],['clinic','🩺','ຄລີນິກ','ຄ່າກວດ · ແລັບ · ຫ້ອງຢາ'],['cafe','☕','ຮ້ານກາເຟ / ອາຫານ','ໂຕະ · ຄົວ · ບາ']].map(function(x){return '<a href="?demo='+x[0]+'"><i>'+x[1]+'</i><b>'+x[2]+'</b><small>'+x[3]+'</small></a>';}).join('')+'</div></div><style>body{overflow:auto!important;background:linear-gradient(135deg,#edf9f8,#cfeeee)}.dm-ch{max-width:860px;margin:0 auto;padding:60px 20px;text-align:center;color:#062f2d}.dm-ch h1{font-size:44px;font-weight:800}.dm-ch p{margin:8px 0 28px;color:#4d7471}.dm-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.dm-g a{display:flex;flex-direction:column;gap:6px;align-items:center;text-decoration:none;color:inherit;background:#fff;border-radius:24px;padding:28px 16px;box-shadow:0 8px 24px rgba(6,47,45,.12)}.dm-g i{font-size:46px;font-style:normal}.dm-g b{font-size:19px}.dm-g small{color:#4d7471}</style>';}
+function demoChooser(){document.body.innerHTML='<div class="dm-ch"><h1>ST POS</h1><p>ລອງໃຊ້ໂປຣແກຣມ ຟຣີ — ບໍ່ຕ້ອງລົງທະບຽນ · ຂໍ້ມູນຕົວຢ່າງ ບໍ່ກະທົບຮ້ານຈິງ</p><div class="dm-g">'+[['medical','💊','ຮ້ານຢາ & ຄລີນິກ','ຢາ · ຄ່າກວດ · ແລັບ · ຫ້ອງຢາ'],['cafe','☕','ຮ້ານກາເຟ / ອາຫານ','ໂຕະ · ຄົວ · ບາ']].map(function(x){return '<a href="?demo='+x[0]+'"><i>'+x[1]+'</i><b>'+x[2]+'</b><small>'+x[3]+'</small></a>';}).join('')+'</div></div><style>body{overflow:auto!important;background:linear-gradient(135deg,#edf9f8,#cfeeee)}.dm-ch{max-width:860px;margin:0 auto;padding:60px 20px;text-align:center;color:#062f2d}.dm-ch h1{font-size:44px;font-weight:800}.dm-ch p{margin:8px 0 28px;color:#4d7471}.dm-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.dm-g a{display:flex;flex-direction:column;gap:6px;align-items:center;text-decoration:none;color:inherit;background:#fff;border-radius:24px;padding:28px 16px;box-shadow:0 8px 24px rgba(6,47,45,.12)}.dm-g i{font-size:46px;font-style:normal}.dm-g b{font-size:19px}.dm-g small{color:#4d7471}</style>';}
 function demoReset(){try{var R=window.__rawLS,ks=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('demo_')===0)ks.push(k);}ks.forEach(function(k){R.r.call(localStorage,k);});}catch(e){}location.reload();}
 function demoRole(id){SESSION.uid=id;try{localStorage.setItem('stpos_uid',id);}catch(e){}state.activeStaff=(curUser()||{}).name||state.activeStaff;try{setView(homeView());}catch(e){}render();demoBar();}
 function demoBar(){var o=document.getElementById('demoBar');if(o)o.remove();var u=curUser()||{},all=[{id:'u1',name:'Admin (ເຈົ້າຂອງ)'}].concat(DEMO_USERS.map(function(x){return {id:x[0],name:x[1]};}));
  var d=document.createElement('div');d.id='demoBar';d.innerHTML='<b>DEMO</b><span>ເບິ່ງແບບ:</span><select onchange="demoRole(this.value)">'+all.map(function(x){return '<option value="'+x.id+'"'+(x.id===u.id?' selected':'')+'>'+x.name+'</option>';}).join('')+'</select><button onclick="demoReset()">ເລີ່ມໃໝ່</button>';document.body.appendChild(d);}
 function demoInit(){if(!window.__DEMO||!state||state._demo)return;var t=window.__DEMO;state._demo=1;
- if(t==='pharmacy'||t==='clinic'){bizLoad(t);}else{bizApply('fnb',true);Object.keys(state.ingredients||{}).forEach(function(k){var g=state.ingredients[k];ensLocs(g);g.locs[curLoc()]=2000;g.stock=2000;});}
- state.requireShift=false;state.shopName='DEMO · '+(t==='pharmacy'?'ຮ້ານຂາຍຢາ':t==='clinic'?'ຄລີນິກ':'ຮ້ານກາເຟ');
+ if(t==='medical'||t==='pharmacy'||t==='clinic'){t='medical';window.__DEMO=t;bizLoad(t);}else{bizApply('fnb',true);Object.keys(state.ingredients||{}).forEach(function(k){var g=state.ingredients[k];ensLocs(g);g.locs[curLoc()]=2000;g.stock=2000;});}
+ state.requireShift=false;state.shopName='DEMO · '+(t==='medical'?'ຮ້ານຢາ & ຄລີນິກ':'ຮ້ານກາເຟ');
  state.users=(state.users||[]).filter(function(u){return u.id==='u1';});state.users[0].name='Admin';DEMO_USERS.forEach(function(x){state.users.push({id:x[0],name:x[1],role:x[2],pin:x[3],active:true});});
  var flat=[];Object.values(MSRC()).forEach(function(c){Object.values(c).forEach(function(l){l.forEach(function(i){flat.push(i);});});});var now=Date.now(),bills=[];
  for(var n=0;n<18&&flat.length;n++){var its=[],tot=0,cg=0,cnt=1+(n%3);for(var j=0;j<cnt;j++){var p=flat[(n*5+j*3)%flat.length],q=1+((n+j)%3);its.push({id:'dm'+n+'_'+j,code:p.c,name:p.n,qty:q,price:p.p,mods:[]});tot+=p.p*q;cg+=Math.round(p.p*q*0.6);}
@@ -8492,13 +8500,12 @@ function demoInit(){if(!window.__DEMO||!state||state._demo)return;var t=window._
 var EMPTY_KEYS={catalog:{},menuImg:{},modGroups:[],ingredients:{},ingDel:{},bills:[],orders:[],draft:[],expenses:[],menuLog:[],orderLog:[],shiftLog:[],stockLog:[],cancelLog:[],prs:[],pos:[],grns:[],transfers:[],reqs:[],chkSubs:[],stockCounts:[],resv:[],stockAdj:[],wastes:[],dlSettles:[],costAlerts:[],kdsLog:[],customers:[],_custDel:[],vendors:[],promos:[],qr:{},soldOut:{}};
 var _rst={mode:'empty',fail:0,until:0};
 function confirmReset(pre){if(!can('sysAdv')){toast('ບໍ່ມີສິດ');return;}var me=curUser()||{},sup=me.role==='superadmin',S=(state.users||[]).filter(function(u){return u.role==='superadmin'&&u.active!==false;});
- if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode=(pre==='pharmacy'||pre==='clinic')?pre:'empty';
+ if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode=(pre==='medical')?pre:'empty';
  var card=function(m,t,d){return '<button type="button" class="rst-card" data-m="'+m+'" onclick="_rst.mode=this.dataset.m;document.querySelectorAll(\'.rst-card\').forEach(function(b){b.classList.toggle(\'on\',b.dataset.m===_rst.mode);})"><b>'+t+'</b><small>'+d+'</small></button>';};
  openModal('<h2 style="color:var(--red)">ລ້າງຂໍ້ມູນ</h2><p class="uc-lead">ລ້າງແລ້ວ ໃຊ້ສຳຮອງທີ່ສ້າງອັດຕະໂນມັດກ່ອນລ້າງ ເພື່ອກູ້ຄືນໄດ້ (ສຳຮອງ & ຂັ້ນສູງ)</p>'+
   '<div class="rst-cards">'+card('empty','ລ້າງເປັນຮ້ານເປົ່າ','<u>ລຶບ</u>: ເມນູ ສູດ ຮູບ · ວັດຖຸດິບ & ສະຕ໋ອກ · ບິນ ອໍເດີ ລາຍຈ່າຍ · ເອກະສານສາງ / ຈັດຊື້ · ສະມາຊິກ ຜູ້ຂາຍ ໂປຣ · ປະຫວັດ<br><u>ເກັບໄວ້</u>: ຂໍ້ມູນຮ້ານ & ໃບບິນ · ການຊຳລະ · ຜູ້ໃຊ້ & PIN · ໂຕະ & ຊັ້ນ · ບ່ອນເກັບ · ຫົວໜ່ວຍ · ການຕັ້ງຄ່າ')+
    card('demo','ລ້າງເປັນຂໍ້ມູນຕົວຢ່າງ','ລຶບທຸກຢ່າງ ແລ້ວໃສ່ເມນູ ວັດຖຸດິບ ແລະ ຜູ້ໃຊ້ຕົວຢ່າງ (Admin) — ສຳລັບທົດລອງ / ສາທິດ')+
-   card('pharmacy','ຕົວຢ່າງ: ຮ້ານຂາຍຢາ (Medical)','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ເຄົາເຕີຂາຍ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ')+
-   card('clinic','ຕົວຢ່າງ: ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ + ຮູບ + ຫ້ອງກວດ/ຕ້ອນຮັບ · ໃຊ້ສິດ/ບົດບາດຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
+   card('medical','ຕົວຢ່າງ: ຮ້ານຢາ & ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ເຄົາເຕີ/ຫ້ອງກວດ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ & ຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
   '<div class="rst-auth"><b>'+(sup?'ຢືນຢັນດ້ວຍ PIN ຂອງທ່ານ (Super Admin)':'ຕ້ອງໃຫ້ Super Admin ອະນຸມັດ — ໃຫ້ Super Admin ໃສ່ PIN')+'</b>'+
    (sup?'<input type="hidden" id="rst_u" value="'+aesc(me.id)+'">':'<select id="rst_u">'+S.map(function(u){return '<option value="'+aesc(u.id)+'">'+cesc(u.name)+'</option>';}).join('')+'</select>')+
    '<input id="rst_pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="PIN 4 ຕົວ"></div>'+
@@ -8509,7 +8516,7 @@ function rstGo(){if(!can('sysAdv'))return;if(Date.now()<_rst.until){toast('ໃ�
  if(!a||a.role!=='superadmin'){toast('ຕ້ອງເປັນ Super Admin');return;}if(!/^\d{4}$/.test(pin)){toast('ໃສ່ PIN 4 ຕົວ');return;}
  var ok=a.pinH?a.pinH===pinHash(pin):String(a.pin)===pin;if(!ok){_rst.fail++;if(_rst.fail>=5){_rst.until=Date.now()+5*60000;_rst.fail=0;}toast('PIN ບໍ່ຖືກຕ້ອງ');var e=document.getElementById('rst_pin');if(e){e.value='';e.focus();}return;}
  _rst.fail=0;var mode=_rst.mode,me=curUser()||{},by=(me.name||'')+(a.id!==me.id?' · ອະນຸມັດໂດຍ '+a.name:''),bt=document.getElementById('rst_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງສຳຮອງ…';}
- var go=function(){if(mode==='empty')doResetEmpty(by);else if(mode==='pharmacy'||mode==='clinic'){doResetEmpty(by);bizLoad(mode);save();render();showSuccess('ໂຫຼດຕົວຢ່າງ '+BIZ[mode].name+' ແລ້ວ','ລອງຂາຍ / ເບິ່ງສະຕ໋ອກ ໄດ້ເລີຍ');}else doReset(by);};
+ var go=function(){if(mode==='empty')doResetEmpty(by);else if(mode==='medical'){doResetEmpty(by);bizLoad(mode);save();render();showSuccess('ໂຫຼດຕົວຢ່າງ '+BIZ[mode].name+' ແລ້ວ','ລອງຂາຍ / ເບິ່ງສະຕ໋ອກ ໄດ້ເລີຍ');}else doReset(by);};
  if(HAS_API&&!/script\.google/.test(API_URL))jsonp_('bak=now&token='+encodeURIComponent(TOKEN),function(r){if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ລ້າງເລີຍ';}toast('ສຳຮອງບໍ່ສຳເລັດ — ຍັງບໍ່ລ້າງ (ກວດອິນເຕີເນັດ)');return;}go();});else go();}
 function doResetEmpty(by){var ns=JSON.parse(JSON.stringify(state)),now=Date.now();
  Object.keys(EMPTY_KEYS).forEach(function(k){ns[k]=JSON.parse(JSON.stringify(EMPTY_KEYS[k]));});
