@@ -594,6 +594,9 @@ table.tbl th{background:#f2f9f8!important;color:var(--muted)!important}
 .tablecard.s-busy{background:#0ABAB5!important;color:#062f2d}
 .tablecard.s-callbill,.tablecard.s-bill{background:#f4b740!important;color:#3b2600}
 .tablecard.s-new{background:#062f2d!important;color:#fff}
+.tablecard.s-callbill{border:3px solid #ea580c!important}
+.legend .dot{width:16px;height:16px;border-radius:5px}.legend .d-free{background:#fff;border:2px dashed #9ccfcb}.legend .d-busy{background:#0ABAB5}.legend .d-callbill{background:#f4b740;border:3px solid #ea580c}.legend .d-bill{background:#f4b740}.legend .d-new{background:#062f2d}.legend .d-main{background:#5FD9D2}.legend .d-merged{background:#fff;border:2px solid #5FD9D2;opacity:.6}
+.actions button{font-size:16px!important;padding:15px 8px!important;font-weight:800!important}
 .tablecard.s-new .tamt b{color:#7ff0e9!important}
 .tablecard.s-main{background:#5FD9D2!important;color:#062f2d}
 .tablecard:hover{transform:translateY(-3px);box-shadow:var(--sh-2)!important}
@@ -2753,7 +2756,7 @@ function renderTables(R){if(curFloor==='__dl'&&!dlOn()&&!dlActive().length)curFl
  const head=`<div class="pad"><div class="tv-head"><span style="font-size:28px"></span><div><div class="ttl">ເລືອກໂຕະ</div><div class="sub">ກົດໂຕະເພື່ອສັ່ງ · ກົດ  ເພື່ອ QR ສັ່ງອອນໄລ</div></div></div>
   <div class="floors">${(tableLayout==='plan'?(state.floors||[]):floorsAll()).map(f=>`<button class="chip ${f===curFloor?'active':''}" onclick="curFloor='${f.replace(/'/g,"\\'")}';render()">${f}</button>`).join('')}${(dlOn()||dlActive().length)?`<button class="chip dl-fl ${curFloor==='__dl'?'active':''}" onclick="curFloor='__dl';render()">🛵 Delivery${dlActive().length?' <i>'+dlActive().length+'</i>':''}</button>`:''}</div>
   <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0">${layoutToggle}</div>
-  <div class="legend">${leg.map(([l,k])=>`<span><span class="dot" style="background:var(--${k})"></span>${l} <b>${c[k]||0}</b></span>`).join('')}</div>
+  <div class="legend">${leg.map(([l,k])=>`<span><span class="dot d-${k}"></span>${l} <b>${c[k]||0}</b></span>`).join('')}</div>
   <div class="outstanding"> ຍອດຄ້າງຊຳລະ: ${KIP(out)} ກີບ (${cnt} ອໍເດີ)</div>`;
  if(curFloor==='__dl'){R.innerHTML=head+dlBoardHTML()+'</div>';return;}
  if(tableLayout==='plan'){
