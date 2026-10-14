@@ -2459,7 +2459,7 @@ var MODULES=[['kds','ຈໍຄົວ / ບາ / ເສີບ','ສົ່ງອ�
 var MOD_OF={};MODULES.forEach(function(m){m[3].forEach(function(v){MOD_OF[v]=m[0];});});
 function modOn(k){return !(state&&state.modules&&state.modules[k]===false);}
 function can(a){var u=curUser();if(!u)return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.a;if(o&&Object.prototype.hasOwnProperty.call(o,a))return !!o[a];return roleCan(u.role,a);}
-function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';if(v==='xfer')v='transfer';if(v==='cancellog')v='reports';if(MOD_OF[v]&&!modOn(MOD_OF[v]))return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(u.role,v);}
+function canView(v){var u=curUser();if(!u)return false;if(v==='order')v='tables';if(v==='xfer')v='transfer';if(v==='cancellog')v='reports';if(v!=='tables'&&v!=='admin'&&state&&state.navHide&&state.navHide[v])return false;if(MOD_OF[v]&&!modOn(MOD_OF[v]))return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(u.role,v);}
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(!PERMS[u.role])return 'tables';var f=PERM_VIEWS.map(function(x){return x[0];}).filter(function(v){return canView(v);});var d=roleDef(u.role).view.filter(function(v){return canView(v);});return d[0]||f[0]||'tables';}
 var PERM_VIEWS=[['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['delivery','Delivery (ຍອດ / ຄ້າງຮັບ)'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['waste','ແຈ້ງເສຍຫາຍ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
@@ -7161,13 +7161,18 @@ function roleToggle(kind,key,on){if(!isSuper()){toast('ສະເພາະ Super 
  if(on&&i<0)arr.push(key);if(!on&&i>=0)arr.splice(i,1);if(kind==='v'&&key==='tables'){var j=nd.view.indexOf('order');if(on&&j<0)nd.view.push('order');if(!on&&j>=0)nd.view.splice(j,1);}
  state.roleDefs[permRole]=nd;save();render();sSaved();}
 function roleReset(){if(!isSuper())return;if(state.roleDefs)delete state.roleDefs[permRole];logOrder('ສິດບົດບາດ','ຄືນຄ່າເລີ່ມຕົ້ນ '+ROLE_LABELS[permRole],'');save();render();sSaved();}
+/* ===== ເມນູຂ້າງ: ເປີດ/ປິດ ທຸກເມນູໄດ້ເອງ (ເຊື່ອງສຳລັບທຸກຄົນ — ຂໍ້ມູນບໍ່ຫາຍ) ===== */
+function navHideSet(v,on){if(!isSuper()){toast('ສະເພາະ Super Admin');return;}if(!state.navHide||typeof state.navHide!=='object')state.navHide={};if(on)delete state.navHide[v];else state.navHide[v]=true;save();render();}
+function navHideCard(){var names={};PERM_VIEWS.forEach(function(x){names[x[0]]=x[1];});var sup=isSuper();
+ var g=PERM_VG.map(function(gr){var rows=gr[1].filter(function(k){return k!=='tables'&&names[k];}).map(function(k){var on=!(state.navHide&&state.navHide[k]);return sRow(names[k]+(on?'':sBadge('ເຊື່ອງຢູ່','off')),'','<label class="sw"><input type="checkbox"'+(on?' checked':'')+(sup?'':' disabled')+' data-k="'+k+'" onchange="navHideSet(this.dataset.k,this.checked)"><i></i></label>');}).join('');return rows?'<h4 class="pm-h">'+gr[0]+'</h4>'+rows:'';}).join('');
+ return sCard('ເມນູຂ້າງ — ເປີດ/ປິດເອງ','ປິດເມນູທີ່ຮ້ານບໍ່ໃຊ້ (ເຊັ່ນ Delivery, ຈອງໂຕະ, ຈໍຄົວ) — ເມນູຈະຫາຍຈາກແຖບຂ້າງ ສຳລັບທຸກຄົນ · ເປີດຄືນໄດ້ທຸກເວລາ · ຂໍ້ມູນບໍ່ຖືກລຶບ','',g);}
 function setSecPerm(){var roles=Object.keys(ROLE_LABELS).filter(function(r){return !!PERMS[r];});if(roles.indexOf(permRole)<0)permRole=roles[0];
  var d=roleDef(permRole),custom=!!(state.roleDefs&&state.roleDefs[permRole]),nU=(state.users||[]).filter(function(u){return u.role===permRole;}).length;
  var row=function(kind,key,label){var on=kind==='v'?d.view.indexOf(key)>=0:d.act.indexOf(key)>=0,def=kind==='v'?PERMS[permRole].view.indexOf(key)>=0:PERMS[permRole].act.indexOf(key)>=0;
   return '<label class="permrow'+(on!==def?' ov':'')+'"><input type="checkbox"'+(on?' checked':'')+' onchange="roleToggle(\''+kind+'\',\''+key+'\',this.checked)"><span>'+label+'</span>'+(on!==def?'<small>ປ່ຽນຈາກຄ່າເລີ່ມຕົ້ນ</small>':'')+'</label>';};
  return sCard('ໂມດູນ','ປິດໂມດູນທີ່ຮ້ານບໍ່ໃຊ້ — ເມນູ ແລະ ໜ້າທີ່ກ່ຽວຂ້ອງ ຈະຖືກເຊື່ອງສຳລັບທຸກຄົນ (ຂໍ້ມູນບໍ່ຫາຍ)','',
   MODULES.map(function(m){return sRow(m[1]+(modOn(m[0])?'':sBadge('ປິດຢູ່','off')),m[2],'<label class="sw"><input type="checkbox"'+(modOn(m[0])?' checked':'')+' onchange="modSet(\''+m[0]+'\',this.checked)"><i></i></label>');}).join(''))+
- permRoleHTML();}
+ navHideCard()+permRoleHTML();}
 /* ===== ສິດຕາມບົດບາດ: ເລືອກບົດບາດ → ສະຫຼຸບ → ໜ້າ (ຈັດກຸ່ມຄືເມນູຊ້າຍ) + ສິດ (ຈັດກຸ່ມຕາມເລື່ອງ) ເປັນບັດ ມີສະວິດ + ເປີດ/ປິດທັງກຸ່ມ + ຄົ້ນຫາ ===== */
 var PERM_VG=[['ຂາຍໜ້າຮ້ານ',['tables','resv','delivery','chat','members']],['ຄົວ & ບາ',['kitchen','bar','waiter']],['ກະ & ເງິນ',['shift','chk','history','expense','debt']],['ສາງ & ຈັດຊື້',['stock','transfer','purchase','req','count','waste']],['ລາຍງານ',['dash','reports']],['ລະບົບ',['admin']]];
 function roleSetMany(kind,csv,on){if(!isSuper()){toast('ສະເພາະ Super Admin');return;}if(!PERMS[permRole])return;if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};
@@ -8414,11 +8419,12 @@ var BIZ={
 /* ຮ້ານຂາຍຢາ + ຄລີນິກ = ປະເພດດຽວ "ຮ້ານຢາ & ຄລີນິກ" (ເພສັດ + ຄົນເຈັບ) */
 BIZ.medical={name:'ຮ້ານຢາ & ຄລີນິກ',ico:'💊',desc:'ຂາຍຢາ + ກວດ/ປິ່ນປົວ — ເຄົາເຕີຂາຍຢາ, ຫ້ອງກວດ, ແລັບ, ຫ້ອງຢາ, ນັດໝາຍ, ສະຕ໋ອກຢາ',
  labels:{owner:'ເຈົ້າຂອງຮ້ານຢາ & ຄລີນິກ',manager:'ເພສັດຊະກອນ / ຜູ້ອຳນວຍການ',cashier:'ເຈົ້າໜ້າທີ່ຂາຍ & ຮັບເງິນ',waiter:'ພະຍາບານ / ຜູ້ຊ່ວຍເພສັດ',kitchen:'ຫ້ອງຢາ (ເພສັດ)',bar:'ຫ້ອງແລັບ / ກວດ',storekeeper:'ນາຍສາງຢາ & ອຸປະກອນ',purchasing:'ຈັດຊື້ຢາ'},
- mods:{kds:false,chat:false},roles:BIZ.clinic.roles,
+ mods:{kds:false,chat:false,delivery:false},navNames:{tables:'ຂາຍ / ຮັບຄົນເຈັບ',resv:'ນັດໝາຍຄົນເຈັບ',members:'ຄົນເຈັບ / ສະມາຊິກ',stock:'ສະຕ໋ອກຢາ & ອຸປະກອນ',history:'ປະຫວັດການຂາຍ / ການກວດ'},roles:BIZ.clinic.roles,
  floors:['ເຄົາເຕີຢາ','ຫ້ອງກວດ'],tables:['ເຄົາເຕີ 1','ເຄົາເຕີ 2','ສັ່ງລ່ວງໜ້າ / ສົ່ງຢາ','ຕ້ອນຮັບ','ຫ້ອງກວດ 1','ຫ້ອງກວດ 2','ຫ້ອງແລັບ','ຫ້ອງຢາ']};
 delete BIZ.pharmacy;delete BIZ.clinic;
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
-function bizLabels(){var b=BIZ[bizCur()];Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
+function bizNav(){var N=BIZ[bizCur()].navNames||{};document.querySelectorAll('#sidebar .navitem').forEach(function(el){var v=el.dataset.v;if(!el.__tn){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];if(n.nodeType===3&&n.nodeValue.trim()){el.__tn=n;el.__on=n.nodeValue.trim();break;}}}if(el.__tn)el.__tn.nodeValue=' '+(N[v]||el.__on)+' ';});}
+function bizLabels(){var b=BIZ[bizCur()];try{bizNav();}catch(e){}Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
 /* ໃຊ້ສິດ/ໂມດູນ ຂອງປະເພດທຸລະກິດ (ບໍ່ລຶບຂໍ້ມູນ) — ສະເພາະ Super Admin */
 function bizApply(t,quiet){if(!BIZ[t])return;if(!quiet&&!isSuper()){toast('ສະເພາະ Super Admin');return;}
  if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};if(!state.modules||typeof state.modules!=='object')state.modules={};
