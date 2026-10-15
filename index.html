@@ -5655,7 +5655,7 @@ function rqIssFeed(c){var W=window.__rqIss,r=W&&findRQ(W.id);if(!r)return {msg:'
  if(!W.started){document.querySelectorAll('#modalRoot .rq-iss').forEach(function(e){e.value=0;rqIssChk(e);});W.started=true;}
  var l=r.lines[i],add=bcQty(it)/(xuF(l)||1);inp.value=Math.round(((+inp.value||0)+add)*1e6)/1e6;rqIssChk(inp);try{inp.scrollIntoView({block:'center'});}catch(e){}
  var req=+inp.dataset.q||0,v=+inp.value||0,over=req>0&&v>req+1e-9,st=stockAt(l.code,r.from),short=(v*(xuF(l)||1))>st+1e-9;rqIssLive();
- return {msg:'✓ '+(it.name||ic)+' — ຈ່າຍ '+KIP(v)+' / ຂໍ '+KIP(req)+' '+xuU(l)+(over?' ⚠ ເກີນທີ່ຂໍ':'')+(short?' ⚠ ສາງບໍ່ພໍ':''),bad:over||short,keep:1};}
+ return {msg:'✓ '+(it.name||ic)+' — ຈ່າຍ '+KIP(v)+' / ຂໍ '+KIP(req)+' '+xuU(l)+(over?' ⚠ ເກີນທີ່ຂໍ':'')+(short?' ⚠ ສາງບໍ່ພໍ':''),bad:over||short,keep:over||short};}
 function rqIssScan(){if(!window.__rqIss)return;bcScan({title:'ສະແກນຈ່າຍເຄື່ອງ',cont:true,hint:'ສະແກນແຕ່ລະຊິ້ນທີ່ຍົກອອກ = +1 (ນັບຈາກ 0 — ຄ່າທີ່ຕື່ມໄວ້ກ່ອນຈະຖືກລ້າງ)',onCode:rqIssFeed});rqIssLive();}
 function rqIssWedge(inp,ev){if(ev.key!=='Enter')return;ev.preventDefault();var c=inp.value;inp.value='';if(!String(c).trim())return;var r=rqIssFeed(c);if(typeof r==='string')r={msg:r};toast((r&&r.msg)||'ສຳເລັດ');bcBeep(!(r&&r.bad));}
 function trRows(t){return t.items.map(function(it,i){var e=document.getElementById('tr_q'+i),v=e?(+e.value||0):0,q=xuQ(it);return {n:it.name||(state.ingredients[it.code]||{}).name||it.code,q:KIP(v)+' / '+KIP(q)+' '+xuU(it),done:Math.abs(v-q)<1e-9,i:i};}).sort(function(a,b){return (b.done?0:1)-(a.done?0:1);});}
@@ -5665,7 +5665,7 @@ function trFeed(c){var W=window.__trScan,t=W&&(state.transfers||[]).find(functio
  var inp=document.getElementById('tr_q'+i);if(!inp)return {msg:'ໜ້າຕ່າງຖືກປິດ',bad:1};
  if(!W.started){t.items.forEach(function(x,k){var e=document.getElementById('tr_q'+k);if(e)e.value=0;});W.started=true;}
  var x=t.items[i],add=bcQty(it)/(xuF(x)||1);inp.value=Math.round(((+inp.value||0)+add)*1e6)/1e6;try{inp.scrollIntoView({block:'center'});}catch(e){}
- var sent=xuQ(x),v=+inp.value||0,over=v>sent+1e-9;trLive();return {msg:'✓ '+(it.name||ic)+' — ນັບໄດ້ '+KIP(v)+' / ສົ່ງມາ '+KIP(sent)+' '+xuU(x)+(over?' ⚠ ເກີນທີ່ສົ່ງ':''),bad:over,keep:1};}
+ var sent=xuQ(x),v=+inp.value||0,over=v>sent+1e-9;trLive();return {msg:'✓ '+(it.name||ic)+' — ນັບໄດ້ '+KIP(v)+' / ສົ່ງມາ '+KIP(sent)+' '+xuU(x)+(over?' ⚠ ເກີນທີ່ສົ່ງ':''),bad:over,keep:over};}
 function trScan(){if(!window.__trScan)return;bcScan({title:'ສະແກນກວດຮັບ',cont:true,hint:'ສະແກນແຕ່ລະຊິ້ນທີ່ຮັບ = +1 (ນັບຈາກ 0 — ຄ່າທີ່ຕື່ມໄວ້ກ່ອນຈະຖືກລ້າງ)',onCode:trFeed});trLive();}
 function trWedge(inp,ev){if(ev.key!=='Enter')return;ev.preventDefault();var c=inp.value;inp.value='';if(!String(c).trim())return;var r=trFeed(c);if(typeof r==='string')r={msg:r};toast((r&&r.msg)||'ສຳເລັດ');bcBeep(!(r&&r.bad));}
 function rqIssueModal(id){window.__rqIss={id:id,started:false};var r=findRQ(id);if(!r||!rqCanIssue(r)){toast('ບໍ່ມີສິດຈ່າຍເຄື່ອງ');return;}
