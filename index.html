@@ -2679,6 +2679,36 @@ table.tcard td:empty{display:none}
 #cfmRoot .cfm-yes{background:linear-gradient(135deg,#087873,#0ABAB5);color:#fff;box-shadow:0 10px 22px rgba(10,126,122,.3)}
 #cfmRoot .cf-d .cfm-yes{background:linear-gradient(135deg,#c62828,#ef4444);box-shadow:0 10px 22px rgba(198,40,40,.3)}
 @keyframes cfmPop{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+
+/* ===== ດີຊາຍຮອບ 3 (POS + ຄລີນິກ): ກະຕ່າ/ຍອດລວມ, ການ໌ເມນູ, ແຖບຂ້າງ, ຕົວເລກ, ຮູບແບບການເລືອກ ===== */
+html:not([data-theme="glass"]) #app:not(.cust){-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html:not([data-theme="glass"]) #app:not(.cust) ::selection{background:#bff1ec;color:#062f2d}
+html:not([data-theme="glass"]) #app:not(.cust) :is(td,.kpi .val,.totrow,.price,.sk-qty,.rv-time b){font-variant-numeric:tabular-nums}
+/* sidebar */
+html:not([data-theme="glass"]) #sidebar .navitem{transition:background .16s,transform .16s,color .16s}
+html:not([data-theme="glass"]) #sidebar .navitem:not(.active):hover{background:rgba(255,255,255,.07);transform:translateX(2px)}
+html:not([data-theme="glass"]) #sidebar .navsec{letter-spacing:.09em;text-transform:uppercase;font-size:11px;opacity:.72}
+/* cart / bill panel */
+html:not([data-theme="glass"]) #app:not(.cust) .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:200px;color:var(--muted);font-size:15px;line-height:1.55;text-align:center}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-empty::before{content:"";width:68px;height:68px;border-radius:22px;background:#e4f6f4 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%230a7e7a' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='20' r='1.4'/><circle cx='18' cy='20' r='1.4'/><path d='M3 4h2.5l2.2 11h10.5l2-8H6.3'/></svg>") center/32px no-repeat}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-empty br{display:none}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .totrow{font-size:14.5px;color:#4d7471;padding:3px 2px}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .totrow.grand{margin-top:8px;padding:12px 2px 6px;border-top:1.5px dashed #cfe4e2;font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.4px}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .actions button{border-radius:16px;font-weight:800;transition:transform .12s,box-shadow .2s,filter .15s}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .b-pay{background:linear-gradient(135deg,#087873,#0ABAB5)!important;color:#fff!important;box-shadow:0 12px 24px rgba(10,126,122,.3)}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .b-bill{box-shadow:0 8px 18px rgba(6,47,45,.22)}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .actions button:not(.b-pay):not(.b-bill){background:#eef6f5!important;color:#27504d!important;box-shadow:none!important;border:1px solid rgba(6,47,45,.06)}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .actions button:not(.b-pay):not(.b-bill):hover{background:#e2f1ef!important}
+html:not([data-theme="glass"]) #app:not(.cust) .cart-foot .actions button.b-cancel:not(.b-pay):not(.b-bill){color:#c62828!important;background:#fdecec!important;border-color:#f8d3d3!important}
+/* menu cards on POS */
+html:not([data-theme="glass"]) #app:not(.cust) .product{border:1px solid rgba(6,47,45,.06);border-radius:22px;transition:transform .16s,box-shadow .2s,border-color .2s}
+html:not([data-theme="glass"]) #app:not(.cust) .product:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(6,47,45,.12);border-color:rgba(10,186,181,.35)}
+html:not([data-theme="glass"]) #app:not(.cust) .product .pname{line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html:not([data-theme="glass"]) #app:not(.cust) .product .price{font-weight:800}
+html:not([data-theme="glass"]) #app:not(.cust) .product .code{opacity:.55;font-size:11.5px}
+/* page titles */
+html:not([data-theme="glass"]) #app:not(.cust) .tv-head .ttl{font-size:28px;font-weight:800;letter-spacing:-.4px}
+html:not([data-theme="glass"]) #app:not(.cust) .tv-head .sub{margin-top:2px}
 </style>
 </head>
 <body>
@@ -9711,7 +9741,7 @@ var TOAST_IC={ok:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',warn:'<path d="M12 3.5l9.5
 function toastKind(txt){return /ບໍ່ມີສິດ|ບໍ່ໄດ້|ບໍ່ຖືກ|ຜິດ|ຊ້ຳ|ບໍ່ພົບ|ລົ້ມເຫຼວ|ເກີນ|ໝົດ|ບໍ່ສາມາດ|ປະຕິເສດ|❌|✗/.test(txt)?'err':/ແຈ້ງເຕືອນ/.test(txt)?'bell':/ກະລຸນາ|ເລືອກ|ໃສ່|ຕ້ອງ|ລໍຖ້າ|ກ່ອນ|⚠/.test(txt)?'warn':/ສຳເລັດ|ບັນທຶກ|ແລ້ວ|ເພີ່ມ|ສົ່ງ|ຄັດລອກ|ເປີດ|ປິດ|✓|✅/.test(txt)?'ok':'info';}
 function toast(m,t){const r=document.getElementById('toastRoot');if(!r)return;var txt=String(m==null?'':m).replace(/<[^>]*>/g,'');var k=t||toastKind(txt);var cls=k==='bell'?'warn':k;
  var tb=document.querySelector('.topbar'),y=tb?tb.getBoundingClientRect().bottom:0;r.style.setProperty('--tt',Math.max(10,y+10)+'px');
- r.innerHTML='<div class="toast t-'+cls+'" role="'+(k==='err'?'alert':'status')+'" aria-live="'+(k==='err'?'assertive':'polite')+'"><span class="t-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(TOAST_IC[k]||TOAST_IC.info)+'</svg></span><div class="t-tx">'+m+'</div><button type="button" class="t-x" aria-label="ປິດ" onclick="document.getElementById(\'toastRoot\').innerHTML=\'\'">&times;</button><i class="t-bar"></i></div>';
+ r.innerHTML='<div class="toast t-'+cls+'" role="'+(k==='err'?'alert':'status')+'" aria-live="'+(k==='err'?'assertive':'polite')+'"><span class="t-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(TOAST_IC[k]||TOAST_IC.info)+'</svg></span><div class="t-tx">'+String(m).replace(/^\s*(?:\u{1F514}|\u2713|\u2705|\u26A0\uFE0F?|\u274C|\u2709\uFE0F?|\u2139\uFE0F?|\u{1F4E6}|\u{1F9FE})\s*/u,'')+'</div><button type="button" class="t-x" aria-label="ປິດ" onclick="document.getElementById(\'toastRoot\').innerHTML=\'\'">&times;</button><i class="t-bar"></i></div>';
  clearTimeout(window.__t);window.__t=setTimeout(()=>r.innerHTML='',3200);}
 /* ===== ໂໝດລູກຄ້າ (QR ສັ່ງຜ່ານໂທລະສັບ) ===== */
 /* ===== ຕາໜ່າງກັນ XSS: ຖ້າຂໍ້ມູນຜູ້ໃຊ້ (ຊື່/ໝາຍເຫດ) ຫຼຸດເຂົ້າ HTML ໂດຍບໍ່ escape — ລຶບ script / iframe / on* ທີ່ຮັນເອງ / javascript: ອອກທັນທີ ===== */
