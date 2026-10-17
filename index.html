@@ -2602,15 +2602,17 @@ html:not([data-theme="glass"]) #app:not(.cust) h1,html:not([data-theme="glass"])
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 /* ===== ຈັດຊ່ອງວ່າງ/ຂອບໃຫ້ສະເໝີທົ່ວແອັບ: ແຖບເທິງບໍ່ບີບ, ຫົວໜ້າຊິດຊ້າຍ, ແຖບແຈ້ງເຕືອນມີຂອບເທົ່າກັນ, KPI ບໍ່ຕົກເປັນແຖວດຽວ ===== */
-.topbar{flex-wrap:wrap;row-gap:4px}
-.tb-title{flex:1 1 240px;min-width:210px}
+@media (min-width:701px){.topbar{flex-wrap:wrap;row-gap:4px;justify-content:flex-end}.tb-title{flex:1 1 240px;min-width:210px}}
 .tb-date{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tv-head>span:empty{display:none}
 #viewRoot>.al-bar{margin:0 18px 12px}
 .adminbox.setpage{padding-left:18px;padding-right:18px}
 .reppage .cards,.setpage .cards{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
 @media (min-width:901px) and (max-width:1180px){.setwrap{grid-template-columns:200px minmax(0,1fr);gap:16px}}
-@media (min-width:701px) and (max-width:1180px){.sk-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.sk-tbl th,.sk-tbl td{padding-left:8px;padding-right:8px}}
+.ag-row{padding-left:18px;padding-right:18px}
+@media (min-width:900px){.kds-dark{margin:10px 18px 18px;flex:1 1 auto;border-radius:26px}}
+@media (min-width:701px){table.tbl{min-width:max-content}}
+@media (min-width:701px){.sk-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.sk-tbl th,.sk-tbl td{padding-left:8px;padding-right:8px}}
 </style>
 </head>
 <body>
@@ -9786,6 +9788,9 @@ function cdsPromoBadge(m){var promo=(typeof activePromo==='function')&&activePro
 function cdsThanks(m){cdsStop_();var el=document.getElementById('cds');if(!el)return;var c=cdsCfg(m);
  el.innerHTML='<div class="cds-thanks"><div class="big"> '+cesc(c.thanks||'ຂອບໃຈ')+'</div><div class="sub">'+cesc(c.thanksSub||'Thank you')+'</div>'+((m.change>0)?'<div class="sub" style="margin-top:10px">ເງິນທອນ '+KIP(m.change)+' ກີບ</div>':'')+'</div>';
  clearTimeout(window.__cdsT);window.__cdsT=setTimeout(function(){cdsIdle(m);},5000);}
+/* ຕາຕະລາງວ່າງ (ແຖວດຽວ "ຍັງບໍ່ມີ…"): ຂະຫຍາຍ colspan ໃຫ້ເທົ່າຈຳນວນຖັນຫົວຕາຕະລາງ ເພື່ອໃຫ້ການ໌ຂາວກວມທັງແຖບ */
+function fixEmptyColspan(){try{document.querySelectorAll('#viewRoot table tbody').forEach(function(tb){var rs=tb.rows;if(rs.length!==1||rs[0].cells.length!==1)return;var t=tb.closest('table'),h=t&&t.tHead&&t.tHead.rows[0];if(h&&rs[0].cells[0].colSpan<h.cells.length)rs[0].cells[0].colSpan=h.cells.length;});}catch(e){}}
+(function(){var vr=document.getElementById('viewRoot'),q=0;if(!vr||!window.MutationObserver)return;new MutationObserver(function(){if(q)return;q=requestAnimationFrame(function(){q=0;fixEmptyColspan();});}).observe(vr,{childList:true,subtree:true});})();
 if(getQ('cds')){initCDS();}else{boot();}
 /* v2: login+roles, shift/Z-report, void, soldout, kitchen print, COGS reports; v3: token/cust/branch/backup; v4: offline/promo/member/reserve/stocktake; v5: split/mixed/refund/barcode/tip/CDS */
 </script>
