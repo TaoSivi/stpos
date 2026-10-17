@@ -2600,6 +2600,17 @@ html:not([data-theme="glass"]) #app:not(.cust) ::-webkit-scrollbar{width:8px;hei
 html:not([data-theme="glass"]) #app:not(.cust) ::-webkit-scrollbar-thumb{background:#b4d2cf;border-radius:8px}
 html:not([data-theme="glass"]) #app:not(.cust) h1,html:not([data-theme="glass"]) #app:not(.cust) h2{letter-spacing:-.2px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== ຈັດຊ່ອງວ່າງ/ຂອບໃຫ້ສະເໝີທົ່ວແອັບ: ແຖບເທິງບໍ່ບີບ, ຫົວໜ້າຊິດຊ້າຍ, ແຖບແຈ້ງເຕືອນມີຂອບເທົ່າກັນ, KPI ບໍ່ຕົກເປັນແຖວດຽວ ===== */
+.topbar{flex-wrap:wrap;row-gap:4px}
+.tb-title{flex:1 1 240px;min-width:210px}
+.tb-date{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-head>span:empty{display:none}
+#viewRoot>.al-bar{margin:0 18px 12px}
+.adminbox.setpage{padding-left:18px;padding-right:18px}
+.reppage .cards,.setpage .cards{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+@media (min-width:901px) and (max-width:1180px){.setwrap{grid-template-columns:200px minmax(0,1fr);gap:16px}}
+@media (min-width:701px) and (max-width:1180px){.sk-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.sk-tbl th,.sk-tbl td{padding-left:8px;padding-right:8px}}
 </style>
 </head>
 <body>
