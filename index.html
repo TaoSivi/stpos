@@ -2568,6 +2568,20 @@ html:not([data-theme="glass"]) #app.cust #viewRoot{background:linear-gradient(18
 #app.cust .custbill{box-shadow:0 12px 26px rgba(239,68,68,.32)}
 #app.cust .rvback{border-radius:18px;padding:14px;background:transparent;border:1.5px solid rgba(10,126,122,.35)}
 #app.cust .custnote{margin:2px 14px 6px}
+
+/* ===== ແຖບນຳທາງລຸ່ມ (ໂທລະສັບ — ນິ້ວໂປ້ກົດງ່າຍ) ===== */
+#app.cust .custtop{padding-bottom:16px}#app.cust .custtop .cs-hd{padding-bottom:0}
+#app.cust .cs-bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;z-index:40;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:22px 22px 0 0;box-shadow:0 -8px 26px rgba(6,47,45,.14)}
+#app.cust .cs-bnav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:56px;padding:6px 4px;border:0;border-radius:16px;background:transparent;color:#5b7d7b;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .16s,color .16s}
+#app.cust .cs-bnav button span{line-height:1.2;white-space:nowrap}
+#app.cust .cs-bnav button.on{background:#e3f4f2;color:var(--tiff-deep)}
+#app.cust .cs-bnav button.cs-share{color:var(--tiff-deep)}
+#app.cust .cs-bnav button:active{transform:scale(.96)}
+#app.cust .cs-bnav .cs-bd{position:absolute;top:3px;left:calc(50% + 6px);min-width:19px;height:19px;border-radius:10px;background:#ef4444;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;box-shadow:0 0 0 2px #fff}
+#app.cust .custbar{bottom:calc(84px + env(safe-area-inset-bottom))}
+body:has(.cs-bnav) .cc-fab{bottom:calc(88px + env(safe-area-inset-bottom))}
+body:has(.cs-bnav) .cc-fab.up{bottom:calc(158px + env(safe-area-inset-bottom))}
+#app.cust #viewRoot::after{flex-basis:calc(172px + env(safe-area-inset-bottom))!important;height:calc(172px + env(safe-area-inset-bottom))!important}
 </style>
 </head>
 <body>
@@ -9664,9 +9678,14 @@ function custShareQR(){var u=location.href.split('#')[0];
  var box=document.getElementById('custqrbox');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});else box.innerHTML='<span style="color:#94a3b8">ໂຫຼດ QR ບໍ່ໄດ້ (ກວດອິນເຕີເນັດ)</span>';});}
 function custGo(v){custView=v;render();window.scrollTo(0,0);}
 function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var nm=state.shopName||'ST POS';
- return '<div class="custtop"><div class="cs-hd"><div class="cs-name">'+cesc(nm)+'</div>'+(t.name?'<span class="cs-tb">ໂຕະ '+cesc(t.name)+'</span>':'')+'</div><div class="cs-tabs">'+
-  '<button class="'+(active==='menu'?'on':'')+'" onclick="custGo(\'menu\')">ເມນູອາຫານ</button>'+
-  '<button class="'+(active==='orders'?'on':'')+'" onclick="custGo(\'orders\')">ອໍເດີຂອງຂ້ອຍ ('+cesc(t.name)+')</button>'+'<button type="button" class="cs-share" onclick="custShareQR()" aria-label="ແບ່ງ QR ໃຫ້ໝູ່"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/></svg><span>QR ສັ່ງອາຫານ</span></button>'+'</div></div>';}
+ var I={menu:'<path d="M4 3v7a3 3 0 0 0 3 3v8M7 3v7M10 3v7a3 3 0 0 1-3 3M18 3c-2 1.5-3 4-3 7s1 4 3 4v7"/>',orders:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/>'};
+ var ic=function(k){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+I[k]+'</svg>';};
+ var n=(t.items||[]).length;
+ return '<div class="custtop"><div class="cs-hd"><div class="cs-name">'+cesc(nm)+'</div>'+(t.name?'<span class="cs-tb">ໂຕະ '+cesc(t.name)+'</span>':'')+'</div></div>'+
+  '<nav class="cs-bnav" aria-label="ເມນູຫຼັກ">'+
+  '<button type="button" class="'+(active==='menu'?'on':'')+'"'+(active==='menu'?' aria-current="page"':'')+' onclick="custGo(\'menu\')">'+ic('menu')+'<span>ເມນູອາຫານ</span></button>'+
+  '<button type="button" class="'+(active==='orders'?'on':'')+'"'+(active==='orders'?' aria-current="page"':'')+' onclick="custGo(\'orders\')">'+ic('orders')+(n?'<i class="cs-bd">'+n+'</i>':'')+'<span>ອໍເດີຂອງຂ້ອຍ</span></button>'+
+  '<button type="button" class="cs-share" onclick="custShareQR()" aria-label="ແບ່ງ QR ໃຫ້ໝູ່ສະແກນສັ່ງອາຫານ">'+ic('qr')+'<span>QR ສັ່ງອາຫານ</span></button></nav>';}
 function renderCust(R){setTimeout(function(){try{ccInit();}catch(e){}},0);var v=custView||'menu';if(v==='review')return renderCustReview(R);if(v==='orders')return renderCustOrders(R);return renderCustMenu(R);}
 function renderCustMenu(R){var M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];
  R.innerHTML=custHeader('menu')+'<div class="custmenu"><div class="cats">'+Object.keys(M).map(function(cat){return '<button class="cat '+(cat===state.activeCat?'active':'')+'" data-cat="'+cat.replace(/"/g,'&quot;')+'" onclick="setCat(this.getAttribute(\'data-cat\'))">'+cat+'</button>';}).join('')+'</div><div class="subcats" id="subcats"></div><div class="products" id="products"></div></div><button class="custbar" id="custbar" onclick="custGo(\'review\')"></button>';
