@@ -2611,7 +2611,11 @@ html:not([data-theme="glass"]) #app:not(.cust) h1,html:not([data-theme="glass"])
 @media (min-width:901px) and (max-width:1180px){.setwrap{grid-template-columns:200px minmax(0,1fr);gap:16px}}
 .ag-row{padding-left:18px;padding-right:18px}
 @media (min-width:900px){.kds-dark{margin:10px 18px 18px;flex:1 1 auto;border-radius:26px}}
-@media (min-width:701px){table.tbl{min-width:max-content}}
+@media (min-width:701px) and (max-width:1400px){table.tbl th,table.tbl td{white-space:normal;overflow-wrap:break-word}table.tbl th,table.tbl td{padding-left:8px;padding-right:8px}}
+.kpi .lbl{white-space:normal;overflow-wrap:break-word;text-overflow:clip}
+.cart-top button{white-space:normal!important;text-overflow:clip!important;padding-left:8px!important;padding-right:8px!important}
+@media (max-width:700px){table.tbl:not(.sk-tbl){font-size:13px}table.tbl:not(.sk-tbl) th,table.tbl:not(.sk-tbl) td{white-space:normal;overflow-wrap:break-word;padding:8px 6px}.kpi:has(table.tbl){overflow-x:auto}.sk-tbl tr{min-width:0}.sk-tbl td{min-width:0}.sk-tbl td .sk-mm{width:calc(100% - 46px);min-width:0}.sk-ra{min-width:0;width:100%}.sk-ra>button{min-width:0;padding-left:8px;padding-right:8px}}
+@media (min-width:701px) and (max-width:1180px){table.tbl td{font-size:13.5px}table.tbl th{font-size:12px}table.tbl th,table.tbl td{padding-left:6px;padding-right:6px}.sk-tbl .sk-mm{width:66px;padding:6px}.sk-ra{flex-wrap:wrap;justify-content:flex-start}.sk-in,.sk-ed,.sk-ws{padding:0 9px;font-size:13px}}
 @media (min-width:701px){.sk-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.sk-tbl th,.sk-tbl td{padding-left:8px;padding-right:8px}}
 </style>
 </head>
