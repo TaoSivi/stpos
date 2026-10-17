@@ -2582,6 +2582,24 @@ html:not([data-theme="glass"]) #app.cust #viewRoot{background:linear-gradient(18
 body:has(.cs-bnav) .cc-fab{bottom:calc(88px + env(safe-area-inset-bottom))}
 body:has(.cs-bnav) .cc-fab.up{bottom:calc(158px + env(safe-area-inset-bottom))}
 #app.cust #viewRoot::after{flex-basis:calc(172px + env(safe-area-inset-bottom))!important;height:calc(172px + env(safe-area-inset-bottom))!important}
+
+/* ===== ຊັ້ນປັບແຕ່ງທັນສະໄໝ (POS + ຄລີນິກ): ພື້ນຫຼັງອ່ອນ, ການ໌ມີເງົາ, ໂຕະບໍ່ໃຊ້ເສັ້ນປະ, ວົງໂຟກັສ, ແຖບເລື່ອນບາງ ===== */
+html:not([data-theme="glass"]) #app:not(.cust) #viewRoot{background:linear-gradient(180deg,#eff6f5 0,#f6faf9 360px)!important}
+html:not([data-theme="glass"]) #app:not(.cust) .topbar{background:rgba(255,255,255,.72);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid rgba(6,47,45,.06)}
+html:not([data-theme="glass"]) #app:not(.cust) .tablecard.s-free{border:1.5px solid #d5e8e5!important;background:linear-gradient(180deg,#fff,#f4faf9);box-shadow:0 1px 2px rgba(6,47,45,.04),0 6px 16px rgba(6,47,45,.05)!important}
+html:not([data-theme="glass"]) #app:not(.cust) .tablecard.s-free:hover{border-color:#8fd3cd!important}
+html:not([data-theme="glass"]) #app:not(.cust) .tablecard{transition:transform .16s,box-shadow .2s,border-color .2s}
+html:not([data-theme="glass"]) #app:not(.cust) .kpi{border:1px solid rgba(6,47,45,.05);transition:transform .16s,box-shadow .2s}
+html:not([data-theme="glass"]) #app:not(.cust) .kpi:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(6,47,45,.1)}
+html:not([data-theme="glass"]) .overlay{backdrop-filter:blur(7px) saturate(1.2);-webkit-backdrop-filter:blur(7px) saturate(1.2);background:rgba(6,40,38,.42)}
+html:not([data-theme="glass"]) .modal{border:1px solid rgba(255,255,255,.7);box-shadow:0 30px 80px rgba(6,40,38,.32)}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid rgba(10,186,181,.5);outline-offset:2px}
+html:not([data-theme="glass"]) #app:not(.cust) button:not(:disabled):active{transform:scale(.98)}
+html:not([data-theme="glass"]) #app:not(.cust) *{scrollbar-width:thin;scrollbar-color:#b4d2cf transparent}
+html:not([data-theme="glass"]) #app:not(.cust) ::-webkit-scrollbar{width:8px;height:8px}
+html:not([data-theme="glass"]) #app:not(.cust) ::-webkit-scrollbar-thumb{background:#b4d2cf;border-radius:8px}
+html:not([data-theme="glass"]) #app:not(.cust) h1,html:not([data-theme="glass"]) #app:not(.cust) h2{letter-spacing:-.2px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
