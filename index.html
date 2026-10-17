@@ -2709,6 +2709,43 @@ html:not([data-theme="glass"]) #app:not(.cust) .product .code{opacity:.55;font-s
 /* page titles */
 html:not([data-theme="glass"]) #app:not(.cust) .tv-head .ttl{font-size:28px;font-weight:800;letter-spacing:-.4px}
 html:not([data-theme="glass"]) #app:not(.cust) .tv-head .sub{margin-top:2px}
+
+/* ===== ເນັ້ນສີຫຼັກ (ຟ້າຂຽວ) — ເອົາຂອບສີ / ສີມ່ວງ / ແບນເນີສີເຫຼືອງ ອອກ, ໃຊ້ການ໌ຂາວ + ຂອບເທົາບາງ ===== */
+/* ການ໌ແຈ້ງເຕືອນສະຕ໋ອກ (ຮີບດ່ວນ / ພາຍໃນ 1–3 ມື້ / ຫຼັງ 3 ມື້) */
+.sp-al,.sp-al.urgent,.sp-al.soon,.sp-al.later{background:#fff!important;border:1px solid #e3eceb!important}
+.sp-al.soon b,.sp-al.later b{color:#0a7e7a}
+.sp-al.urgent b{color:#c81e1e}
+/* ແຖບແຈ້ງເຕືອນ / ຍອດຄ້າງຊຳລະ */
+.al-bar,.outstanding{background:#fff!important;border:1px solid #e3eceb!important;color:var(--ink)}
+.al-bar .al-t b,.outstanding{color:var(--ink)}
+.al-bar .al-ic{color:#0a7e7a}
+/* ການ໌ອາຍຸໜີ້ */
+.ag-c{border:1px solid #e3eceb!important;border-left:1px solid #e3eceb!important}
+.ag-c.on{background:#f0fbf8;border-color:#0a7e7a!important}
+.ag-c b{color:var(--ink)}
+/* ສະຫຼຸບວິທີຈ່າຍ (ປະຫວັດການຂາຍ) */
+.hps-c.cash:before,.hps-c.xfer:before,.hps-c.credit:before,.hps-c.wallet:before,.hps-c.all:before{background:#0a7e7a}
+.pm.cash:before,.pm.xfer:before,.pm.credit:before,.pm.wallet:before{background:#0a7e7a}
+/* ຈອງໂຕະ: ສີມ່ວງ → ຟ້າຂຽວ */
+.tablecard .rvbadge{background:#e0f5f3!important;color:#0a6b67!important;box-shadow:none!important;border:1px solid #b5e6e1!important}
+.tablecard .rvbadge:hover{background:#0a7e7a!important;color:#fff!important}
+.tablecard.s-busy .rvbadge,.tablecard.s-new .rvbadge,.tablecard.s-main .rvbadge{background:rgba(255,255,255,.85)!important}
+.qwait{background:#0a7e7a!important}
+#rvBadge{background:#0a7e7a!important}
+.rv-card{border-left-color:#0a7e7a}
+.rv-week i{background:#0a7e7a}
+.rv-dep{color:#0a6b67}
+.rx-sy{background:#e8f6f4;color:#0a4f4c}.rx-sy small{color:#0a6b67}
+.tag.warn2{background:#e0f5f3;color:#0a6b67}
+.sd-gtag{background:#e0f5f3;color:#0a6b67}
+.sk-tbl tr.low td{background:transparent}
+/* ແຖບຂັ້ນຕອນ + ແຈ້ງ "ລໍໃຜ": ຂັ້ນປັດຈຸບັນ = ສີຫຼັກ (ບໍ່ແມ່ນສີເຫຼືອງ) */
+.stg-s.cur{background:#0a7e7a;color:#fff;box-shadow:0 0 0 3px #cdeeea}.stg-s.cur b{background:#fff;color:#0a7e7a}
+.wt{background:#f4f8f7;border:1px solid #e1ebe9;color:#4d6663}.wt b{color:var(--ink)}
+.wt.me{background:#e6f5f3;border-color:#0a7e7a;color:#0a4f4c}.wt.me b{color:#0a4f4c}
+.al-c.o,.al-c.y{background:#e8f6f4;color:#0a6b67}
+.al-c.r{background:#fdecec;color:#b42323}
+.al-go{color:#0a6b67}
 </style>
 </head>
 <body>
@@ -3374,12 +3411,12 @@ function tableSVG(t){var st=PLAN_ST[t.status]||PLAN_ST.free,occ=t.status!=='free
  out+='<text x="'+t.fx+'" y="'+(t.fy-2)+'" text-anchor="middle" class="ptn">'+cesc(t.name)+'</text><text x="'+t.fx+'" y="'+(t.fy+17)+'" text-anchor="middle" class="pts" fill="'+(occ?st[1]:'#94a3b8')+'">'+sub+'</text>';
  var tagY=t.fy-bx.hh-26;
  if(t.status==='callbill')out+='<g class="ppulse" transform="translate('+t.fx+' '+tagY+')" pointer-events="none"><rect x="-48" y="-13" width="96" height="26" rx="13" fill="#f97316"/><text y="5" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">ຂໍເຊັກບິນ</text></g>';
- else if(rvT(t))out+='<g transform="translate('+t.fx+' '+tagY+')" pointer-events="none"><rect x="-48" y="-13" width="96" height="26" rx="13" fill="#8b5cf6"/><text y="5" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">ຈອງ '+cesc(rvT(t).time||'')+'</text></g>';
+ else if(rvT(t))out+='<g transform="translate('+t.fx+' '+tagY+')" pointer-events="none"><rect x="-48" y="-13" width="96" height="26" rx="13" fill="#0a7e7a"/><text y="5" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">ຈອງ '+cesc(rvT(t).time||'')+'</text></g>';
  if(planEdit){if(planSel&&planSel.k==='table'&&planSel.id===t.name){var a=(t.rot||0)*Math.PI/180,hx=t.fx+(w/2*Math.cos(a)-h/2*Math.sin(a)),hy=t.fy+(w/2*Math.sin(a)+h/2*Math.cos(a));
    out+='<rect x="'+(t.fx-bx.hw-26)+'" y="'+(t.fy-bx.hh-26)+'" width="'+(bx.hw*2+52)+'" height="'+(bx.hh*2+52)+'" rx="14" fill="none" stroke="#0ABAB5" stroke-width="2.5" stroke-dasharray="8 6" pointer-events="none"/>'+planHandle(hx,hy,'tres');}}
  else{var ix=t.fx+bx.hw+4,iy=t.fy+bx.hh+4;
   out+='<g class="picon" transform="translate('+ix+' '+iy+')" onclick="event.stopPropagation();openTableQR(this.parentNode.dataset.id)"><circle r="17" fill="#fff" stroke="#99e0da" stroke-width="2"/><g transform="translate(-9 -9) scale(.75)"><path d="'+PLAN_QR+'" fill="#0f766e"/></g></g>';
-  if(t.status==='free')out+='<g class="picon" transform="translate('+(t.fx-bx.hw-4)+' '+iy+')" onclick="event.stopPropagation();reserveTable(this.parentNode.dataset.id)"><circle r="17" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2"/><text y="6" text-anchor="middle" fill="#6d28d9" font-size="16" font-weight="800">ຈ</text></g>';}
+  if(t.status==='free')out+='<g class="picon" transform="translate('+(t.fx-bx.hw-4)+' '+iy+')" onclick="event.stopPropagation();reserveTable(this.parentNode.dataset.id)"><circle r="17" fill="#e0f5f3" stroke="#9fd6cf" stroke-width="2"/><text y="6" text-anchor="middle" fill="#0a6b67" font-size="16" font-weight="800">ຈ</text></g>';}
  return '<g class="ptbl" data-k="table" data-id="'+cesc(t.name)+'"'+(planEdit?'':' onclick="planTap(this.dataset.id)"')+'>'+out+'</g>';}
 function planInner(){var tl=planTablesOnFloor();tl.forEach(tGeo);var sh=planShapes();
  var h=sh.map(shapeSVG).join('')+tl.map(tableSVG).join('');
@@ -3518,7 +3555,7 @@ function openTable(name){const t=state.tables[name];if(t&&t.dl){if(state.dineTyp
    '<div class="modal-btns" style="flex-wrap:wrap;gap:6px"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-cancel"'+sKX(name)+' onclick="closeModal();window.__rvSkip=1;openTable(this.dataset.k);window.__rvSkip=0">ຂາຍໃຫ້ຄົນອື່ນກ່ອນ</button><button class="btn-ok grad"'+sKX(_rv.id)+' onclick="rvSeat(this.dataset.k)">✓ ລູກຄ້າຈອງມາຮອດ</button></div>');return;}
  state.activeTable=name;state.draft=[];save();setView('order');}
 /* ===================== ຈອງໂຕະ (Reservations) — ຈອງລ່ວງໜ້າ, ຫຼາຍຊ່ວງເວລາຕໍ່ໂຕະ, ມັດຈຳ, ມາຮອດ/ບໍ່ມາ, ແຈ້ງເຕືອນ ===================== */
-var RV_ST={booked:['ຈອງແລ້ວ','#6d28d9','#ede9fe'],seated:['ມາຮອດແລ້ວ','#15803d','#dcfce7'],noshow:['ບໍ່ມາ','#b45309','#fef3c7'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9']};
+var RV_ST={booked:['ຈອງແລ້ວ','#0a6b67','#e0f5f3'],seated:['ມາຮອດແລ້ວ','#ffffff','#0a7e7a'],noshow:['ບໍ່ມາ','#0a6b67','#e0f5f3'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9']};
 let rvDate=null,rvTo=null,rvQ='',rvEdit=null;
 function rvCfg(){if(!state.resvCfg||typeof state.resvCfg!=='object')state.resvCfg={lead:60,grace:30,dur:120,remind:15};return state.resvCfg;}
 function rvInit(){if(!Array.isArray(state.resv))state.resv=[];rvCfg();var mig=0;
@@ -5079,7 +5116,7 @@ function doEditCost(code){var v=+document.getElementById('cst').value||0;var it=
  it.cost=v;logOrder('ແກ້ຕົ້ນທຶນ',it.name+' '+KIP(old)+' → '+KIP(v)+' ₭/'+it.unit,'');save();closeModal();render();toast('ບັນທຶກຕົ້ນທຶນແລ້ວ');}
 /* ===== ຂໍອະນຸມັດປັບສະຕ໋ອກ — ຜູ້ບໍ່ມີສິດ stockApprove: ເສຍ / ນັບດ່ວນ / ຕົ້ນທຶນ / ຮັບເຂົ້າ → ລໍອະນຸມັດ ຈຶ່ງປັບ ===== */
 var SA_T={waste:['ບັນທຶກເສຍ','#c2410c','#ffedd5'],take:['ນັບປັບດ່ວນ','#0369a1','#e0f2fe'],cost:['ແກ້ຕົ້ນທຶນ','#7c3aed','#ede9fe'],'in':['ຮັບເຂົ້າ (ບໍ່ຜ່ານ PO)','#15803d','#dcfce7']};
-var SA_ST={pending:['ລໍອະນຸມັດ','#b45309','#fef3c7'],approved:['ອະນຸມັດແລ້ວ','#15803d','#dcfce7'],rejected:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],cancelled:['ຖອນຄືນ','#64748b','#f1f5f9']};
+var SA_ST={pending:['ລໍອະນຸມັດ','#0a6b67','#e0f5f3'],approved:['ອະນຸມັດແລ້ວ','#ffffff','#0a7e7a'],rejected:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],cancelled:['ຖອນຄືນ','#64748b','#f1f5f9']};
 let saShow='pending';
 function saList(){if(!Array.isArray(state.stockAdj))state.stockAdj=[];return state.stockAdj;}
 function saNote(){return can('stockApprove')?'':'<div class="sa-note">🔒 ຈະສົ່ງໃຫ້ຜູ້ຈັດການອະນຸມັດກ່ອນ ຈຶ່ງປັບສະຕ໋ອກ</div>';}
@@ -5561,8 +5598,8 @@ function voidTransfer(id){var t=(state.transfers||[]).find(function(x){return x.
  save();render();toast('ຍົກເລີກໃບໂອນ '+t.no);}
 /* ===== ຈັດຊື້: PR → ອະນຸມັດຕາມ Workflow → PO → ອະນຸມັດ PO ຕາມ Workflow → ຮັບເຄື່ອງ (GRN) ເຂົ້າສະຕ໋ອກ
    ໜ້າຕາເອກະສານ + Workflow ຕາມລະບົບຈັດຊື້ (procurement) · ເຈົ້າຂອງຮ້ານ (ແອັດມິນ) ກົດແທນໄດ້ທຸກຂັ້ນ ===== */
-const PR_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ','#b45309','#fef3c7'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍອອກ PO','#047857','#d1fae5'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CONVERTED:['ອອກ PO ແລ້ວ','#1d4ed8','#dbeafe'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
-const PO_ST={PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ PO','#b45309','#fef3c7'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍສັ່ງຜູ້ຂາຍ','#047857','#d1fae5'],ORDERED:['ສັ່ງຜູ້ຂາຍແລ້ວ — ລໍຮັບເຄື່ອງ','#0e7490','#cffafe'],PARTIAL:['ຮັບບາງສ່ວນ','#7c3aed','#ede9fe'],CLOSED:['ຮັບເຄື່ອງແລ້ວ / ປິດ','#1d4ed8','#dbeafe'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
+const PR_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ','#0a6b67','#e0f5f3'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍອອກ PO','#0a6b67','#e0f5f3'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CONVERTED:['ອອກ PO ແລ້ວ','#ffffff','#0a7e7a'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
+const PO_ST={PENDING_APPROVAL:['ລໍຖ້າອະນຸມັດ PO','#0a6b67','#e0f5f3'],APPROVED:['ອະນຸມັດແລ້ວ — ລໍສັ່ງຜູ້ຂາຍ','#0a6b67','#e0f5f3'],ORDERED:['ສັ່ງຜູ້ຂາຍແລ້ວ — ລໍຮັບເຄື່ອງ','#0a6b67','#e0f5f3'],PARTIAL:['ຮັບບາງສ່ວນ','#0a6b67','#e0f5f3'],CLOSED:['ຮັບເຄື່ອງແລ້ວ / ປິດ','#ffffff','#0a7e7a'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#eef2f7']};
 const PDOC={pr:{bg:'#FBDCC0',fg:'#8A4B12',line:'#0B4D27',lao:'ໃບຂໍຊື້',en:'PURCHASE REQUEST'},po:{bg:'#D3E6C4',fg:'#2E5A20',line:'#2E5A20',lao:'ໃບສັ່ງຊື້',en:'PURCHASE ORDER'},grn:{bg:'#C9DCF0',fg:'#1D3F6E',line:'#1D3F6E',lao:'ໃບຮັບເຄື່ອງ',en:'GOODS RECEIVED NOTE'},tfo:{bg:'#FFE8C2',fg:'#8A4B12',line:'#9A5B00',lao:'ໃບສົ່ງສິນຄ້າ (ໂອນສາຂາ)',en:'TRANSFER DELIVERY NOTE'},tfi:{bg:'#CFEFEA',fg:'#075A57',line:'#0A7E7A',lao:'ໃບຮັບສິນຄ້າ (ໂອນສາຂາ)',en:'TRANSFER RECEIPT NOTE'}};
 let procTab='track',procQ='',procDetail=null;
 function procInit(){['vendors','prs','pos','grns','procWorkflows'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.procCfg)state.procCfg={};
@@ -5785,7 +5822,7 @@ function procPrint(kind){if(!procDetail)return;var pr=findPR(procDetail.id);var 
 /* ===================== ໃບເບີກເຄື່ອງ (Requisition) — ໃຊ້ເອກະສານ / ຂັ້ນອະນຸມັດ ແບບດຽວກັບ PR-PO ===================== */
 PDOC.rq={bg:'#E9DFF7',fg:'#5B2A86',line:'#5B2A86',lao:'ໃບເບີກເຄື່ອງ',en:'MATERIAL REQUISITION'};
 PDOC.sc={bg:'#DDEBF7',fg:'#1D3F6E',line:'#1D3F6E',lao:'ໃບນັບສະຕ໋ອກ',en:'STOCK COUNT'};
-var RQ_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍອະນຸມັດ','#b45309','#fef3c7'],APPROVED:['ອະນຸມັດແລ້ວ · ລໍຈ່າຍ','#0369a1','#e0f2fe'],ISSUED:['ຈ່າຍແລ້ວ','#15803d','#dcfce7'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
+var RQ_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍອະນຸມັດ','#0a6b67','#e0f5f3'],APPROVED:['ອະນຸມັດແລ້ວ · ລໍຈ່າຍ','#0a6b67','#e0f5f3'],ISSUED:['ຈ່າຍແລ້ວ','#ffffff','#0a7e7a'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
 var RQ_DEPTS=['ຄົວ','ບາ','ເສີບ','ທຳຄວາມສະອາດ','ອື່ນໆ'];
 let rqTab='all',rqQ='',rqDetail=null;
 function rqInit(){if(!Array.isArray(state.reqs))state.reqs=[];if(!state.rqFlow||typeof state.rqFlow!=='object')state.rqFlow={steps:['r:manager'],issuer:''};if(!Array.isArray(state.rqFlow.steps))state.rqFlow.steps=[];}
@@ -5940,7 +5977,7 @@ function rqDoIssue(id){var r=findRQ(id);if(!r||!rqCanIssue(r))return;var qs=[],r
    ແຈ້ງເສຍ (ລາຍການ + ສາເຫດ + ຮູບ) → ອະນຸມັດຕາມຂັ້ນ (ຢ່າງໜ້ອຍ 1 ຂັ້ນ · ອະນຸມັດຂອງຕົນເອງບໍ່ໄດ້) → ຕັດສະຕ໋ອກອັດຕະໂນມັດ
    ກັນການລັກຂອງ ແລ້ວອ້າງວ່າເສຍ ໂດຍບໍ່ມີໃຜຮັບຮູ້ */
 PDOC.ws={bg:'#FDE4E4',fg:'#9B1C1C',line:'#9B1C1C',lao:'ໃບແຈ້ງເສຍຫາຍ',en:'WASTE REPORT'};
-var WS_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍອະນຸມັດ','#b45309','#fef3c7'],POSTED:['ອະນຸມັດ · ຕັດສະຕ໋ອກແລ້ວ','#15803d','#dcfce7'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
+var WS_ST={DRAFT:['ຮ່າງ','#475569','#eef2f7'],PENDING_APPROVAL:['ລໍອະນຸມັດ','#0a6b67','#e0f5f3'],POSTED:['ອະນຸມັດ · ຕັດສະຕ໋ອກແລ້ວ','#ffffff','#0a7e7a'],REJECTED:['ບໍ່ອະນຸມັດ','#b91c1c','#fee2e2'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
 var WS_RSN=['ເນົ່າ / ບູດ','ໝົດອາຍຸ','ຕົກ / ແຕກ / ຫົກ','ເຮັດຜິດ / ລູກຄ້າຄືນ','ອື່ນໆ'];
 let wsTab='all',wsQ='',wsDetail=null;
 function wsInit(){if(!Array.isArray(state.wastes))state.wastes=[];if(!state.wsFlow||typeof state.wsFlow!=='object')state.wsFlow={steps:['r:manager']};if(!Array.isArray(state.wsFlow.steps)||!state.wsFlow.steps.length)state.wsFlow.steps=['r:manager'];}
@@ -6052,7 +6089,7 @@ function wsAct(id,act,reason){var w=findWS(id);if(!w)return;var ok=false,msg='';
  logOrder('ໃບແຈ້ງເສຍ',w.no+' → '+WS_ST[w.status][0]+(msg?' ('+msg+')':'')+(reason?' ('+reason+')':''),'');save();closeModal();render();try{wsBadge();}catch(e){}toast(w.no+' · '+(msg||WS_ST[w.status][0]));}
 
 /* ===================== ນັບສາງ (Stock count) — ຮອບນັບ → ກວດສ່ວນຕ່າງ → ອະນຸມັດ → ປັບສະຕ໋ອກ ===================== */
-var SC_ST={COUNTING:['ກຳລັງນັບ','#b45309','#fef3c7'],SUBMITTED:['ລໍອະນຸມັດ','#0369a1','#e0f2fe'],POSTED:['ປັບສະຕ໋ອກແລ້ວ','#15803d','#dcfce7'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
+var SC_ST={COUNTING:['ກຳລັງນັບ','#0a6b67','#e0f5f3'],SUBMITTED:['ລໍອະນຸມັດ','#0a6b67','#e0f5f3'],POSTED:['ປັບສະຕ໋ອກແລ້ວ','#ffffff','#0a7e7a'],CANCELLED:['ຍົກເລີກ','#64748b','#f1f5f9']};
 let scDetail=null,scQ='',scShow='all';
 function scInit(){if(!Array.isArray(state.stockCounts))state.stockCounts=[];}
 function findSC(id){return (state.stockCounts||[]).find(function(x){return x.id===id;});}
@@ -9087,7 +9124,7 @@ function demoInit(){if(!window.__DEMO||!state)return;if(state._demo&&state._demo
 /* ===== ໃບສັ່ງຢາ (Rx): ແພດ ກົດສັ່ງຢາ → ແຄັດເຊຍ ເບີກບິນ/ຮັບເງິນ → ຫ້ອງຢາ ຈ່າຍຢາ → ຄົນເຈັບໄປເອົາຢາ ===== */
 var _inPre=null,_inEdit=false;
 function rxPickPat(v){var d=(document.getElementById('inDoc')||{}).value||'';var m=(state.customers||[]).find(function(c){return c.name===v;});_inPre={patient:v,doctor:d};_inEdit=false;if(m)render();}var _rxc={patient:'',mid:'',room:'',dx:'',items:[],q:''},_rxTab=null;
-var RX_ST={sent:['ລໍຈ່າຍເງິນ','#b45309','#fef3c7'],paid:['ຈ່າຍເງິນແລ້ວ · ລໍຈ່າຍຢາ','#075A57','#d5f5f2'],dispensed:['ຈ່າຍຢາແລ້ວ','#166534','#dcfce7'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9'],intake:['ລໍພົບແພດ','#6d28d9','#ede9fe'],voided:['ບິນຖືກ Void','#991b1b','#fee2e2'],seen:['ແພດກວດແລ້ວ','#166534','#dcfce7']};
+var RX_ST={sent:['ລໍຈ່າຍເງິນ','#0a6b67','#e0f5f3'],paid:['ຈ່າຍເງິນແລ້ວ · ລໍຈ່າຍຢາ','#0a6b67','#e0f5f3'],dispensed:['ຈ່າຍຢາແລ້ວ','#ffffff','#0a7e7a'],cancelled:['ຍົກເລີກ','#64748b','#f1f5f9'],intake:['ລໍພົບແພດ','#0a6b67','#e0f5f3'],voided:['ບິນຖືກ Void','#991b1b','#fee2e2'],seen:['ແພດກວດແລ້ວ','#ffffff','#0a7e7a']};
 function rxInit(){if(!Array.isArray(state.rx))state.rx=[];return state.rx;}
 function rxQueueNo(){rxInit();var d=ymd(Date.now()),n=state.rx.filter(function(r){return ymd(r.ts)===d;}).length+1;return 'Q'+('00'+n).slice(-3);}
 function rxCreate(o){rxInit();var t=state.tables[o.room],now=Date.now(),u=curUser()||{},lines=[],items=[];
