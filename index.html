@@ -229,7 +229,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 #app.cust #sidebar{display:none!important}#app.cust #main{width:100vw}#app.cust .topbar{display:none!important}
 #app.cust #viewRoot{max-width:560px;margin:0 auto;min-height:100vh;background:#f6fafa}
 .custtop{position:sticky;top:0;z-index:20;background:var(--grad);color:#fff;padding:12px 14px 0}
-.custtop .cs-share{position:absolute;right:10px;top:9px;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:999px;padding:8px 12px;min-height:38px;font-weight:700;font-size:13px;cursor:pointer}.custtop .cs-name{padding:0 86px}
+.custtop .cs-tabs button{padding-left:6px;padding-right:6px;font-size:13px;white-space:nowrap}.custtop .cs-tabs button.cs-share{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:4px;padding:11px 9px;background:rgba(255,255,255,.34)}
 .custtop .cs-name{font-size:18px;font-weight:800;text-align:center;padding-bottom:9px}
 .custtop .cs-tabs{display:flex;gap:6px}
 .custtop .cs-tabs button{flex:1;background:rgba(255,255,255,.2);color:#fff;border:none;padding:11px;border-radius:12px 12px 0 0;font-weight:700;font-size:14px;cursor:pointer}
@@ -9624,9 +9624,9 @@ function custShareQR(){var u=location.href.split('#')[0];
  var box=document.getElementById('custqrbox');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});else box.innerHTML='<span style="color:#94a3b8">ໂຫຼດ QR ບໍ່ໄດ້ (ກວດອິນເຕີເນັດ)</span>';});}
 function custGo(v){custView=v;render();window.scrollTo(0,0);}
 function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var nm=state.shopName||'ST POS';
- return '<div class="custtop"><button type="button" class="cs-share" onclick="custShareQR()" aria-label="ແບ່ງ QR ໃຫ້ໝູ່">'+'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/></svg><span>QR ໝູ່</span></button><div class="cs-name">'+cesc(nm)+'</div><div class="cs-tabs">'+
+ return '<div class="custtop"><div class="cs-name">'+cesc(nm)+'</div><div class="cs-tabs">'+
   '<button class="'+(active==='menu'?'on':'')+'" onclick="custGo(\'menu\')">ເມນູອາຫານ</button>'+
-  '<button class="'+(active==='orders'?'on':'')+'" onclick="custGo(\'orders\')">ອໍເດີຂອງຂ້ອຍ ('+cesc(t.name)+')</button></div></div>';}
+  '<button class="'+(active==='orders'?'on':'')+'" onclick="custGo(\'orders\')">ອໍເດີຂອງຂ້ອຍ ('+cesc(t.name)+')</button>'+'<button type="button" class="cs-share" onclick="custShareQR()" aria-label="ແບ່ງ QR ໃຫ້ໝູ່"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/></svg><span>QR ໝູ່</span></button>'+'</div></div>';}
 function renderCust(R){setTimeout(function(){try{ccInit();}catch(e){}},0);var v=custView||'menu';if(v==='review')return renderCustReview(R);if(v==='orders')return renderCustOrders(R);return renderCustMenu(R);}
 function renderCustMenu(R){var M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];
  R.innerHTML=custHeader('menu')+'<div class="custmenu"><div class="cats">'+Object.keys(M).map(function(cat){return '<button class="cat '+(cat===state.activeCat?'active':'')+'" data-cat="'+cat.replace(/"/g,'&quot;')+'" onclick="setCat(this.getAttribute(\'data-cat\'))">'+cat+'</button>';}).join('')+'</div><div class="subcats" id="subcats"></div><div class="products" id="products"></div></div><button class="custbar" id="custbar" onclick="custGo(\'review\')"></button>';
