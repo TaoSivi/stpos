@@ -2639,6 +2639,26 @@ table.tcard td:empty{display:none}
 .hs:not(.hs-end){-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
 @media (min-width:701px) and (max-width:1180px){table.tbl td{font-size:13.5px}table.tbl th{font-size:12px}table.tbl th,table.tbl td{padding-left:6px;padding-right:6px}.sk-tbl .sk-mm{width:66px;padding:6px}.sk-ra{flex-wrap:wrap;justify-content:flex-start}.sk-in,.sk-ed,.sk-ws{padding:0 9px;font-size:13px}}
 @media (min-width:701px){.sk-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.sk-tbl th,.sk-tbl td{padding-left:8px;padding-right:8px}}
+
+/* ===== Toast + ໜ້າຕ່າງສຳເລັດ: ດີຊາຍໃໝ່ ===== */
+#toastRoot{position:fixed;left:0;right:0;top:var(--tt,72px);display:flex;justify-content:center;pointer-events:none;z-index:720;padding:0 12px}
+#toastRoot .toast{position:relative!important;left:auto!important;bottom:auto!important;top:auto!important;transform:none!important;pointer-events:auto;display:flex;align-items:center;gap:12px;width:max-content;max-width:min(94vw,460px);padding:11px 10px 13px 11px;border-radius:20px;background:rgba(255,255,255,.97);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:#0b2e2c;border:1px solid rgba(6,47,45,.07);box-shadow:0 22px 48px rgba(6,40,38,.2),0 3px 8px rgba(6,40,38,.07)!important;font-size:14.5px;line-height:1.5;font-weight:600;overflow:hidden;animation:tstDown .34s cubic-bezier(.2,.9,.3,1.15)!important}
+#toastRoot .t-ic{flex:none;width:38px;height:38px;border-radius:13px;display:flex;align-items:center;justify-content:center}
+#toastRoot .t-tx{min-width:0;overflow-wrap:anywhere;padding:1px 2px}
+#toastRoot .t-x{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:rgba(6,47,45,.06);color:#4d7471;font-size:19px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+#toastRoot .t-x:hover{background:rgba(6,47,45,.12)}
+#toastRoot .t-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;transform-origin:left;animation:tstBar 3.2s linear forwards}
+#toastRoot .t-ok .t-ic{background:#e4f7ec;color:#16803c}#toastRoot .t-ok .t-bar{background:#22c55e}
+#toastRoot .t-warn .t-ic{background:#fff3da;color:#b86e00}#toastRoot .t-warn .t-bar{background:#f59e0b}
+#toastRoot .t-err .t-ic{background:#fde8e8;color:#c62828}#toastRoot .t-err .t-bar{background:#ef4444}
+#toastRoot .t-info .t-ic{background:#e0f5f3;color:#0a7e7a}#toastRoot .t-info .t-bar{background:#0ABAB5}
+@keyframes tstDown{from{opacity:0;transform:translateY(-14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes tstBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (max-width:900px){#toastRoot .toast{bottom:auto!important}}
+.modal.success{border-radius:30px;padding:30px 24px 24px;width:340px;background:linear-gradient(180deg,#eefbf9 0,#fff 58%);box-shadow:0 30px 80px rgba(6,40,38,.3)}
+.modal.success .checkwrap{width:96px;height:96px;background:#dcf6f2;box-shadow:0 0 0 10px rgba(10,186,181,.12),0 12px 28px rgba(10,186,181,.25)}
+.modal.success h2{font-size:21px;font-weight:800;letter-spacing:-.2px}
+.modal.success .btn-ok{border-radius:16px!important;padding:14px!important;font-size:16px;box-shadow:0 10px 22px rgba(10,126,122,.28)}
 </style>
 </head>
 <body>
@@ -9645,7 +9665,13 @@ function removeLogo(){state.shopLogo='';save();render();toast('ລຶບໂລ�
 function saveReceiptSettings(){state.shopAddr=document.getElementById('ad_addr').value||'';state.shopPhone=document.getElementById('ad_phone').value||'';state.rateTHB=+document.getElementById('ad_thb').value||0;state.rateUSD=+document.getElementById('ad_usd').value||0;state.paperW=+document.getElementById('ad_paper').value||80;save();render();showSuccess('ບັນທຶກໃບບິນແລ້ວ!');}
 function testPrint(){var demo={receipt:String(state.receiptSeq+1).padStart(10,'0'),table:'A1',items:[{name:'Iced Latte 16oz',price:55000,qty:1,modPrice:0,disc:0},{name:'Frappe Matcha 16oz',price:85000,qty:2,modPrice:0,disc:0}],total:225000,pay:'ເງິນສົດ',cashier:whoBy(),ts:Date.now()};__rcptHTML=buildReceiptHTML(demo);openModal('<h2>ຕົວຢ່າງໃບບິນ</h2><div style="text-align:center;max-height:58vh;overflow:auto;background:#f1f5f9;padding:10px;border-radius:10px"><div class="rcpt-prev">'+__rcptHTML+'</div></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="printLast()"> ພິມ</button></div>');renderRcptQRIn(document.getElementById('modalRoot'));}
 function showSuccess(title,sub){document.getElementById('modalRoot').innerHTML=`<div class="overlay" onpointerdown="ovDown(event,this)" onclick="ovClick(event,this)" oninput="ovDirty(this)"><div class="modal success"><div class="checkwrap"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 7 16-17"/></svg></div><h2>${title}</h2>${sub?`<p class="ssub">${sub}</p>`:''}<button class="btn-ok grad" style="margin-top:16px;width:100%;padding:12px;border-radius:11px;font-weight:700" onclick="closeModal()">ຕົກລົງ</button></div></div>`;clearTimeout(window.__sx);window.__sx=setTimeout(()=>{if(document.querySelector('.modal.success'))closeModal();},2600);}
-function toast(m){const r=document.getElementById('toastRoot');r.innerHTML=`<div class="toast">${m}</div>`;clearTimeout(window.__t);window.__t=setTimeout(()=>r.innerHTML='',3200);}
+/* Toast ແຈ້ງເຕືອນ: ການ໌ຂາວມີໄອຄອນຕາມປະເພດ (ສຳເລັດ/ເຕືອນ/ຜິດ/ຂໍ້ມູນ) + ປຸ່ມປິດ + ແຖບນັບເວລາ; ປະເພດເດົາຈາກຂໍ້ຄວາມ ຫຼື ສົ່ງ toast(msg,'ok'|'warn'|'err'|'info') */
+var TOAST_IC={ok:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',warn:'<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.6v.1"/>',err:'<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.1"/>',bell:'<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'};
+function toastKind(txt){return /ບໍ່ມີສິດ|ບໍ່ໄດ້|ບໍ່ຖືກ|ຜິດ|ຊ້ຳ|ບໍ່ພົບ|ລົ້ມເຫຼວ|ເກີນ|ໝົດ|ບໍ່ສາມາດ|ປະຕິເສດ|❌|✗/.test(txt)?'err':/ແຈ້ງເຕືອນ/.test(txt)?'bell':/ກະລຸນາ|ເລືອກ|ໃສ່|ຕ້ອງ|ລໍຖ້າ|ກ່ອນ|⚠/.test(txt)?'warn':/ສຳເລັດ|ບັນທຶກ|ແລ້ວ|ເພີ່ມ|ສົ່ງ|ຄັດລອກ|ເປີດ|ປິດ|✓|✅/.test(txt)?'ok':'info';}
+function toast(m,t){const r=document.getElementById('toastRoot');if(!r)return;var txt=String(m==null?'':m).replace(/<[^>]*>/g,'');var k=t||toastKind(txt);var cls=k==='bell'?'warn':k;
+ var tb=document.querySelector('.topbar'),y=tb?tb.getBoundingClientRect().bottom:0;r.style.setProperty('--tt',Math.max(10,y+10)+'px');
+ r.innerHTML='<div class="toast t-'+cls+'" role="'+(k==='err'?'alert':'status')+'" aria-live="'+(k==='err'?'assertive':'polite')+'"><span class="t-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(TOAST_IC[k]||TOAST_IC.info)+'</svg></span><div class="t-tx">'+m+'</div><button type="button" class="t-x" aria-label="ປິດ" onclick="document.getElementById(\'toastRoot\').innerHTML=\'\'">&times;</button><i class="t-bar"></i></div>';
+ clearTimeout(window.__t);window.__t=setTimeout(()=>r.innerHTML='',3200);}
 /* ===== ໂໝດລູກຄ້າ (QR ສັ່ງຜ່ານໂທລະສັບ) ===== */
 /* ===== ຕາໜ່າງກັນ XSS: ຖ້າຂໍ້ມູນຜູ້ໃຊ້ (ຊື່/ໝາຍເຫດ) ຫຼຸດເຂົ້າ HTML ໂດຍບໍ່ escape — ລຶບ script / iframe / on* ທີ່ຮັນເອງ / javascript: ອອກທັນທີ ===== */
 (function(){var AUTO=/^on(error|load|animation\w*|transition\w*|mouseover|mouseenter|mouseout|mousemove|pointerover|pointerenter|pointermove|toggle|begin|end|loadstart|loadeddata|loadedmetadata|canplay|play|playing|resize|scroll|wheel|auxclick)$/i,OKERR="var t=this.closest('.thumb');if(t)t.remove()",URLA=/^(href|src|action|formaction|xlink:href|data)$/i;
