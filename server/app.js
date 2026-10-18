@@ -15,7 +15,7 @@ const vm = require('vm');
 const crypto = require('crypto');
 
 /* secrets.json ຂ້າງ app.js (ສ້າງໃນຄອມ, ບໍ່ຂຶ້ນ GitHub) ມີສິດກ່ອນ env — ບໍ່ຕ້ອງພິມລະຫັດໃນ cPanel */
-if (!process.env.STPOS_NO_SECRETS) try { const sec = JSON.parse(fs.readFileSync(path.join(__dirname, 'secrets.json'), 'utf8')); ['API_TOKEN', 'ADMIN_KEY', 'CRON_KEY'].forEach(function (k) { if (typeof sec[k] === 'string' && sec[k].length >= 16) process.env[k] = sec[k]; }); } catch (e) {}
+if (!process.env.STPOS_NO_SECRETS) try { const sec = JSON.parse(fs.readFileSync(path.join(__dirname, 'secrets.json'), 'utf8')); ['API_TOKEN', 'ADMIN_KEY', 'CRON_KEY', 'ACCT_TOKEN'].forEach(function (k) { if (typeof sec[k] === 'string' && sec[k].length >= 16) process.env[k] = sec[k]; }); } catch (e) {}
 const DATA_DIR = process.env.DATA_DIR || path.join(os.homedir(), 'stpos-data');
 const shim = require('./gas-shim').create(DATA_DIR);
 Object.assign(global, shim.globals);
@@ -145,6 +145,7 @@ function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === 
 function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + '/api/' + id; }
 function brList(req) { return branches().map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch', url: brUrl(req, b.id) }; }); }
 function hqApi(q, req) {
+  if (String(q.hq) === 'acct') return acctAuth(q) ? hqAcct(q) : { ok: false, err: 'token' };
   if (!hqAuth(q)) return { ok: false, err: 'token' };
   const a = String(q.hq);
   if (a === 'list') return { ok: true, hq: 1, cur: CURBR.id, branches: brList(req) };
@@ -551,6 +552,80 @@ function hqReport(from, to) {
   });
   T.gp = T.sales - T.cogs; T.avg = T.bills ? T.sales / T.bills : 0;
   return { ok: true, from: from, to: to, at: Date.now(), branches: L, total: T, top: Object.keys(items).map(function (k) { return items[k]; }).sort(function (a, b) { return b.v - a.v; }).slice(0, 50) };
+}
+
+/* ===== ERP: ສະຫຼຸບບັນຊີລາຍມື້ (ອ່ານຢ່າງດຽວ) ==========================================================
+ * ERP (LaoBooks) ດຶງໄປລົງບັນຊີອັດຕະໂນມັດ.  GET ?hq=acct&from=YYYY-MM-DD&to=YYYY-MM-DD[&ids=b1,b2]&token=...
+ * token = ACCT_TOKEN (ອ່ານສະເພາະ ສະຫຼຸບບັນຊີ — ແນະນຳ) ຫຼື API_TOKEN ຫຼັກ.  ບໍ່ປ່ຽນຂໍ້ມູນໃດໆໃນ POS.
+ * ແຕ່ລະມື້ແຕ່ລະສາຂາ (ກີບເຕັມ, ເວລາລາວ GMT+7):
+ *   sales        ລາຍຮັບສຸດທິ (ກ່ອນ service/VAT, ຫຼັງສ່ວນຫຼຸດ ແລະ ຄືນເງິນ)      svc ຄ່າບໍລິການ   vat VAT
+ *   tips ທິບ · fees ຄ່າທຳນຽມບັດທີ່ເກັບຈາກລູກຄ້າ · refunds ເງິນຄືນ (ຈ່າຍອອກທາງເງິນສົດ)
+ *   pay{ວິທີ:ຍອດ} ເງິນທີ່ຮັບ (ລວມ ທິບ+ຄ່າທຳນຽມ) · credit ຕິດໜີ້ · creditPays{ວິທີ:ຍອດ} ຮັບໜີ້ຄືນ
+ *   deposits{ວິທີ:ຍອດ} ມັດຈຳທີ່ຮັບ · depUsed ມັດຈຳທີ່ຫັກໃຊ້ (ເປັນລາຍຮັບ)
+ *   byCat{ໝວດເມນູ:ຍອດ}  ແຍກ sales ຕາມໝວດ (ລວມ = sales)
+ *   cogs ຕົ້ນທຶນຕາມສູດ · waste/shortage ມູນຄ່າຂອງເສຍ/ຂາດຈາກການນັບ · expenses{ໝວດ:ຍອດ}
+ *   cashDiff ເງິນສົດນັບຈິງ − ຄາດວ່າມີ (ປິດກະ) · voids{n,amt}
+ *   svcPct/vatPct ອັດຕາທີ່ໃຊ້ແຍກ svc/vat (ຕາມການຕັ້ງຄ່າປັດຈຸບັນ ຖ້າບິນບໍ່ໄດ້ເກັບອັດຕາໄວ້)
+ * today = ມື້ປັດຈຸບັນ (ເວລາລາວ): ມື້ນີ້ຍັງບໍ່ຄົບ ERP ບໍ່ຄວນລົງບັນຊີ. */
+const ACCT_V = 1;
+function acctAuth(q) { const t = String(shim.props.getProperty('ACCT_TOKEN') || '').trim(); return (t && q.token === t) || hqAuth(q); }
+function acctBills(st, from, to) {
+  const seen = {}, bills = [], m0 = from.slice(0, 7), m1 = to.slice(0, 7);
+  (st.bills || []).forEach(function (x) { if (x) { seen[billKey(x)] = 1; bills.push(x); } });
+  try { fs.readdirSync(path.join(shim.dir(), 'archive')).forEach(function (f) { const mm = /^bills-(\d{4}-\d{2})\.json\.gz$/.exec(f); if (!mm || mm[1] < m0 || mm[1] > m1) return;
+    archMonth(mm[1]).forEach(function (x) { if (x && !seen[billKey(x)]) { seen[billKey(x)] = 1; bills.push(x); } }); }); } catch (e) {}
+  return bills;
+}
+function acctDays(st, bills, from, to) {
+  const svcPct = +st.serviceChargePct || 0, vatPct = +st.vatPct || 0, D = {}, cat = {}, flo = {};
+  (function walk(c) { Object.keys(c || {}).forEach(function (g) { const sub = c[g]; Object.keys(sub || {}).forEach(function (s2) { (sub[s2] || []).forEach(function (m) { if (m && m.c) cat[m.c] = g; }); }); }); })(st.catalog);
+  const day = function (d) { return D[d] || (D[d] = { date: d, bills: 0, sales: 0, svc: 0, vat: 0, tips: 0, fees: 0, refunds: 0, cogs: 0, pay: {}, credit: 0, creditPays: {}, deposits: {}, depUsed: 0, byCat: {}, voids: { n: 0, amt: 0 }, expenses: {}, waste: 0, shortage: 0, cashDiff: 0, svcPct: svcPct, vatPct: vatPct }); };
+  const inR = function (d) { return d >= from && d <= to; };
+  const partsOf = function (b, amt) { return Array.isArray(b.payParts) && b.payParts.length ? b.payParts.map(function (p) { return [p.type || '-', +p.amt || 0]; }) : [[b.pay || '-', amt]]; };
+  bills.forEach(function (b) {
+    const d = dayKey(b.ts || 0);
+    (b.creditPays || []).forEach(function (l) { const dd = dayKey(l.ts || 0); if (inR(dd)) { const o = day(dd), m = l.pay || 'ເງິນສົດ'; o.creditPays[m] = (o.creditPays[m] || 0) + (+l.amt || 0); } });
+    if (!inR(d)) return;
+    const o = day(d), total = +b.total || 0;
+    if (b.voided) { o.voids.n++; o.voids.amt += total; return; }
+    if (b.deposit) { partsOf(b, total).forEach(function (p) { o.deposits[p[0]] = (o.deposits[p[0]] || 0) + p[1]; }); return; } /* ມັດຈຳ = ໜີ້ສິນ ບໍ່ແມ່ນລາຍຮັບ */
+    const ref = +b.refundAmt || 0, tip = +b.tip || 0, fee = +b.cardFee || 0;
+    const sp = b.svcPct != null ? +b.svcPct : svcPct, vp = b.vatPct != null ? +b.vatPct : vatPct;
+    const aft = Math.round(total / ((1 + sp / 100) * (1 + vp / 100))), svc = Math.round(aft * sp / 100);
+    const f = total > 0 ? Math.max(0, Math.min(1, (total - ref) / total)) : 1, totalN = total - ref;
+    const aftN = Math.round(aft * f), svcN = Math.round(svc * f), vatN = totalN - aftN - svcN; /* ເສດ ໄປຢູ່ VAT */
+    o.bills++; o.sales += aftN; o.svc += svcN; o.vat += vatN; o.tips += tip; o.fees += fee; o.refunds += ref; o.cogs += +b.cogs || 0;
+    (b.items || []).forEach(function (i) { if (i.code === 'DEPOSIT-USE') o.depUsed += Math.abs((+i.price || 0) * (+i.qty || 1)); });
+    if (b.credit) o.credit += +b.creditOwed || (total + tip + fee);
+    else partsOf(b, total + tip + fee).forEach(function (p) { o.pay[p[0]] = (o.pay[p[0]] || 0) + p[1]; });
+    const lines = (b.items || []).filter(function (i) { return i.code !== 'DEPOSIT-USE'; }).map(function (i) { return [cat[i.code] || '-', rLine(i)]; }), sum = lines.reduce(function (a, l) { return a + l[1]; }, 0);
+    (flo[d] = flo[d] || {}); if (sum > 0) lines.forEach(function (l) { flo[d][l[0]] = (flo[d][l[0]] || 0) + l[1] / sum * aftN; }); else flo[d]['-'] = (flo[d]['-'] || 0) + aftN;
+  });
+  (st.expenses || []).forEach(function (e) { const d = dayKey(e.ts || 0); if (!e || !inR(d)) return; const o = day(d), c = e.cat || 'ອື່ນໆ'; o.expenses[c] = (o.expenses[c] || 0) + (+e.amount || 0); });
+  const ing = st.ingredients || {};
+  (st.stockLog || []).forEach(function (l) { if (!l) return; const d = dayKey(l.ts || 0); if (!inR(d)) return; const c = +(ing[l.code] && ing[l.code].cost) || 0, dl = +l.delta || 0;
+    if (l.reason === 'ເສຍຫາຍ' && dl < 0) day(d).waste += -dl * c; else if (l.reason === 'ນັບປັບສະຕ໋ອກ' && dl < 0) day(d).shortage += -dl * c; });
+  (st.shiftLog || []).forEach(function (sh) { const d = dayKey(sh.closeTs || 0); if (!sh || !inR(d)) return; day(d).cashDiff += (+sh.countedCash || 0) - (+sh.expectedCash || 0); });
+  Object.keys(D).forEach(function (d) {
+    const o = D[d], fl = flo[d] || {}, ks = Object.keys(fl);
+    ['sales', 'svc', 'vat', 'tips', 'fees', 'refunds', 'cogs', 'credit', 'depUsed', 'waste', 'shortage', 'cashDiff'].forEach(function (k) { o[k] = Math.round(o[k]); });
+    ['pay', 'creditPays', 'deposits', 'expenses'].forEach(function (k) { Object.keys(o[k]).forEach(function (m) { o[k][m] = Math.round(o[k][m]); }); });
+    o.voids.amt = Math.round(o.voids.amt);
+    ks.forEach(function (k) { o.byCat[k] = Math.round(fl[k]); });
+    if (ks.length) { const big = ks.sort(function (a, b) { return o.byCat[b] - o.byCat[a]; })[0], res = o.sales - ks.reduce(function (a, k) { return a + o.byCat[k]; }, 0); o.byCat[big] += res; } /* ໃຫ້ Σ ໝວດ = sales ພໍດີ */
+  });
+  return D;
+}
+function hqAcct(q) {
+  const from = String(q.from || ''), to = String(q.to || ''), ok = function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); };
+  if (!ok(from) || !ok(to) || from > to) return { ok: false, err: 'date' };
+  if ((Date.parse(to) - Date.parse(from)) / 86400000 > 93) return { ok: false, err: 'range' };
+  const ids = q.ids ? String(q.ids).split(',').map(function (x) { return x.trim(); }) : null;
+  const L = branches().filter(function (b) { return !ids || ids.indexOf(b.id) >= 0; }).map(function (b) {
+    return withBranch(b, function () { const s = G.getState_(), st = s ? JSON.parse(s) : {};
+      return { id: b.id, name: b.name || b.id, type: b.type || 'branch', shop: st.shopName || '', svcPct: +st.serviceChargePct || 0, vatPct: +st.vatPct || 0, openShift: !!st.curShift, days: acctDays(st, acctBills(st, from, to), from, to) }; });
+  });
+  return { ok: true, v: ACCT_V, from: from, to: to, today: dayKey(Date.now()), at: Date.now(), branches: L };
 }
 function menuStatus(req) {
   const hq = hqRead(), src = brFind(hq.menuSrc || 'b1') || branches()[0], srcSt = branchState(src) || {};
