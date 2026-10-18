@@ -19,7 +19,7 @@ const it = function (code, price, qty, extra) { return Object.assign({ id: code 
     /* service 5% + VAT 10%: 100,000 → svc 5,000 → vat 10,500 → total 115,500 */
     const st = { shopName: 'ຕ່າວ', users: [], tables: {}, orders: [], serviceChargePct: 5, vatPct: 10,
       catalog: { 'ອາຫານ': { 'ຈານຫຼັກ': [{ c: 'F1', n: 'ເຂົ້າຜັດ', p: 50000, k: 'food' }] }, 'ເຄື່ອງດື່ມ': { 'ເບຍ': [{ c: 'D1', n: 'ເບຍ', p: 20000, k: 'drink' }] } },
-      ingredients: { RICE: { code: 'RICE', cost: 10, locs: { main: 0 } } },
+      ingredients: { RICE: { code: 'RICE', cost: 10, locs: { main: 0 } }, OIL: { code: 'OIL', cost: 25, locs: { main: 100, b2: 20 } } },
       bills: [
         /* 1: cash + tip, food 60k + beer 40k */
         { receipt: '1', ts: at(d1, 12), total: 115500, tip: 5000, cogs: 30000, pay: 'ເງິນສົດ', items: [it('F1', 30000, 2), it('D1', 20000, 2)] },
@@ -82,6 +82,9 @@ const it = function (code, price, qty, extra) { return Object.assign({ id: code 
       const o = a[d2]; assert.deepStrictEqual(o.creditPays, { BCEL: 115500 }); assert.strictEqual(o.depUsed, 100000);
       assert.strictEqual(o.sales, 100000, 'bill total 115,500 = 100k + 5k + 10.5k; the 100k deposit is released separately');
       assert.strictEqual(o.expenses['ອື່ນໆ'], 8000);
+    });
+    await test('stock value now (all locations x unit cost) for the ERP reconciliation', async function () {
+      const r = await jp('b1', 'hq=acct&from=' + d1 + '&to=' + d2 + '&token=' + AT); assert.strictEqual(r.branches[0].stockValue, 120 * 25);
     });
     await test('branch filter (ids) and an empty period', async function () {
       assert.strictEqual((await jp('b1', 'hq=acct&ids=zz&from=' + d1 + '&to=' + d2 + '&token=' + AT)).branches.length, 0);

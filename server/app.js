@@ -565,6 +565,7 @@ function hqReport(from, to) {
  *   byCat{ໝວດເມນູ:ຍອດ}  ແຍກ sales ຕາມໝວດ (ລວມ = sales)
  *   cogs ຕົ້ນທຶນຕາມສູດ · waste/shortage ມູນຄ່າຂອງເສຍ/ຂາດຈາກການນັບ · expenses{ໝວດ:ຍອດ}
  *   cashDiff ເງິນສົດນັບຈິງ − ຄາດວ່າມີ (ປິດກະ) · voids{n,amt}
+ * ຕໍ່ສາຂາ: stockValue = ມູນຄ່າສະຕ໋ອກໃນ POS ດຽວນີ້ (ບໍ່ແມ່ນລາຍມື້)
  *   svcPct/vatPct ອັດຕາທີ່ໃຊ້ແຍກ svc/vat (ຕາມການຕັ້ງຄ່າປັດຈຸບັນ ຖ້າບິນບໍ່ໄດ້ເກັບອັດຕາໄວ້)
  * today = ມື້ປັດຈຸບັນ (ເວລາລາວ): ມື້ນີ້ຍັງບໍ່ຄົບ ERP ບໍ່ຄວນລົງບັນຊີ. */
 const ACCT_V = 1;
@@ -616,6 +617,8 @@ function acctDays(st, bills, from, to) {
   });
   return D;
 }
+/* ມູນຄ່າສະຕ໋ອກຕອນນີ້ (ທຸກບ່ອນເກັບ × ຕົ້ນທຶນຕໍ່ຫົວໜ່ວຍນ້ອຍ) — ERP ໃຊ້ກວດທຽບບັນຊີສິນຄ້າຄົງເຫຼືອ */
+function acctStock(st) { let v = 0; const ing = st.ingredients || {}; Object.keys(ing).forEach(function (k) { const it = ing[k] || {}, c = +it.cost || 0; Object.keys(it.locs || {}).forEach(function (l) { v += (+it.locs[l] || 0) * c; }); }); return Math.round(v); }
 function hqAcct(q) {
   const from = String(q.from || ''), to = String(q.to || ''), ok = function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); };
   if (!ok(from) || !ok(to) || from > to) return { ok: false, err: 'date' };
@@ -623,7 +626,7 @@ function hqAcct(q) {
   const ids = q.ids ? String(q.ids).split(',').map(function (x) { return x.trim(); }) : null;
   const L = branches().filter(function (b) { return !ids || ids.indexOf(b.id) >= 0; }).map(function (b) {
     return withBranch(b, function () { const s = G.getState_(), st = s ? JSON.parse(s) : {};
-      return { id: b.id, name: b.name || b.id, type: b.type || 'branch', shop: st.shopName || '', svcPct: +st.serviceChargePct || 0, vatPct: +st.vatPct || 0, openShift: !!st.curShift, days: acctDays(st, acctBills(st, from, to), from, to) }; });
+      return { id: b.id, name: b.name || b.id, type: b.type || 'branch', shop: st.shopName || '', svcPct: +st.serviceChargePct || 0, vatPct: +st.vatPct || 0, openShift: !!st.curShift, stockValue: acctStock(st), days: acctDays(st, acctBills(st, from, to), from, to) }; });
   });
   return { ok: true, v: ACCT_V, from: from, to: to, today: dayKey(Date.now()), at: Date.now(), branches: L };
 }
