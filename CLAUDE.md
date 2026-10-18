@@ -53,3 +53,9 @@ Read this first. It is the memory of the previous sessions (the new account will
 - Telegram/push notification for the low-stock alert recipient (Telegram is already configured in the server).
 - Create branch 2 (Vang Vieng) as a real branch and move its stock; the VPS move guide; UptimeRobot monitoring; WhatsApp daily report on the new server.
 - Make the checklist table on narrow phones scroll less (cosmetic).
+
+## ERP integration (read-only accounting feed)
+- `GET /api/<branch>/?hq=acct&from=YYYY-MM-DD&to=YYYY-MM-DD[&ids=b1,b2]&token=…` (JSONP with `callback=`) returns, per branch and Lao day: net sales, service charge, VAT, tips, card fees, refunds, payments by method, credit + repayments, deposits + deposit use, sales by menu category, COGS, waste/count shortage, till expenses by category, cash over/short per shift; plus the current stock value per branch. Max 93 days per call. Code: `acctDays/hqAcct` in `server/app.js`, tests `server/test/acct.js`.
+- Token: `ACCT_TOKEN` (secrets.json or env) opens ONLY `hq=acct`; the main API token / a superadmin session also work. Never commit it. Not deployed until the owner uploads `server/app.js` and sets ACCT_TOKEN.
+- Service/VAT amounts are derived from `bill.total` with the shop's current `serviceChargePct`/`vatPct` unless a bill carries its own `svcPct`/`vatPct` (stamping them on new bills would make old bills immune to later rate changes — not done yet).
+- The LaoBooks ERP side lives in the ERP repo (`js/posin.js`, `js/posin-ui.js`).
