@@ -2743,6 +2743,23 @@ html:not([data-theme="glass"]) #app:not(.cust) .tv-head .sub{margin-top:2px}
 .stg-s.cur{background:#0a7e7a;color:#fff;box-shadow:0 0 0 3px #cdeeea}.stg-s.cur b{background:#fff;color:#0a7e7a}
 .wt{background:#f4f8f7;border:1px solid #e1ebe9;color:#4d6663}.wt b{color:var(--ink)}
 .wt.me{background:#e6f5f3;border-color:#0a7e7a;color:#0a4f4c}.wt.me b{color:#0a4f4c}
+/* ແຖວຂັ້ນຕອນ (ຈັດຊື້/ເບີກ/ນັບສາງ/ແຈ້ງເສຍ): ແບບກະທັດລັດ — ບັນຈຸໄດ້ຫຼາຍແຖວຕໍ່ໜ້າຈໍ */
+.stg{min-width:0;flex-wrap:nowrap;row-gap:0}
+.stg-s{padding:2px 9px 2px 3px;font-size:11.5px;gap:4px}
+.stg-s b{width:18px;height:18px;font-size:10.5px}
+.stg-s:not(.cur):not(.bad){padding:2px 3px}.stg-s:not(.cur):not(.bad) em{display:none}
+.stg-l{width:8px}
+.wt{display:flex;align-items:center;gap:6px;padding:2px 10px;margin:0;min-width:0;max-width:340px;font-size:12px;border-radius:999px;white-space:nowrap;overflow:hidden}
+.wt span{flex:none}.wt b{font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.pcell{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px}
+.pcell>div{margin:0!important}
+.pcell .pk-row{display:flex;gap:5px;margin:0}
+.btn-sm.pk{padding:0 9px;font-size:12px;height:26px;display:inline-flex;align-items:center}
+.tbl td:has(.pcell){padding-top:7px;padding-bottom:7px}
+table.tbl:has(.pcell) td:not(:has(.pcell)){white-space:nowrap;vertical-align:middle}
+table.tbl:has(.pcell) td:nth-child(3) small{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
+table.tbl:has(.pcell) td{line-height:1.4}
+.wt{max-width:250px}
 .al-c.o,.al-c.y{background:#e8f6f4;color:#0a6b67}
 .al-c.r{background:#fdecec;color:#b42323}
 .al-go{color:#0a6b67}
@@ -5688,17 +5705,17 @@ function renderPurchase(R){procInit();if(procDetail&&findPR(procDetail.id)){rend
   var rows=prs.filter(match).slice(0,150).map(function(pr){var st=procStepList(pr),po=pr.poId?findPO(pr.poId):null;var cur=st.filter(function(s){return s.state==='done';}).length;
    var bar=stageBar(st);
    var wait=waitChip(docWait(po?'po':'pr',po||pr))+'<div class="pk-row">'+pkBtn('pr',pr.id,'PR')+(po?pkBtn('po',po.id,'PO'):'')+'</div>';
-   return '<tr style="cursor:pointer" onclick="openPR(\''+pr.id+'\')"><td><b>'+cesc(pr.no)+'</b><br><small style="color:var(--muted)">'+procD(pr.ts)+'</small></td><td>'+cesc(pr.byName||'')+'<br><small style="color:var(--muted)">'+cesc(locName(pr.loc))+'</small></td><td style="font-size:14px">'+pr.lines.length+' ລາຍການ'+(cost?'<br><b>'+KIP(po?poTotal(po):prTotal(pr))+'</b> ກີບ':'')+'</td><td style="min-width:260px">'+bar+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+(po?procChip(PO_ST,po.status)+' <small>'+cesc(po.no)+' · '+cesc(vendorName(po.vendor))+'</small>':procChip(PR_ST,pr.status))+'</div>'+wait+'</td></tr>';}).join('');
+   return '<tr style="cursor:pointer" onclick="openPR(\''+pr.id+'\')"><td><b>'+cesc(pr.no)+'</b><br><small style="color:var(--muted)">'+procD(pr.ts)+'</small></td><td>'+cesc(pr.byName||'')+'<br><small style="color:var(--muted)">'+cesc(locName(pr.loc))+'</small></td><td style="font-size:14px">'+pr.lines.length+' ລາຍການ'+(cost?' · <b>'+KIP(po?poTotal(po):prTotal(pr))+'</b> ກີບ':'')+'</td><td style="min-width:260px"><div class="pcell">'+bar+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+(po?procChip(PO_ST,po.status)+' <small>'+cesc(po.no)+' · '+cesc(vendorName(po.vendor))+'</small>':procChip(PR_ST,pr.status))+'</div>'+wait+'</div></td></tr>';}).join('');
   body='<table class="tbl"><thead><tr><th>PR</th><th>ຜູ້ຂໍ / ບ່ອນ</th><th>ລາຍການ</th><th>ຂັ້ນຕອນ</th></tr></thead><tbody>'+(rows||'<tr><td colspan="4" class="empty" style="padding:30px">ຍັງບໍ່ມີໃບຂໍຊື້ — ກົດ "ສ້າງໃບຂໍຊື້ (PR)"</td></tr>')+'</tbody></table>';
  }else if(procTab==='pr'){
   var rowsP=prs.filter(match).map(function(p){var po=p.poId?findPO(p.poId):null;
    var wait=waitChip(docWait(po?'po':'pr',po||p))+'<div class="pk-row">'+pkBtn('pr',p.id,'PR')+(po?pkBtn('po',po.id,'PO'):'')+'</div>';
-   return '<tr style="cursor:pointer" onclick="openPR(\''+p.id+'\')"><td><b>'+cesc(p.no)+'</b><br><small style="color:var(--muted)">'+procD(p.ts)+'</small></td><td>'+cesc(p.byName||'')+'<br><small style="color:var(--muted)">'+cesc(locName(p.loc))+(p.need?' · ຕ້ອງການ '+cesc(p.need):'')+'</small></td><td style="font-size:14px">'+p.lines.length+' ລາຍການ'+(cost?'<br><b>'+KIP(po?poTotal(po):prTotal(p))+'</b> ກີບ':'')+'<br><small style="color:var(--muted)">'+cesc(p.lines.slice(0,2).map(function(l){return l.name;}).join(', '))+(p.lines.length>2?' +'+(p.lines.length-2):'')+'</small></td><td style="min-width:260px">'+stageBar(procStepList(p))+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+(po?procChip(PO_ST,po.status)+' <small>'+cesc(po.no)+' · '+cesc(vendorName(po.vendor))+'</small>':procChip(PR_ST,p.status))+'</div>'+wait+'</td></tr>';}).join('');
+   return '<tr style="cursor:pointer" onclick="openPR(\''+p.id+'\')"><td><b>'+cesc(p.no)+'</b><br><small style="color:var(--muted)">'+procD(p.ts)+'</small></td><td>'+cesc(p.byName||'')+'<br><small style="color:var(--muted)">'+cesc(locName(p.loc))+(p.need?' · ຕ້ອງການ '+cesc(p.need):'')+'</small></td><td style="font-size:14px">'+p.lines.length+' ລາຍການ'+(cost?' · <b>'+KIP(po?poTotal(po):prTotal(p))+'</b> ກີບ':'')+'<br><small style="color:var(--muted)">'+cesc(p.lines.slice(0,2).map(function(l){return l.name;}).join(', '))+(p.lines.length>2?' +'+(p.lines.length-2):'')+'</small></td><td style="min-width:260px"><div class="pcell">'+stageBar(procStepList(p))+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+(po?procChip(PO_ST,po.status)+' <small>'+cesc(po.no)+' · '+cesc(vendorName(po.vendor))+'</small>':procChip(PR_ST,p.status))+'</div>'+wait+'</div></td></tr>';}).join('');
   body='<table class="tbl"><thead><tr><th>PR</th><th>ຜູ້ຂໍ / ບ່ອນ</th><th>ລາຍການ</th><th>ຂັ້ນຕອນ</th></tr></thead><tbody>'+(rowsP||'<tr><td colspan="4" class="empty" style="padding:30px">ບໍ່ມີໃບຂໍຊື້</td></tr>')+'</tbody></table>';
  }else if(procTab==='po'){
   var rowsO=pos.filter(match).map(function(p){var pr=findPR(p.prId);
    var wait=waitChip(docWait('po',p))+'<div class="pk-row">'+(pr?pkBtn('pr',pr.id,'PR'):'')+pkBtn('po',p.id,'PO')+'</div>';
-   return '<tr style="cursor:pointer" onclick="openPO(\''+p.id+'\')"><td><b>'+cesc(p.no)+'</b><br><small style="color:var(--muted)">'+procD(p.ts)+(p.prNo?' · ຈາກ '+cesc(p.prNo):'')+'</small></td><td>'+cesc(vendorName(p.vendor))+'<br><small style="color:var(--muted)">ຮັບທີ່ '+cesc(locName(p.loc))+(p.eta?' · ນັດສົ່ງ '+cesc(p.eta):'')+'</small></td><td style="font-size:14px">'+p.lines.length+' ລາຍການ'+(cost?'<br><b>'+KIP(poTotal(p))+'</b> ກີບ':'')+'</td><td style="min-width:260px">'+(pr?stageBar(procStepList(pr)):'')+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+procChip(PO_ST,p.status)+'</div>'+wait+'</td></tr>';}).join('');
+   return '<tr style="cursor:pointer" onclick="openPO(\''+p.id+'\')"><td><b>'+cesc(p.no)+'</b>'+(p.prNo?' <small style="color:var(--muted)">← '+cesc(p.prNo)+'</small>':'')+'<br><small style="color:var(--muted)">'+procD(p.ts)+'</small></td><td>'+cesc(vendorName(p.vendor))+'<br><small style="color:var(--muted)">ຮັບທີ່ '+cesc(locName(p.loc))+(p.eta?' · ນັດສົ່ງ '+cesc(p.eta):'')+'</small></td><td style="font-size:14px">'+p.lines.length+' ລາຍການ'+(cost?' · <b>'+KIP(poTotal(p))+'</b> ກີບ':'')+'</td><td style="min-width:260px"><div class="pcell">'+(pr?stageBar(procStepList(pr)):'')+'<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+procChip(PO_ST,p.status)+'</div>'+wait+'</div></td></tr>';}).join('');
   body='<table class="tbl"><thead><tr><th>PO</th><th>ຜູ້ຂາຍ / ບ່ອນຮັບ</th><th>ລາຍການ</th><th>ຂັ້ນຕອນ</th></tr></thead><tbody>'+(rowsO||'<tr><td colspan="4" class="empty" style="padding:30px">ບໍ່ມີໃບສັ່ງຊື້</td></tr>')+'</tbody></table>';
  }else if(procTab==='grn'){
   var wait=pos.filter(function(p){return ['APPROVED','ORDERED','PARTIAL'].indexOf(p.status)>=0;});
@@ -9317,13 +9334,13 @@ function docWait(kind,d){if(!d)return null;
  if(kind==='tf'){if(d.status==='pending'){var s5=d.steps||[];return {t:'ລໍອະນຸມັດ (ຂັ້ນ '+((d.step||0)+1)+'/'+s5.length+')',who:stepName(s5[d.step||0])||'-',me:tfCanApprove(d)};}if(d.status==='approved')return {t:'ລໍສົ່ງອອກ',who:locName(d.from),me:d.from===curLoc()&&can('stockAdjust')};if(d.status==='sent')return {t:'ລໍຮັບເຂົ້າ',who:d.recvSpec?stepName(d.recvSpec):locName(d.to),me:d.to===curLoc()&&can('stockAdjust')&&canRecvSpec(d)};return null;}
  return null;}
 function waitChip(w){if(!w)return '<span class="wt-done">—</span>';return '<div class="wt'+(w.me?' me':'')+'"><span>'+(w.me?'👉 ລໍທ່ານ':'🕐 ລໍ')+': '+cesc(w.t)+'</span><b>'+cesc(w.who)+'</b></div>';}
-function stageBar(L){if(!L||!L.length)return '';return '<div class="stg">'+L.map(function(x,i){var lab=String(x.label).split(':')[0];return (i?'<i class="stg-l'+(L[i-1].state==='done'?' d':'')+'"></i>':'')+'<span class="stg-s '+x.state+'"><b>'+(x.state==='done'?'✓':(i+1))+'</b><em>'+cesc(lab)+'</em></span>';}).join('')+'</div>';}
+function stageBar(L){if(!L||!L.length)return '';return '<div class="stg">'+L.map(function(x,i){var lab=String(x.label).split(':')[0];return (i?'<i class="stg-l'+(L[i-1].state==='done'?' d':'')+'"></i>':'')+'<span class="stg-s '+x.state+'" title="'+aesc(String(x.label))+'"><b>'+(x.state==='done'?'✓':(i+1))+'</b><em>'+cesc(lab)+'</em></span>';}).join('')+'</div>';}
 function scStepList(c){var o=[],add=function(l,st){o.push({label:l,state:st});};add('ເລີ່ມນັບ','done');add('ນັບ',c.status==='COUNTING'?'cur':(c.status==='CANCELLED'?'todo':'done'));add('ອະນຸມັດ',c.status==='SUBMITTED'?'cur':(c.status==='POSTED'?'done':'todo'));add('ປັບສະຕ໋ອກ',c.status==='POSTED'?'done':'todo');return o;}
 function tfStepList(t){var o=[],add=function(l,st){o.push({label:l,state:st});},ss=t.steps||[],k=t.step||0,st=t.status;add('ສ້າງໃບໂອນ','done');
  ss.forEach(function(sp,i){var x='todo';if(st==='pending')x=i<k?'done':(i===k?'cur':'todo');else if(st==='void')x='todo';else x='done';add('ອະນຸມັດ',x);});
  add('ສົ່ງອອກ',st==='approved'?'cur':(st==='sent'||st==='received'||st==='partial'||t.recvTs?'done':'todo'));add('ຮັບເຂົ້າ',st==='sent'?'cur':(st==='pending'||st==='approved'||st==='void'?'todo':'done'));return o;}
 function tfStage(t){var w=docWait('tf',t);return stageBar(tfStepList(t))+(w?waitChip(w):'');}
-function pkBtn(kind,id,label){return '<button type="button" class="btn-sm pk" onclick="event.stopPropagation();docPeek(\''+kind+'\',\''+id+'\')">📄 '+(label||'ເບິ່ງເອກະສານ')+'</button>';}
+function pkBtn(kind,id,label){return '<button type="button" class="btn-sm pk" onclick="event.stopPropagation();docPeek(\''+kind+'\',\''+id+'\')">📄 '+(label||'ເອກະສານ')+'</button>';}
 function docPeek(kind,id){var html='',title='';
  if(kind==='pr'){var pr=findPR(id);if(pr){html=prDocHTML(pr);title=PDOC.pr.lao+' '+pr.no;}}
  else if(kind==='po'){var po=findPO(id);if(po){html=poDocHTML(po);title=PDOC.po.lao+' '+po.no;}}
