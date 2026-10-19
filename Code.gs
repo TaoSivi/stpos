@@ -27,7 +27,7 @@ function doGet(e) {
     var cb = String(p.callback).replace(/[^\w$.]/g, '');
     var payload;
     if (p.cust == '1' && p.table) {                       /* ລູກຄ້າ QR: ອ່ານສະເພາະໂຕະຕົນເອງ */
-      payload = { ok: true, state: getStateCust(String(p.table)) };
+      payload = { ok: true, state: getStateCust(String(p.table), String(p.pin || '')) };
     } else if (p.action && p.payload) {                    /* ລູກຄ້າ QR: ສັ່ງ/ຂໍເຊັກບິນ ຜ່ານ JSONP */
       var res; try { res = custAction_(JSON.parse(p.payload)); } catch (err) { res = { ok: false, err: 'payload' }; }
       payload = res;
@@ -75,7 +75,7 @@ function doPost(e) {
       json = Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(json.substring(3)), 'application/x-gzip')).getDataAsString('UTF-8');
     }
     var obj = null; try { obj = JSON.parse(json); } catch (e2) {}
-    if (obj && (obj.action === 'order' || obj.action === 'callbill')) {
+    if (obj && (obj.action === 'order' || obj.action === 'callbill' || obj.action === 'payinfo' || obj.action === 'paidnotice')) {
       return ContentService.createTextOutput(JSON.stringify(custAction_(obj)));
     }
     if (!tokenOk_(p.token || (obj && obj._token))) return ContentService.createTextOutput('denied');
@@ -334,7 +334,8 @@ function mergeQr_(curStr, inc) {
           ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
         });
       });
-      if (ct.callTs && ct.callTs > (it.callTs || 0) && (it.items || []).length && it.status !== 'bill') { it.status = 'callbill'; it.callTs = ct.callTs; added++; }
+      if (ct.callTs && ct.callTs > (it.callTs || 0) && (it.items || []).length && it.status !== 'bill') { it.status = 'callbill'; it.callTs = ct.callTs; if (ct.callPay) it.callPay = ct.callPay; added++; }
+      if (ct.xferNotice && ct.xferNotice > (it.xferNotice || 0)) { it.xferNotice = ct.xferNotice; added++; }
     });
     /* ມີການໃສ່ຄືນ → ເລກເວີຊັນໃໝ່ກວ່າເຄື່ອງທີ່ສົ່ງມາ ເພື່ອໃຫ້ທຸກເຄື່ອງດຶງໄປສະແດງ */
     if (added) inc._v = Math.max(+inc._v || 0, now) + 1;
@@ -399,20 +400,40 @@ function modInfo_(st, def, mods) {
   return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb, pk: pk };
 }
 function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).concat(line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
-function custFilter_(st, table) {
-  var out = { cust: true, shopName: st.shopName || '', catalog: st.catalog || {}, menuImg: st.menuImg || {},
-    soldOut: qrSoldOut_(st), modGroups: (st.modules && st.modules.opts === false) ? [] : (st.modGroups || []), serviceChargePct: st.serviceChargePct || 0, vatPct: st.vatPct || 0,
-    billDiscPct: st.billDiscPct || 0, qrGlobal: st.qrGlobal, qrPinRequired: st.qrPinRequired,
-    qrExpires: st.qrExpires, chatOn: !(st.modules && st.modules.chat === false), activeTable: table, orderNo: st.orderNo || 1, tables: {}, qr: {}, orders: [], _v: st._v || 0 };
-  var t = (st.tables || {})[table];
-  if (t) out.tables[table] = { name: t.name, floor: t.floor, status: t.status, items: t.items || [], customer: t.customer || null };
+/* ລະຫັດ PIN/ໝົດອາຍຸ ຂອງ QR ໂຕະ — ໃຊ້ທັງອ່ານ ແລະ ສັ່ງ (PIN ບໍ່ຖືກສົ່ງຄືນໄປຫາລູກຄ້າ) */
+function custPinOk_(st, table, pin) {
+  if (st.qrGlobal === false) return false;
   var q = (st.qr || {})[table];
-  if (q) out.qr[table] = q;
+  if (q && q.enabled === false) return false;
+  if (st.qrPinRequired === false) return true;
+  if (!q) return false;
+  if (st.qrExpires !== false && q.expiry < Date.now()) return false;
+  return String(pin || '') === String(q.pin);
+}
+/* ລາຍເຊັນຂອງບິນ — ຖ້າລາຍການ/ລາຄາ/ສ່ວນລົດປ່ຽນຫຼັງພະນັກງານເຊັກບິນ QR ໂອນເກົ່າຈະບໍ່ຖືກສະແດງ (ກັນລູກຄ້າໂອນຜິດຍອດ) */
+function tblSig_(st, t) {
+  return (t.items || []).map(function (i) { return [i.id, i.qty, i.price || 0, i.modPrice || 0, i.disc || 0, i.promoAmt || 0].join(':'); }).join(',') +
+    '|' + (st.billDiscPct || 0) + '|' + (st.serviceChargePct || 0) + '|' + (st.vatPct || 0);
+}
+function custFilter_(st, table, pin) {
+  var ok = custPinOk_(st, table, pin);
+  var out = { cust: true, shopName: st.shopName || '', pinOk: ok };
+  if (!ok) return out;
+  out.catalog = st.catalog || {}; out.menuImg = st.menuImg || {};
+  out.soldOut = qrSoldOut_(st); out.modGroups = (st.modules && st.modules.opts === false) ? [] : (st.modGroups || []);
+  out.serviceChargePct = st.serviceChargePct || 0; out.vatPct = st.vatPct || 0; out.billDiscPct = st.billDiscPct || 0;
+  out.qrGlobal = st.qrGlobal; out.qrPinRequired = st.qrPinRequired; out.qrExpires = st.qrExpires;
+  out.chatOn = !(st.modules && st.modules.chat === false); out.xferOn = !!st.bankQR;
+  out.activeTable = table; out.orderNo = st.orderNo || 1; out.tables = {}; out.qr = {}; out.orders = []; out._v = st._v || 0;
+  var t = (st.tables || {})[table];
+  if (t) out.tables[table] = { name: t.name, floor: t.floor, status: t.status, items: t.items || [], customer: t.customer || null, callPay: t.callPay || '', xferNotice: t.xferNotice || 0 };
+  var q = (st.qr || {})[table];
+  if (q) out.qr[table] = { enabled: q.enabled, expiry: q.expiry };
   out.orders = (st.orders || []).filter(function (o) { return o.table === table; });
   return out;
 }
-function getStateCust(table) {
-  try { var s = getState_(); if (!s) return ''; return JSON.stringify(custFilter_(JSON.parse(s), String(table))); }
+function getStateCust(table, pin) {
+  try { var s = getState_(); if (!s) return ''; return JSON.stringify(custFilter_(JSON.parse(s), String(table), pin)); }
   catch (e) { return ''; }
 }
 
@@ -442,17 +463,38 @@ function custAction_(payload) {
       if (!(t.items && t.items.length)) return { ok: false, err: 'ຍັງບໍ່ມີອໍເດີ' };
       if (t.status !== 'bill') t.status = 'callbill';
       t.callTs = now;
+      var pay = String(payload.pay || '');
+      if (pay !== 'cash' && pay !== 'transfer') pay = '';
+      if (pay === 'transfer' && !st.bankQR) return { ok: false, err: 'ຮ້ານຍັງບໍ່ໄດ້ເປີດຮັບໂອນ — ກະລຸນາເລືອກເງິນສົດ' };
+      t.callPay = pay;
       if (!st.orderLog) st.orderLog = [];
-      st.orderLog.push({ ts: now, table: table, action: 'ຂໍເຊັກບິນ (QR)', detail: '', by: 'ລູກຄ້າ QR ໂຕະ ' + table });
+      st.orderLog.push({ ts: now, table: table, action: 'ຂໍເຊັກບິນ (QR)', detail: pay === 'transfer' ? 'ຈ່າຍ: ເງິນໂອນ' : pay === 'cash' ? 'ຈ່າຍ: ເງິນສົດ' : '', by: 'ລູກຄ້າ QR ໂຕະ ' + table });
       t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
-      return { ok: true, state: custFilter_(st, table) };
+      return { ok: true, state: custFilter_(st, table, payload.pin) };
+    }
+    /* QR ໂອນເງິນ: ສະແດງໃຫ້ລູກຄ້າສະເພາະເມື່ອ (1) PIN ຖືກ (2) ພະນັກງານເຊັກບິນແລ້ວ (3) ລູກຄ້າເລືອກໂອນ (4) ບິນບໍ່ປ່ຽນ (5) ຍັງບໍ່ໝົດເວລາ.
+       ຍອດ + QR ມາຈາກເຄື່ອງພະນັກງານ — ລູກຄ້າແກ້ບໍ່ໄດ້ ແລະ ລູກຄ້າບໍ່ສາມາດບັນທຶກວ່າຈ່າຍແລ້ວ (ມີແຕ່ແຄັສເຊຍເທົ່ານັ້ນ) */
+    if (payload.action === 'payinfo') {
+      var xf = t.xfer, live = !!(t.status === 'bill' && t.callPay === 'transfer' && xf && xf.qr && (t.items || []).length);
+      var good = live && xf.sig === tblSig_(st, t) && (+xf.exp || 0) > now;
+      return { ok: true, status: t.status, callPay: t.callPay || '', notice: t.xferNotice || 0,
+        xfer: good ? { amt: xf.amt, qr: xf.qr, no: xf.no || '', exp: xf.exp, shop: st.shopName || '' } : null, stale: live && !good };
+    }
+    if (payload.action === 'paidnotice') {
+      if (!(t.status === 'bill' && t.callPay === 'transfer' && t.xfer)) return { ok: false, err: 'ຍັງບໍ່ມີບິນໂອນ' };
+      if (t.xferNotice && now - t.xferNotice < 10000) return { ok: true, dup: true };
+      t.xferNotice = now;
+      if (!st.orderLog) st.orderLog = [];
+      st.orderLog.push({ ts: now, table: table, action: 'ລູກຄ້າແຈ້ງໂອນແລ້ວ (QR)', detail: 'ແຄັສເຊຍກວດຍອດເຂົ້າທະນາຄານກ່ອນປິດບິນ', by: 'ລູກຄ້າ QR ໂຕະ ' + table });
+      t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
+      return { ok: true };
     }
     /* action === 'order' */
     /* ກັນສັ່ງຊ້ຳ: GET ອາດຖືກສົ່ງຊ້ຳ (ເນັດຊ້າ/retry) → ໃຊ້ rid ຈາກເຄື່ອງລູກຄ້າ */
     var rid = String(payload.rid || '').slice(0, 64), ridKey = rid ? 'qrrid_' + rid : '';
     if (rid) {
       var ck0 = CacheService.getScriptCache();
-      if (ck0.get(ridKey) || (t.items || []).some(function (x) { return x.qrRid === rid; })) return { ok: true, n: 0, dup: true, state: custFilter_(st, table) };
+      if (ck0.get(ridKey) || (t.items || []).some(function (x) { return x.qrRid === rid; })) return { ok: true, n: 0, dup: true, state: custFilter_(st, table, payload.pin) };
     }
     var items = payload.items || [];
     if (!items.length) return { ok: false, err: 'ບໍ່ມີລາຍການ' };
@@ -497,7 +539,7 @@ function custAction_(payload) {
     st.orderLog.push({ ts: now, table: table, action: 'ສັ່ງຜ່ານ QR', detail: cnt + ' ລາຍການ' + (skipped ? ' (ຂ້າມ ' + skipped + ')' : ''), by: 'ລູກຄ້າ QR ໂຕະ ' + table });
     t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
     if (rid) { try { CacheService.getScriptCache().put(ridKey, '1', 21600); } catch (e) {} }
-    return { ok: true, n: cnt, skipped: skipped, state: custFilter_(st, table) };
+    return { ok: true, n: cnt, skipped: skipped, state: custFilter_(st, table, payload.pin) };
   } catch (e) { return { ok: false, err: 'server: ' + (e && e.message || e) }; }
   finally { try { lock.releaseLock(); } catch (e2) {} }
 }

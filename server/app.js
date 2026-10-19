@@ -47,7 +47,7 @@ function branchTemplate(st, name, id, type, srcId) {
   n.locations = [{ id: 'main', name: name, type: type === 'warehouse' ? 'warehouse' : 'branch', active: true }];
   Object.keys(n.ingredients || {}).forEach(function (k) { const it = n.ingredients[k]; it.locs = { main: 0 }; it.stock = 0; delete it.lastIn; });
   const tb = {}; Object.keys(n.tables || {}).forEach(function (k) { const t = n.tables[k]; if (!t || t.dl) return; /* ອໍເດີ delivery ບໍ່ສຳເນົາ */
-    const c = JSON.parse(JSON.stringify(t)); ['items', 'customer', 'main', 'mergedInto', 'reserved', 'memberId', 'billTs', 'del', 'sd', 'pkO', 'callTs', 'upd'].forEach(function (f) { delete c[f]; });
+    const c = JSON.parse(JSON.stringify(t)); ['items', 'customer', 'main', 'mergedInto', 'reserved', 'memberId', 'billTs', 'del', 'sd', 'pkO', 'callTs', 'callPay', 'xfer', 'xferNotice', 'upd'].forEach(function (f) { delete c[f]; });
     c.status = 'free'; c.items = []; c.customer = null; c.dv = 1; c.upd = Date.now(); tb[k] = c; }); /* ເກັບຜັງ (ຊັ້ນ ຕຳແໜ່ງ ຮູບຮ່າງ ບ່ອນນັ່ງ) */
   n.tables = tb; n._v = Date.now();
   /* ຈື່ວ່າເມນູໃດມາຈາກສາຂາແມ່ (ການສົ່ງເມນູຄັ້ງຕໍ່ໄປ ຈະແຍກເມນູທີ່ສາຂາເພີ່ມເອງໄດ້ຖືກ) */

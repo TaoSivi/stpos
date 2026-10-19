@@ -80,7 +80,38 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
       const r = await jsonp('action=order&payload=' + encodeURIComponent(JSON.stringify(pl))); assert.strictEqual(r.ok, true, JSON.stringify(r)); assert.strictEqual(r.n, 2);
       const d = await jsonp('action=order&payload=' + encodeURIComponent(JSON.stringify(pl))); assert.strictEqual(d.dup, true);
       const g = await getState(); assert.strictEqual(g.tables.A1.items.length, 1); assert.strictEqual(g.tables.A1.status, 'busy'); assert.strictEqual(g.ingredients.RICE.locs.main, 9400 - 400); assert.strictEqual(g.orders.length, 1);
-      const c = await jsonp('cust=1&table=A1'); const cs = JSON.parse(c.state); assert.ok(cs.cust && !cs.bills && cs.tables.A1);
+      const c = await jsonp('cust=1&table=A1&pin=1234'); const cs = JSON.parse(c.state); assert.ok(cs.cust && !cs.bills && cs.tables.A1 && cs.pinOk === true);
+    });
+    await test('QR customer: reading a table needs the PIN; the PIN is never sent back', async function () {
+      const np = JSON.parse((await jsonp('cust=1&table=A1')).state); assert.strictEqual(np.pinOk, false); assert.ok(!np.tables && !np.catalog && !np.qr);
+      const bp = JSON.parse((await jsonp('cust=1&table=A1&pin=0000')).state); assert.strictEqual(bp.pinOk, false); assert.ok(!bp.tables);
+      const ok = JSON.parse((await jsonp('cust=1&table=A1&pin=1234')).state); assert.strictEqual(ok.pinOk, true); assert.ok(ok.qr.A1 && ok.qr.A1.pin === undefined);
+    });
+    await test('QR transfer: pay method validated; QR only after cashier check-bill, unchanged bill, valid PIN, not expired', async function () {
+      const call = function (x) { return jsonp('action=callbill&payload=' + encodeURIComponent(JSON.stringify(Object.assign({ action: 'callbill', table: 'A1', pin: '1234' }, x)))); };
+      const act = function (action, pin) { return jsonp('action=' + action + '&payload=' + encodeURIComponent(JSON.stringify({ action: action, table: 'A1', pin: pin === undefined ? '1234' : pin }))); };
+      const sigOf = function (g) { return g.tables.A1.items.map(function (i) { return [i.id, i.qty, i.price || 0, i.modPrice || 0, i.disc || 0, i.promoAmt || 0].join(':'); }).join(',') + '|' + (g.billDiscPct || 0) + '|' + (g.serviceChargePct || 0) + '|' + (g.vatPct || 0); };
+      let r = await call({ pay: 'transfer' }); assert.strictEqual(r.ok, false, 'no bank QR configured → refused');
+      let g = await getState(); g.bankQR = '000201010212SHOPQR'; g._v = Date.now() + 100; await post(JSON.stringify(g));
+      r = await call({ pay: '<script>' }); assert.ok(r.ok); g = await getState(); assert.strictEqual(g.tables.A1.callPay, '', 'unknown method is dropped');
+      r = await call({ pay: 'transfer' }); assert.ok(r.ok); g = await getState(); assert.strictEqual(g.tables.A1.callPay, 'transfer'); assert.strictEqual(g.tables.A1.status, 'callbill');
+      let pi = await act('payinfo'); assert.ok(pi.ok && pi.xfer === null && !pi.stale, 'not checked yet → no QR');
+      pi = await act('payinfo', '0000'); assert.strictEqual(pi.ok, false, 'wrong PIN');
+      /* staff checks the bill: status bill + xfer (amount + EMV from the staff device) */
+      g = await getState(); g.tables.A1.status = 'bill'; g.tables.A1.xfer = { amt: 5000, qr: 'EMV-PAYLOAD-5000', sig: sigOf(g), exp: Date.now() + 600000 }; g.tables.A1.upd = Date.now() + 1000; g._v = Date.now() + 200; await post(JSON.stringify(g));
+      pi = await act('payinfo'); assert.ok(pi.xfer && pi.xfer.amt === 5000 && pi.xfer.qr === 'EMV-PAYLOAD-5000' && !pi.stale, JSON.stringify(pi));
+      const cs = (await jsonp('cust=1&table=A1&pin=1234')).state; assert.ok(cs.indexOf('EMV-PAYLOAD-5000') < 0, 'the transfer QR is not in the general customer state');
+      /* bill changes after the QR → QR withheld (customer is not asked to pay a wrong amount) */
+      g = await getState(); g.tables.A1.items[0].qty += 1; g.tables.A1.upd = Date.now() + 2000; g._v = Date.now() + 300; await post(JSON.stringify(g));
+      pi = await act('payinfo'); assert.ok(pi.xfer === null && pi.stale === true, JSON.stringify(pi));
+      g = await getState(); g.tables.A1.items[0].qty -= 1; g.tables.A1.xfer.exp = Date.now() - 1000; g.tables.A1.upd = Date.now() + 3000; g._v = Date.now() + 400; await post(JSON.stringify(g));
+      pi = await act('payinfo'); assert.ok(pi.xfer === null && pi.stale === true, 'expired');
+      g = await getState(); g.tables.A1.xfer.exp = Date.now() + 600000; g.tables.A1.upd = Date.now() + 4000; g._v = Date.now() + 500; await post(JSON.stringify(g));
+      pi = await act('payinfo'); assert.ok(pi.xfer, 'valid again');
+      /* the customer can only notify — never mark the bill paid */
+      let n = await act('paidnotice'); assert.ok(n.ok, JSON.stringify(n)); g = await getState(); assert.ok(g.tables.A1.xferNotice > 0); assert.strictEqual(g.tables.A1.status, 'bill'); assert.strictEqual((g.bills || []).filter(function (b) { return b.table === 'A1'; }).length, 0);
+      n = await act('paidnotice'); assert.strictEqual(n.dup, true);
+      n = await act('paidnotice', '0000'); assert.strictEqual(n.ok, false);
     });
     await test('staff device saving an old copy keeps the QR order (mergeQr_)', async function () {
       const g = await getState(); const old = JSON.parse(JSON.stringify(g)); old.tables.A1.items = []; old.orders = []; old.tables.A1.status = 'free'; old.tables.A1.upd = 1; old._v = now + 40;
