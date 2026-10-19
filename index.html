@@ -10013,7 +10013,6 @@ function renderCustOrders(R){var t=state.tables[state.activeTable]||{items:[],na
  custPayPoll();setTimeout(custDrawXferQR,0);}
 /* ເລືອກວິທີຈ່າຍກ່ອນເຊັກບິນ: ເງິນສົດ / ເງິນໂອນ */
 function custPayAsk(){var t=state.tables[state.activeTable];if(!t||!(t.items&&t.items.length)){toast('ຍັງບໍ່ມີອໍເດີ');return;}
- if(!state.xferOn){custCheckBill('cash');return;}
  openModal('<h2>ຈະຈ່າຍແບບໃດ?</h2><p style="text-align:center;color:var(--muted);margin:-2px 0 12px;font-size:14px">ຍອດທັງໝົດ <b>'+KIP(grandTotal(t))+'</b> ກີບ (ກ່ອນຫັກສ່ວນລົດ/ໂປຣ)</p><div class="payask"><button type="button" class="pa-b" onclick="closeModal();custCheckBill(\'cash\')"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8"/></svg><b>ເງິນສົດ</b><small>ຈ່າຍທີ່ໂຕະ ກັບພະນັກງານ</small></button><button type="button" class="pa-b" onclick="closeModal();custCheckBill(\'transfer\')"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/></svg><b>ເງິນໂອນ</b><small>ສະແກນ QR ຈາກແອັບທະນາຄານ</small></button></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button></div>');}
 function custCheckBill(pay){pay=(pay==='transfer')?'transfer':'cash';var t=state.tables[state.activeTable];if(!t||!(t.items&&t.items.length)){toast('ຍັງບໍ່ມີອໍເດີ');return;}
  custBusy(true,'ກຳລັງແຈ້ງແຄັສເຊຍ…');
@@ -10031,7 +10030,7 @@ function custXferPanel(t,xi){
  if(t.status!=='bill')return '<div class="custbilled">ຈ່າຍ: ເງິນໂອນ — ແຈ້ງແຄັສເຊຍແລ້ວ<br><small>ເມື່ອແຄັສເຊຍເຊັກບິນໃຫ້ ຈະມີ QR ພ້ອມຍອດຂຶ້ນຢູ່ບ່ອນນີ້</small></div>';
  if(!xi)return '<div class="custbilled">ກຳລັງກວດບິນ…</div>';
  if(xi.stale)return '<div class="custbilled">ບິນມີການປ່ຽນແປງ — ລໍແຄັສເຊຍເຊັກບິນໃໝ່ ເພື່ອອອກ QR ຍອດທີ່ຖືກຕ້ອງ<br><small>ຢ່າໂອນຈົນກວ່າຈະມີ QR ໃໝ່</small></div>';
- if(!xi.xfer)return '<div class="custbilled">ແຄັສເຊຍກຳລັງເຊັກບິນ… QR ຈະຂຶ້ນໃນບໍ່ຊ້າ</div>';
+ if(!xi.xfer)return '<div class="custbilled">'+(state.xferOn?'ແຄັສເຊຍກຳລັງເຊັກບິນ… QR ຈະຂຶ້ນໃນບໍ່ຊ້າ':'ຮ້ານຍັງບໍ່ໄດ້ຕັ້ງ QR ໂອນໃນລະບົບ — ແຄັສເຊຍຈະບອກວິທີໂອນ')+'</div>';
  var x=xi.xfer,ex=new Date(x.exp),hm=('0'+ex.getHours()).slice(-2)+':'+('0'+ex.getMinutes()).slice(-2),noted=xi.notice&&Date.now()-xi.notice<30*60000;
  return '<div class="xfer-card"><div class="xf-h">ໂອນເງິນຜ່ານ QR</div><div class="xf-amt">'+KIP(x.amt)+' <small>ກີບ</small></div><div class="xf-sub">ຮ້ານ <b>'+cesc(x.shop||state.shopName||'')+'</b> · ໂຕະ '+cesc(t.name)+'</div><div id="xfQR" class="xf-qr" data-q="'+aesc(x.qr)+'"><span>…</span></div><div class="xf-exp">QR ໃຊ້ໄດ້ຮອດ '+hm+'</div>'+
   '<button type="button" class="xf-done" onclick="custPaidNotice()"'+(noted?' disabled':'')+'>'+(noted?'ແຈ້ງແລ້ວ — ລໍແຄັສເຊຍກວດຍອດ ✓':'ຂ້ອຍໂອນແລ້ວ')+'</button>'+

@@ -465,7 +465,6 @@ function custAction_(payload) {
       t.callTs = now;
       var pay = String(payload.pay || '');
       if (pay !== 'cash' && pay !== 'transfer') pay = '';
-      if (pay === 'transfer' && !st.bankQR) return { ok: false, err: 'ຮ້ານຍັງບໍ່ໄດ້ເປີດຮັບໂອນ — ກະລຸນາເລືອກເງິນສົດ' };
       t.callPay = pay;
       if (!st.orderLog) st.orderLog = [];
       st.orderLog.push({ ts: now, table: table, action: 'ຂໍເຊັກບິນ (QR)', detail: pay === 'transfer' ? 'ຈ່າຍ: ເງິນໂອນ' : pay === 'cash' ? 'ຈ່າຍ: ເງິນສົດ' : '', by: 'ລູກຄ້າ QR ໂຕະ ' + table });

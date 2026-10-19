@@ -91,7 +91,7 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
       const call = function (x) { return jsonp('action=callbill&payload=' + encodeURIComponent(JSON.stringify(Object.assign({ action: 'callbill', table: 'A1', pin: '1234' }, x)))); };
       const act = function (action, pin) { return jsonp('action=' + action + '&payload=' + encodeURIComponent(JSON.stringify({ action: action, table: 'A1', pin: pin === undefined ? '1234' : pin }))); };
       const sigOf = function (g) { return g.tables.A1.items.map(function (i) { return [i.id, i.qty, i.price || 0, i.modPrice || 0, i.disc || 0, i.promoAmt || 0].join(':'); }).join(',') + '|' + (g.billDiscPct || 0) + '|' + (g.serviceChargePct || 0) + '|' + (g.vatPct || 0); };
-      let r = await call({ pay: 'transfer' }); assert.strictEqual(r.ok, false, 'no bank QR configured → refused');
+      let r = await call({ pay: 'transfer' }); assert.ok(r.ok, 'transfer is still accepted without a bank QR (cashier tells the customer how to pay)');
       let g = await getState(); g.bankQR = '000201010212SHOPQR'; g._v = Date.now() + 100; await post(JSON.stringify(g));
       r = await call({ pay: '<script>' }); assert.ok(r.ok); g = await getState(); assert.strictEqual(g.tables.A1.callPay, '', 'unknown method is dropped');
       r = await call({ pay: 'transfer' }); assert.ok(r.ok); g = await getState(); assert.strictEqual(g.tables.A1.callPay, 'transfer'); assert.strictEqual(g.tables.A1.status, 'callbill');
