@@ -401,24 +401,28 @@ function modInfo_(st, def, mods) {
 }
 function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).concat(line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
 /* ລະຫັດ PIN/ໝົດອາຍຸ ຂອງ QR ໂຕະ — ໃຊ້ທັງອ່ານ ແລະ ສັ່ງ (PIN ບໍ່ຖືກສົ່ງຄືນໄປຫາລູກຄ້າ) */
-function custPinOk_(st, table, pin) {
+function custPinOk_(st, table, pin, prevOk) {
   if (st.qrGlobal === false) return false;
   var q = (st.qr || {})[table];
   if (q && q.enabled === false) return false;
   if (st.qrPinRequired === false) return true;
   if (!q) return false;
   if (st.qrExpires !== false && q.expiry < Date.now()) return false;
-  return String(pin || '') === String(q.pin);
+  if (String(pin || '') === String(q.pin)) return true;
+  /* ຫຼັງແຄັສເຊຍເຊັກບິນ ລະບົບປ່ຽນ PIN ໃໝ່ (QR ເກົ່າໃຊ້ສັ່ງບໍ່ໄດ້) — ໂທລະສັບຂອງລູກຄ້າທີ່ນັ່ງຢູ່ ຍັງໃຊ້ PIN ເກົ່າ ອ່ານ/ເບິ່ງ QR ໂອນ/ແຈ້ງໂອນໄດ້ ແລ້ວຮັບ PIN ໃໝ່ */
+  return !!(prevOk && q.prevPin && String(pin || '') === String(q.prevPin));
 }
 /* ລາຍເຊັນຂອງບິນ — ຖ້າລາຍການ/ລາຄາ/ສ່ວນລົດປ່ຽນຫຼັງພະນັກງານເຊັກບິນ QR ໂອນເກົ່າຈະບໍ່ຖືກສະແດງ (ກັນລູກຄ້າໂອນຜິດຍອດ) */
 function tblSig_(st, t) {
   return (t.items || []).map(function (i) { return [i.id, i.qty, i.price || 0, i.modPrice || 0, i.disc || 0, i.promoAmt || 0].join(':'); }).join(',') +
     '|' + (st.billDiscPct || 0) + '|' + (st.serviceChargePct || 0) + '|' + (st.vatPct || 0);
 }
-function custFilter_(st, table, pin) {
-  var ok = custPinOk_(st, table, pin);
+function custFilter_(st, table, pin, prevOk) {
+  var ok = custPinOk_(st, table, pin, prevOk);
   var out = { cust: true, shopName: st.shopName || '', pinOk: ok };
   if (!ok) return out;
+  var q0 = (st.qr || {})[table];
+  if (q0 && q0.prevPin && String(pin || '') === String(q0.prevPin)) out.np = String(q0.pin);
   out.catalog = st.catalog || {}; out.menuImg = st.menuImg || {};
   out.soldOut = qrSoldOut_(st); out.modGroups = (st.modules && st.modules.opts === false) ? [] : (st.modGroups || []);
   out.serviceChargePct = st.serviceChargePct || 0; out.vatPct = st.vatPct || 0; out.billDiscPct = st.billDiscPct || 0;
@@ -433,7 +437,7 @@ function custFilter_(st, table, pin) {
   return out;
 }
 function getStateCust(table, pin) {
-  try { var s = getState_(); if (!s) return ''; return JSON.stringify(custFilter_(JSON.parse(s), String(table), pin)); }
+  try { var s = getState_(); if (!s) return ''; return JSON.stringify(custFilter_(JSON.parse(s), String(table), pin, true)); }
   catch (e) { return ''; }
 }
 
@@ -456,7 +460,8 @@ function custAction_(payload) {
     if (st.qrPinRequired !== false) {
       if (!q) return { ok: false, err: 'QR ໝົດອາຍຸ — ຂໍ QR ໃໝ່ຈາກພະນັກງານ' };
       if (st.qrExpires !== false && q.expiry < Date.now()) return { ok: false, err: 'QR ໝົດອາຍຸ — ຂໍ QR ໃໝ່ຈາກພະນັກງານ' };
-      if (String(payload.pin || '') !== String(q.pin)) return { ok: false, err: 'ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ' };
+      var prevOk = payload.action === 'payinfo' || payload.action === 'paidnotice';
+      if (String(payload.pin || '') !== String(q.pin) && !(prevOk && q.prevPin && String(payload.pin || '') === String(q.prevPin))) return { ok: false, err: 'ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ' };
     }
     var now = Date.now();
     if (payload.action === 'callbill') {
@@ -476,7 +481,7 @@ function custAction_(payload) {
     if (payload.action === 'payinfo') {
       var xf = t.xfer, live = !!(t.status === 'bill' && t.callPay === 'transfer' && xf && xf.qr && (t.items || []).length);
       var good = live && xf.sig === tblSig_(st, t) && (+xf.exp || 0) > now;
-      return { ok: true, status: t.status, callPay: t.callPay || '', notice: t.xferNotice || 0,
+      return { ok: true, status: t.status, callPay: t.callPay || '', notice: t.xferNotice || 0, np: (q && q.prevPin && String(payload.pin || '') === String(q.prevPin)) ? String(q.pin) : '',
         xfer: good ? { amt: xf.amt, qr: xf.qr, no: xf.no || '', exp: xf.exp, shop: st.shopName || '' } : null, stale: live && !good };
     }
     if (payload.action === 'paidnotice') {
@@ -488,7 +493,8 @@ function custAction_(payload) {
       t.upd = now; st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
       return { ok: true };
     }
-    /* action === 'order' */
+    /* action === 'order' — ຫຼັງເຊັກບິນແລ້ວ ສັ່ງເພີ່ມບໍ່ໄດ້ (ກັນຄົນກົດກວນ ຫຼື ສັ່ງຈາກບ່ອນອື່ນ) ຈົນກວ່າຈະຈ່າຍ/ເປີດບິນໃໝ່ */
+    if (t.status === 'bill' || t.status === 'callbill') return { ok: false, err: 'ບິນນີ້ເຊັກແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ ກະລຸນາບອກພະນັກງານ' };
     /* ກັນສັ່ງຊ້ຳ: GET ອາດຖືກສົ່ງຊ້ຳ (ເນັດຊ້າ/retry) → ໃຊ້ rid ຈາກເຄື່ອງລູກຄ້າ */
     var rid = String(payload.rid || '').slice(0, 64), ridKey = rid ? 'qrrid_' + rid : '';
     if (rid) {

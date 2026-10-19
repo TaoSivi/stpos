@@ -113,6 +113,18 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
       n = await act('paidnotice'); assert.strictEqual(n.dup, true);
       n = await act('paidnotice', '0000'); assert.strictEqual(n.ok, false);
     });
+    await test('QR after check-bill: ordering locked; PIN rotated (old QR dead) but the seated phone keeps read/payinfo/notice and gets the new PIN', async function () {
+      const ord = function (pin) { return jsonp('action=order&payload=' + encodeURIComponent(JSON.stringify({ action: 'order', table: 'A1', pin: pin, rid: 'lk' + Math.random(), items: [{ code: 'F1', qty: 1 }] }))); };
+      let r = await ord('1234'); assert.strictEqual(r.ok, false, 'billed table refuses new QR orders'); assert.ok(/ເຊັກແລ້ວ/.test(r.err), r.err);
+      let g = await getState(); g.qr.A1.prevPin = g.qr.A1.pin; g.qr.A1.pin = '999999'; g._v = Date.now() + 900; await post(JSON.stringify(g));
+      r = await ord('1234'); assert.strictEqual(r.ok, false);
+      const old = JSON.parse((await jsonp('cust=1&table=A1&pin=1234')).state); assert.strictEqual(old.pinOk, true); assert.strictEqual(old.np, '999999', 'seated phone is handed the new PIN');
+      const pi = await jsonp('action=payinfo&payload=' + encodeURIComponent(JSON.stringify({ action: 'payinfo', table: 'A1', pin: '1234' }))); assert.ok(pi.ok && pi.np === '999999');
+      const cb = await jsonp('action=callbill&payload=' + encodeURIComponent(JSON.stringify({ action: 'callbill', table: 'A1', pin: '1234', pay: 'cash' }))); assert.strictEqual(cb.ok, false, 'old PIN cannot change the bill state');
+      const nw = JSON.parse((await jsonp('cust=1&table=A1&pin=999999')).state); assert.strictEqual(nw.pinOk, true);
+      const bad = JSON.parse((await jsonp('cust=1&table=A1&pin=0000')).state); assert.strictEqual(bad.pinOk, false);
+      g = await getState(); g.qr.A1.pin = '1234'; delete g.qr.A1.prevPin; g._v = Date.now() + 950; await post(JSON.stringify(g)); /* restore for the tests below */
+    });
     await test('staff device saving an old copy keeps the QR order (mergeQr_)', async function () {
       const g = await getState(); const old = JSON.parse(JSON.stringify(g)); old.tables.A1.items = []; old.orders = []; old.tables.A1.status = 'free'; old.tables.A1.upd = 1; old._v = now + 40;
       old.tables.A2.status = 'busy'; old.tables.A2.upd = Date.now() + 5;

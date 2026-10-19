@@ -2808,6 +2808,8 @@ table.tbl:has(.pcell) td{line-height:1.4}
 #app.cust .pb-go.done{background:rgba(255,255,255,.18);color:#fff}
 #app.cust .custord{padding-bottom:150px}
 #app.cust .rvfoot{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(246,250,249,0),#f3f8f7 22%);z-index:20}
+.custlock{margin:12px 14px 0;padding:12px 14px;border-radius:16px;background:#fff7f7;border:1px solid #f6c9cb;color:#b42323;font-weight:800;text-align:center;line-height:1.5}.custlock small{font-weight:600}
+#app.cust .bill-dl{margin-top:10px}
 .payask{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .custord .custbilled{margin:12px}
 body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px + env(safe-area-inset-bottom))}
@@ -3104,7 +3106,7 @@ function custSend(payload,cb){
  if(HAS_GAS){google.script.run.withSuccessHandler(function(s){var r=null;try{r=JSON.parse(s);}catch(e){}cb(r);}).withFailureHandler(function(){cb(null);}).submitOrder(JSON.stringify(payload));}
  else if(HAS_API){apiAction(payload,cb);}
  else{cb({ok:false,err:'ໂໝດ Local preview ສັ່ງຜ່ານ QR ບໍ່ໄດ້'});}}
-function applyCustState(s){var ns=null;try{ns=(typeof s==='string')?JSON.parse(s):s;}catch(e){}if(!ns)return false;
+function applyCustState(s){var ns=null;try{ns=(typeof s==='string')?JSON.parse(s):s;}catch(e){}if(!ns)return false;if(ns.np)custNewPin(ns.np);
  var draft=state&&state.draft?state.draft:[];state=ns;state.draft=draft;
  if(window.__custTable)state.activeTable=window.__custTable;
  if(!state.activeCat||!(state.catalog&&state.catalog[state.activeCat]))state.activeCat=Object.keys(state.catalog||{})[0];
@@ -3216,7 +3218,7 @@ var _ensD0=ensureDefaults;ensureDefaults=function(){_ensD0();try{snapUpd();}catc
 /* ຄ່າທີ່ເປັນຂອງ "ເຄື່ອງນີ້" (ໂຕະທີ່ເປີດຢູ່, ໝວດທີ່ເລືອກ, ກິນຢູ່ຮ້ານ/ກັບບ້ານ, ສ່ວນຫຼຸດບິນທີ່ກຳລັງເຮັດ) — ຮັບຂໍ້ມູນຈາກເຄື່ອງອື່ນແລ້ວ ຫ້າມຖືກທັບ (ບໍ່ດັ່ງນັ້ນເຄື່ອງ A ເປີດໂຕະ A1 ຢູ່ ແຕ່ເຄື່ອງ B ບັນທຶກ → ໜ້າຈໍ A ຖືກສະຫຼັບໄປໂຕະ B ເອງ ແລະ ອໍເດີຜິດໂຕະ) */
 function keepLocalUI(ns){try{['activeTable','activeCat','activeSub','dineType','billDiscPct'].forEach(function(k){if(state&&state[k]!==undefined)ns[k]=state[k];});if(ns.tables&&ns.activeTable&&!ns.tables[ns.activeTable]){var f=Object.keys(ns.tables)[0];if(f)ns.activeTable=f;}}catch(e){}return ns;}
 function save(){if(isCust())return; /* ລູກຄ້າ QR ບໍ່ຂຽນ state ເຕັມ — ສັ່ງຜ່ານ custSend ເທົ່ານັ້ນ */
- try{Object.keys(state.tables||{}).forEach(function(k){var tt=state.tables[k];if(tt&&(tt.status==='free'||!(tt.items&&tt.items.length))&&(tt.callPay||tt.xfer||tt.xferNotice)){delete tt.callPay;delete tt.xfer;delete tt.xferNotice;}});}catch(e){}
+ try{Object.keys(state.tables||{}).forEach(function(k){var tt=state.tables[k];if(tt&&(tt.status==='free'||!(tt.items&&tt.items.length))&&(tt.callPay||tt.xfer||tt.xferNotice)){delete tt.callPay;delete tt.xfer;delete tt.xferNotice;}if(tt&&tt.status==='free'&&state.qr&&state.qr[k]&&state.qr[k].prevPin){try{chatClear(k);}catch(e){}delete state.qr[k];}});}catch(e){}
  try{draftKeep();}catch(e){}
  try{stampUpd();}catch(e){}
  state._v=Math.max(Date.now(),(+state._v||0)+1);state._srcLoc=curLoc();
@@ -3315,7 +3317,7 @@ function startSync(){
  if(getQ('table')&&(HAS_GAS||HAS_API)){ /* ລູກຄ້າ QR: ດຶງສະເພາະໂຕະຕົນເອງ */
   setInterval(function(){if(document.getElementById('modalRoot').innerHTML)return;if(state&&state.draft&&state.draft.length)return;
    var tb=getQ('table');var handle=function(s){if(!s)return;var ns;try{ns=(typeof s==='string')?JSON.parse(s):s;}catch(e){return;}if(ns&&ns.pinOk===false)return;if(ns&&ns._v&&(!state._v||ns._v>state._v)){applyCustState(ns);render();}};
-   if(HAS_GAS)google.script.run.withSuccessHandler(handle).getStateCust(tb,getQ('pin')||'');else apiGetCust(tb,handle);},7000);setInterval(function(){if(custView==='orders')custPayPoll();},4000);
+   if(HAS_GAS)google.script.run.withSuccessHandler(handle).getStateCust(tb,getQ('pin')||'');else apiGetCust(tb,handle);},7000);setInterval(function(){var tt=state.tables&&state.tables[state.activeTable];if(tt&&(tt.status==='callbill'||tt.status==='bill'))custPayPoll();},3000);
   return;}
  if(HAS_GAS){setInterval(()=>{if(_saving||_pending)return;if(document.getElementById('modalRoot').innerHTML)return;
   if(view==='order'&&state.draft&&state.draft.length)return;
@@ -3932,7 +3934,7 @@ function toggleSoldOut(code){if(!can('soldout')){toast('ບໍ່ມີສິດ
  logOrder(state.soldOut[code]?'ງົດຂາຍເມນູ':'ເປີດຂາຍເມນູ',(m?m.n:code),'');save();render();}
 function activePromo(){var ps=state.promos||[];var d=new Date();var hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
  for(var i=0;i<ps.length;i++){var p=ps[i];if(!p||p.active===false)continue;if(p.from&&p.to){if(hm<p.from||hm>=p.to)continue;}return p;}return null;}
-function pushToDraft(p,mods,modPrice,x,qty){mods=(mods||[]).filter(Boolean);if(bizCur()==='medical')mods=mods.filter(function(m){return m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});if(!state.draft)state.draft=[];qty=Math.max(1,+qty||1);const key=p.c+'|'+mods.join(',');const ex=state.draft.find(d=>(d.code+'|'+d.mods.join(','))===key);
+function pushToDraft(p,mods,modPrice,x,qty){if(isCust()&&custLocked()){toast('ບິນເຊັກແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ ກະລຸນາບອກພະນັກງານ','warn');return;}mods=(mods||[]).filter(Boolean);if(bizCur()==='medical')mods=mods.filter(function(m){return m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});if(!state.draft)state.draft=[];qty=Math.max(1,+qty||1);const key=p.c+'|'+mods.join(',');const ex=state.draft.find(d=>(d.code+'|'+d.mods.join(','))===key);
  if(ex){ex.qty+=qty;}else{var ln={id:Date.now()+Math.random(),code:p.c,name:p.n,price:p.p,qty:qty,mods,modPrice,disc:0,k:p.k};if(x&&+x.bm>0&&+x.bm!==1)ln.bm=+x.bm;if(x&&x.xb&&x.xb.length)ln.xb=x.xb;if(mods[0]==='ກັບບ້ານ'&&!isCust()){var pk=pkgFor(p,mods);if(pk.length){ln.pk=pk;pkgShortWarn(pk,p.n);}}state.draft.push(ln);}save();renderCart();}
 let modState=null;
 /* ໜ້າຕ່າງເລືອກ ຂະໜາດ / Topping / ຕົວເລືອກ — ຂະໜາດຂຶ້ນກ່ອນ (ເລືອກໃຫ້ແລ້ວ) · ປຸ່ມເພີ່ມບອກລາຄາລວມ */
@@ -4190,8 +4192,10 @@ function xferPack(t,grand){if(t.callPay!=='transfer')return '';if(!state.bankQR)
  var qr=emvWithAmount(state.bankQR,grand);if(!qr)return '<div class="rv-warn">QR ໂອນຂອງຮ້ານບໍ່ຖືກຮູບແບບ — ກວດໃນຕັ້ງຄ່າ</div>';
  t.xfer={amt:grand,qr:qr,sig:xferSig(t),exp:Date.now()+20*60000,ts:Date.now()};delete t.xferNotice;
  return '<div class="rv-warn" style="background:#e6f5f3;color:#0a4f4c">ສົ່ງ QR ໂອນ ຍອດ <b>'+KIP(grand)+'</b> ກີບ ໃຫ້ລູກຄ້າທາງແອັບແລ້ວ (ໃຊ້ໄດ້ 20 ນາທີ) — ເມື່ອເງິນເຂົ້າ ກົດ "ໄປຮັບເງິນ" ເລືອກໂອນ</div>';}
+/* ເຊັກບິນແລ້ວ → ປ່ຽນ PIN ຂອງ QR ໂຕະ (QR ເກົ່າ/ລິ້ງເກົ່າ ໃຊ້ສັ່ງບໍ່ໄດ້) — ໂທລະສັບລູກຄ້າທີ່ນັ່ງຢູ່ຮັບ PIN ໃໝ່ອັດຕະໂນມັດ; ຈ່າຍແລ້ວໂຕະວ່າງ → QR ໃໝ່ທັງໝົດ */
+function rotateQR(name){var q=state.qr&&state.qr[name];if(q&&q.pin&&!q.prevPin){q.prevPin=q.pin;q.pin=String(Math.floor(100000+Math.random()*900000));}}
 function checkBill(){if(nopayGuard())return;const t=state.tables[state.activeTable];if(!t.items.length){toast('ໂຕະນີ້ຍັງບໍ່ມີລາຍການ');return;}
- recalcPromos(t.items);var grand=grandTotal(t);var _xn=xferPack(t,grand);
+ recalcPromos(t.items);var grand=grandTotal(t);var _xn=xferPack(t,grand);try{rotateQR(t.name);}catch(e){}
  var preview={receipt:String(state.receiptSeq+1).padStart(10,'0'),table:t.name,items:t.items,total:grand,pay:'ເຊັກບິນ (ຍັງບໍ່ຈ່າຍ)',cashier:whoBy(),ts:Date.now()};if(t.splitN>1)preview.split={n:t.splitN,per:Math.ceil(grand/t.splitN)};
  var rcpt=buildReceiptHTML(preview);__rcptHTML=rcpt;
  openModal('<h2> ໃບເຊັກບິນ — ໂຕະ '+t.name+'</h2>'+_xn+'<div style="text-align:center;max-height:52vh;overflow:auto;background:#f1f5f9;padding:10px;border-radius:10px"><div class="rcpt-prev">'+rcpt+'</div></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok" onclick="printLast()"> ພິມບິນ</button><button class="btn-ok grad" onclick="closeModal();receivePayment()">ໄປຮັບເງິນ</button></div>');renderRcptQRIn(document.getElementById('modalRoot'));
@@ -9979,6 +9983,8 @@ function isCust(){var a=document.getElementById('app');return !!(a&&a.classList.
 function custShareQR(){var u=location.href.split('#')[0];
  openModal('<h2>QR ໃຫ້ໝູ່ສະແກນ</h2><p style="text-align:center;color:var(--muted);font-size:13px;margin:0 0 10px">ໝູ່ສະແກນແລ້ວສັ່ງອາຫານໂຕະ <b>'+cesc(state.activeTable||'')+'</b> ໄດ້ເລີຍ — ອໍເດີທຸກຄົນລວມຢູ່ບິນດຽວກັນ</p><div id="custqrbox" style="display:flex;justify-content:center;min-height:210px;align-items:center"><span style="color:#94a3b8">...</span></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');
  var box=document.getElementById('custqrbox');loadQRLib(function(){if(!box)return;box.innerHTML='';if(window.QRCode)new QRCode(box,{text:u,width:210,height:210,correctLevel:QRCode.CorrectLevel.M});else box.innerHTML='<span style="color:#94a3b8">ໂຫຼດ QR ບໍ່ໄດ້ (ກວດອິນເຕີເນັດ)</span>';});}
+function custLocked(){var t=state.tables&&state.tables[state.activeTable];return !!(t&&(t.status==='bill'||t.status==='callbill'));}
+function custNewPin(np){if(!np)return;try{var u=new URL(location.href);if(u.searchParams.get('pin')!==String(np)){u.searchParams.set('pin',np);history.replaceState(null,'',u.pathname+u.search+u.hash);}}catch(e){}}
 function custGo(v){custView=v;render();window.scrollTo(0,0);}
 function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var nm=state.shopName||'ST POS';
  var I={menu:'<path d="M4 3v7a3 3 0 0 0 3 3v8M7 3v7M10 3v7a3 3 0 0 1-3 3M18 3c-2 1.5-3 4-3 7s1 4 3 4v7"/>',orders:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/>'};
@@ -9991,7 +9997,7 @@ function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var
   '<button type="button" class="cs-share" onclick="custShareQR()" aria-label="ແບ່ງ QR ໃຫ້ໝູ່ສະແກນສັ່ງອາຫານ">'+ic('qr')+'<span>QR ສັ່ງອາຫານ</span></button></nav>';}
 function renderCust(R){setTimeout(function(){try{ccInit();}catch(e){}},0);var v=custView||'menu';if(v==='review')return renderCustReview(R);if(v==='orders')return renderCustOrders(R);return renderCustMenu(R);}
 function renderCustMenu(R){var M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];
- R.innerHTML=custHeader('menu')+'<div class="custmenu"><div class="cs-tools" id="custTools"></div><div class="cats">'+Object.keys(M).map(function(cat){return '<button class="cat '+(cat===state.activeCat?'active':'')+'" data-cat="'+cat.replace(/"/g,'&quot;')+'" onclick="setCat(this.getAttribute(\'data-cat\'))">'+cat+'</button>';}).join('')+'</div><div class="subcats" id="subcats"></div><div class="products" id="products"></div></div><button class="custbar" id="custbar" onclick="custGo(\'review\')"></button>';
+ R.innerHTML=custHeader('menu')+(custLocked()?'<div class="custlock">ເຊັກບິນແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້<br><small>ຖ້າຕ້ອງການສັ່ງເພີ່ມ ກະລຸນາບອກພະນັກງານ</small></div>':'')+'<div class="custmenu"><div class="cs-tools" id="custTools"></div><div class="cats">'+Object.keys(M).map(function(cat){return '<button class="cat '+(cat===state.activeCat?'active':'')+'" data-cat="'+cat.replace(/"/g,'&quot;')+'" onclick="setCat(this.getAttribute(\'data-cat\'))">'+cat+'</button>';}).join('')+'</div><div class="subcats" id="subcats"></div><div class="products" id="products"></div></div><button class="custbar" id="custbar" onclick="custGo(\'review\')"></button>';
  renderSubcats();renderProducts();custBar();}
 function custBar(){var b=document.getElementById('custbar');if(!b)return;var d=state.draft||[];var n=d.reduce(function(s,i){return s+i.qty;},0);var sub=d.reduce(function(s,i){return s+lineTotal(i);},0);var _f=document.getElementById('ccFab');if(_f)_f.classList.toggle('up',n>0);if(!n){b.style.display='none';return;}b.style.display='flex';b.innerHTML='<span class="cb-l"><i class="cb-n">'+n+'</i>ເບິ່ງລາຍການ</span><span class="cb-r">'+KIP(sub)+' ກີບ</span>';}
 function renderCustReview(R){var d=state.draft||[];var sub=d.reduce(function(s,i){return s+lineTotal(i);},0);
@@ -10008,7 +10014,7 @@ function renderCustOrders(R){var t=state.tables[state.activeTable]||{items:[],na
  else if(billed)panel='<div class="custbilled">ເອີ້ນພະນັກງານແລ້ວ — ກຳລັງເອົາບິນໄປໃຫ້ທີ່ໂຕະ '+cesc(t.name)+'</div>';
  var xamt=(xi&&xi.xfer&&t.status==='bill')?xi.xfer.amt:0;
  var go=!its.length?'':(billed?'<button type="button" class="pb-go done" disabled>ແຈ້ງແລ້ວ ✓</button>':'<button type="button" class="pb-go" onclick="custPayAsk()">ເຊັກບິນ</button>');
- R.innerHTML=custHeader('orders')+'<div class="custord">'+list+panel+'<div style="padding:12px"><button class="rvback" style="margin-top:0" onclick="custGo(\'menu\')">+ ສັ່ງເພີ່ມ</button></div></div>'+
+ R.innerHTML=custHeader('orders')+'<div class="custord">'+list+panel+'<div style="padding:12px">'+(billed?'<div class="custnote" style="margin:0 0 10px">ເຊັກບິນແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ (ຖ້າຕ້ອງການ ບອກພະນັກງານ)</div>':'<button class="rvback" style="margin-top:0" onclick="custGo(\'menu\')">+ ສັ່ງເພີ່ມ</button>')+(its.length?'<button type="button" class="rvback bill-dl" onclick="custBillImg()">⬇ ບັນທຶກບິນ / ລາຍການ ເປັນຮູບ</button>':'')+'</div></div>'+
   (its.length?'<div class="cs-paybar"><div class="pb-t"><small>'+(xamt?'ຍອດທີ່ຕ້ອງໂອນ':'ຍອດລວມທັງໝົດ (ກ່ອນຫັກໂປຣ)')+'</small><b>'+KIP(xamt||tot)+' ກີບ</b></div>'+go+'</div>':'');
  custPayPoll();setTimeout(custDrawXferQR,0);}
 /* ເລືອກວິທີຈ່າຍກ່ອນເຊັກບິນ: ເງິນສົດ / ເງິນໂອນ */
@@ -10023,7 +10029,8 @@ function custCheckBill(pay){pay=(pay==='transfer')?'transfer':'cash';var t=state
 /* ກວດ QR ໂອນ ຈາກ server (ສະແດງສະເພາະເມື່ອແຄັສເຊຍເຊັກບິນແລ້ວ ແລະ ຍອດ/ລາຍການບໍ່ປ່ຽນ) */
 var __xpT=0;
 function custPayPoll(){var t=state.tables&&state.tables[state.activeTable];if(!t||(t.status!=='callbill'&&t.status!=='bill')){window.__xi=null;return;}if(Date.now()-__xpT<2500)return;__xpT=Date.now();
- custSend({action:'payinfo',table:state.activeTable,pin:getQ('pin')||''},function(r){if(!r||!r.ok)return;var old=JSON.stringify(window.__xi||{});window.__xi=r;
+ custSend({action:'payinfo',table:state.activeTable,pin:getQ('pin')||''},function(r){if(!r||!r.ok)return;if(r.np)custNewPin(r.np);var old=JSON.stringify(window.__xi||{}),hadQR=!!(window.__xi&&window.__xi.xfer);window.__xi=r;
+  if(r.xfer&&!hadQR)setTimeout(function(){custXferPopup();},50);
   if(r.status&&t.status!==r.status&&(r.status==='bill'||r.status==='callbill'))t.status=r.status;if(r.callPay!==undefined)t.callPay=r.callPay;
   if(JSON.stringify(r)!==old&&custView==='orders'&&!document.getElementById('modalRoot').innerHTML&&!document.getElementById('cfmRoot'))render();});}
 function custXferPanel(t,xi){
@@ -10035,14 +10042,42 @@ function custXferPanel(t,xi){
  return '<div class="xfer-card"><div class="xf-h">ໂອນເງິນຜ່ານ QR</div><div class="xf-amt">'+KIP(x.amt)+' <small>ກີບ</small></div><div class="xf-sub">ຮ້ານ <b>'+cesc(x.shop||state.shopName||'')+'</b> · ໂຕະ '+cesc(t.name)+'</div><div id="xfQR" class="xf-qr" data-q="'+aesc(x.qr)+'"><span>…</span></div><div class="xf-exp">QR ໃຊ້ໄດ້ຮອດ '+hm+'</div>'+
   '<button type="button" class="xf-done" onclick="custPaidNotice()"'+(noted?' disabled':'')+'>'+(noted?'ແຈ້ງແລ້ວ — ລໍແຄັສເຊຍກວດຍອດ ✓':'ຂ້ອຍໂອນແລ້ວ')+'</button>'+
   '<ul class="xf-safe"><li>ກວດຊື່ຜູ້ຮັບເງິນ ແລະ ຍອດ ໃນແອັບທະນາຄານ ໃຫ້ກົງ ກ່ອນກົດຢືນຢັນ</li><li>ການຈ່າຍຖືວ່າສຳເລັດ ເມື່ອແຄັສເຊຍກວດເຫັນເງິນເຂົ້າ — ກົດ "ຂ້ອຍໂອນແລ້ວ" ເປັນພຽງການແຈ້ງ</li><li>ຢ່າສົ່ງ QR ນີ້ໃຫ້ຄົນອື່ນ</li></ul></div>';}
-function custDrawXferQR(){var b=document.getElementById('xfQR');if(!b||b.getAttribute('data-d')===b.getAttribute('data-q'))return;var d=b.getAttribute('data-q');b.setAttribute('data-d',d);
- loadQRLib(function(){var e=document.getElementById('xfQR');if(!e)return;e.innerHTML='';if(window.QRCode)new QRCode(e,{text:d,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});else e.innerHTML='<span>ໂຫຼດ QR ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ</span>';});}
+function custDrawXferQR(id){id=id||'xfQR';var b=document.getElementById(id);if(!b||b.getAttribute('data-d')===b.getAttribute('data-q'))return;var d=b.getAttribute('data-q');b.setAttribute('data-d',d);
+ loadQRLib(function(){var e=document.getElementById(id);if(!e)return;e.innerHTML='';if(window.QRCode)new QRCode(e,{text:d,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});else e.innerHTML='<span>ໂຫຼດ QR ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ</span>';});}
+/* ແຄັສເຊຍເຊັກບິນແລ້ວ → QR ໂອນເດັ້ງຂຶ້ນໃນໂທລະສັບລູກຄ້າ (ປ໊ອບອັບ) */
+function custXferPopup(){var t=state.tables[state.activeTable],xi=window.__xi;if(!t||!xi||!xi.xfer||t.callPay!=='transfer')return;
+ try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+ if(document.getElementById('cfmRoot'))return;custView='orders';
+ var h=custXferPanel(t,xi).replace('id="xfQR"','id="xfQRm"');
+ openModal('<h2 style="margin-bottom:4px">ແຄັສເຊຍເຊັກບິນແລ້ວ</h2><p style="text-align:center;color:var(--muted);font-size:13.5px;margin:0 0 4px">ສະແກນ QR ເພື່ອໂອນເງິນ</p>'+h+'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal();render()">ປິດ</button></div>');
+ setTimeout(function(){custDrawXferQR('xfQRm');},30);}
+/* ບັນທຶກບິນ/ລາຍການເປັນຮູບ PNG ໃຫ້ລູກຄ້າເກັບໄວ້ */
+function custBillImg(){var t=state.tables[state.activeTable];if(!t||!(t.items&&t.items.length)){toast('ຍັງບໍ່ມີອໍເດີ');return;}
+ var its=t.items,sub=its.reduce(function(s,i){return s+lineTotal(i);},0),disc=Math.round(sub*(state.billDiscPct||0)/100),aft=sub-disc,svc=Math.round(aft*(state.serviceChargePct||0)/100),vat=Math.round((aft+svc)*(state.vatPct||0)/100),tot=aft+svc+vat;
+ var xi=window.__xi,pay=(xi&&xi.xfer&&t.status==='bill')?xi.xfer.amt:0;
+ var rows=its.map(function(i){return [i.qty+'× '+i.name+((i.mods||[]).filter(Boolean).length>1?' ('+i.mods.filter(Boolean).slice(1).join(', ')+')':''),KIP(lineTotal(i))];});
+ var ex=[['ລວມ',KIP(sub)]];if(disc)ex.push(['ສ່ວນຫຼຸດ','-'+KIP(disc)]);if(svc)ex.push(['Service '+state.serviceChargePct+'%',KIP(svc)]);if(vat)ex.push(['VAT '+state.vatPct+'%',KIP(vat)]);
+ var W=720,pad=36,lh=44,H=pad*2+150+rows.length*lh+ex.length*lh+(pay?lh*2:lh*1.6)+90,ff=(getComputedStyle(document.body).fontFamily||'sans-serif');
+ var go=function(){var c=document.createElement('canvas');c.width=W;c.height=H;var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#0b2e2c';g.textBaseline='middle';
+  g.font='bold 34px '+ff;g.textAlign='center';g.fillText(state.shopName||'ST POS',W/2,pad+22);
+  g.font='22px '+ff;g.fillStyle='#4d7471';g.fillText('ໂຕະ '+(t.name||'')+' · '+new Date().toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),W/2,pad+70);
+  g.fillText('ໃບລາຍການ (ບໍ່ແມ່ນໃບເສັດຮັບເງິນ)',W/2,pad+104);
+  var y=pad+150;g.strokeStyle='#cfe4e2';g.setLineDash([6,5]);g.beginPath();g.moveTo(pad,y-20);g.lineTo(W-pad,y-20);g.stroke();g.setLineDash([]);
+  g.textAlign='left';g.fillStyle='#0b2e2c';g.font='26px '+ff;
+  rows.forEach(function(r){var nm=r[0];while(g.measureText(nm).width>W-pad*2-170&&nm.length>4)nm=nm.slice(0,-2);if(nm!==r[0])nm+='…';g.textAlign='left';g.fillText(nm,pad,y+8);g.textAlign='right';g.fillText(r[1],W-pad,y+8);y+=lh;});
+  g.strokeStyle='#cfe4e2';g.beginPath();g.moveTo(pad,y-10);g.lineTo(W-pad,y-10);g.stroke();y+=10;g.font='24px '+ff;g.fillStyle='#4d7471';
+  ex.forEach(function(r){g.textAlign='left';g.fillText(r[0],pad,y);g.textAlign='right';g.fillText(r[1],W-pad,y);y+=lh;});
+  g.fillStyle='#0b2e2c';g.font='bold 32px '+ff;g.textAlign='left';g.fillText('ຍອດທັງໝົດ',pad,y+6);g.textAlign='right';g.fillText(KIP(tot)+' ກີບ',W-pad,y+6);y+=lh*1.1;
+  if(pay){g.fillStyle='#0a7e7a';g.font='bold 28px '+ff;g.textAlign='left';g.fillText('ຍອດທີ່ຕ້ອງໂອນ (ຫຼັງຫັກສ່ວນລົດ)',pad,y);g.textAlign='right';g.fillText(KIP(pay)+' ກີບ',W-pad,y);y+=lh;}
+  g.fillStyle='#8aa3a0';g.font='20px '+ff;g.textAlign='center';g.fillText(pay?'':'* ຍອດນີ້ຍັງບໍ່ຫັກໂປຣໂມຊັນ — ຍອດຈິງຕາມແຄັສເຊຍ',W/2,H-pad-6);
+  c.toBlob(function(b){if(!b){toast('ບັນທຶກບໍ່ໄດ້','err');return;}var u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='bill-'+String(t.name||'').replace(/[^\w-]/g,'')+'-'+Date.now()+'.png';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();},100);setTimeout(function(){URL.revokeObjectURL(u);},60000);toast('ບັນທຶກຮູບບິນແລ້ວ','ok');},'image/png');};
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go,go);else go();}
 function custPaidNotice(){custSend({action:'paidnotice',table:state.activeTable,pin:getQ('pin')||''},function(r){if(r&&r.ok){toast('ແຈ້ງແຄັສເຊຍແລ້ວ — ລໍກວດຍອດເງິນເຂົ້າ','ok');if(window.__xi)window.__xi.notice=Date.now();render();}else toast((r&&r.err)||'ແຈ້ງບໍ່ສຳເລັດ','err');});}
 function custBusy(on,t){var e=document.getElementById('custBusy');clearTimeout(window.__cbT1);clearTimeout(window.__cbT2);if(!on){if(e)e.remove();return;}
  if(!e){e=document.createElement('div');e.id='custBusy';document.body.appendChild(e);}e.innerHTML='<div class="cb-box"><div class="cb-sp"></div><b>'+cesc(t||'ກຳລັງສົ່ງອໍເດີ…')+'</b><small>ກະລຸນາລໍຖ້າ ຢ່າປິດໜ້ານີ້</small></div>';
  window.__cbT1=setTimeout(function(){var s=document.querySelector('#custBusy small');if(s)s.textContent='ເນັດຊ້າ ກຳລັງສົ່ງຢູ່ — ຢ່າປິດ ແລະ ຢ່າກົດຊ້ຳ';},6000);
  window.__cbT2=setTimeout(function(){var s=document.querySelector('#custBusy small');if(s)s.textContent='ໃຊ້ເວລາດົນກວ່າປົກກະຕິ — ຖ້າບໍ່ສຳເລັດ ລະບົບຈະແຈ້ງໃຫ້ລອງໃໝ່ (ອໍເດີຈະບໍ່ຊ້ຳ)';},16000);}
-function custConfirmOrder(){if(!state.draft.length)return;if(window.__custSending){toast('ກຳລັງສົ່ງອໍເດີ... ກະລຸນາລໍຖ້າ');return;}
+function custConfirmOrder(){if(!state.draft.length)return;if(custLocked()){toast('ບິນເຊັກແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້','warn');return;}if(window.__custSending){toast('ກຳລັງສົ່ງອໍເດີ... ກະລຸນາລໍຖ້າ');return;}
  if(!window.__custRid)window.__custRid='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);window.__custSending=true;
  var items=state.draft.map(function(d){return {code:d.code,qty:d.qty,mods:d.mods||[],modPrice:d.modPrice||0,note:d.note||''};});
  custBusy(true,'ກຳລັງສົ່ງອໍເດີ…');
