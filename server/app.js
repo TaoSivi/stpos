@@ -183,6 +183,18 @@ function auditApi(q) {
   }
   return { ok: false, err: 'audit' };
 }
+/* ?notify=status|wa_set|wa_test|wa_clear — ຕັ້ງເບີ WhatsApp (CallMeBot) ຈາກໜ້າ Settings; ສະເພາະ owner/superadmin ຫຼື API token. key ບໍ່ສົ່ງກັບຄືນ */
+function notifyApi(q) {
+  const t = apiToken(), c = AU.ctx || {}; if (!(!t || c.u === 'api' || ['superadmin', 'owner'].indexOf(c.role) >= 0)) return { ok: false, err: 'token' };
+  const P = shim.props, st = function () { const w = G.waTargets_(); return { ok: true, wa: w.length, last4: w.length ? w[0].phone.slice(-4) : '', tg: !!(P.getProperty('TG_BOT') && P.getProperty('TG_CHAT')) }; };
+  if (q.notify === 'wa_set') {
+    const m = /^\+?(\d{8,15}):([A-Za-z0-9]{3,24})$/.exec(String(q.wa || '').replace(/[\s-]/g, '')); if (!m) return { ok: false, err: 'format' };
+    P.setProperty('WA_CALLMEBOT', m[1] + ':' + m[2]); return st();
+  }
+  if (q.notify === 'wa_clear') { P.deleteProperty ? P.deleteProperty('WA_CALLMEBOT') : P.setProperty('WA_CALLMEBOT', ''); return st(); }
+  if (q.notify === 'wa_test') { const r = st(); r.sent = G.tgSend_('🧪 ST POS: ທົດສອບແຈ້ງເຕືອນ — ຖ້າເຫັນຂໍ້ຄວາມນີ້ ແປວ່າຕັ້ງສຳເລັດ ✓'); return r; }
+  return st();
+}
 function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === t) return true; const u = sessUser(q.token); return !!(u && u.role === 'superadmin'); }
 function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + '/api/' + id; }
 function brList(req) { return branches().map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch', url: brUrl(req, b.id) }; }); }
@@ -758,6 +770,7 @@ function handle(req, res, body) {
   if (q.callback && q.login === 'mybr') return jsonpOut(res, q.callback, myBranches(q.token, req)); /* ກ່ອນ liftToken (ຕ້ອງການ session ເດີມ) */
   { const su = sessUser(q.token); AU.ctx = { u: su ? su.id : (q.token && q.token === apiToken() ? 'api' : (q.cust || q.action ? 'qr' : '')), role: su ? su.role : '', ip: clientIp(req), arch: !!q.arch }; }
   liftToken(q);
+  if (q.callback && q.notify !== undefined) return jsonpOut(res, q.callback, notifyApi(q));
   if (q.callback && q.audit !== undefined) return jsonpOut(res, q.callback, auditApi(q));
   if (q.callback && q.login !== undefined) return jsonpOut(res, q.callback, loginApi(q, req));
   if (req.method === 'POST') {

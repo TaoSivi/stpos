@@ -40,7 +40,7 @@ function doGet(e) {
       payload = tokenOk_(p.token) ? { ok: true, sum: branchSummary_() } : { ok: false, err: 'token' };
     } else if (p.report) {                                 /* ລາຍງານປະຈຳວັນ: preview / test (ສົ່ງ WhatsApp ດຽວນີ້) */
       if (!tokenOk_(p.token)) payload = { ok: false, err: 'token' };
-      else if (p.report == 'stock' || p.report == 'stocktest') { var stt = null; try { stt = JSON.parse(getState_() || 'null'); } catch (e) { } var sl = stt ? stockLowList_(stt) : [], smsg = stockMsg_(stt || {}, sl, '📦 ສະຕ໋ອກໃກ້ໝົດ / ໝົດ (ດຽວນີ້)'); payload = { ok: true, text: smsg || '✓ ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min', count: sl.length, tg: !!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')) }; if (p.report == 'stocktest') payload.sent = smsg ? tgSend_(smsg) : tgSend_('🧪 ST POS: ທົດສອບແຈ້ງສະຕ໋ອກ — ຕອນນີ້ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min ✓'); }
+      else if (p.report == 'stock' || p.report == 'stocktest') { var stt = null; try { stt = JSON.parse(getState_() || 'null'); } catch (e) { } var sl = stt ? stockLowList_(stt) : [], smsg = stockMsg_(stt || {}, sl, '📦 ສະຕ໋ອກໃກ້ໝົດ / ໝົດ (ດຽວນີ້)'); payload = { ok: true, text: smsg || '✓ ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min', count: sl.length, tg: !!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')), wa: waTargets_().length }; if (p.report == 'stocktest') payload.sent = smsg ? tgSend_(smsg) : tgSend_('🧪 ST POS: ທົດສອບແຈ້ງສະຕ໋ອກ — ຕອນນີ້ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min ✓'); }
       else if (p.report == 'test') { var txt = buildDailyReport_(new Date()); payload = { ok: true, text: txt, sent: sendReport_('🧪 ທົດສອບ' + String.fromCharCode(10) + txt) }; }
       else payload = { ok: true, text: buildDailyReport_(new Date()), targets: waTargets_().length, tg: !!PROP.getProperty('TG_BOT'), trigger: ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'dailyReport'; }) };
     } else if (p.bak) {                                    /* backup / restore */
@@ -803,15 +803,24 @@ function stockMsg_(st, list, title) {
   if (list.length > shown) lines.push('… ແລະ ອີກ ' + (list.length - shown) + ' ລາຍການ');
   return lines.join(nl);
 }
+/* ແຈ້ງເຕືອນທັນທີ: ສົ່ງ Telegram (ຖ້າຕັ້ງ TG_BOT/TG_CHAT) ແລະ WhatsApp (ຖ້າຕັ້ງ WA_CALLMEBOT) — ຄືນ 200 ຖ້າທຸກຊ່ອງທາງສຳເລັດ */
 function tgSend_(text) {
-  var bot = PROP.getProperty('TG_BOT'), chat = PROP.getProperty('TG_CHAT'); if (!bot || !chat) return 'ບໍ່ໄດ້ຕັ້ງ TG_BOT/TG_CHAT';
-  try { var r = UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat, text: String(text).slice(0, 3900) }), muteHttpExceptions: true }); return r.getResponseCode(); }
-  catch (e) { return 'ERR ' + e.message; }
+  var bot = PROP.getProperty('TG_BOT'), chat = PROP.getProperty('TG_CHAT'), res = [];
+  if (bot && chat) {
+    try { res.push(UrlFetchApp.fetch('https://api.telegram.org/bot' + bot + '/sendMessage', { method: 'post', contentType: 'application/json', payload: JSON.stringify({ chat_id: chat, text: String(text).slice(0, 3900) }), muteHttpExceptions: true }).getResponseCode()); }
+    catch (e) { res.push('ERR ' + e.message); }
+  }
+  waTargets_().forEach(function (t) {
+    try { res.push('WA ' + UrlFetchApp.fetch('https://api.callmebot.com/whatsapp.php?phone=' + t.phone + '&apikey=' + encodeURIComponent(t.key) + '&text=' + encodeURIComponent(chunks_(String(text).replace(/\*/g, ''), 1800)[0]), { muteHttpExceptions: true }).getResponseCode()); }
+    catch (e) { res.push('WA ERR ' + e.message); }
+  });
+  if (!res.length) return 'ບໍ່ໄດ້ຕັ້ງ TG_BOT/TG_CHAT ຫຼື WA_CALLMEBOT';
+  return res.every(function (x) { return x === 200 || x === 'WA 200'; }) ? 200 : res.join(' · ');
 }
 function stockNotify_(json) {
   try {
     if (!/"tgStock":\{[^}]*"on":true/.test(json)) return;
-    if (!PROP.getProperty('TG_BOT') || !PROP.getProperty('TG_CHAT')) return;
+    if (!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')) && !waTargets_().length) return;
     var now = Date.now(); if (now - (+(PROP.getProperty('STK_TG_TS') || 0)) < 120000) return;
     PROP.setProperty('STK_TG_TS', String(now));
     var st = JSON.parse(json), list = stockLowList_(st), prevS = PROP.getProperty('STK_TG'), prev = null;

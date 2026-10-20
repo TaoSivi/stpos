@@ -5,7 +5,7 @@ const fs = require('fs'), os = require('os'), path = require('path'), zlib = req
 const PORT = 3800 + Math.floor(Math.random() * 90), ROOT = 'http://127.0.0.1:' + PORT + '/api';
 const DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'stpos-audit-')), T = 'audit-master-token-1';
 const ph = function (p) { p = 'stpos:' + p; let h = 5381; for (let i = 0; i < p.length; i++) h = ((h << 5) + h + p.charCodeAt(i)) | 0; let h2 = 52711; for (let j = p.length - 1; j >= 0; j--) h2 = ((h2 << 5) + h2 + p.charCodeAt(j)) | 0; return 'h' + (h >>> 0).toString(16) + '.' + (h2 >>> 0).toString(16); };
-let proc, passed = 0;
+let proc, passed = 0, cashTk;
 function start() { return new Promise(function (ok, bad) { proc = spawn(process.execPath, [path.join(__dirname, '..', 'app.js')], { env: Object.assign({}, process.env, { PORT: String(PORT), DATA_DIR: DATA, STPOS_NO_SECRETS: '1', API_TOKEN: T, ADMIN_KEY: 'audit-admin-key-1' }), stdio: ['ignore', 'pipe', 'pipe'] }); proc.stdout.on('data', function (d) { if (/ST POS server on/.test(String(d))) ok(); }); proc.stderr.on('data', function (d) { process.stderr.write(d); }); setTimeout(function () { bad(new Error('start timeout')); }, 15000); }); }
 async function jp(qs) { const t = await (await fetch(ROOT + '/?callback=c&' + qs)).text(); return JSON.parse(t.slice(2, -1)); }
 async function st() { const r = await jp('gz=1&token=' + T); return JSON.parse(zlib.gunzipSync(Buffer.from(r.gz, 'base64'))); }
@@ -23,7 +23,7 @@ const now = Date.now();
     let s0 = await st();
     await test('access: no token refused; plain cashier session refused; API token ok', async function () {
       assert.strictEqual((await jp('audit=list')).err, 'token');
-      const cs = await jp('login=pin&uid=u2&pin=2222'); assert.ok(cs.ok);
+      const cs = await jp('login=pin&uid=u2&pin=2222'); assert.ok(cs.ok); cashTk = cs.tk;
       assert.strictEqual((await jp('audit=list&token=' + encodeURIComponent(cs.tk))).err, 'token', 'cashier cannot read audit');
       assert.ok((await list()).ok);
       const os_ = await jp('login=pin&uid=u1&pin=1111'); assert.ok((await jp('audit=list&token=' + encodeURIComponent(os_.tk))).ok, 'superadmin can');
@@ -72,6 +72,14 @@ const now = Date.now();
     await test('no write endpoint: audit calls with POST/other params cannot add or remove records', async function () {
       const before = (await list()).total; await jp('audit=append&token=' + T + '&t=x'); await jp('audit=delete&token=' + T); await jp('audit=list&token=' + T + '&limit=0');
       assert.strictEqual((await list()).total, before);
+    });
+    await test('WhatsApp setup: owner only, format checked, key never returned, clear works', async function () {
+      assert.strictEqual((await jp('notify=status')).err, 'token');
+      assert.strictEqual((await jp('notify=wa_set&wa=8562012345678:abc123&token=' + encodeURIComponent(cashTk))).err, 'token', 'non-owner refused');
+      assert.strictEqual((await jp('notify=wa_set&wa=bad&token=' + T)).err, 'format');
+      const r = await jp('notify=wa_set&wa=%2B856%2020123456:abc123&token=' + T); assert.ok(r.ok && r.wa === 1 && r.last4 === '3456' && !JSON.stringify(r).includes('abc123'));
+      assert.strictEqual((await jp('notify=status&token=' + T)).wa, 1);
+      assert.strictEqual((await jp('notify=wa_clear&token=' + T)).wa, 0);
     });
     console.log('\n' + passed + ' passed');
   } catch (e) { console.error('✗ FAILED:', e && e.stack || e); process.exitCode = 1; }
