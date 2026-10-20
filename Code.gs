@@ -329,7 +329,7 @@ function mergeQr_(curStr, inc) {
           inc.orders.push(co || { id: line.id, table: k, code: line.code, name: line.name, qty: line.qty, k: line.k, mods: line.mods, note: line.note, status: 'wait', ts: line.ts, qr: true });
         }
         var def = map[line.code], loc = line.qrLoc || 'main';
-        if (def && !inc.__stkDelta && inc._srcLoc === loc && inc.ingredients) lineBom_(def, line).forEach(function (b) {
+        if (def && !inc.__stkDelta && inc._srcLoc === loc && inc.ingredients) lineBom_(def, line, inc).forEach(function (b) {
           var ing = inc.ingredients[b[0]]; if (!ing) return; if (!ing.locs) ing.locs = {};
           ing.locs[loc] = Math.round(((+ing.locs[loc] || 0) - b[1] * line.qty) * 1000) / 1000;
         });
@@ -399,7 +399,11 @@ function modInfo_(st, def, mods) {
   }
   return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb, pk: pk };
 }
-function lineBom_(def, line) { var m = +line.bm > 0 ? +line.bm : 1, out = []; (def.bom || []).forEach(function (b) { out.push([b[0], (+b[1] || 0) * m]); }); (line.xb || []).concat(line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
+/* st (ບໍ່ບັງຄັບ): ຖ້າເປີດ yieldCut (ຄ່າເລີ່ມຕົ້ນ) ຕັດສະຕ໋ອກ = ສູດ ÷ Yield (ເຊັ່ນ 200 g ທີ່ Yield 90% → 222.22 g) — ຕ້ອງຄືກັບ lineBomOf0 ໃນແອັບ */
+function lineBom_(def, line, st) { var m = +line.bm > 0 ? +line.bm : 1, out = [], ing = st && st.ingredients, yc = !!st && st.yieldCut !== false;
+  var f = function (c) { var i = ing && ing[c], y = i ? +i.yield : 0; return yc && y > 0 && y < 100 ? 100 / y : 1; };
+  var put = function (c, q) { out.push([c, Math.round(q * f(c) * 1e6) / 1e6]); };
+  (def.bom || []).forEach(function (b) { put(b[0], (+b[1] || 0) * m); }); (line.xb || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) put(x[0], +x[1]); }); (line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
 /* ລະຫັດ PIN/ໝົດອາຍຸ ຂອງ QR ໂຕະ — ໃຊ້ທັງອ່ານ ແລະ ສັ່ງ (PIN ບໍ່ຖືກສົ່ງຄືນໄປຫາລູກຄ້າ) */
 function custPinOk_(st, table, pin, prevOk) {
   if (st.qrGlobal === false) return false;
@@ -516,7 +520,7 @@ function custAction_(payload) {
       var qn = Math.max(1, Math.min(99, Math.round(+it.qty || 1)));
       var mods = (it.mods || []).slice(0, 12).map(function (m) { return clean(m, 60); });
       var mi = modInfo_(st, def, mods), mp = mi.price;
-      if (st.stockBlock !== false && !(st.modules && st.modules.stock === false) && lineBom_(def, mi).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * qn - 1e-9; })) { skipped++; return; }
+      if (st.stockBlock !== false && !(st.modules && st.modules.stock === false) && lineBom_(def, mi, st).some(function (b) { return stockHave_(st, b[0], qrLoc) < (+b[1] || 0) * qn - 1e-9; })) { skipped++; return; }
       var line = { id: now + Math.random(), code: def.c, name: def.n, price: def.p, qty: qn,
         mods: mods,
         modPrice: mp, disc: 0, k: def.k, note: clean(it.note, 120), ts: now, qr: true, qrLoc: qrLoc };
@@ -525,7 +529,7 @@ function custAction_(payload) {
       t.items.push(line); cnt += qn;
       if (!st.orders) st.orders = [];
       st.orders.push({ id: line.id, table: table, code: def.c, name: def.n, qty: qn, k: def.k, mods: line.mods, note: line.note, status: 'wait', ts: now, qr: true, upd: now });
-      lineBom_(def, line).forEach(function (b) {
+      lineBom_(def, line, st).forEach(function (b) {
         var ing = st.ingredients && st.ingredients[b[0]];
         if (ing) {
           if (!ing.locs) { ing.locs = {}; if (typeof ing.stock === 'number') ing.locs['main'] = ing.stock; }

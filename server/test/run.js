@@ -82,6 +82,15 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
       const g = await getState(); assert.strictEqual(g.tables.A1.items.length, 1); assert.strictEqual(g.tables.A1.status, 'busy'); assert.strictEqual(g.ingredients.RICE.locs.main, 9400 - 400); assert.strictEqual(g.orders.length, 1);
       const c = await jsonp('cust=1&table=A1&pin=1234'); const cs = JSON.parse(c.state); assert.ok(cs.cust && !cs.bills && cs.tables.A1 && cs.pinOk === true);
     });
+    await test('QR order cuts stock with Yield (200 g @ Yield 80% → 250 g); switch off → 200 g', async function () {
+      const ord = async function (rid) { return jsonp('action=order&payload=' + encodeURIComponent(JSON.stringify({ action: 'order', table: 'A2', pin: '5678', rid: rid, items: [{ code: 'F1', qty: 1 }] }))); };
+      let g = await getState(); g.qr.A2 = { pin: '5678', expiry: Date.now() + 3600000, enabled: true }; g.ingredients.RICE.yield = 80; g._v = Date.now() + 700; await post(JSON.stringify(g));
+      const s0 = (await getState()).ingredients.RICE.locs.main; assert.ok((await ord('y1')).ok);
+      const s1 = (await getState()).ingredients.RICE.locs.main; assert.strictEqual(Math.round((s0 - s1) * 1000) / 1000, 250);
+      g = await getState(); g.yieldCut = false; g._v = Date.now() + 710; await post(JSON.stringify(g)); assert.ok((await ord('y2')).ok);
+      const s2 = (await getState()).ingredients.RICE.locs.main; assert.strictEqual(Math.round((s1 - s2) * 1000) / 1000, 200);
+      g = await getState(); delete g.yieldCut; delete g.ingredients.RICE.yield; g._v = Date.now() + 720; await post(JSON.stringify(g)); /* A2 keeps its QR lines (server merge) — later tests only use A1 */
+    });
     await test('QR customer: reading a table needs the PIN; the PIN is never sent back', async function () {
       const np = JSON.parse((await jsonp('cust=1&table=A1')).state); assert.strictEqual(np.pinOk, false); assert.ok(!np.tables && !np.catalog && !np.qr);
       const bp = JSON.parse((await jsonp('cust=1&table=A1&pin=0000')).state); assert.strictEqual(bp.pinOk, false); assert.ok(!bp.tables);
