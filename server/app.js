@@ -23,6 +23,35 @@ const codePath = [path.join(__dirname, 'Code.gs'), path.join(__dirname, '..', 'C
 if (!codePath) throw new Error('Code.gs not found next to app.js');
 vm.runInThisContext(fs.readFileSync(codePath, 'utf8'), { filename: 'Code.gs' });
 const G = global;
+/* ===== ບັນທຶກກວດສອບ (append-only + hash) — ດຶງຈາກການປຽບທຽບ state ກ່ອນ/ຫຼັງ ທຸກຄັ້ງທີ່ບັນທຶກ (ທຸກເສັ້ນທາງ ລວມ QR ລູກຄ້າ) ===== */
+const AUDIT = require('./audit').create(shim, { isArchived: function (b) { try { return !!archIndex().keys[billKey(b)]; } catch (e) { return false; } } });
+const AU = { ctx: null, lastTg: 0 };
+function auditAlert(next, lines, ctx) {
+  if (!lines.length) return;
+  try { AUDIT.append(lines.map(function (t) { return { t: 'alert', u: (ctx && ctx.u) || '', ip: (ctx && ctx.ip) || '', d: { msg: t } }; })); } catch (e) {}
+  if (next && next.auditCfg && next.auditCfg.tg === false) return;
+  if (Date.now() - AU.lastTg < 5000) return; AU.lastTg = Date.now();
+  try { G.tgSend_('🔎 ແຈ້ງເຕືອນກວດສອບ — ' + ((next && next.shopName) || 'ST POS') + '\n' + lines.slice(0, 8).join('\n') + (lines.length > 8 ? '\n… ແລະ ອີກ ' + (lines.length - 8) + ' ລາຍການ (ເບິ່ງໃນໜ້າ ຕິດຕາມກວດສອບ)' : '')); } catch (e) {}
+}
+(function hookSave() {
+  const orig = G.saveStateRaw_;
+  G.saveStateRaw_ = function () {
+    let ps = null; try { ps = G.getState_(); } catch (e) {}
+    const r = orig.apply(this, arguments);
+    try {
+      if (ps) {
+        const ns = G.getState_(); if (ns && ns !== ps) {
+          const ctx = AU.ctx || {};
+          if (ctx.admin === 'import' || ctx.admin === 'pullgas') AUDIT.append([{ t: 'admin', u: 'admin', ip: ctx.ip, d: { a: ctx.admin } }]);
+          else { const prev = JSON.parse(ps), next = JSON.parse(ns), d = AUDIT.diffState(prev, next, ctx);
+            if (d.events.length) AUDIT.append(d.events.map(function (e) { e.u = e.u || ctx.u || (e.d && e.d.by) || 'system'; e.ip = ctx.ip || ''; return e; }));
+            auditAlert(next, d.alerts, ctx); }
+        }
+      }
+    } catch (e) { console.error('audit', e && e.message || e); }
+    return r;
+  };
+})();
 
 /* ===== ຫຼາຍສາຂາ ໃນ server ດຽວ: ຂໍ້ມູນແຍກຫ້ອງຕາມສາຂາ =====
  * branches.json = [{id, name, type, dir, ts}] · ສາຂາ b1 = ໂຟນເດີເດີມ (DATA_DIR) — ຂໍ້ມູນເກົ່າບໍ່ຍ້າຍ · ສາຂາໃໝ່ = DATA_DIR/b/<id>
@@ -132,15 +161,28 @@ function loginApi(q, req) {
   if (q.login === 'pin') {
     const cache = CacheService.getScriptCache(), uid = String(q.uid || '').slice(0, 80), ip = clientIp(req);
     const ku = 'lfu_' + uid, ki = 'lfi_' + ip, nu = +(cache.get(ku) || 0), ni = +(cache.get(ki) || 0);
-    if (nu >= 10 || ni >= 30) return { ok: false, err: 'locked', msg: 'ໃສ່ PIN ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' };
+    const ua = String((req.headers && req.headers['user-agent']) || '').slice(0, 120), uName = function () { const x = stateUsers().filter(function (z) { return z && z.id === uid; })[0]; return x ? (x.name || uid) : uid; };
+    if (nu >= 10 || ni >= 30) { try { AUDIT.append([{ t: 'login_lock', u: uid, ip: ip, d: { name: uName(), ua: ua } }]); if (nu === 10 || ni === 30 || nu > 10 && nu % 10 === 0) auditAlert(null, ['🔒 PIN ຜິດຫຼາຍເທື່ອ — ລັອກ ' + uName() + ' ຈາກ IP ' + ip], { u: uid, ip: ip }); } catch (e) {} return { ok: false, err: 'locked', msg: 'ໃສ່ PIN ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' }; }
     const u = stateUsers().filter(function (x) { return x && x.id === uid; })[0];
-    if (u && u.active !== false && userPinH(u) && userPinH(u) === pinHash(String(q.pin || ''))) { cache.remove(ku); return { ok: true, tk: sessMake(u), uid: u.id, name: u.name || '' }; }
+    if (u && u.active !== false && userPinH(u) && userPinH(u) === pinHash(String(q.pin || ''))) { cache.remove(ku); try { AUDIT.append([{ t: 'login', u: u.id, ip: ip, d: { name: u.name || '', role: u.role || '', ua: ua } }]); } catch (e) {} return { ok: true, tk: sessMake(u), uid: u.id, name: u.name || '' }; }
     cache.put(ku, String(nu + 1), 900); cache.put(ki, String(ni + 1), 900);
+    try { AUDIT.append([{ t: 'login_fail', u: uid, ip: ip, d: { name: uName(), n: nu + 1, ua: ua } }]); } catch (e) {}
     return { ok: false, err: 'pin', left: Math.max(0, 9 - nu) };
   }
   return { ok: false, err: 'login' };
 }
 /* ===== ສ່ວນກາງ (HQ): ລາຍຊື່ / ສ້າງ / ປ່ຽນຊື່ສາຂາ — ສະເພາະ API_TOKEN ຫຼັກ ຫຼື ຜູ້ໃຊ້ superadmin ===== */
+/* ?audit=list|verify|bill — ສະເພາະ API token ຫຼື ຜູ້ໃຊ້ owner/superadmin/admin (ອ່ານຢ່າງດຽວ: ບໍ່ມີທາງຂຽນ/ແກ້/ລຶບ ຜ່ານ API) */
+function auditApi(q) {
+  const t = apiToken(), c = AU.ctx || {}; /* liftToken ແປງ session ເປັນ API token ແລ້ວ — ໃຊ້ຜູ້ໃຊ້/ບົດບາດທີ່ຈັບໄວ້ກ່ອນແປງ */ const ok = !t || c.u === 'api' || ['superadmin', 'owner', 'admin'].indexOf(c.role) >= 0;
+  if (!ok) return { ok: false, err: 'token' };
+  if (q.audit === 'verify') return Object.assign({ ok: true }, AUDIT.verify(), { chain: undefined });
+  if (q.audit === 'list' || q.audit === 'bill') {
+    const o = { from: q.from, to: q.to, t: q.t, u: q.u, q: q.audit === 'bill' ? String(q.receipt || '') : q.q, limit: q.limit, offset: q.offset };
+    const r = AUDIT.list(o); return { ok: true, total: r.total, items: r.items, now: Date.now() };
+  }
+  return { ok: false, err: 'audit' };
+}
 function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === t) return true; const u = sessUser(q.token); return !!(u && u.role === 'superadmin'); }
 function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + '/api/' + id; }
 function brList(req) { return branches().map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch', url: brUrl(req, b.id) }; }); }
@@ -678,7 +720,7 @@ function handle(req, res, body) {
   useBranch(br); shim.beginRequest();
   if (q.admin !== undefined) {
     if (!keyOk(q.key, 'ADMIN_KEY')) return send(res, 403, 'denied');
-    const a = String(q.admin);
+    const a = String(q.admin); AU.ctx = { u: 'admin', ip: clientIp(req), admin: a };
     if (a === 'status') {
       const s = G.getState_(); let info = { bytes: s.length };
       try { const st = JSON.parse(s || '{}'); info.shop = st.shopName; info.bills = (st.bills || []).length; info.v = st._v; } catch (e) {}
@@ -714,7 +756,9 @@ function handle(req, res, body) {
     res.writeHead(200, hdr); return res.end(JSON.stringify(r));
   }
   if (q.callback && q.login === 'mybr') return jsonpOut(res, q.callback, myBranches(q.token, req)); /* ກ່ອນ liftToken (ຕ້ອງການ session ເດີມ) */
+  { const su = sessUser(q.token); AU.ctx = { u: su ? su.id : (q.token && q.token === apiToken() ? 'api' : (q.cust || q.action ? 'qr' : '')), role: su ? su.role : '', ip: clientIp(req), arch: !!q.arch }; }
   liftToken(q);
+  if (q.callback && q.audit !== undefined) return jsonpOut(res, q.callback, auditApi(q));
   if (q.callback && q.login !== undefined) return jsonpOut(res, q.callback, loginApi(q, req));
   if (req.method === 'POST') {
     if (q.hq !== undefined) return hqPost(q, req, res, body);
@@ -760,7 +804,7 @@ const server = http.createServer(function (req, res) {
     if (dead) return;
     try { handle(req, res, Buffer.concat(chunks).toString('utf8')); }
     catch (e) { console.error(new Date().toISOString(), e && e.stack || e); if (!res.headersSent) send(res, 500, 'err'); }
-    finally { try { shim.endRequest(); } catch (e2) { console.error('flush failed', e2); } }
+    finally { AU.ctx = null; try { shim.endRequest(); } catch (e2) { console.error('flush failed', e2); } }
   });
 });
 server.listen(process.env.PORT || 3000, function () { console.log('ST POS server on', process.env.PORT || 3000, '· data', DATA_DIR); });
