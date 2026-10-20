@@ -30,24 +30,24 @@ const now = Date.now();
     });
     await test('login success and failed PIN are recorded with ip; lock after many fails', async function () {
       await jp('login=pin&uid=u2&pin=0000'); await jp('login=pin&uid=u2&pin=0001');
-      const r = await list('t=login,login_fail'); const ts = r.items.map(function (e) { return e.t; });
+      const r = await list('ty=login,login_fail'); const ts = r.items.map(function (e) { return e.t; });
       assert.ok(ts.indexOf('login') >= 0 && ts.filter(function (x) { return x === 'login_fail'; }).length >= 2, ts.join());
       assert.ok(r.items.every(function (e) { return e.ip; }));
       for (let i = 0; i < 10; i++) await jp('login=pin&uid=u2&pin=9999');
-      assert.ok((await list('t=login_lock')).total >= 1);
+      assert.ok((await list('ty=login_lock')).total >= 1);
     });
     await test('new log lines (orderLog/cancelLog/stockLog) are captured once, even if the device later trims them', async function () {
       s0 = await st(); s0.orderLog.push({ ts: now + 1, table: 'A1', action: 'ຮັບເງິນ', detail: 'ບິນ R3', by: 'Cash' }); s0.cancelLog.push({ ts: now + 2, type: 'ລຶບລາຍການ', code: 'M1', name: 'ກາເຟ', qty: 1, amt: 25000, reason: 'ຄີຜິດ', by: 'Cash' }); s0.stockLog.push({ ts: now + 3, code: 'ING1', delta: -18, after: 482, reason: 'ຂາຍ', ref: '1× ກາເຟ' });
       await save(s0); await save(s0);
-      let r = await list('t=log,cancel,stock'); assert.strictEqual(r.items.filter(function (e) { return e.t === 'log' && /R3/.test(e.d.x); }).length, 1);
+      let r = await list('ty=log,cancel,stock'); assert.strictEqual(r.items.filter(function (e) { return e.t === 'log' && /R3/.test(e.d.x); }).length, 1);
       assert.ok(r.items.some(function (e) { return e.t === 'cancel' && e.d.why === 'ຄີຜິດ'; })); assert.ok(r.items.some(function (e) { return e.t === 'stock' && e.d.d === -18; }));
       s0 = await st(); s0.orderLog = []; s0.cancelLog = []; s0.stockLog = []; await save(s0);
-      r = await list('t=log'); assert.strictEqual(r.items.filter(function (e) { return /R3/.test(e.d.x || ''); }).length, 1, 'trimming state does not remove the audit record');
+      r = await list('ty=log'); assert.strictEqual(r.items.filter(function (e) { return /R3/.test(e.d.x || ''); }).length, 1, 'trimming state does not remove the audit record');
     });
     await test('master data changes keep before → after: price, recipe, cost, yield, user role/perm/pin, settings; bankQR is hashed', async function () {
       s0 = await st(); s0.catalog.C.S[0].p = 30000; s0.catalog.C.S[0].bom = [['ING1', 20]]; s0.ingredients.ING1.cost = 350; s0.ingredients.ING1.yield = 90;
       s0.users[1].role = 'manager'; s0.users[1].perm = { a: { pay: true } }; s0.users[1].pinH = ph('7777'); s0.discLimit = 50; s0.bankQR = 'QR-B-SECRET'; await save(s0);
-      const m = (await list('t=master,user,setting')).items.map(function (e) { return e.d; });
+      const m = (await list('ty=master,user,setting')).items.map(function (e) { return e.d; });
       const has = function (k, f) { return m.some(function (d) { return d.k === k && (!f || f(d)); }); };
       assert.ok(has('menu.price', function (d) { return d.from === 25000 && d.to === 30000; })); assert.ok(has('menu.recipe')); assert.ok(has('ing.cost', function (d) { return d.from === 300 && d.to === 350; })); assert.ok(has('ing.yield', function (d) { return d.to === 90; }));
       assert.ok(has('user.role', function (d) { return d.from === 'cashier' && d.to === 'manager'; })); assert.ok(has('user.perm')); assert.ok(has('user.pin', function (d) { return !('from' in d) && !('to' in d); }), 'PIN value never stored');
@@ -56,7 +56,7 @@ const now = Date.now();
     await test('void bill and new negative stock are recorded as events + alerts; a device cannot drop a bill', async function () {
       s0 = await st(); s0.bills[1].voided = true; s0.bills[1].voidReason = 'ທົດສອບ'; s0.bills[1].voidBy = 'Cash';
       s0.bills = s0.bills.filter(function (b) { return b.receipt !== 'R1'; }); s0.ingredients.ING1.locs.main = -5; await save(s0);
-      const r = await list('t=bill_void,bill_removed,neg_stock,alert');
+      const r = await list('ty=bill_void,bill_removed,neg_stock,alert');
       assert.ok(r.items.some(function (e) { return e.t === 'bill_void' && e.d.receipt === 'R2' && e.d.why === 'ທົດສອບ'; })); assert.ok((await st()).bills.some(function (b) { return b.receipt === 'R1'; }), 'server merge keeps a bill a device tries to drop'); assert.ok(r.items.some(function (e) { return e.t === 'neg_stock' && e.d.code === 'ING1'; }));
       const al = r.items.filter(function (e) { return e.t === 'alert'; }).map(function (e) { return e.d.msg; }).join('|'); assert.ok(/Void/.test(al) && /ຕິດລົບ/.test(al), al);
     });

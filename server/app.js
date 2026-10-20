@@ -178,7 +178,7 @@ function auditApi(q) {
   if (!ok) return { ok: false, err: 'token' };
   if (q.audit === 'verify') return Object.assign({ ok: true }, AUDIT.verify(), { chain: undefined });
   if (q.audit === 'list' || q.audit === 'bill') {
-    const o = { from: q.from, to: q.to, t: q.t, u: q.u, q: q.audit === 'bill' ? String(q.receipt || '') : q.q, limit: q.limit, offset: q.offset };
+    const o = { from: q.from, to: q.to, t: q.ty, u: q.u, q: q.audit === 'bill' ? String(q.receipt || '') : q.q, limit: q.limit, offset: q.offset };
     const r = AUDIT.list(o); return { ok: true, total: r.total, items: r.items, now: Date.now() };
   }
   return { ok: false, err: 'audit' };

@@ -2829,6 +2829,26 @@ body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px +
 
 /* Void: ເລືອກ ຄືນສະຕ໋ອກ / ຂອງເສຍ (ບໍ່ມີຄ່າເລີ່ມຕົ້ນ) */
 .vd-ch{display:grid;gap:8px}.vd-ch>label{display:flex;gap:10px;align-items:flex-start;border:1.5px solid #cfe4e2;border-radius:14px;padding:10px 12px;cursor:pointer;margin:0}.vd-ch>label:has(input:checked){border-color:#0a7e7a;background:#e6f5f3}.vd-ch input{width:auto;margin-top:3px}.vd-ch span{display:grid}.vd-ch small{color:var(--muted);font-weight:500}
+
+/* ===== ໜ້າ ຕິດຕາມກວດສອບ ===== */
+.audpage .au-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.au-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}.au-bar .in{height:42px;border:1px solid #d6e9e7;border-radius:12px;padding:0 12px;font:inherit;background:#fff}.au-bar .au-q{flex:1;min-width:200px}
+.au-hint{color:var(--muted);font-size:13px;margin:2px 0 8px}
+.au-sec{font-weight:800;font-size:15px;margin:18px 0 8px;color:var(--ink)}
+.au-tl{display:grid;gap:8px}
+.au-ev{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e3eceb;border-radius:14px;padding:10px 14px}
+.au-ev>i{flex:none;width:10px;height:10px;border-radius:50%;background:#9db9b6;margin-top:6px}.au-ev>i.ok{background:#0a7e7a}.au-ev>i.bad{background:#c62828}.au-ev>i.warn{background:#b86e00}
+.au-et{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}.au-et span{color:var(--muted);font-size:12.5px}.au-ex{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.au-card{background:#fff;border:1px solid #e3eceb;border-radius:16px;padding:14px 16px;margin:0 0 12px}
+.au-bh{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;justify-content:space-between}.au-bh span{color:var(--muted);font-size:13px}.au-amt{font-size:18px}
+.au-items{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:8px;font-size:13.5px}.au-items i{color:var(--muted);font-style:normal}
+.au-note{margin-top:8px;font-size:13.5px;color:#4d7471}.au-note.bad{color:#b42323;font-weight:700}.au-note.warn{color:#b86e00;font-weight:700}
+.au-void{background:#fde8e8;color:#b42323;border-radius:999px;padding:1px 9px;font-style:normal;font-size:12px;font-weight:800}
+.au-tbl{overflow:auto}.au-flag td{background:#fff7f7}.au-fl{display:inline-block;background:#fde8e8;color:#b42323;border-radius:999px;padding:1px 10px;font-size:12px;font-weight:700;margin:1px 2px}.au-ok{color:#0a7e7a;font-weight:700;font-size:13px}
+.au-bill{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e3eceb;border-radius:14px;padding:10px 14px;margin-bottom:8px;cursor:pointer}.au-bill span{color:var(--muted);font-size:13px}.au-bill:hover{border-color:#0a7e7a}
+.au-negs{display:flex;gap:8px;flex-wrap:wrap}
+.au-verok{margin-top:10px;background:#e6f5f3;color:#0a5e5b;border-radius:12px;padding:10px 12px;font-weight:700}.au-verbad{margin-top:10px;background:#fde8e8;color:#b42323;border-radius:12px;padding:10px 12px;font-weight:700}
+.neg-bar{background:#fff!important;border:1px solid #f6c9cb!important}
 </style>
 </head>
 <body>
@@ -2867,6 +2887,7 @@ body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px +
     <button class="navitem" data-v="reports"><span class="ic"></span> ລາຍງານ <span class="live" id="cancelBadge" style="display:none"></span></button>
     <button class="navitem" data-v="daily"><span class="ic"></span> ສະຫຼຸບບັນຊີປະຈຳວັນ</button>
     <div class="navsec" data-g="sys">ລະບົບ</div>
+    <button class="navitem" data-v="audit"><span class="ic"></span> ຕິດຕາມກວດສອບ</button>
     <button class="navitem" data-v="admin"><span class="ic"></span> ການຕັ້ງຄ່າ</button>
     </div>
   </aside>
@@ -2925,7 +2946,7 @@ function can(a){var u=curUser();if(!u)return false;if(!PERMS[u.role])return true
 function canView(v){var u=curUser();if(!u)return false;if(v==='order'||v==='menu')v='tables';if(v==='xfer')v='transfer';if(v==='cancellog')v='reports';if(v==='rx'&&(!state||state.bizType!=='medical'))return false;if(state&&state.bizType==='medical'&&(v==='shift'||v==='chk'))return false;if(v!=='tables'&&v!=='admin'&&state&&state.navHide&&state.navHide[v])return false;if(MOD_OF[v]&&!modOn(MOD_OF[v]))return false;if(!PERMS[u.role])return true;var o=u.perm&&u.perm.v;if(o&&Object.prototype.hasOwnProperty.call(o,v))return !!o[v];return roleView(u.role,v);}
 function whoBy(){var u=curUser();var sh=(state&&state.curShift)?state.curShift.name:(state?state.activeShift:'');return (sh||'')+' - '+(u?u.name:(state?state.activeStaff:''));}
 function homeView(){var u=curUser();if(!u)return 'tables';if(state&&state.bizType==='medical'&&canView('rx'))return 'rx';if(!PERMS[u.role])return 'tables';var f=PERM_VIEWS.map(function(x){return x[0];}).filter(function(v){return canView(v);});var d=roleDef(u.role).view.filter(function(v){return canView(v);});return d[0]||f[0]||'tables';}
-var PERM_VIEWS=[['rx','ໃບສັ່ງຢາ (ແພດ → ແຄັດເຊຍ → ຫ້ອງຢາ)'],['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['delivery','Delivery (ຍອດ / ຄ້າງຮັບ)'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['waste','ແຈ້ງເສຍຫາຍ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['admin','ການຕັ້ງຄ່າ']];
+var PERM_VIEWS=[['rx','ໃບສັ່ງຢາ (ແພດ → ແຄັດເຊຍ → ຫ້ອງຢາ)'],['tables','ໂຕະ / ສັ່ງອາຫານ'],['kitchen','ຈໍຄົວ'],['bar','ຈໍບາຣ໌ນ້ຳ'],['waiter','ຈໍພະນັກງານເສີບ'],['history','ປະຫວັດການຂາຍ'],['members','ສະມາຊິກ'],['debt','ໜີ້ຄ້າງ'],['shift','ກະ / ລິ້ນຊັກເງິນ'],['dash','Dashboard'],['reports','ລາຍງານ + Log ລຶບ/ຍົກເລີກ'],['stock','ສະຕ໋ອກວັດຖຸດິບ'],['transfer','ໂອນສະຕ໋ອກລະຫວ່າງສາຂາ'],['purchase','ຈັດຊື້ (PR/PO)'],['resv','ຈອງໂຕະ'],['chat','ແຊັດລູກຄ້າ'],['delivery','Delivery (ຍອດ / ຄ້າງຮັບ)'],['req','ເບີກເຄື່ອງ (ສາງ)'],['count','ນັບສາງ'],['waste','ແຈ້ງເສຍຫາຍ'],['chk','ເຊັກລິດປະຈຳກະ'],['expense','ລາຍຈ່າຍ'],['audit','ຕິດຕາມກວດສອບ (Audit)'],['admin','ການຕັ້ງຄ່າ']];
 var PERM_ACTS=[['ໃບສັ່ງຢາ',[['rxWrite','ແພດ: ຂຽນ / ສົ່ງໃບສັ່ງຢາ ໄປແຄັດເຊຍ'],['rxDispense','ຫ້ອງຢາ: ຈ່າຍຢາ ໃຫ້ຄົນເຈັບ'],['rxIntake','ພະຍາບານ: ຮັບຄົນເຈັບ + ບັນທຶກອາການ ສົ່ງຫາແພດ'],['rxLab','ແລັບ: ປ້ອນຜົນກວດ']]],['ຂາຍ & ເງິນ',[['pay','ຮັບເງິນ / ປິດບິນ'],['discount','ໃຫ້ສ່ວນຫຼຸດ (ບໍ່ເກີນເພດານ)'],['discountOver','ໃຫ້ສ່ວນຫຼຸດເກີນເພດານ'],['cancel','ຍົກເລີກໂຕະ / ລຶບລາຍການ'],['voidBill','Void ບິນ / ຄືນເງິນ'],['override','ອະນຸມັດແທນ (ໃສ່ PIN ອະນຸມັດ)'],['shiftMng','ເປີດ-ປິດກະ / ເງິນເຂົ້າ-ອອກ'],['debtCollect','ຮັບຊຳລະໜີ້'],['soldout','ຕັ້ງເມນູໝົດ']]],['ເມນູ & ລູກຄ້າ',[['menuEdit','ເພີ່ມ / ແກ້ / ລຶບເມນູ ແລະ ສູດ'],['promoMng','ຈັດການໂປຣໂມຊັນ'],['memberMng','ຈັດການສະມາຊິກ']]],['ແຊັດລູກຄ້າ',[['chatFree','ພິມແຊັດຕອບລູກຄ້າເອງ (ເມື່ອຮ້ານຈຳກັດຂໍ້ຄວາມ)']]],['ສະຕ໋ອກ & ຈັດຊື້',[['stockAdjust','ປັບ / ນັບ / ບັນທຶກເສຍສະຕ໋ອກ (ລໍອະນຸມັດ)'],['stockApprove','ອະນຸມັດ ເສຍ / ປັບ / ຕົ້ນທຶນ ສະຕ໋ອກ (ປັບໄດ້ທັນທີ)'],['prCreate','ສ້າງໃບຂໍຊື້ (PR)'],['prApprove','ອະນຸມັດ PR'],['poCreate','ສ້າງໃບສັ່ງຊື້ (PO)'],['poApprove','ອະນຸມັດ PO'],['grnReceive','ຮັບເຄື່ອງເຂົ້າ (GRN)'],['grnVoid','ຍົກເລີກການຮັບເຄື່ອງ'],['vendorMng','ຈັດການຜູ້ຂາຍ']]],['ຈອງໂຕະ',[['resvMng','ຈອງ / ແກ້ / ຍົກເລີກ ການຈອງໂຕະ']]],['ເຊັກລິດ',[['chkDo','ເຮັດເຊັກລິດ'],['chkApprove','ອະນຸມັດ / ຕີກັບ ເຊັກລິດ'],['chkEdit','ແກ້ລາຍການເຊັກລິດ & ພະແນກ']]],['ເບີກ & ນັບສາງ',[['reqCreate','ສ້າງໃບເບີກເຄື່ອງ'],['wasteCreate','ແຈ້ງເສຍຫາຍ (ສ້າງໃບແຈ້ງເສຍ)'],['reqIssue','ຈ່າຍເຄື່ອງຕາມໃບເບີກ (ນາຍສາງ)'],['countDo','ນັບສາງ (ໃສ່ຈຳນວນທີ່ນັບ)'],['countApprove','ອະນຸມັດຜົນນັບ & ປັບສະຕ໋ອກ']]],['ລາຍຈ່າຍ & ລະບົບ',[['expenseAdd','ບັນທຶກລາຍຈ່າຍ'],['expenseDel','ລຶບລາຍຈ່າຍ'],['export','Export ຂໍ້ມູນ (Excel / PDF)'],['import','Import ຂໍ້ມູນ ຈາກ Excel'],['settings','ແກ້ການຕັ້ງຄ່າຮ້ານ'],['userMng','ຈັດການຜູ້ໃຊ້ (ເພີ່ມ / ແກ້ / ລຶບ)'],['sysAdv','ສຳຮອງ / ກູ້ຄືນ / ລ້າງຂໍ້ມູນ']]]];
 PERMS.admin={view:PERM_VIEWS.map(function(x){return x[0];}).concat(['order']),act:[].concat.apply([],PERM_ACTS.map(function(g){return g[1].map(function(x){return x[0];});}))};
 function permCount(u){if(!u||!u.perm)return 0;return Object.keys(u.perm.v||{}).length+Object.keys(u.perm.a||{}).length;}
@@ -3379,6 +3400,7 @@ function render(){if(!state)return;try{bizLabels();}catch(e){}if(view==='tables'
  renderUserChip();try{tickClock();}catch(e){}
  document.querySelectorAll('.navitem').forEach(function(b){b.style.display=canView(b.dataset.v==='daily'?'reports':b.dataset.v)?'':'none';});document.querySelectorAll('#sidebar .navsec').forEach(function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('navsec')){if(n.classList.contains('navitem')&&n.style.display!=='none')any=true;n=n.nextElementSibling;}h.style.display=any?'':'none';});try{navApply();}catch(e){}renderBottomNav();procBadge();try{rqBadge();}catch(e){}try{wsBadge();}catch(e){}try{chkBadge();}catch(e){}try{rvInit();rvBadge();}catch(e){}try{stockBadge();}catch(e){}try{checkReadyAlert();}catch(e){}(function(){var el=document.getElementById('cancelBadge');if(!el)return;var t=ymd(Date.now()),n=(state.cancelLog||[]).filter(function(l){return ymd(l.ts)===t;}).length;el.textContent=n||'';el.title='ລຶບເມນູ / ຍົກເລີກ ມື້ນີ້ '+n+' ລາຍການ';el.style.display=n?'':'none';})();
  if(!canView(view)){view=homeView();document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.v===view));}
+ if(view==='audit'){renderAudit(R);return;}
  if(view==='admin'){renderAdmin(R);var ov=R.querySelectorAll('.adminwide>.asec.on');if(ov.length%2===1)ov[ov.length-1].classList.add('solo');return;}
  if(view==='tables')renderTables(R);else if(view==='order')renderOrder(R);
  else if(view==='kitchen')renderKDS(R,'food',' ຈໍຄົວ');else if(view==='bar')renderKDS(R,'drink',' ຈໍບາຣ໌ນ້ຳ');
@@ -4689,6 +4711,113 @@ function pgBar(key,total){var N=pgN();if(total<=N)return '';var o=_pg[key]||{p:1
  var pg=[];if(n<=7){for(var i=1;i<=n;i++)pg.push(i);}else{pg=[1];if(c>3)pg.push(0);for(var j=Math.max(2,c-1);j<=Math.min(n-1,c+1);j++)pg.push(j);if(c<n-2)pg.push(0);pg.push(n);}
  var bt=function(l,t,dis,on){return '<button type="button" class="pg-btn'+(on?' on':'')+'"'+(dis?' disabled':'')+' onclick="pgGo(\''+key+'\','+t+')">'+l+'</button>';};
  return '<div class="pgbar"><span class="pg-i">ສະແດງ '+from+'–'+to+' ຈາກ '+total+'</span><div class="pg-b">'+bt('‹',c-1,c<=1)+pg.map(function(x){return x?bt(x,x,0,x===c):'<span class="pg-d">…</span>';}).join('')+bt('›',c+1,c>=n)+'</div><label class="pg-s">ແຖວຕໍ່ໜ້າ <select onchange="pgSize(this.value)">'+[5,10,20].map(function(v){return '<option'+(v===N?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label></div>';}
+/* ===================== ຕິດຕາມກວດສອບ (Audit) =====================
+   ແຖບ: ເຫດການ (ຈາກ server — ບັນທຶກຖາວອນ ແກ້ບໍ່ໄດ້) · ຕ່ອງໂສ້ບິນ · ຄວາມຜິດປົກກະຕິ (ຄິດຈາກຂໍ້ມູນຮ້ານ) · ຄວາມປອດໄພຂໍ້ມູນ (ກວດ hash + ຕັ້ງແຈ້ງເຕືອນ) */
+var _au={tab:'events',days:7,t:'',u:'',q:'',items:null,total:0,busy:false,err:'',ver:null,rcpt:'',chain:null,anDays:30};
+var AU_T={login:['ເຂົ້າລະບົບ','ok'],login_fail:['PIN ຜິດ','bad'],login_lock:['ລັອກ PIN','bad'],log:['ການເຮັດວຽກ',''],cancel:['ລຶບ/ຍົກເລີກ','warn'],stock:['ສະຕ໋ອກ',''],bill_void:['Void ບິນ','bad'],bill_refund:['ຄືນເງິນ','warn'],bill_removed:['ບິນຫາຍ','bad'],neg_stock:['ສະຕ໋ອກຕິດລົບ','bad'],master:['ແກ້ຂໍ້ມູນຫຼັກ','warn'],user:['ຜູ້ໃຊ້/ສິດ','warn'],setting:['ຕັ້ງຄ່າ','warn'],alert:['ແຈ້ງເຕືອນ','bad'],admin:['ຜູ້ດູແລ','warn']};
+var AU_G=[['','ທັງໝົດ'],['login,login_fail,login_lock','ເຂົ້າລະບົບ'],['bill_void,bill_refund,cancel','Void/ຍົກເລີກ'],['stock,neg_stock','ສະຕ໋ອກ'],['master,user,setting','ແກ້ຂໍ້ມູນຫຼັກ/ສິດ'],['alert','ແຈ້ງເຕືອນ']];
+function auCan(){return isOwner()||(curUser()||{}).role==='admin';}
+function auFmt(ts){var d=new Date(ts);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function auUserName(id){if(!id)return '—';if(id==='api')return 'ລະບົບ/API';if(id==='qr')return 'ລູກຄ້າ QR';if(id==='system')return 'ລະບົບ';if(id==='admin')return 'ຜູ້ດູແລ server';var u=(state.users||[]).find(function(x){return x.id===id;});return u?u.name:id;}
+function auFrom(){return Date.now()-_au.days*86400000;}
+function auText(e){var d=e.d||{},K=function(v){return typeof v==='number'?KIP(v):cesc(v==null?'':String(v));};
+ switch(e.t){
+  case 'login':return 'ເຂົ້າລະບົບ '+cesc(d.name||'')+' ('+cesc(d.role||'')+')';
+  case 'login_fail':return 'ໃສ່ PIN ຜິດ ('+cesc(d.name||e.u)+') ເທື່ອທີ '+(d.n||'')+' · IP '+cesc(e.ip);
+  case 'login_lock':return 'ລັອກການເຂົ້າ '+cesc(d.name||e.u)+' (PIN ຜິດຫຼາຍເທື່ອ) · IP '+cesc(e.ip);
+  case 'log':return '<b>'+cesc(d.a||'')+'</b>'+(d.tb?' · ໂຕະ '+cesc(d.tb):'')+' — '+cesc(d.x||'');
+  case 'cancel':return '<b>'+cesc(d.k||'ລຶບ')+'</b> '+cesc(d.name||'')+' ×'+(d.qty||0)+' · '+K(d.amt||0)+' ກີບ'+(d.tb?' · ໂຕະ '+cesc(d.tb):'')+(d.why?' — '+cesc(d.why):'');
+  case 'stock':return cesc(d.name||d.code)+' '+(d.d>0?'+':'')+K(Math.round((+d.d||0)*100)/100)+' → ເຫຼືອ '+K(Math.round((+d.af||0)*100)/100)+' · '+cesc(d.why||'')+(d.ref?' · '+cesc(d.ref):'');
+  case 'bill_void':return '<b>Void ບິນ '+cesc(d.receipt)+'</b> · '+K(d.amt||0)+' ກີບ · ໂຕະ '+cesc(d.tb||'')+' — '+cesc(d.why||'')+' (ໂດຍ '+cesc(d.by||'')+')';
+  case 'bill_refund':return 'ຄືນເງິນ ບິນ '+cesc(d.receipt)+': '+K(d.from)+' → '+K(d.to);
+  case 'bill_removed':return '<b>ບິນຫາຍ '+cesc(d.receipt)+'</b> · '+K(d.amt||0)+' ກີບ';
+  case 'neg_stock':return 'ສະຕ໋ອກຕິດລົບ '+cesc(d.name||d.code)+' = '+K(d.have);
+  case 'master':return '<b>'+cesc(auKey(d.k))+'</b> '+cesc(d.name||d.code||'')+(('from' in d||'to' in d)?': '+K(d.from)+' → <b>'+K(d.to)+'</b>':'');
+  case 'user':return '<b>'+cesc(auKey(d.k))+'</b> '+cesc(d.name||d.id||'')+(('from' in d||'to' in d)?': '+K(d.from)+' → <b>'+K(d.to)+'</b>':'');
+  case 'setting':return '<b>ຕັ້ງຄ່າ '+cesc(d.k)+'</b>: '+K(d.from)+' → <b>'+K(d.to)+'</b>';
+  case 'alert':return '🔔 '+cesc(d.msg||'');
+  case 'admin':return 'ຜູ້ດູແລ server: '+cesc(d.a||'');
+ } return cesc(JSON.stringify(d)).slice(0,200);}
+function auKey(k){var m={'menu.price':'ແກ້ລາຄາເມນູ','menu.name':'ແກ້ຊື່ເມນູ','menu.recipe':'ແກ້ສູດເມນູ','menu+':'ເພີ່ມເມນູ','menu-':'ລຶບເມນູ','ing.cost':'ແກ້ຕົ້ນທຶນ','ing.yield':'ແກ້ Yield','ing.reorder':'ແກ້ Min','ing.max':'ແກ້ Max','ing.unit':'ແກ້ຫົວໜ່ວຍ','ing.name':'ແກ້ຊື່ວັດຖຸດິບ','ing.bu':'ແກ້ຫົວໜ່ວຍຊື້','ing.bf':'ແກ້ຕົວຄູນຫົວໜ່ວຍຊື້','ing+':'ເພີ່ມວັດຖຸດິບ','ing-':'ລຶບວັດຖຸດິບ','user+':'ເພີ່ມຜູ້ໃຊ້','user-':'ລຶບຜູ້ໃຊ້','user.role':'ປ່ຽນບົດບາດ','user.active':'ເປີດ/ປິດຜູ້ໃຊ້','user.perm':'ແກ້ສິດສ່ວນຕົວ','user.pin':'ປ່ຽນ PIN','user.name':'ແກ້ຊື່ຜູ້ໃຊ້','user.chkDept':'ແກ້ພະແນກ'};return m[k]||k;}
+function auLoad(){if(!(typeof HAS_API!=='undefined'&&HAS_API)){_au.items=null;_au.err='local';return;}if(_au.busy)return;_au.busy=true;_au.err='';
+ jsonpUrl_(API_URL,'audit=list&token='+encodeURIComponent(TOKEN)+'&from='+auFrom()+'&limit=1500'+(_au.t?'&ty='+encodeURIComponent(_au.t):'')+(_au.u?'&u='+encodeURIComponent(_au.u):'')+(_au.q?'&q='+encodeURIComponent(_au.q):''),function(r){_au.busy=false;
+  if(r&&r.ok){_au.items=r.items;_au.total=r.total;_au.err='';}else{_au.items=null;_au.err=(r&&r.err)||'net';}if(view==='audit')render();},60000);}
+function auSet(k,v){_au[k]=v;_au.items=null;delete _pg.au;auLoad();render();}
+function auTab(t){_au.tab=t;if(t==='events'&&_au.items===null&&!_au.err)auLoad();render();}
+function auVerify(){if(_au.verBusy)return;_au.verBusy=true;_au.ver=null;render();jsonpUrl_(API_URL,'audit=verify&token='+encodeURIComponent(TOKEN),function(r){_au.verBusy=false;_au.ver=r||{ok:false,err:'net'};render();},60000);}
+function auCfg(){if(!state.auditCfg||typeof state.auditCfg!=='object')state.auditCfg={};return state.auditCfg;}
+function auCfgSet(k,v){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງ');render();return;}var c=auCfg();c[k]=v;logOrder('ຕັ້ງຄ່າ Audit',k+' = '+v,'');save();render();}
+/* ---- ຕ່ອງໂສ້ບິນ ---- */
+function auChain(){var r=String(_au.rcpt||'').trim();if(!r){toast('ໃສ່ເລກບິນ');return;}var b=(state.bills||[]).find(function(x){return x.receipt===r||x.receipt.slice(-6)===r.slice(-6)&&r.length>=4;});if(!b){_au.chain={err:'ບໍ່ພົບບິນ '+cesc(r)+' ໃນຂໍ້ມູນເຄື່ອງນີ້ (ບິນເກົ່າອາດຢູ່ໃນຄັງ)'};render();return;}
+ _au.chain={b:b,items:null,busy:true};render();
+ if(!(typeof HAS_API!=='undefined'&&HAS_API)){_au.chain.busy=false;_au.chain.items=[];render();return;}
+ jsonpUrl_(API_URL,'audit=list&token='+encodeURIComponent(TOKEN)+'&from='+(b.ts-86400000)+'&to='+(b.ts+30*86400000)+'&limit=2000',function(x){var all=(x&&x.ok)?x.items:[],tb=String(b.table||'');
+  var keep=all.filter(function(e){var d=e.d||{},j=JSON.stringify(d);return j.indexOf(b.receipt)>=0||((e.t==='log'||e.t==='stock'||e.t==='cancel')&&e.ts<=b.ts+120000&&e.ts>=b.ts-4*3600000&&(String(d.tb||'')===tb||String(d.ref||'').indexOf('ໂຕະ '+tb+')')>=0));}).sort(function(p,q){return p.ts-q.ts;});
+  _au.chain={b:b,items:keep,busy:false,err:x&&x.ok?'':((x&&x.err)||'net')};render();},60000);}
+function auChainHTML(){var c=_au.chain;if(!c)return '';if(c.err&&!c.b)return '<div class="rv-warn">'+c.err+'</div>';var b=c.b;
+ var h='<div class="au-card"><div class="au-bh"><b>ບິນ '+cesc(b.receipt)+'</b><span>ໂຕະ '+cesc(b.table||'')+' · '+auFmt(b.ts)+' · ເກັບເງິນ: '+cesc(b.cashier||b.by||'')+' · '+cesc(b.pay||'')+'</span><b class="au-amt">'+KIP(b.total)+' ກີບ'+(b.voided?' <em class="au-void">VOID</em>':'')+'</b></div>'+
+  '<div class="au-items">'+(b.items||[]).map(function(i){return '<span>'+i.qty+'× '+cesc(i.name)+(i.disc?' <i>(−'+i.disc+'%)</i>':'')+'</span>';}).join('')+'</div>'+(b.discAmt?'<div class="au-note">ສ່ວນລົດລວມ '+KIP(b.discAmt)+' ກີບ</div>':'')+
+  (b.voided?'<div class="au-note bad">Void ໂດຍ '+cesc(b.voidBy||'')+' · '+(b.voidTs?auFmt(b.voidTs):'')+' — '+cesc(b.voidReason||'')+'</div>':'')+(b.refundAmt?'<div class="au-note warn">ຄືນເງິນ '+KIP(b.refundAmt)+' ກີບ</div>':'')+'</div>';
+ if(c.busy)return h+'<div class="empty2">ກຳລັງດຶງບັນທຶກຈາກ server…</div>';
+ if(!c.items||!c.items.length)return h+'<div class="empty2">'+((typeof HAS_API!=='undefined'&&HAS_API)?'ບໍ່ພົບບັນທຶກຂອງບິນນີ້ໃນ Audit (ບິນອາດເກີດກ່ອນເປີດໃຊ້ Audit)':'ໂໝດ Local ບໍ່ມີບັນທຶກ server')+'</div>';
+ return h+'<div class="au-tl">'+c.items.map(function(e){var T=AU_T[e.t]||[e.t,''];return '<div class="au-ev"><i class="'+T[1]+'"></i><div><div class="au-et"><b>'+T[0]+'</b><span>'+auFmt(e.ts)+' · '+cesc(auUserName(e.u))+'</span></div><div class="au-ex">'+auText(e)+'</div></div></div>';}).join('')+'</div>';}
+/* ---- ຄວາມຜິດປົກກະຕິ (ຄິດຈາກຂໍ້ມູນໃນຮ້ານ: ບິນ / ລຶບ-ຍົກເລີກ / ບັນທຶກ) ---- */
+function auAnom(days){var from=Date.now()-days*86400000,U={};var g=function(n){n=n||'—';return U[n]||(U[n]={name:n,bills:0,sales:0,sub:0,disc:0,voids:0,voidAmt:0,refunds:0,dels:0,delAmt:0,over:0,waste:0});};
+ (state.bills||[]).forEach(function(b){if(!b||b.ts<from||b.deposit)return;var u=g(b.cashier||b.by);u.bills++;if(b.voided){var v=g(b.voidBy||b.cashier);v.voids++;v.voidAmt+=(+b.total||0);}else{u.sales+=(+b.total||0);u.sub+=(+b.sub||+b.total||0);u.disc+=(+b.discAmt||0);}if(+b.refundAmt>0)g(b.cashier||b.by).refunds++;});
+ (state.cancelLog||[]).forEach(function(l){if(!l||l.ts<from)return;if(/Void ບິນ|ຄືນເງິນ/.test(l.type||''))return;var u=g(l.by);u.dels++;u.delAmt+=(+l.amount||0);});
+ (state.orderLog||[]).forEach(function(l){if(!l||l.ts<from||l.action!=='ຂາຍເກີນສະຕ໋ອກ')return;g(l.by).over++;});
+ (state.wastes||[]).forEach(function(w){if(!w||(w.ts||0)<from||w.status==='REJECTED'||w.status==='CANCELLED')return;g(w.byName).waste++;});
+ var L=Object.values(U).filter(function(u){return u.name!=='—'&&(u.bills||u.voids||u.dels||u.over||u.waste);});
+ var tb=L.reduce(function(s,u){return s+u.bills;},0)||1,tv=L.reduce(function(s,u){return s+u.voids;},0),ts=L.reduce(function(s,u){return s+u.sub;},0)||1,td=L.reduce(function(s,u){return s+u.disc;},0),tdl=L.reduce(function(s,u){return s+u.dels;},0);
+ var avV=tv/tb,avD=td/ts,avL=tdl/tb;
+ L.forEach(function(u){u.fl=[];var vr=u.bills?u.voids/u.bills:0,dr=u.sub?u.disc/u.sub:0,lr=u.bills?u.dels/u.bills:0;u.vr=vr;u.dr=dr;u.lr=lr;
+  if(u.voids>=2&&vr>=Math.max(0.05,avV*2))u.fl.push('Void ສູງ '+Math.round(vr*100)+'%');
+  if(u.disc>0&&dr>=Math.max(0.08,avD*2))u.fl.push('ສ່ວນລົດສູງ '+(Math.round(dr*1000)/10)+'%');
+  if(u.dels>=3&&lr>=Math.max(0.15,avL*2))u.fl.push('ລຶບລາຍການຫຼາຍ');
+  if(u.over>=1)u.fl.push('ຂາຍເກີນສະຕ໋ອກ '+u.over+' ຄັ້ງ');
+  if(u.refunds>=2)u.fl.push('ຄືນເງິນ '+u.refunds+' ຄັ້ງ');});
+ L.sort(function(a,b){return b.fl.length-a.fl.length||b.sales-a.sales;});
+ var bills=(state.bills||[]).filter(function(b){return b&&b.ts>=from&&!b.deposit&&(b.voided||(+b.refundAmt>0)||((+b.sub||0)>0&&(+b.discAmt||0)/(+b.sub)>=0.3));}).sort(function(a,b){return b.ts-a.ts;});
+ return {users:L,bills:bills,avg:{v:avV,d:avD,l:avL}};}
+function auAnomHTML(){var A=auAnom(_au.anDays),pc=function(x){return (Math.round(x*1000)/10)+'%';};
+ var rng=[7,30,90].map(function(d){return '<button type="button" class="chip '+(_au.anDays===d?'active':'')+'" onclick="_au.anDays='+d+';render()">'+d+' ມື້</button>';}).join('');
+ var neg=negStockList();
+ var h='<div class="au-bar">'+rng+'<span class="au-hint">ສະເລ່ຍທັງຮ້ານ: Void '+pc(A.avg.v)+' · ສ່ວນລົດ '+pc(A.avg.d)+' · ລຶບລາຍການ '+pc(A.avg.l)+' ຂອງບິນ</span></div>';
+ h+='<div class="au-sec">ຜູ້ໃຊ້ທີ່ຄວນກວດ</div>'+(A.users.length?'<div class="au-tbl"><table class="tbl tcard"><thead><tr><th>ຜູ້ໃຊ້</th><th>ບິນ</th><th>ຍອດຂາຍ</th><th>ສ່ວນລົດ</th><th>Void</th><th>ລຶບລາຍການ</th><th>ຂາຍເກີນສະຕ໋ອກ</th><th>ເຕືອນ</th></tr></thead><tbody>'+A.users.map(function(u){return '<tr class="'+(u.fl.length?'au-flag':'')+'"><td><b>'+cesc(u.name)+'</b></td><td>'+u.bills+'</td><td>'+KIP(u.sales)+'</td><td>'+KIP(u.disc)+' <small>('+pc(u.dr)+')</small></td><td>'+u.voids+(u.voids?' <small>('+KIP(u.voidAmt)+')</small>':'')+'</td><td>'+u.dels+(u.dels?' <small>('+KIP(u.delAmt)+')</small>':'')+'</td><td>'+u.over+'</td><td>'+(u.fl.length?u.fl.map(function(f){return '<span class="au-fl">'+cesc(f)+'</span>';}).join(' '):'<span class="au-ok">ປົກກະຕິ</span>')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty2">ຍັງບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້</div>');
+ h+='<div class="au-sec">ສະຕ໋ອກຕິດລົບ ('+neg.length+')</div>'+(neg.length?'<div class="au-negs">'+neg.map(function(x){return '<span class="al-c r">'+cesc(x.name)+' · '+cesc(x.locName)+' <b>'+x.have+'</b> '+cesc(x.unit)+'</span>';}).join('')+'</div>':'<div class="au-note">ບໍ່ມີ ✓</div>');
+ h+='<div class="au-sec">ບິນຜິດປົກກະຕິ (Void / ຄືນເງິນ / ສ່ວນລົດ ≥ 30%) — '+A.bills.length+'</div>'+(A.bills.length?pgSlice('aub',A.bills,'a'+_au.anDays).map(function(b){return '<div class="au-bill" onclick="_au.tab=\'chain\';_au.rcpt=\''+aesc(b.receipt)+'\';auChain()"><b>'+cesc(b.receipt)+'</b><span>'+auFmt(b.ts)+' · ໂຕະ '+cesc(b.table||'')+' · '+cesc(b.cashier||'')+'</span><span>'+(b.voided?'<em class="au-void">VOID</em> '+cesc(b.voidReason||''):(+b.refundAmt>0?'ຄືນ '+KIP(b.refundAmt):'ສ່ວນລົດ '+KIP(b.discAmt)))+'</span><b>'+KIP(b.total)+'</b></div>';}).join('')+pgBar('aub',A.bills.length):'<div class="au-note">ບໍ່ມີ ✓</div>');
+ return h;}
+/* ---- ໜ້າຫຼັກ ---- */
+function renderAudit(R){if(!auCan()){R.innerHTML='<div class="pad"><div class="empty2">ສະເພາະເຈົ້າຂອງ / Admin</div></div>';return;}
+ var api=(typeof HAS_API!=='undefined'&&HAS_API);
+ var tabs=[['events','ເຫດການ'],['chain','ຕ່ອງໂສ້ບິນ'],['anom','ຄວາມຜິດປົກກະຕິ'],['sec','ຄວາມປອດໄພຂໍ້ມູນ']].map(function(x){return '<button type="button" class="chip '+(_au.tab===x[0]?'active':'')+'" onclick="auTab(\''+x[0]+'\')">'+x[1]+'</button>';}).join('');
+ var body='';
+ if(_au.tab==='events'){
+  if(!api)body='<div class="rv-warn">ໂໝດ Local (ບໍ່ມີ server) — ບັນທຶກຖາວອນຢູ່ server ເທົ່ານັ້ນ. ສະແດງຕົວຢ່າງຈາກບັນທຶກໃນເຄື່ອງນີ້:</div>'+auLocalHTML();
+  else{
+   if(_au.items===null&&!_au.busy&&!_au.err)setTimeout(auLoad,0);
+   var chips=AU_G.map(function(g){return '<button type="button" class="chip '+(_au.t===g[0]?'active':'')+'" onclick="auSet(\'t\',\''+g[0]+'\')">'+g[1]+'</button>';}).join('');
+   var us='<select class="in" onchange="auSet(\'u\',this.value)"><option value="">ທຸກຄົນ</option>'+(state.users||[]).map(function(u){return '<option value="'+aesc(u.id)+'"'+(_au.u===u.id?' selected':'')+'>'+cesc(u.name)+'</option>';}).join('')+'</select>';
+   var dr='<select class="in" onchange="auSet(\'days\',+this.value)">'+[1,7,30,90,365].map(function(d){return '<option value="'+d+'"'+(_au.days===d?' selected':'')+'>'+(d===1?'24 ຊົ່ວໂມງ':d+' ມື້')+'</option>';}).join('')+'</select>';
+   body='<div class="au-bar">'+chips+'</div><div class="au-bar">'+dr+us+'<input class="in au-q" type="search" placeholder="ຄົ້ນຫາ ເລກບິນ / ໂຕະ / ຊື່ເມນູ / ວັດຖຸດິບ…" value="'+aesc(_au.q)+'" onchange="auSet(\'q\',this.value)"></div>';
+   if(_au.busy)body+='<div class="empty2">ກຳລັງດຶງ…</div>';
+   else if(_au.err)body+='<div class="rv-warn">'+(_au.err==='token'?'ບໍ່ມີສິດອ່ານບັນທຶກນີ້ (ສະເພາະເຈົ້າຂອງ/Admin) ຫຼື server ຍັງບໍ່ໄດ້ອັບເດດ':'ເຊື່ອມ server ບໍ່ໄດ້ ຫຼື server ຍັງບໍ່ມີຟັງຊັນ Audit — ຕ້ອງອັບໂຫຼດ server/app.js + audit.js')+'</div>';
+   else if(_au.items){var rows=pgSlice('au',_au.items,_au.t+'|'+_au.u+'|'+_au.q+'|'+_au.days);body+='<div class="au-hint">ພົບ '+_au.total+' ລາຍການ'+(_au.total>_au.items.length?' (ສະແດງ '+_au.items.length+' ອັນລ່າສຸດ)':'')+'</div><div class="au-tl">'+(rows.length?rows.map(function(e){var T=AU_T[e.t]||[e.t,''];return '<div class="au-ev"><i class="'+T[1]+'"></i><div><div class="au-et"><b>'+T[0]+'</b><span>'+auFmt(e.ts)+' · '+cesc(auUserName(e.u))+(e.ip?' · '+cesc(e.ip):'')+' · #'+e.n+'</span></div><div class="au-ex">'+auText(e)+'</div></div></div>';}).join(''):'<div class="empty2">ບໍ່ມີເຫດການ</div>')+'</div>'+pgBar('au',_au.items.length);}}
+ }else if(_au.tab==='chain'){body='<div class="au-bar"><input class="in au-q" type="search" placeholder="ເລກບິນ (ເຊັ່ນ 0000010547)" value="'+aesc(_au.rcpt)+'" oninput="_au.rcpt=this.value" onkeydown="if(event.key===\'Enter\')auChain()"><button type="button" class="btn-sm primary" onclick="auChain()">ເບິ່ງຕ່ອງໂສ້</button></div><div class="au-hint">ເບິ່ງວ່າບິນນີ້ ໃຜສັ່ງ/ຕັດສະຕ໋ອກ/ຈ່າຍ/Void ເວລາໃດ — ຫຼືກົດຈາກແຖບ "ຄວາມຜິດປົກກະຕິ"</div>'+auChainHTML();}
+ else if(_au.tab==='anom')body=auAnomHTML();
+ else body=auSecHTML(api);
+ R.innerHTML='<div class="pad audpage"><div class="tv-head"><div><div class="ttl">ຕິດຕາມກວດສອບ</div><div class="sub">ບັນທຶກທຸກການເຮັດວຽກ ແລະ ການແກ້ຂໍ້ມູນ ທີ່ຢູ່ server — ແກ້/ລຶບບໍ່ໄດ້ ແລະ ກວດການແກ້ໄຂດ້ວຍ hash</div></div></div><div class="au-tabs">'+tabs+'</div>'+body+'</div>';}
+function auLocalHTML(){var L=[];(state.orderLog||[]).slice(-300).forEach(function(l){L.push({ts:l.ts,u:'',t:'log',d:{a:l.action,x:l.detail,tb:l.table,by:l.by},n:0});});(state.cancelLog||[]).slice(-200).forEach(function(l){L.push({ts:l.ts,u:'',t:'cancel',d:{k:l.type,name:l.name,qty:l.qty,amt:l.amount,tb:l.table,why:l.reason,by:l.by},n:0});});L.sort(function(a,b){return b.ts-a.ts;});
+ var rows=pgSlice('aul',L,'l');return '<div class="au-tl">'+rows.map(function(e){var T=AU_T[e.t]||[e.t,''];return '<div class="au-ev"><i class="'+T[1]+'"></i><div><div class="au-et"><b>'+T[0]+'</b><span>'+auFmt(e.ts)+' · '+cesc(e.d.by||'')+'</span></div><div class="au-ex">'+auText(e)+'</div></div></div>';}).join('')+'</div>'+pgBar('aul',L.length);}
+function auSecHTML(api){var c=auCfg(),v=_au.ver,vh='';
+ if(!api)vh='<div class="rv-warn">ກວດ hash ໄດ້ສະເພາະເມື່ອເຊື່ອມ server</div>';
+ else if(_au.verBusy)vh='<div class="empty2">ກຳລັງກວດຕ່ອງໂສ້…</div>';
+ else if(v)vh=v.ok?'<div class="au-verok">✓ ບັນທຶກຄົບ ບໍ່ຖືກແກ້ ('+v.count+' ລາຍການ)</div>':'<div class="au-verbad">'+(v.err?'ກວດບໍ່ໄດ້: '+cesc(v.err):'✗ ພົບການແກ້ໄຂ/ລຶບ ທີ່ລາຍການ #'+cesc(v.bad&&v.bad.n)+' ('+cesc((v.bad&&v.bad.file)||'')+') '+cesc((v.bad&&v.bad.why)||''))+'</div>';
+ return '<div class="au-card"><div class="au-sec" style="margin-top:0">ກວດຄວາມສົມບູນຂອງບັນທຶກ</div><div class="au-hint">ທຸກລາຍການເຊື່ອມກັນດ້ວຍລະຫັດ hash. ຖ້າມີຄົນແກ້, ລຶບ ຫຼື ຕັດທ້າຍໄຟລ໌ບັນທຶກໃນ server — ການກວດນີ້ຈະບອກທັນທີ.</div><button type="button" class="btn-sm primary" onclick="auVerify()"'+(api?'':' disabled')+'>ກວດຕອນນີ້</button>'+vh+'</div>'+
+  '<div class="au-card"><div class="au-sec" style="margin-top:0">ແຈ້ງເຕືອນເຫດຜິດປົກກະຕິຜ່ານ Telegram</div><div class="au-hint">ສົ່ງທັນທີເມື່ອ: Void ບິນຍອດໃຫຍ່, ສະຕ໋ອກຕິດລົບ, PIN ຖືກລັອກ, ປ່ຽນ PIN/ສິດ/ບົດບາດ, ເພີ່ມ-ລຶບຜູ້ໃຊ້, ປ່ຽນ QR ໂອນເງິນຂອງຮ້ານ, ປ່ຽນຕັ້ງຄ່າສຳຄັນ. ໃຊ້ bot ດຽວກັບ ລາຍງານປະຈຳວັນ / ແຈ້ງສະຕ໋ອກຕ່ຳ (ຕັ້ງຢູ່ server).</div>'+
+  '<div class="srow"><div class="srow-t"><b>ເປີດແຈ້ງເຕືອນ Audit ເຂົ້າ Telegram</b></div><div class="srow-c"><label class="sw"><input type="checkbox"'+(c.tg!==false?' checked':'')+' onchange="auCfgSet(\'tg\',this.checked)"><i></i></label></div></div>'+
+  '<div class="srow"><div class="srow-t"><b>Void ບິນຍອດຕັ້ງແຕ່ (ກີບ) ຈຶ່ງແຈ້ງ</b></div><div class="srow-c"><input class="in" type="number" min="0" step="10000" value="'+(+c.voidAmt||200000)+'" onchange="auCfgSet(\'voidAmt\',Math.max(0,+this.value||0))" style="width:150px"></div></div></div>'+
+  '<div class="au-card"><div class="au-sec" style="margin-top:0">ແຍກໜ້າທີ່ (ຕັ້ງຄ່າໃນ ການຕັ້ງຄ່າ → ສະຕ໋ອກ/ການຂາຍ)</div><div class="au-hint">ເຈົ້າຂອງອະນຸມັດເອກະສານຕົນເອງບໍ່ໄດ້: <b>'+(sodOn('self')?'ເປີດ':'ປິດ')+'</b> · Void ບິນຕົນເອງບໍ່ໄດ້: <b>'+(sodOn('void')?'ເປີດ':'ປິດ')+'</b></div></div>';}
 function renderHistory(R){if(histDate===undefined)histDate=ymd(Date.now());
  var bills=histBills(),total=bills.reduce(function(s,b){return s+billNet(b);},0);var nVoid=bills.filter(function(b){return b.voided;}).length;
  var bar=`<div class="toolbar"><span style="font-size:18px;font-weight:800"> ປະຫວັດການຂາຍ</span>
@@ -5414,6 +5543,7 @@ function doAddIngredient(){const c=(document.getElementById('ic').value||'').tri
 function resetStockAll(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງຮ້ານ');return;}if(!cfm('ຕັ້ງສະຕ໋ອກໃໝ່ຂອງ "'+locName(stockViewLoc)+'" ທັງໝົດ?',function(){resetStockAll()}))return;Object.values(state.ingredients).forEach(i=>{setStockAt(i.code,stockViewLoc,(/^(g|ml|kg|l)$/i.test(i.unit||''))?100000:1000,'ຕັ້ງສະຕ໋ອກໃໝ່','['+locName(stockViewLoc)+']');});save();render();toast('ຕັ້ງສະຕ໋ອກໃໝ່ແລ້ວ ('+locName(stockViewLoc)+')');}
 /* ===== THEME v7: icons, drawer, bottom nav, clock ===== */
 const NAV_IC={
+ audit:'<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path class="a" d="M9 12l2.2 2.2L15.5 10"/>',
  menu:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path class="a" d="M14 17.5h7M17.5 14v7"/>',
  rx:'<path d="M7 3h8l4 4v14H7z"/><path class="a" d="M15 3v4h4"/><path d="M10 12h5M10 16h3"/>',
  tables:'<path class="sw-l" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20"/><path class="a sw-r" d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
@@ -7874,7 +8004,7 @@ function setSecPerm(){var roles=Object.keys(ROLE_LABELS).filter(function(r){retu
   MODULES.filter(function(m){return !(bizCur()==='medical'&&MED_HIDE_MOD.indexOf(m[0])>=0);}).map(function(m){return sRow(m[1]+(modOn(m[0])?'':sBadge('ປິດຢູ່','off')),m[2],'<label class="sw"><input type="checkbox"'+(modOn(m[0])?' checked':'')+' onchange="modSet(\''+m[0]+'\',this.checked)"><i></i></label>');}).join(''))+
  navHideCard()+permRoleHTML();}
 /* ===== ສິດຕາມບົດບາດ: ເລືອກບົດບາດ → ສະຫຼຸບ → ໜ້າ (ຈັດກຸ່ມຄືເມນູຊ້າຍ) + ສິດ (ຈັດກຸ່ມຕາມເລື່ອງ) ເປັນບັດ ມີສະວິດ + ເປີດ/ປິດທັງກຸ່ມ + ຄົ້ນຫາ ===== */
-var PERM_VG=[['ຂາຍໜ້າຮ້ານ',['tables','rx','resv','delivery','chat','members']],['ຄົວ & ບາ',['kitchen','bar','waiter']],['ກະ & ເງິນ',['shift','chk','history','expense','debt']],['ສາງ & ຈັດຊື້',['stock','transfer','purchase','req','count','waste']],['ລາຍງານ',['dash','reports']],['ລະບົບ',['admin']]];
+var PERM_VG=[['ຂາຍໜ້າຮ້ານ',['tables','rx','resv','delivery','chat','members']],['ຄົວ & ບາ',['kitchen','bar','waiter']],['ກະ & ເງິນ',['shift','chk','history','expense','debt']],['ສາງ & ຈັດຊື້',['stock','transfer','purchase','req','count','waste']],['ລາຍງານ',['dash','reports']],['ລະບົບ',['audit','admin']]];
 function roleSetMany(kind,csv,on){if(!isSuper()){toast('ສະເພາະ Super Admin');return;}if(!PERMS[permRole])return;if(!state.roleDefs||typeof state.roleDefs!=='object')state.roleDefs={};
  var cur=roleDef(permRole),nd=state.roleDefs[permRole]||{view:cur.view.slice(),act:cur.act.slice()};var arr=kind==='v'?nd.view:nd.act;
  csv.split(',').forEach(function(key){var i=arr.indexOf(key);if(on&&i<0)arr.push(key);if(!on&&i>=0)arr.splice(i,1);if(kind==='v'&&key==='tables'){var j=nd.view.indexOf('order');if(on&&j<0)nd.view.push('order');if(!on&&j>=0)nd.view.splice(j,1);}});
@@ -9487,9 +9617,11 @@ function alertBadge(){var b=document.getElementById('alertBell'),n=document.getE
  if(_inSeen!==null){var fresh=IN.filter(function(x){return !_inSeen[x.k];});if(fresh.length){try{if(state.soundOn!==false)playBeep();}catch(e){}setTimeout(function(){try{toast('📨 ມີເອກະສານລໍທ່ານ: '+fresh[0].no+' ('+fresh[0].t+')'+(fresh.length>1?' ແລະອີກ '+(fresh.length-1):'')+' — ກົດກະດິ່ງ');}catch(e){}},300);}}
  _inSeen=keys;
  if(c&&!_alWarned){_alWarned=true;var p=[];if(IN.length)p.push('ລໍທ່ານດຳເນີນການ '+IN.length);if(A.exp.length)p.push('ໝົດອາຍຸ '+A.exp.length);if(A.soon.length)p.push('ໃກ້ໝົດອາຍຸ '+A.soon.length);if(A.low.length)p.push('ສະຕ໋ອກຕ່ຳ '+A.low.length);setTimeout(function(){try{toast('🔔 ແຈ້ງເຕືອນ: '+p.join(' · ')+' — ກົດກະດິ່ງ');}catch(e){}},1200);}}
-function alertBanner(){if(!alertCan())return '';var A=alertsAll(),c=A.exp.length+A.soon.length+A.low.length;if(!c)return '';
+function negBar(){if(!alertCan())return '';var N=negStockList();if(!N.length)return '';return '<div class="al-bar neg-bar" onclick="setView(\'audit\');_au.tab=\'anom\';render()" role="button"><span class="al-ic">⚠</span><div class="al-t"><b>ສະຕ໋ອກຕິດລົບ '+N.length+' ລາຍການ</b><div>'+N.slice(0,3).map(function(x){return '<span class="al-c r">'+cesc(x.name)+' <b>'+x.have+'</b> '+cesc(x.unit)+'</span>';}).join('')+'</div></div><span class="al-go">ເບິ່ງ →</span></div>';}
+function negStockList(){var out=[];Object.values(state.ingredients||{}).forEach(function(it){if(!it)return;var L=it.locs||{};Object.keys(L).forEach(function(l){var v=+L[l]||0;if(v<-1e-9)out.push({code:it.code,name:it.name||it.code,unit:it.unit||'',loc:l,locName:(typeof locName==='function'?locName(l):l),have:Math.round(v*100)/100});});});out.sort(function(a,b){return a.have-b.have;});return out;}
+function alertBanner(){var _nb=negBar();if(!alertCan())return '';var A=alertsAll(),c=A.exp.length+A.soon.length+A.low.length;if(!c)return _nb;
  var ch=function(n,l,cls){return n?'<span class="al-c '+cls+'"><b>'+n+'</b> '+l+'</span>':'';};
- return '<div class="al-bar" onclick="alertOpen()" role="button"><span class="al-ic">🔔</span><div class="al-t"><b>ແຈ້ງເຕືອນສະຕ໋ອກ</b><div>'+ch(A.exp.length,'ໝົດອາຍຸແລ້ວ','r')+ch(A.soon.length,'ໃກ້ໝົດອາຍຸ','o')+ch(A.low.length,'ສະຕ໋ອກຕ່ຳ','y')+'</div></div><span class="al-go">ເບິ່ງ ແລະ ຈັດການ →</span></div>';}
+ return '<div class="al-bar" onclick="alertOpen()" role="button"><span class="al-ic">🔔</span><div class="al-t"><b>ແຈ້ງເຕືອນສະຕ໋ອກ</b><div>'+ch(A.exp.length,'ໝົດອາຍຸແລ້ວ','r')+ch(A.soon.length,'ໃກ້ໝົດອາຍຸ','o')+ch(A.low.length,'ສະຕ໋ອກຕ່ຳ','y')+'</div></div><span class="al-go">ເບິ່ງ ແລະ ຈັດການ →</span></div>'+_nb;}
 function alertOpen(){var IN=inboxItems();if(!alertCan()&&!IN.length){toast('ບໍ່ມີສິດ');return;}var A=alertCan()?alertsAll():{exp:[],soon:[],low:[]},cfg=alertCfg(),ed=can('stockAdjust')||isOwner(),K=function(c){return "'"+String(c).replace(/'/g,"\\'")+"'";};
  var sec=function(t,cls,rows){return rows.length?'<div class="al-s '+cls+'"><h3>'+t+' <i>'+rows.length+'</i></h3>'+rows.join('')+'</div>':'';};
  var lotRow=function(x){var d=x.d,when=d<0?'ໝົດອາຍຸແລ້ວ '+(-d)+' ມື້':(d===0?'ໝົດອາຍຸມື້ນີ້':'ອີກ '+d+' ມື້');return '<div class="al-r"><div><b>'+cesc(x.name)+'</b><small>ລັອດ '+cesc(x.l.no||'-')+' · ຄົງເຫຼືອ '+KIP(x.l.qty)+' '+cesc(x.unit||'')+' · ໝົດ '+cesc(x.l.exp)+' (<b>'+when+'</b>)</small></div>'+(can('wasteCreate')||ed?'<button type="button" class="btn-sm" onclick="closeModal();wasteStock('+K(x.code)+')">🗑 ແຈ້ງເສຍ</button>':'')+'</div>';};
