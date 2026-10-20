@@ -183,16 +183,18 @@ function auditApi(q) {
   }
   return { ok: false, err: 'audit' };
 }
-/* ?notify=status|wa_set|wa_test|wa_clear — ຕັ້ງເບີ WhatsApp (CallMeBot) ຈາກໜ້າ Settings; ສະເພາະ owner/superadmin ຫຼື API token. key ບໍ່ສົ່ງກັບຄືນ */
+/* ?notify=status|wa_set|wa_test|wa_clear|ntfy_new|ntfy_clear — ຕັ້ງເບີ WhatsApp (CallMeBot) ຈາກໜ້າ Settings; ສະເພາະ owner/superadmin ຫຼື API token. key ບໍ່ສົ່ງກັບຄືນ */
 function notifyApi(q) {
   const t = apiToken(), c = AU.ctx || {}; if (!(!t || c.u === 'api' || ['superadmin', 'owner'].indexOf(c.role) >= 0)) return { ok: false, err: 'token' };
-  const P = shim.props, st = function () { const w = G.waTargets_(); return { ok: true, wa: w.length, last4: w.length ? w[0].phone.slice(-4) : '', tg: !!(P.getProperty('TG_BOT') && P.getProperty('TG_CHAT')) }; };
+  const P = shim.props, st = function () { const w = G.waTargets_(); return { ok: true, wa: w.length, last4: w.length ? w[0].phone.slice(-4) : '', tg: !!(P.getProperty('TG_BOT') && P.getProperty('TG_CHAT')), ntfy: String(P.getProperty('NTFY_TOPIC') || '') }; };
   if (q.notify === 'wa_set') {
     const m = /^\+?(\d{8,15}):([A-Za-z0-9]{3,24})$/.exec(String(q.wa || '').replace(/[\s-]/g, '')); if (!m) return { ok: false, err: 'format' };
     P.setProperty('WA_CALLMEBOT', m[1] + ':' + m[2]); return st();
   }
   if (q.notify === 'wa_clear') { P.deleteProperty ? P.deleteProperty('WA_CALLMEBOT') : P.setProperty('WA_CALLMEBOT', ''); return st(); }
-  if (q.notify === 'wa_test') { const r = st(); r.sent = G.tgSend_('🧪 ST POS: ທົດສອບແຈ້ງເຕືອນ — ຖ້າເຫັນຂໍ້ຄວາມນີ້ ແປວ່າຕັ້ງສຳເລັດ ✓'); return r; }
+  if (q.notify === 'ntfy_new') { P.setProperty('NTFY_TOPIC', 'stpos-' + crypto.randomBytes(12).toString('hex')); return st(); } /* ຊື່ຫ້ອງແບບສຸ່ມ 96 bit = ເປັນຄວາມລັບ */
+  if (q.notify === 'ntfy_clear') { P.deleteProperty('NTFY_TOPIC'); return st(); }
+  if (q.notify === 'wa_test' || q.notify === 'test') { const r = st(); r.sent = G.tgSend_('🧪 ST POS: ທົດສອບແຈ້ງເຕືອນ — ຖ້າເຫັນຂໍ້ຄວາມນີ້ ແປວ່າຕັ້ງສຳເລັດ ✓'); return r; }
   return st();
 }
 function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === t) return true; const u = sessUser(q.token); return !!(u && u.role === 'superadmin'); }

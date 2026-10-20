@@ -40,7 +40,7 @@ function doGet(e) {
       payload = tokenOk_(p.token) ? { ok: true, sum: branchSummary_() } : { ok: false, err: 'token' };
     } else if (p.report) {                                 /* ລາຍງານປະຈຳວັນ: preview / test (ສົ່ງ WhatsApp ດຽວນີ້) */
       if (!tokenOk_(p.token)) payload = { ok: false, err: 'token' };
-      else if (p.report == 'stock' || p.report == 'stocktest') { var stt = null; try { stt = JSON.parse(getState_() || 'null'); } catch (e) { } var sl = stt ? stockLowList_(stt) : [], smsg = stockMsg_(stt || {}, sl, '📦 ສະຕ໋ອກໃກ້ໝົດ / ໝົດ (ດຽວນີ້)'); payload = { ok: true, text: smsg || '✓ ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min', count: sl.length, tg: !!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')), wa: waTargets_().length }; if (p.report == 'stocktest') payload.sent = smsg ? tgSend_(smsg) : tgSend_('🧪 ST POS: ທົດສອບແຈ້ງສະຕ໋ອກ — ຕອນນີ້ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min ✓'); }
+      else if (p.report == 'stock' || p.report == 'stocktest') { var stt = null; try { stt = JSON.parse(getState_() || 'null'); } catch (e) { } var sl = stt ? stockLowList_(stt) : [], smsg = stockMsg_(stt || {}, sl, '📦 ສະຕ໋ອກໃກ້ໝົດ / ໝົດ (ດຽວນີ້)'); payload = { ok: true, text: smsg || '✓ ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min', count: sl.length, tg: !!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')), wa: waTargets_().length, ntfy: !!PROP.getProperty('NTFY_TOPIC') }; if (p.report == 'stocktest') payload.sent = smsg ? tgSend_(smsg) : tgSend_('🧪 ST POS: ທົດສອບແຈ້ງສະຕ໋ອກ — ຕອນນີ້ບໍ່ມີວັດຖຸດິບທີ່ຕ່ຳກວ່າ Min ✓'); }
       else if (p.report == 'test') { var txt = buildDailyReport_(new Date()); payload = { ok: true, text: txt, sent: sendReport_('🧪 ທົດສອບ' + String.fromCharCode(10) + txt) }; }
       else payload = { ok: true, text: buildDailyReport_(new Date()), targets: waTargets_().length, tg: !!PROP.getProperty('TG_BOT'), trigger: ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'dailyReport'; }) };
     } else if (p.bak) {                                    /* backup / restore */
@@ -814,13 +814,18 @@ function tgSend_(text) {
     try { res.push('WA ' + UrlFetchApp.fetch('https://api.callmebot.com/whatsapp.php?phone=' + t.phone + '&apikey=' + encodeURIComponent(t.key) + '&text=' + encodeURIComponent(chunks_(String(text).replace(/\*/g, ''), 1800)[0]), { muteHttpExceptions: true }).getResponseCode()); }
     catch (e) { res.push('WA ERR ' + e.message); }
   });
-  if (!res.length) return 'ບໍ່ໄດ້ຕັ້ງ TG_BOT/TG_CHAT ຫຼື WA_CALLMEBOT';
-  return res.every(function (x) { return x === 200 || x === 'WA 200'; }) ? 200 : res.join(' · ');
+  var nt = String(PROP.getProperty('NTFY_TOPIC') || '').replace(/[^A-Za-z0-9_-]/g, '');
+  if (nt) {
+    try { res.push('NTFY ' + UrlFetchApp.fetch('https://ntfy.sh/' + nt, { method: 'post', payload: String(text).replace(/\*/g, '').slice(0, 3900), headers: { Title: 'ST POS', Priority: 'high', Tags: 'bell' }, muteHttpExceptions: true }).getResponseCode()); }
+    catch (e) { res.push('NTFY ERR ' + e.message); }
+  }
+  if (!res.length) return 'ບໍ່ໄດ້ຕັ້ງ Telegram / WhatsApp / ntfy';
+  return res.every(function (x) { return x === 200 || x === 'WA 200' || x === 'NTFY 200'; }) ? 200 : res.join(' · ');
 }
 function stockNotify_(json) {
   try {
     if (!/"tgStock":\{[^}]*"on":true/.test(json)) return;
-    if (!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')) && !waTargets_().length) return;
+    if (!(PROP.getProperty('TG_BOT') && PROP.getProperty('TG_CHAT')) && !waTargets_().length && !PROP.getProperty('NTFY_TOPIC')) return;
     var now = Date.now(); if (now - (+(PROP.getProperty('STK_TG_TS') || 0)) < 120000) return;
     PROP.setProperty('STK_TG_TS', String(now));
     var st = JSON.parse(json), list = stockLowList_(st), prevS = PROP.getProperty('STK_TG'), prev = null;
