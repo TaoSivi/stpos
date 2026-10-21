@@ -1087,7 +1087,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .kx-snd{background:#fff;border:1.5px solid #cfe6e4;border-radius:12px;padding:8px 14px;font-weight:700;font-size:14px;color:#1f3d3a}.kx-snd.on{background:#e7f6f5;border-color:#0A7E7A;color:#075e5b}
 .kx-live{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#15803d}.kx-live i{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.15)}
 .kx-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0 18px 22px;align-items:start}
-.kx-board.wt{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
+.kx-board.kwt{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
 .kx-col{background:#f3f8f8;border-radius:22px;padding:10px;min-height:200px}
 .kx-col>header{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#062f2d;padding:6px 8px 10px}
 .kx-col>header b{margin-left:auto;background:#fff;border-radius:10px;padding:2px 10px;font-size:14px}
@@ -1245,7 +1245,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .tk-wait{text-align:center;font-weight:700;color:#15803d;background:#e9f8ef;border-radius:12px;padding:11px;font-size:14px}
 .tk-undo{display:block;margin:8px auto 0;background:none;border:none;padding:4px 10px;font-size:13px;font-weight:700;color:#3d5653;text-decoration:underline;text-underline-offset:3px}
 .tk.mini{padding:10px 12px}.tk.mini .tk-h b{font-size:16px}.mini-its{font-size:14px;color:#0b2523;line-height:1.6}.mini-its em{font-style:normal;font-size:12px;font-weight:700;color:#1c5fa8}
-@media(max-width:899px){.kx-board,.kx-board.wt{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86vw;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:110px}.kx-col{scroll-snap-align:start}}
+@media(max-width:899px){.kx-board,.kx-board.kwt{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86vw;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:110px}.kx-col{scroll-snap-align:start}}
 .tk-it .n em{align-self:flex-start;margin:3px 0 0}
 .tk-it .n>em.away{order:3}
 
@@ -2018,6 +2018,38 @@ body,#viewRoot,#app.cust #viewRoot{background:#fff!important}
 html:not([data-theme="glass"]) .dashcards .kpi:first-child{background:var(--glow-teal)!important}
 .dashcards .kpi:first-child::after{display:none}
 .kds-dark .tk,.kds-dark .tk[data-b]{background:radial-gradient(circle at 20% 6%,rgba(95,217,210,.2),transparent 58%),linear-gradient(180deg,#183532,#132b29)!important}
+/* ຈໍຄົວ / ບາ / ເສີບ: ແບບສະຫວ່າງ ຕາມສີຫຼັກຂອງແອັບ (teal ອ່ອນ + ຂາວ) — ບໍ່ໃຊ້ພື້ນດຳ; ສີສະຖານະ (ສົ້ມ/ຟ້າ/ຂຽວ) ຍັງຄືເກົ່າ */
+html .kds-dark{background:#eaf4f3;background:linear-gradient(180deg,#f1f8f7,#e6f2f1);border:1px solid #d6e9e7;color:#062f2d;box-shadow:0 10px 30px rgba(6,47,45,.07)}
+html .kds-dark .kx-head h2{color:#062f2d}
+html .kds-dark .kx-chip{background:#fff;border-color:#d9ebea;color:#1f3d3a}html .kds-dark .kx-chip b{color:#062f2d}
+html .kds-dark .kx-chip.late{background:#fff1f1;border-color:#f6c9cb;color:#c0262d}html .kds-dark .kx-chip.late b{color:#c0262d}
+html .kds-dark .kx-snd{background:#fff;border-color:#cfe6e4;color:#1f3d3a}html .kds-dark .kx-snd.on{background:#e7f6f5;border-color:#0A7E7A;color:#075e5b}
+html .kds-dark .kx-live{color:#15803d}
+html .kds-dark .kx-leg span.cnt{box-shadow:0 3px 10px rgba(6,47,45,.14)}
+html .kds-dark .kx-col{background:#fff;box-shadow:inset 0 4px 0 var(--cc,#cfe6e4),0 2px 10px rgba(6,47,45,.05)}
+html .kds-dark .kx-col>header{color:#062f2d}html .kds-dark .kx-col>header b{background:#e3f3f1;color:#075e5b}
+html .kds-dark .kx-empty{color:#6b8f8a}
+html .kds-dark .tk,html .kds-dark .tk[data-b]{background:linear-gradient(180deg,#ffffff,#f3faf9)!important;border:2px solid #cfe6e4;box-shadow:0 4px 14px rgba(6,47,45,.08);color:#062f2d}
+html .kds-dark .tk[data-b="3"]{border-color:var(--tkc);box-shadow:0 0 0 2px var(--tkc),0 4px 16px color-mix(in srgb,var(--tkc) 35%,transparent)}
+html .kds-dark .tk-h b,html .kds-dark .tk[data-b] .tk-h b,html .kds-dark .tk-t b{color:#062f2d}
+html .kds-dark .tk-n,html .kds-dark .tk[data-b] .tk-n,html .kds-dark .tk-t .tk-n{color:#4d7471}
+html .kds-dark .tk-bar{background:rgba(6,47,45,.1)}html .kds-dark .tk-bar b{box-shadow:none}
+html .kds-dark .tk-big{box-shadow:0 6px 16px color-mix(in srgb,var(--tkc,#35524e) 30%,transparent)}
+html .kds-dark .tk[data-b="-1"] .tk-big{background:#dcebe9;color:#2f5b57;box-shadow:none}
+html .kds-dark .tk-it{background:#eef6f5;color:#062f2d;border:0}
+html .kds-dark .tk-it .q,html .kds-dark .tk-it .n{color:#062f2d}html .kds-dark .tk-it small{color:#4d7471}
+html .kds-dark .tk-it .ia{background:var(--tkc,#0A7E7A);color:#fff;box-shadow:none}
+html .kds-dark .tk-it .note{color:#1c64b8}
+html .kds-dark .tk[data-b] .tk-it[data-b]{background:var(--tkc);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--tkc) 32%,transparent)}
+html .kds-dark .tk[data-b] .tk-it[data-b] .q,html .kds-dark .tk[data-b] .tk-it[data-b] .n{color:#fff}html .kds-dark .tk[data-b] .tk-it[data-b] small{color:rgba(255,255,255,.85)}
+html .kds-dark .tk[data-b] .tk-it[data-b="-1"]{background:#eef6f5;color:#062f2d;box-shadow:none}
+html .kds-dark .tk[data-b] .tk-it[data-b="-1"] .q,html .kds-dark .tk[data-b] .tk-it[data-b="-1"] .n{color:#062f2d}html .kds-dark .tk[data-b] .tk-it[data-b="-1"] small{color:#4d7471}
+html .kds-dark .tk[data-b] .tk-it[data-b="-1"] .ia{background:rgba(6,47,45,.1);color:#3d5653}
+html .kds-dark .tk[data-b] .tk-it[data-b="2"],html .kds-dark .tk[data-b] .tk-it[data-b="2"] .q,html .kds-dark .tk[data-b] .tk-it[data-b="2"] .n{color:#1a0f00}
+html .kds-dark .tk-go{box-shadow:0 6px 16px rgba(6,47,45,.18);text-shadow:none}
+html .kds-dark .tk-undo{color:#4d7471}html .kds-dark .tk-wait{background:#e6f7ee;color:#15803d}
+html .kds-dark .tk.mini .mini-its{color:#3d5653}
+html .kds-dark .tk[data-b="-1"] .tk-age{background:#6b8f8a;color:#fff;box-shadow:none}
 html:not([data-theme="glass"]) .kpi.on-dark{background:var(--glow-teal)!important}
 .scard small,.scard .sub{white-space:normal!important;overflow-wrap:anywhere}
 .fit{display:inline-block!important;max-width:100%;white-space:nowrap!important;vertical-align:bottom}
@@ -4676,7 +4708,7 @@ function advanceOrder(id){advanceTicket([String(id)]);} /* ແຕະລາຍກ
 function renderWaiter(R){const ready=state.orders.filter(o=>o.status==='ready');const prep=state.orders.filter(o=>o.status==='wait'||o.status==='cooking');
  var tk=kdsTickets(ready);var pt=kdsTickets(prep);
  var chips='<span class="kx-chip">ພ້ອມເສີບ <b>'+ready.length+'</b></span><span class="kx-chip">ເສີບແລ້ວມື້ນີ້ <b>'+(state.servedToday||0)+'</b></span>';
- R.innerHTML='<div class="kds-dark">'+kdsHead('ຈໍພະນັກງານເສີບ',chips)+'<div class="kx-board wt">'+
+ R.innerHTML='<div class="kds-dark">'+kdsHead('ຈໍພະນັກງານເສີບ',chips)+'<div class="kx-board kwt">'+
   '<section class="kx-col c-ready"><header><span class="dot"></span>ພ້ອມເສີບ — ຍົກໄປໂຕະ<b>'+tk.length+'</b></header><div class="kx-list grid">'+(tk.length?tk.map(function(t){var age=kdsAge(t.ts);
    return '<div class="tk '+(age>=5?'warn':'')+'"><div class="tk-h"><b>ໂຕະ '+cesc(t.table)+'</b><span class="tk-n">'+t.items.length+' ລາຍການ</span><span class="tk-age">'+(age?'ພ້ອມ '+age+' ນາທີ':'ຫາກໍພ້ອມ')+'</span></div>'+
     '<div class="tk-its">'+t.items.map(function(o){return '<button class="tk-it" onclick="serveOrder(\''+String(o.id).replace(/'/g,"\\'")+'\')" title="ແຕະ = ເສີບສະເພາະລາຍການນີ້"><span class="q">'+o.qty+'×</span>'+(o.code&&menuImgFor(o.code)?'<img src="'+menuImgFor(o.code)+'" alt="" loading="lazy">':'')+'<span class="n">'+cesc(o.name)+' <em class="src">'+(o.k==='food'?'ຄົວ':'ບາ')+'</em>'+(o.note?'<b class="note">✎ '+cesc(o.note)+'</b>':'')+'</span></button>';}).join('')+'</div>'+
