@@ -4882,6 +4882,11 @@ function kpStartCount(){if(!curUser())return;var L=kpCntList(),codes=L.rows.filt
   lines:codes.map(function(cd){var i=state.ingredients[cd];return {code:cd,name:i.name,unit:i.unit,cat:i.cat||'ວັດຖຸດິບ',sys:stockAt(cd,loc),cost:+i.cost||0,cnt:null};}),hist:[]};
  procHist(c,'ເລີ່ມນັບກະ',locName(loc)+' · '+nm+' · '+codes.length+' ລາຍການທີ່ໃຊ້ໃນກະ · ປິດຕາ');state.stockCounts.push(c);logOrder('ນັບສາງ',c.no+' ນັບກ່ອນປ່ຽນກະ ('+nm+') '+codes.length+' ລາຍການ','');save();scDetail=c.id;scShow='all';scQ='';render();}
 /* ສົ່ງກວດແລ້ວ → ປິດແພັກຂອງລາຍການທີ່ນັບ (ກະຕໍ່ໄປແພັກໃໝ່) */
+/* ນັບແລ້ວ (ສົ່ງກວດ) → ສະແດງສ່ວນຕ່າງ ລະບົບ ກັບ ທີ່ນັບໄດ້ (ຈຳນວນເທົ່ານັ້ນ — ບໍ່ສະແດງມູນຄ່າເງິນ) */
+function kpDiffModal(id){var c=findSC(id);if(!c)return;var rows=(c.lines||[]).filter(function(l){return l.cnt!=null;}).map(function(l){return {l:l,d:Math.round(((+l.cnt)-(+l.sys||0))*1000)/1000};}),df=rows.filter(function(r){return Math.abs(r.d)>1e-9;});
+ openModal('<h2>ຜົນນັບ — ສ່ວນຕ່າງ</h2><p style="text-align:center;font-size:13px;color:var(--muted);margin:-4px 0 8px">'+cesc(c.no)+' · ນັບແລ້ວ '+rows.length+' ລາຍການ · '+(df.length?'<b style="color:var(--red)">ມີສ່ວນຕ່າງ '+df.length+' ລາຍການ</b>':'<b style="color:#15803d">ກົງທຸກລາຍການ ✓</b>')+'</p>'+
+  (df.length?'<table class="tbl"><thead><tr><th>ລາຍການ</th><th class="r">ລະບົບ</th><th class="r">ນັບໄດ້</th><th class="r">ສ່ວນຕ່າງ</th></tr></thead><tbody>'+df.map(function(r){return '<tr><td><b>'+cesc(r.l.name)+'</b></td><td class="r">'+kpNum(+r.l.sys||0)+'</td><td class="r">'+kpNum(+r.l.cnt)+'</td><td class="r" style="font-weight:700;color:'+(r.d<0?'var(--red)':'#15803d')+'">'+(r.d>0?'+':'−')+kpNum(Math.abs(r.d))+' '+cesc(r.l.unit||'')+'</td></tr>';}).join('')+'</tbody></table>':'')+
+  '<p style="font-size:12.5px;color:var(--muted);margin-top:8px">ສົ່ງໃຫ້ຜູ້ຈັດການກວດແລ້ວ — ລະບົບຍັງບໍ່ປັບສະຕ໋ອກ ຈົນກວ່າຈະອະນຸມັດ</p><div class="modal-btns"><button class="btn-ok grad" onclick="closeModal()">ຮັບຊາບ</button></div>');}
 function kpCloseFor(c){kpInit();var codes={};(c.lines||[]).forEach(function(l){codes[l.code]=1;});var n=Date.now();state.kpacks.forEach(function(p){if(!p.closed&&p.kind===c.station&&codes[p.code]){p.closed=n;p.upd=n;p.closeBy=c.no;}});}
 function renderKPrep(R){kpInit();if(scDetail&&findSC(scDetail)){renderScDetail(R);return;}
  var nm=kpDrink()?'ບາຣ໌ນ້ຳ':'ຄົວ',tabs=kpDrink()?[]:[['serv','🍽 ເສີບທີ່ເຫຼືອ'],['pack','📦 ແພັກເຄື່ອງ'],['cnt','📋 ນັບກ່ອນປ່ຽນກະ']];if(kpDrink())kp.tab='cnt';
@@ -6436,7 +6441,7 @@ function scCreate(){scInit();var loc=document.getElementById('sc_loc').value,cat
  var c={id:procId('sc'),rnd:rnd,photos:[],no:procNo('SC',state.stockCounts),ts:Date.now(),uid:u.id,byName:u.name||'',loc:loc,cat:cat,blind:document.getElementById('sc_blind').checked,note:(document.getElementById('sc_note').value||'').trim(),status:'COUNTING',
   lines:items.map(function(i){return {code:i.code,name:i.name,unit:i.unit,cat:i.cat||'ວັດຖຸດິບ',sys:stockAt(i.code,loc),cost:+i.cost||0,cnt:null};}),hist:[]};
  procHist(c,'ເລີ່ມນັບ',locName(loc)+' · '+cat+' · '+items.length+' ລາຍການ'+(rnd?' · ສຸ່ມ':'')+(c.blind?' · ປິດຕາ':''));state.stockCounts.push(c);logOrder('ນັບສາງ',c.no+' ເລີ່ມນັບ '+items.length+' ລາຍການ','');save();closeModal();scDetail=c.id;scShow='all';scQ='';if(view!=='count')setView('count');else render();}
-function scHideSys(c){return c.blind&&c.status==='COUNTING'&&!isOwner()&&!can('countApprove');}
+function scHideSys(c){return c.blind&&c.status==='COUNTING'&&(c.kind==='shift'||(!isOwner()&&!can('countApprove')));}
 function renderCount(R){scInit();if(scDetail&&findSC(scDetail)){renderScDetail(R);return;}scDetail=null;var cost=procSeeCost()||can('countApprove');
  var all=state.stockCounts.slice().sort(function(a,b){return b.ts-a.ts;});var mo=new Date();mo=new Date(mo.getFullYear(),mo.getMonth(),1).getTime();
  var post=all.filter(function(c){return c.status==='POSTED'&&(c.postTs||0)>=mo;}),net=post.reduce(function(s,c){return s+scStats(c).net;},0);
@@ -6497,7 +6502,7 @@ function scAct(id,act,reason){var c=findSC(id);if(!c)return;var s=scStats(c);
   var u=curUser()||{};c.status='POSTED';c.postTs=Date.now();c.postBy=u.name||'';procHist(c,'ເຊັນ ອະນຸມັດ & ປັບສະຕ໋ອກ',n+' ລາຍການ · ສຸດທິ '+(s.net<0?'−':'+')+KIP(Math.abs(s.net))+' ກີບ');}
  else if(act==='cancel'&&['COUNTING','SUBMITTED'].indexOf(c.status)>=0){c.status='CANCELLED';procHist(c,'ຍົກເລີກຮອບນັບ',reason||'');}
  else{toast('ເຮັດບໍ່ໄດ້ໃນສະຖານະນີ້');return;}
- logOrder('ນັບສາງ',c.no+' → '+SC_ST[c.status][0],'');save();closeModal();render();toast(c.no+' · '+SC_ST[c.status][0]);}
+ logOrder('ນັບສາງ',c.no+' → '+SC_ST[c.status][0],'');save();closeModal();render();toast(c.no+' · '+SC_ST[c.status][0]);if(act==='submit'&&c.kind==='shift')setTimeout(function(){kpDiffModal(c.id);},200);}
 /* ===== ລາຍເຊັນອີເລັກໂທຣນິກ (ເຊັນໃນກອບ + PIN ຢືນຢັນຕົວຕົນ ສຳລັບຜູ້ໃຊ້ລະບົບ) ===== */
 function sigPadInit(cv){if(!cv)return;var dpr=window.devicePixelRatio||1,r=cv.getBoundingClientRect();cv.width=Math.max(10,r.width*dpr);cv.height=Math.max(10,r.height*dpr);
  var ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.lineWidth=2.6;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0b2545';ctx.fillStyle='#0b2545';cv.__empty=true;var dr=false,lx=0,ly=0;
