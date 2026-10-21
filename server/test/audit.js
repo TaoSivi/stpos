@@ -81,6 +81,14 @@ const now = Date.now();
       assert.strictEqual((await jp('notify=status&token=' + T)).wa, 1);
       assert.strictEqual((await jp('notify=wa_clear&token=' + T)).wa, 0);
     });
+    await test('kitchen prep packs (kpacks) merge by id across devices; a newer close wins', async function () {
+      s0 = await st(); s0.kpacks = [{ id: 'kA', ts: now, kind: 'food', code: 'ING1', qty: 1000 }]; await save(s0);
+      const dev = await st(); dev.kpacks = [{ id: 'kB', ts: now + 1, kind: 'food', code: 'ING1', qty: 500 }]; await save(dev);
+      assert.deepStrictEqual((await st()).kpacks.map(function (p) { return p.id; }).sort(), ['kA', 'kB'], 'both packs kept');
+      s0 = await st(); s0.kpacks.find(function (p) { return p.id === 'kA'; }).closed = now + 5; s0.kpacks.find(function (p) { return p.id === 'kA'; }).upd = now + 5; await save(s0);
+      const stale = await st(); stale.kpacks = [{ id: 'kA', ts: now, kind: 'food', code: 'ING1', qty: 1000 }]; await save(stale);
+      assert.ok((await st()).kpacks.find(function (p) { return p.id === 'kA'; }).closed, 'stale device cannot reopen a closed pack');
+    });
     console.log('\n' + passed + ' passed');
   } catch (e) { console.error('✗ FAILED:', e && e.stack || e); process.exitCode = 1; }
   finally { try { proc.kill(); } catch (e) {} setTimeout(function () { try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) {} process.exit(process.exitCode || 0); }, 300); }
