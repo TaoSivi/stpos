@@ -4643,7 +4643,7 @@ function kdsTicketHTML(t,stage,kind){var kr=kdsTk(t,stage,kind),age=kr.age;var l
   '<div class="tk-its">'+t.items.map(function(o){return kdsItemHTML(o,stage!=='ready');}).join('')+'</div>'+
   (go?'<button class="tk-go '+go[1]+'" onclick="advanceTicket([\''+kdsIds(t)+'\'])">'+go[0]+(t.items.length>1?' ທັງໂຕະ':'')+' →</button>':'<div class="tk-wait">⏳ ລໍພະນັກງານມາຍົກ</div>')+
   (stage!=='wait'?'<button class="tk-undo" title="ຍ້ອນກັບ 1 ຂັ້ນ (ກົດຜິດ)" onclick="backTicket([\''+kdsIds(t)+'\'])">↶ ຍ້ອນ</button>':'')+'</div>';}
-function kdsHead(title,chips){return '<div class="kx-head"><h2>'+title+'</h2>'+chips+'<span class="kx-sp"></span>'+((view==='kitchen'||view==='bar')?'<button class="kx-snd" onclick="kpOpen()">📦 ຕຽມ & ນັບກະ</button>':'')+'<button class="kx-snd '+(state.soundOn?'on':'')+'" onclick="toggleSound()">'+(state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ')+'</button><span class="kx-live"><i></i>ອອນລາຍ</span></div>';}
+function kdsHead(title,chips){return '<div class="kx-head"><h2>'+title+'</h2>'+chips+'<span class="kx-sp"></span>'+((view==='kitchen'||view==='bar')?'<button class="kx-snd" onclick="kpOpen()">'+(view==='bar'?'📋 ນັບກ່ອນປ່ຽນກະ':'📦 ຕຽມ & ນັບກະ')+'</button>':'')+'<button class="kx-snd '+(state.soundOn?'on':'')+'" onclick="toggleSound()">'+(state.soundOn?'🔔 ສຽງເປີດ':'🔕 ສຽງປິດ')+'</button><span class="kx-live"><i></i>ອອນລາຍ</span></div>';}
 function renderKDS(R,kind,title){const all=state.orders.filter(o=>o.k===kind&&o.status!=='served');
  const active=all.length;if(_kdsInit[kind]&&active>(_kdsCount[kind]||0)&&state.soundOn)playBeep();_kdsCount[kind]=active;_kdsInit[kind]=true;
  var cols=[['wait','ລໍຖ້າ','c-wait'],['cooking',kind==='food'?'ກຳລັງປຸງ':'ກຳລັງເຮັດ','c-cook'],['ready','ພ້ອມເສີບ','c-ready']];
@@ -4826,7 +4826,7 @@ var kp={tab:'serv',kind:'food',code:'',sel:{},mSel:{}};
 function kpInit(){if(!Array.isArray(state.kpacks))state.kpacks=[];}
 function kpDrink(){return kp.kind==='drink';}
 function kpQ(c){return String(c).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
-function kpOpen(){kp.kind=view==='bar'?'drink':'food';kp.tab='serv';scDetail=null;setView('kprep');}
+function kpOpen(){kp.kind=view==='bar'?'drink':'food';kp.tab=kp.kind==='drink'?'cnt':'serv';scDetail=null;setView('kprep');}
 function kpSet(k,v){kp[k]=v;render();}
 function kpMenus(){return allMenu().filter(function(m){return (m.k||'food')===kp.kind&&m.bom&&m.bom.length;});}
 function kpIngs(){var o={};kpMenus().forEach(function(m){m.bom.forEach(function(b){if(state.ingredients[b[0]])o[b[0]]=1;});});return Object.keys(o).sort(function(a,b){return String(state.ingredients[a].name).localeCompare(String(state.ingredients[b].name));});}
@@ -4884,8 +4884,8 @@ function kpStartCount(){if(!curUser())return;var L=kpCntList(),codes=L.rows.filt
 /* ສົ່ງກວດແລ້ວ → ປິດແພັກຂອງລາຍການທີ່ນັບ (ກະຕໍ່ໄປແພັກໃໝ່) */
 function kpCloseFor(c){kpInit();var codes={};(c.lines||[]).forEach(function(l){codes[l.code]=1;});var n=Date.now();state.kpacks.forEach(function(p){if(!p.closed&&p.kind===c.station&&codes[p.code]){p.closed=n;p.upd=n;p.closeBy=c.no;}});}
 function renderKPrep(R){kpInit();if(scDetail&&findSC(scDetail)){renderScDetail(R);return;}
- var nm=kpDrink()?'ບາຣ໌ນ້ຳ':'ຄົວ',tabs=[['serv','🍽 ເສີບທີ່ເຫຼືອ'],['pack','📦 ແພັກເຄື່ອງ'],['cnt','📋 ນັບກ່ອນປ່ຽນກະ']];
- R.innerHTML='<div class="pad kp"><div class="kp-h"><button class="pd-back" onclick="setView(\''+(kpDrink()?'bar':'kitchen')+'\')">← ກັບຈໍ'+nm+'</button><b class="kp-t">ຕຽມເຄື່ອງ & ນັບກະ — '+nm+'</b></div><div class="kp-tabs">'+tabs.map(function(t){return '<button class="chip '+(kp.tab===t[0]?'active':'')+'" onclick="kpSet(\'tab\',\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+(kp.tab==='pack'?kpPackHTML():kp.tab==='cnt'?kpCntHTML():kpServHTML())+'</div>';
+ var nm=kpDrink()?'ບາຣ໌ນ້ຳ':'ຄົວ',tabs=kpDrink()?[]:[['serv','🍽 ເສີບທີ່ເຫຼືອ'],['pack','📦 ແພັກເຄື່ອງ'],['cnt','📋 ນັບກ່ອນປ່ຽນກະ']];if(kpDrink())kp.tab='cnt';
+ R.innerHTML='<div class="pad kp"><div class="kp-h"><button class="pd-back" onclick="setView(\''+(kpDrink()?'bar':'kitchen')+'\')">← ກັບຈໍ'+nm+'</button><b class="kp-t">'+(kpDrink()?'ນັບກ່ອນປ່ຽນກະ':'ຕຽມເຄື່ອງ & ນັບກະ')+' — '+nm+'</b></div><div class="kp-tabs">'+tabs.map(function(t){return '<button class="chip '+(kp.tab===t[0]?'active':'')+'" onclick="kpSet(\'tab\',\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+(kp.tab==='pack'?kpPackHTML():kp.tab==='cnt'?kpCntHTML():kpServHTML())+'</div>';
  if(kp.tab==='pack')kpPrev();}
 function renderHistory(R){if(histDate===undefined)histDate=ymd(Date.now());
  var bills=histBills(),total=bills.reduce(function(s,b){return s+billNet(b);},0);var nVoid=bills.filter(function(b){return b.voided;}).length;
