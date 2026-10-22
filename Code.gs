@@ -536,7 +536,7 @@ function custAction_(payload) {
           ing.locs[qrLoc] = Math.round(((+ing.locs[qrLoc] || 0) - b[1] * qn) * 1000) / 1000;
           if (!st.stockLog) st.stockLog = [];
           st.stockLog.push({ ts: now, code: b[0], name: ing.name, unit: ing.unit, delta: -(b[1] * qn),
-            after: ing.locs[qrLoc], reason: 'ຂາຍ', ref: qn + '× ' + def.n + ' (QR ໂຕະ ' + table + ')', by: 'ລູກຄ້າ QR', loc: qrLoc, locName: qrLocName });
+            after: ing.locs[qrLoc], reason: 'ຂາຍ', m: def.c, ref: qn + '× ' + def.n + ' (QR ໂຕະ ' + table + ')', by: 'ລູກຄ້າ QR', loc: qrLoc, locName: qrLocName });
           if (st.stockLog.length > 4000) st.stockLog = st.stockLog.slice(-4000);
         }
       });
