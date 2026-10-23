@@ -1480,6 +1480,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .kp-lowbar{display:flex;align-items:center;gap:12px;margin:0 18px 12px;padding:10px 14px;border-radius:16px;background:#fff7ed;border:1.5px solid #fed7aa;box-shadow:0 2px 10px rgba(245,158,11,.12)}.kp-lbi{font-size:20px}.kp-lbt{flex:1;min-width:0;font-size:13.5px;color:#7c2d12}.kp-lbt>div{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .kp-lbc{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #fde1bf;border-radius:12px;padding:4px 6px 4px 10px;font-weight:600;color:#062f2d}.kp-lbc.r{border-color:#f6c9cb;background:#fff1f1}.kp-lbc b{color:#c0262d}.kp-lbc button{border:0;border-radius:9px;padding:4px 10px;font-weight:800;background:#ff7a00;color:#fff;cursor:pointer;font-family:inherit}
 #tf_u:not(:empty),#rq_u:not(:empty){font-size:14px!important;color:#075e5b!important;background:#e7f6f5;border-radius:10px;padding:5px 10px;margin-top:6px!important;display:inline-block}
+.au-act{flex:none;display:flex;align-items:center}.au-ok{font-size:12.5px;color:#15803d;background:#e6f7ee;border-radius:9px;padding:3px 10px;font-weight:700}.au-wait{font-size:12.5px;color:#b45309;background:#fff3d6;border-radius:9px;padding:3px 10px;font-weight:700}
 .kp-sub2{font-size:12.5px;color:#4d7471;margin:-4px 0 10px}.kp-recv{margin-top:14px;padding:10px 12px;border-radius:14px;background:#f3fbfa;border:1px dashed #bfe3df}.kp-rvh{font-weight:800;font-size:13.5px;color:#075e5b}.kp-chips button.on{background:#0A7E7A;color:#fff;border-color:#0A7E7A}
 .kp-sz{margin:0 0 6px;align-items:center}.kp-cza{display:inline-flex;gap:6px;align-items:center}.kp-cza input{width:110px!important;height:40px!important;border-radius:12px!important}.kp-cza button{height:40px;width:40px;padding:0}
 .kp-bag{margin-top:12px;border:1.5px solid #dcecea;border-radius:18px;padding:12px;background:#fbfefd}.kp-bh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.kp-bs{font-size:20px;color:#0A7E7A}.kp-bs small{font-size:12px;color:#6b8f8a;margin-left:4px}
@@ -3517,6 +3518,7 @@ function loginKey(k){if(k==='C')_loginPin='';else if(k==='⌫')_loginPin=_loginP
  showLogin();}
 /* ອອກຈາກລະບົບອັດຕະໂນມັດ ເມື່ອປະເຄື່ອງ (ຕັ້ງໃນ ຄວາມປອດໄພ; 0 = ປິດ) — ຍົກເວັ້ນຈໍຄົວ/ບາ/ເສີບ ທີ່ເປີດຄ້າງໄວ້ */
 var __idleT=Date.now();
+setTimeout(function(){try{auChgLoad();}catch(e){}},25000);setInterval(function(){try{auChgLoad();}catch(e){}},300000);
 function idleMinutes(){var v=state&&state.idleMin;return (v===0||v==='0')?0:(+v>0?+v:30);}
 function idleCheck(){try{if(!state||!curUser()||isCust()||!SESSION.uid)return false;var m=idleMinutes();if(!m)return false;if(['kitchen','bar','waiter','kprep'].indexOf(view)>=0)return false;if(document.getElementById('loginScreen')||document.getElementById('srvLogin'))return false;
  if(Date.now()-__idleT<m*60000)return false;var u=curUser();logOrder('ອອກອັດຕະໂນມັດ',(u?u.name:'')+' — ບໍ່ໃຊ້ງານ '+m+' ນາທີ','');logout();toast('ອອກຈາກລະບົບອັດຕະໂນມັດ (ບໍ່ໃຊ້ງານ '+m+' ນາທີ)');return true;}catch(e){return false;}}
@@ -4960,7 +4962,7 @@ function auAnomHTML(){var A=auAnom(_au.anDays),pc=function(x){return (Math.round
 /* ---- ໜ້າຫຼັກ ---- */
 function renderAudit(R){if(!auCan()){R.innerHTML='<div class="pad"><div class="empty2">ສະເພາະເຈົ້າຂອງ / Admin</div></div>';return;}
  var api=(typeof HAS_API!=='undefined'&&HAS_API);
- var tabs=[['events','ເຫດການ'],['chain','ຕ່ອງໂສ້ບິນ'],['anom','ຄວາມຜິດປົກກະຕິ'],['sec','ຄວາມປອດໄພຂໍ້ມູນ']].map(function(x){return '<button type="button" class="chip '+(_au.tab===x[0]?'active':'')+'" onclick="auTab(\''+x[0]+'\')">'+x[1]+'</button>';}).join('');
+ var tabs=[['events','ເຫດການ'],['chg','ຢືນຢັນລາຄາ/ສູດ'+(_auPendN?' ('+_auPendN+')':'')],['chain','ຕ່ອງໂສ້ບິນ'],['anom','ຄວາມຜິດປົກກະຕິ'],['sec','ຄວາມປອດໄພຂໍ້ມູນ']].map(function(x){return '<button type="button" class="chip '+(_au.tab===x[0]?'active':'')+'" onclick="auTab(\''+x[0]+'\')">'+x[1]+'</button>';}).join('');
  var body='';
  if(_au.tab==='events'){
   if(!api)body='<div class="rv-warn">ໂໝດ Local (ບໍ່ມີ server) — ບັນທຶກຖາວອນຢູ່ server ເທົ່ານັ້ນ. ສະແດງຕົວຢ່າງຈາກບັນທຶກໃນເຄື່ອງນີ້:</div>'+auLocalHTML();
@@ -4974,9 +4976,28 @@ function renderAudit(R){if(!auCan()){R.innerHTML='<div class="pad"><div class="e
    else if(_au.err)body+='<div class="rv-warn">'+(_au.err==='token'?'ບໍ່ມີສິດອ່ານບັນທຶກນີ້ (ສະເພາະເຈົ້າຂອງ/Admin) ຫຼື server ຍັງບໍ່ໄດ້ອັບເດດ':'ເຊື່ອມ server ບໍ່ໄດ້ ຫຼື server ຍັງບໍ່ມີຟັງຊັນ Audit — ຕ້ອງອັບໂຫຼດ server/app.js + audit.js')+'</div>';
    else if(_au.items){var rows=pgSlice('au',_au.items,_au.t+'|'+_au.u+'|'+_au.q+'|'+_au.days);body+='<div class="au-hint">ພົບ '+_au.total+' ລາຍການ'+(_au.total>_au.items.length?' (ສະແດງ '+_au.items.length+' ອັນລ່າສຸດ)':'')+'</div><div class="au-tl">'+(rows.length?rows.map(function(e){var T=AU_T[e.t]||[e.t,''];return '<div class="au-ev"><i class="'+T[1]+'"></i><div><div class="au-et"><b>'+T[0]+'</b><span>'+auFmt(e.ts)+' · '+cesc(auUserName(e.u))+(e.ip?' · '+cesc(e.ip):'')+' · #'+e.n+'</span></div><div class="au-ex">'+auText(e)+'</div></div></div>';}).join(''):'<div class="empty2">ບໍ່ມີເຫດການ</div>')+'</div>'+pgBar('au',_au.items.length);}}
  }else if(_au.tab==='chain'){body='<div class="au-bar"><input class="in au-q" type="search" placeholder="ເລກບິນ (ເຊັ່ນ 0000010547)" value="'+aesc(_au.rcpt)+'" oninput="_au.rcpt=this.value" onkeydown="if(event.key===\'Enter\')auChain()"><button type="button" class="btn-sm primary" onclick="auChain()">ເບິ່ງຕ່ອງໂສ້</button></div><div class="au-hint">ເບິ່ງວ່າບິນນີ້ ໃຜສັ່ງ/ຕັດສະຕ໋ອກ/ຈ່າຍ/Void ເວລາໃດ — ຫຼືກົດຈາກແຖບ "ຄວາມຜິດປົກກະຕິ"</div>'+auChainHTML();}
+ else if(_au.tab==='chg')body=auChgHTML();
  else if(_au.tab==='anom')body=auAnomHTML();
  else body=auSecHTML(api);
  R.innerHTML='<div class="pad audpage"><div class="tv-head"><div><div class="ttl">ຕິດຕາມກວດສອບ</div><div class="sub">ບັນທຶກທຸກການເຮັດວຽກ ແລະ ການແກ້ຂໍ້ມູນ ທີ່ຢູ່ server — ແກ້/ລຶບບໍ່ໄດ້ ແລະ ກວດການແກ້ໄຂດ້ວຍ hash</div></div></div><div class="au-tabs">'+tabs+'</div>'+body+'</div>';}
+/* ===== ຢືນຢັນການປ່ຽນລາຄາ / ສູດ / ຕົ້ນທຶນ — ຜູ້ແກ້ ≠ ຜູ້ກວດ: ຜູ້ຈັດການ/Admin ແກ້ແລ້ວ ເຈົ້າຂອງຕ້ອງກົດ "ຢືນຢັນ" (ກວດຍ້ອນຫຼັງ + ແຈ້ງ Telegram ທັນທີ) ===== */
+var AU_CHG=/^(menu\.(price|recipe)|ing\.(cost|yield))$/,_auPendN=0;
+function auAckMap(){if(!state.auditAck||typeof state.auditAck!=='object')state.auditAck={};return state.auditAck;}
+function auActorOwner(id){var x=(state.users||[]).find(function(y){return y.id===id;});return !!x&&(x.role==='owner'||x.role==='superadmin');}
+function auChgList(items){return (items||[]).filter(function(e){return e.t==='master'&&e.d&&AU_CHG.test(e.d.k||'');});}
+function auChgPend(items){var ak=auAckMap();return auChgList(items).filter(function(e){return !ak[e.n]&&!auActorOwner(e.u);});}
+function auChgLoad(){if(!(typeof HAS_API!=='undefined'&&HAS_API)||!isOwner())return;if(_au.chgBusy)return;_au.chgBusy=true;
+ jsonpUrl_(API_URL,'audit=list&ty=master&token='+encodeURIComponent(TOKEN)+'&from='+(Date.now()-30*86400000)+'&limit=800',function(r){_au.chgBusy=false;if(r&&r.ok){_au.chg=r.items;_auPendN=auChgPend(r.items).length;}else _au.chgErr=(r&&r.err)||'net';if(view==='audit'||typeof alertBadge==='function')try{alertBadge();}catch(e){}if(view==='audit')render();},60000);}
+function auAck(n){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງ / Super Admin ຢືນຢັນໄດ້');return;}var u=curUser()||{},m=auAckMap();m[n]={by:u.name||'',ts:Date.now()};var ks=Object.keys(m);if(ks.length>1000)ks.sort(function(a,b){return m[a].ts-m[b].ts;}).slice(0,ks.length-1000).forEach(function(k){delete m[k];});logOrder('ຢືນຢັນການປ່ຽນ','#'+n,'');save();_auPendN=auChgPend(_au.chg).length;render();}
+function auAckAll(){if(!isOwner()){toast('ສະເພາະເຈົ້າຂອງ / Super Admin');return;}var p=auChgPend(_au.chg),m=auAckMap(),u=curUser()||{};p.forEach(function(e){m[e.n]={by:u.name||'',ts:Date.now()};});logOrder('ຢືນຢັນການປ່ຽນ','ທັງໝົດ '+p.length+' ລາຍການ','');save();_auPendN=0;render();toast('ຢືນຢັນແລ້ວ '+p.length+' ລາຍການ');}
+function auChgHTML(){if(!(typeof HAS_API!=='undefined'&&HAS_API))return '<div class="rv-warn">ໃຊ້ໄດ້ເມື່ອເຊື່ອມ server (ຕ້ອງມີ audit ເທິງ server)</div>';
+ if(_au.chg==null){if(!_au.chgBusy)setTimeout(auChgLoad,0);return '<div class="empty2">'+(_au.chgErr?'ດຶງຂໍ້ມູນບໍ່ໄດ້ ('+cesc(_au.chgErr)+') — ຕ້ອງອັບໂຫຼດ server/app.js + audit.js':'ກຳລັງດຶງ…')+'</div>';}
+ var all=auChgList(_au.chg),ak=auAckMap(),pend=auChgPend(_au.chg);
+ var row=function(e){var ack=ak[e.n],own=auActorOwner(e.u),st=own?'<span class="au-ok">ເຈົ້າຂອງແກ້ເອງ</span>':(ack?'<span class="au-ok">ຢືນຢັນແລ້ວ · '+cesc(ack.by||'')+'</span>':(isOwner()?'<button type="button" class="btn-sm primary" onclick="auAck('+e.n+')">✓ ຢືນຢັນ</button>':'<span class="au-wait">ລໍເຈົ້າຂອງຢືນຢັນ</span>'));
+  return '<div class="au-ev"><i class="'+(AU_T.master?AU_T.master[1]:'')+'"></i><div style="flex:1"><div class="au-et"><b>'+auFmt(e.ts)+'</b><span>'+cesc(auUserName(e.u))+' · #'+e.n+'</span></div><div class="au-ex">'+auText(e)+'</div></div><div class="au-act">'+st+'</div></div>';};
+ return '<div class="au-hint">ການແກ້ ລາຄາເມນູ / ສູດ / ຕົ້ນທຶນ / Yield ໃນ 30 ມື້ — ມີຜົນທັນທີ ແຕ່ເຈົ້າຂອງຕ້ອງກວດ ແລະ ກົດ "ຢືນຢັນ" (ຄົນແກ້ ≠ ຄົນກວດ) · ລໍຢືນຢັນ <b>'+pend.length+'</b> ລາຍການ</div>'+
+  (pend.length&&isOwner()?'<div class="au-bar"><button type="button" class="btn-sm primary" onclick="auAckAll()">✓ ຢືນຢັນທັງໝົດ ('+pend.length+')</button></div>':'')+
+  '<div class="au-tl">'+(all.length?all.map(row).join(''):'<div class="empty2">ບໍ່ມີການແກ້ລາຄາ/ສູດ ໃນ 30 ມື້</div>')+'</div>';}
 function auLocalHTML(){var L=[];(state.orderLog||[]).slice(-300).forEach(function(l){L.push({ts:l.ts,u:'',t:'log',d:{a:l.action,x:l.detail,tb:l.table,by:l.by},n:0});});(state.cancelLog||[]).slice(-200).forEach(function(l){L.push({ts:l.ts,u:'',t:'cancel',d:{k:l.type,name:l.name,qty:l.qty,amt:l.amount,tb:l.table,why:l.reason,by:l.by},n:0});});L.sort(function(a,b){return b.ts-a.ts;});
  var rows=pgSlice('aul',L,'l');return '<div class="au-tl">'+rows.map(function(e){var T=AU_T[e.t]||[e.t,''];return '<div class="au-ev"><i class="'+T[1]+'"></i><div><div class="au-et"><b>'+T[0]+'</b><span>'+auFmt(e.ts)+' · '+cesc(e.d.by||'')+'</span></div><div class="au-ex">'+auText(e)+'</div></div></div>';}).join('')+'</div>'+pgBar('aul',L.length);}
 function auSecHTML(api){var c=auCfg(),v=_au.ver,vh='';
@@ -9970,6 +9991,8 @@ function inboxItems(){var o=[];if(!state||!curUser()||isCust())return o;procInit
  if(canView('waste'))(state.wastes||[]).forEach(function(w){if(wsCanApprove(w))o.push({k:'ws:'+w.id+':'+w.status+(w.step||0),no:w.no,t:'ອະນຸມັດແຈ້ງເສຍ',by:w.byName,open:"openWS('"+w.id+"')"});});
  if(canView('count'))(state.stockCounts||[]).forEach(function(c){if(scCanApprove(c))o.push({k:'sc:'+c.id+':'+c.status,no:c.no,t:'ອະນຸມັດຮອບນັບ',by:c.byName,open:"docOpenFull('sc','"+c.id+"')"});});
  if(canView('transfer'))(state.transfers||[]).forEach(function(t){var w=docWait('tf',t);if(w&&w.me)o.push({k:'tf:'+t.id+':'+t.status+(t.step||0),no:t.no,t:w.t,by:t.byName,open:"setView('transfer')"});});
+
+ if(isOwner()&&_auPendN>0)o.push({k:'aup:'+_auPendN,no:_auPendN+' ລາຍການ',t:'ການແກ້ລາຄາ / ສູດ / ຕົ້ນທຶນ ລໍເຈົ້າຂອງຢືນຢັນ',by:'',open:"_au.tab='chg';setView('audit')"});
  if(canView('kprep'))kpLowList().forEach(function(x){o.push({k:'kp:'+x.key,no:x.ex?'ເກີນເວລາໃຊ້':(x.lvl===2?'ແພັກໝົດ':'ເຫຼືອ '+x.mx+(x.bag?' ຖົງ':' ເສີບ')),t:'ແພັກ '+x.name+(x.ex?' ເກີນເວລາໃຊ້ — ກວດ/ທິ້ງ':(x.lvl===2?' ໝົດແລ້ວ':' ໃກ້ໝົດ')+' — ເບີກສາງ'),by:x.by,open:"kpGoLow('"+kpQ(x.code)+"','"+x.kind+"')"});});
  return o;}
 var _inSeen=null;

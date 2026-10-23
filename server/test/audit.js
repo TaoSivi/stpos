@@ -52,6 +52,7 @@ const now = Date.now();
       assert.ok(has('menu.price', function (d) { return d.from === 25000 && d.to === 30000; })); assert.ok(has('menu.recipe')); assert.ok(has('ing.cost', function (d) { return d.from === 300 && d.to === 350; })); assert.ok(has('ing.yield', function (d) { return d.to === 90; }));
       assert.ok(has('user.role', function (d) { return d.from === 'cashier' && d.to === 'manager'; })); assert.ok(has('user.perm')); assert.ok(has('user.pin', function (d) { return !('from' in d) && !('to' in d); }), 'PIN value never stored');
       assert.ok(has('discLimit', function (d) { return d.from === '10' && d.to === '50'; })); const q = m.filter(function (d) { return d.k === 'bankQR'; })[0]; assert.ok(q && q.to.indexOf('QR-B-SECRET') < 0, 'QR is hashed'); assert.ok(!JSON.stringify(m).includes('QR-B-SECRET'));
+      const al0 = (await list('ty=alert')).items.map(function (e) { return e.d.msg; }).join('|'); assert.ok(/ແກ້ລາຄາເມນູ/.test(al0) && /ແກ້ສູດເມນູ/.test(al0) && /ແກ້ຕົ້ນທຶນ/.test(al0), 'price/recipe/cost changes raise an alert: ' + al0);
     });
     await test('void bill and new negative stock are recorded as events + alerts; a device cannot drop a bill', async function () {
       s0 = await st(); s0.bills[1].voided = true; s0.bills[1].voidReason = 'ທົດສອບ'; s0.bills[1].voidBy = 'Cash';

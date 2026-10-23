@@ -76,18 +76,20 @@ function create(shim, opt) {
       if ((+b.refundAmt || 0) !== (+o.refundAmt || 0)) ev.push({ t: 'bill_refund', d: { receipt: r, from: +o.refundAmt || 0, to: +b.refundAmt || 0 } }); });
     Object.keys(pb).forEach(function (r) { if (nb[r]) return; if (ctx.arch) return; try { if (isArchived(pb[r])) return; } catch (e) {} ev.push({ t: 'bill_removed', d: { receipt: r, amt: pb[r].total, ts0: pb[r].ts } }); alerts.push('⛔ ບິນຫາຍຈາກລະບົບ ' + r + ' · ' + Math.round(+pb[r].total || 0).toLocaleString('en-US') + ' ກີບ (ບໍ່ແມ່ນການຍ້າຍເຂົ້າຄັງ)'); });
     /* 3) ຂໍ້ມູນຫຼັກ: ເມນູ / ວັດຖຸດິບ / ຜູ້ໃຊ້ / ການຕັ້ງຄ່າ — ກ່ອນ → ຫຼັງ */
-    const pm = menuMap(prev.catalog), nm = menuMap(next.catalog);
+    const pm = menuMap(prev.catalog), nm = menuMap(next.catalog), chg = { price: [], recipe: [], cost: [] }, who = ctx.u || '?';
     Object.keys(nm).forEach(function (c) { const a = pm[c], b = nm[c]; if (!a) { if (Object.keys(pm).length) ev.push({ t: 'master', d: { k: 'menu+', code: c, name: b.n, p: b.p } }); return; }
-      ['p', 'n'].forEach(function (f) { if (a[f] !== b[f]) ev.push({ t: 'master', d: { k: 'menu.' + (f === 'p' ? 'price' : 'name'), code: c, name: b.n, from: a[f], to: b[f] } }); });
-      if (JSON.stringify(a.bom || []) !== JSON.stringify(b.bom || [])) ev.push({ t: 'master', d: { k: 'menu.recipe', code: c, name: b.n, from: trim(a.bom || [], 300), to: trim(b.bom || [], 300) } }); });
+      ['p', 'n'].forEach(function (f) { if (a[f] !== b[f]) { ev.push({ t: 'master', d: { k: 'menu.' + (f === 'p' ? 'price' : 'name'), code: c, name: b.n, from: a[f], to: b[f] } }); if (f === 'p') chg.price.push((b.n || c) + ' ' + a[f] + '→' + b[f]); } });
+      if (JSON.stringify(a.bom || []) !== JSON.stringify(b.bom || [])) { ev.push({ t: 'master', d: { k: 'menu.recipe', code: c, name: b.n, from: trim(a.bom || [], 300), to: trim(b.bom || [], 300) } }); chg.recipe.push(b.n || c); } });
     Object.keys(pm).forEach(function (c) { if (!nm[c] && Object.keys(nm).length) ev.push({ t: 'master', d: { k: 'menu-', code: c, name: pm[c].n } }); });
     const pi = prev.ingredients || {}, ni = next.ingredients || {};
     Object.keys(ni).forEach(function (c) { const a = pi[c], b = ni[c]; if (!b) return; if (!a) { if (Object.keys(pi).length) ev.push({ t: 'master', d: { k: 'ing+', code: c, name: b.name, unit: b.unit } }); return; }
-      ['name', 'unit', 'cost', 'yield', 'reorder', 'max', 'bu', 'bf'].forEach(function (f) { if (JSON.stringify(a[f]) !== JSON.stringify(b[f])) ev.push({ t: 'master', d: { k: 'ing.' + f, code: c, name: b.name, from: a[f], to: b[f] } }); });
+      ['name', 'unit', 'cost', 'yield', 'reorder', 'max', 'bu', 'bf'].forEach(function (f) { if (JSON.stringify(a[f]) !== JSON.stringify(b[f])) { ev.push({ t: 'master', d: { k: 'ing.' + f, code: c, name: b.name, from: a[f], to: b[f] } }); if (f === 'cost' || f === 'yield') chg.cost.push((b.name || c) + ' ' + f + ' ' + a[f] + '→' + b[f]); } });
       /* ສະຕ໋ອກຕິດລົບໃໝ່ */
       const neg = function (it) { return Object.keys(it.locs || {}).filter(function (l) { return (+it.locs[l] || 0) < 0; }); };
       const nn = neg(b), on = neg(a); nn.forEach(function (l) { if (on.indexOf(l) < 0) { ev.push({ t: 'neg_stock', d: { code: c, name: b.name, loc: l, have: +b.locs[l] } }); alerts.push('📉 ສະຕ໋ອກຕິດລົບ ' + (b.name || c) + ' = ' + (Math.round(+b.locs[l] * 100) / 100) + ' ' + (b.unit || '')); } }); });
     Object.keys(pi).forEach(function (c) { if (!ni[c] && Object.keys(ni).length) ev.push({ t: 'master', d: { k: 'ing-', code: c, name: pi[c].name } }); });
+    const sm = function (arr, icon, label) { if (arr.length) alerts.push(icon + ' ' + label + ' ' + arr.length + ' ລາຍການ ໂດຍ ' + who + ': ' + arr.slice(0, 3).map(function (x) { return trim(x, 60); }).join(' · ') + (arr.length > 3 ? ' …' : '') + ' — ເຈົ້າຂອງກວດ/ຢືນຢັນໃນໜ້າ ຕິດຕາມກວດສອບ'); };
+    sm(chg.price, '💲', 'ແກ້ລາຄາເມນູ'); sm(chg.recipe, '🧾', 'ແກ້ສູດເມນູ'); sm(chg.cost, '💰', 'ແກ້ຕົ້ນທຶນ/Yield ວັດຖຸດິບ');
     const pu = {}, nu = {}; (prev.users || []).forEach(function (u) { if (u && u.id) pu[u.id] = u; }); (next.users || []).forEach(function (u) { if (u && u.id) nu[u.id] = u; });
     const pinOf = function (u) { return u ? String(u.pinH || u.pin || '') : ''; };
     Object.keys(nu).forEach(function (id) { const a = pu[id], b = nu[id]; if (!a) { if (Object.keys(pu).length) { ev.push({ t: 'user', d: { k: 'user+', id: id, name: b.name, role: b.role } }); alerts.push('👤 ເພີ່ມຜູ້ໃຊ້ ' + (b.name || id) + ' (' + (b.role || '') + ') ໂດຍ ' + (ctx.u || '?')); } return; }
