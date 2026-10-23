@@ -21,6 +21,7 @@ const now = Date.now();
       users: [{ id: 'u1', name: 'Owner', role: 'superadmin', pinH: ph('1111') }, { id: 'u2', name: 'Cash', role: 'cashier', pinH: ph('2222') }], orderLog: [], cancelLog: [], stockLog: [], discLimit: 10, bankQR: 'QR-A' };
     assert.ok((await (await fetch(ROOT + '/?admin=import&key=audit-admin-key-1', { method: 'POST', body: JSON.stringify(base) })).json()).ok);
     let s0 = await st();
+    await test('public login roster has id + name only (no role)', async function () { const r = await jp('login=info'); assert.ok(r.ok && r.users.length >= 2 && r.users.every(function (u) { return u.id && u.name && !('role' in u); })); });
     await test('access: no token refused; plain cashier session refused; API token ok', async function () {
       assert.strictEqual((await jp('audit=list')).err, 'token');
       const cs = await jp('login=pin&uid=u2&pin=2222'); assert.ok(cs.ok); cashTk = cs.tk;
@@ -40,6 +41,7 @@ const now = Date.now();
       s0 = await st(); s0.orderLog.push({ ts: now + 1, table: 'A1', action: 'ຮັບເງິນ', detail: 'ບິນ R3', by: 'Cash' }); s0.cancelLog.push({ ts: now + 2, type: 'ລຶບລາຍການ', code: 'M1', name: 'ກາເຟ', qty: 1, amt: 25000, reason: 'ຄີຜິດ', by: 'Cash' }); s0.stockLog.push({ ts: now + 3, code: 'ING1', delta: -18, after: 482, reason: 'ຂາຍ', ref: '1× ກາເຟ' });
       await save(s0); await save(s0);
       let r = await list('ty=log,cancel,stock'); assert.strictEqual(r.items.filter(function (e) { return e.t === 'log' && /R3/.test(e.d.x); }).length, 1);
+      assert.ok(r.items.some(function (e) { return e.t === 'log' && /R3/.test(e.d.x) && e.u === 'by:Cash'; }), 'API-token saves keep the device-supplied name instead of a bare api');
       assert.ok(r.items.some(function (e) { return e.t === 'cancel' && e.d.why === 'ຄີຜິດ'; })); assert.ok(r.items.some(function (e) { return e.t === 'stock' && e.d.d === -18; }));
       s0 = await st(); s0.orderLog = []; s0.cancelLog = []; s0.stockLog = []; await save(s0);
       r = await list('ty=log'); assert.strictEqual(r.items.filter(function (e) { return /R3/.test(e.d.x || ''); }).length, 1, 'trimming state does not remove the audit record');

@@ -44,7 +44,7 @@ function auditAlert(next, lines, ctx) {
           const ctx = AU.ctx || {};
           if (ctx.admin === 'import' || ctx.admin === 'pullgas') AUDIT.append([{ t: 'admin', u: 'admin', ip: ctx.ip, d: { a: ctx.admin } }]);
           else { const prev = JSON.parse(ps), next = JSON.parse(ns), d = AUDIT.diffState(prev, next, ctx);
-            if (d.events.length) AUDIT.append(d.events.map(function (e) { e.u = e.u || ctx.u || (e.d && e.d.by) || 'system'; e.ip = ctx.ip || ''; return e; }));
+            if (d.events.length) AUDIT.append(d.events.map(function (e) { if (!e.u) { if (ctx.u && ctx.u !== 'api') e.u = ctx.u; else if (e.d && e.d.by) e.u = 'by:' + String(e.d.by).slice(0, 60); else e.u = ctx.u || 'system'; } e.ip = ctx.ip || ''; return e; }));
             auditAlert(next, d.alerts, ctx); }
         }
       }
@@ -154,7 +154,7 @@ function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.soc
 function loginApi(q, req) {
   if (q.login === 'info') {
     const s = G.getState_(); let st = {}; try { st = s ? JSON.parse(s) : {}; } catch (e) {}
-    return { ok: true, login: 1, shop: st.shopName || '', users: (st.users || []).filter(function (u) { return u && u.active !== false; }).map(function (u) { return { id: u.id, name: u.name || '', role: u.role || '' }; }) };
+    return { ok: true, login: 1, shop: st.shopName || '', users: (st.users || []).filter(function (u) { return u && u.active !== false; }).map(function (u) { return { id: u.id, name: u.name || '' }; }) };
   }
   if (q.login === 'branches') /* ໜ້າເປີດແອັບຄັ້ງທຳອິດ (stpos.store ທຳມະດາ): ໃຫ້ເລືອກສາຂາ — ຊື່ ແລະ ລິ້ງເທົ່ານັ້ນ */
     return { ok: true, login: 1, branches: brList(req).map(function (b) { return { id: b.id, name: b.name, type: b.type, url: b.url }; }) };
