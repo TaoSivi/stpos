@@ -83,7 +83,7 @@ function create(shim, opt) {
     Object.keys(pm).forEach(function (c) { if (!nm[c] && Object.keys(nm).length) ev.push({ t: 'master', d: { k: 'menu-', code: c, name: pm[c].n } }); });
     const pi = prev.ingredients || {}, ni = next.ingredients || {};
     Object.keys(ni).forEach(function (c) { const a = pi[c], b = ni[c]; if (!b) return; if (!a) { if (Object.keys(pi).length) ev.push({ t: 'master', d: { k: 'ing+', code: c, name: b.name, unit: b.unit } }); return; }
-      ['name', 'unit', 'cost', 'yield', 'reorder', 'max', 'bu', 'bf'].forEach(function (f) { if (JSON.stringify(a[f]) !== JSON.stringify(b[f])) { ev.push({ t: 'master', d: { k: 'ing.' + f, code: c, name: b.name, from: a[f], to: b[f] } }); if (f === 'cost' || f === 'yield') chg.cost.push((b.name || c) + ' ' + f + ' ' + a[f] + '→' + b[f]); } });
+      ['name', 'unit', 'cost', 'yield', 'reorder', 'max', 'bu', 'bf', 'rec'].forEach(function (f) { if (JSON.stringify(a[f]) !== JSON.stringify(b[f])) { ev.push({ t: 'master', d: { k: 'ing.' + f, code: c, name: b.name, from: f === 'rec' ? trim(a[f] || null, 300) : a[f], to: f === 'rec' ? trim(b[f] || null, 300) : b[f] } }); if (f === 'cost' || f === 'yield') chg.cost.push((b.name || c) + ' ' + f + ' ' + a[f] + '→' + b[f]); if (f === 'rec') chg.recipe.push((b.name || c) + ' (ສູດຍ່ອຍ)'); } });
       /* ສະຕ໋ອກຕິດລົບໃໝ່ */
       const neg = function (it) { return Object.keys(it.locs || {}).filter(function (l) { return (+it.locs[l] || 0) < 0; }); };
       const nn = neg(b), on = neg(a); nn.forEach(function (l) { if (on.indexOf(l) < 0) { ev.push({ t: 'neg_stock', d: { code: c, name: b.name, loc: l, have: +b.locs[l] } }); alerts.push('📉 ສະຕ໋ອກຕິດລົບ ' + (b.name || c) + ' = ' + (Math.round(+b.locs[l] * 100) / 100) + ' ' + (b.unit || '')); } }); });

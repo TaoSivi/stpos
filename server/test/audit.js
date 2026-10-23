@@ -92,6 +92,14 @@ const now = Date.now();
       const stale = await st(); stale.kpacks = [{ id: 'kA', ts: now, kind: 'food', code: 'ING1', qty: 1000 }]; await save(stale);
       assert.ok((await st()).kpacks.find(function (p) { return p.id === 'kA'; }).closed, 'stale device cannot reopen a closed pack');
     });
+    await test('production docs (prods) merge by id across devices; sub-recipe edits are audited', async function () {
+      s0 = await st(); s0.prods = [{ id: 'pA', ts: now, no: 'PD-1', qty: 10 }]; await save(s0);
+      const dev = await st(); dev.prods = [{ id: 'pB', ts: now + 1, no: 'PD-2', qty: 5 }]; await save(dev);
+      assert.deepStrictEqual((await st()).prods.map(function (p) { return p.id; }).sort(), ['pA', 'pB'], 'both production docs kept');
+      s0 = await st(); s0.ingredients.ING1.rec = { out: 100, lines: [['ING1', 1]] }; await save(s0);
+      const m = (await list('ty=master')).items.map(function (e) { return e.d; });
+      assert.ok(m.some(function (d) { return d.k === 'ing.rec'; }), 'sub-recipe change recorded as master event');
+    });
     console.log('\n' + passed + ' passed');
   } catch (e) { console.error('✗ FAILED:', e && e.stack || e); process.exitCode = 1; }
   finally { try { proc.kill(); } catch (e) {} setTimeout(function () { try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) {} process.exit(process.exitCode || 0); }, 300); }
