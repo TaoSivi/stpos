@@ -84,7 +84,7 @@ const bill = function (r, ts, total) { return { receipt: r, ts: ts, total: total
     });
     await test('QR order cuts stock with Yield (200 g @ Yield 80% → 250 g); switch off → 200 g', async function () {
       const ord = async function (rid) { return jsonp('action=order&payload=' + encodeURIComponent(JSON.stringify({ action: 'order', table: 'A2', pin: '5678', rid: rid, items: [{ code: 'F1', qty: 1 }] }))); };
-      let g = await getState(); g.qr.A2 = { pin: '5678', expiry: Date.now() + 3600000, enabled: true }; g.ingredients.RICE.yield = 80; g._v = Date.now() + 700; await post(JSON.stringify(g));
+      let g = await getState(); g.qr.A2 = { pin: '5678', expiry: Date.now() + 3600000, enabled: true }; g.ingredients.RICE.yield = 80; g.yieldCut = true; g._v = Date.now() + 700; await post(JSON.stringify(g));
       const s0 = (await getState()).ingredients.RICE.locs.main; assert.ok((await ord('y1')).ok);
       const s1 = (await getState()).ingredients.RICE.locs.main; assert.strictEqual(Math.round((s0 - s1) * 1000) / 1000, 250);
       g = await getState(); g.yieldCut = false; g._v = Date.now() + 710; await post(JSON.stringify(g)); assert.ok((await ord('y2')).ok);

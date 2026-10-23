@@ -3507,19 +3507,43 @@ function showLogin(){var el=document.getElementById('loginScreen');if(!el){el=do
   '<div style="font-size:12px;color:var(--muted);margin-top:6px">ຄ່າເລີ່ມຕົ້ນ: Admin / PIN 1234</div>')+'</div>';}
 function loginKey(k){if(k==='C')_loginPin='';else if(k==='⌫')_loginPin=_loginPin.slice(0,-1);else if(_loginPin.length<4)_loginPin+=k;
  if(_loginPin.length>=4){var u=(state.users||[]).find(function(x){return x.id===_loginSel;});
-  if(u&&(u.pinH===pinHash(_loginPin)||String(u.pin)===_loginPin)){SESSION.uid=u.id;try{localStorage.setItem('stpos_uid',u.id);}catch(e){}
+  if(pfLeft('u:'+_loginSel)){_loginPin='';toast('ບັນຊີນີ້ຖືກລັອກ (PIN ຜິດຫຼາຍເທື່ອ) — ລໍ '+pfLeft('u:'+_loginSel)+' ນາທີ');showLogin();return;}
+  if(u&&(u.pinH===pinHash(_loginPin)||String(u.pin)===_loginPin)){pfOk('u:'+_loginSel);SESSION.uid=u.id;try{localStorage.setItem('stpos_uid',u.id);}catch(e){}
    var el=document.getElementById('loginScreen');if(el)el.remove();_loginSel=null;_loginPin='';
    logOrder('ເຂົ້າສູ່ລະບົບ',u.name+' ('+(ROLE_LABELS[u.role]||u.role)+')','');save();
    if(!canView(view))view=homeView();setView(view);toast('ສະບາຍດີ '+u.name);return;}
-  _loginPin='';toast('PIN ບໍ່ຖືກຕ້ອງ');showLogin();var pd=document.querySelector('#loginScreen .pindots');if(pd&&!UI_CALM){pd.classList.add('shake');}return;}
+  var _lk=pfBad('u:'+_loginSel,'ປ່ຽນຜູ້ໃຊ້: '+(u?u.name:_loginSel));_loginPin='';toast(_lk?'ໃສ່ PIN ຜິດ 5 ເທື່ອ — ລັອກ 5 ນາທີ':'PIN ບໍ່ຖືກຕ້ອງ');showLogin();var pd=document.querySelector('#loginScreen .pindots');if(pd&&!UI_CALM){pd.classList.add('shake');}return;}
  showLogin();}
+/* ອອກຈາກລະບົບອັດຕະໂນມັດ ເມື່ອປະເຄື່ອງ (ຕັ້ງໃນ ຄວາມປອດໄພ; 0 = ປິດ) — ຍົກເວັ້ນຈໍຄົວ/ບາ/ເສີບ ທີ່ເປີດຄ້າງໄວ້ */
+var __idleT=Date.now();
+function idleMinutes(){var v=state&&state.idleMin;return (v===0||v==='0')?0:(+v>0?+v:30);}
+function idleCheck(){try{if(!state||!curUser()||isCust()||!SESSION.uid)return false;var m=idleMinutes();if(!m)return false;if(['kitchen','bar','waiter','kprep'].indexOf(view)>=0)return false;if(document.getElementById('loginScreen')||document.getElementById('srvLogin'))return false;
+ if(Date.now()-__idleT<m*60000)return false;var u=curUser();logOrder('ອອກອັດຕະໂນມັດ',(u?u.name:'')+' — ບໍ່ໃຊ້ງານ '+m+' ນາທີ','');logout();toast('ອອກຈາກລະບົບອັດຕະໂນມັດ (ບໍ່ໃຊ້ງານ '+m+' ນາທີ)');return true;}catch(e){return false;}}
+['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){document.addEventListener(ev,function(){__idleT=Date.now();},true);});
+setInterval(idleCheck,20000);
 function logout(){var u=curUser();if(u)logOrder('ອອກຈາກລະບົບ',u.name,'');SESSION.uid=null;try{localStorage.removeItem('stpos_uid');}catch(e){}save();closeModal();render();}
+/* ===== ກັນເດົາ PIN (AC08): ຜິດ 5 ເທື່ອ → ລັອກ 5 ນາທີ ຕໍ່ເຄື່ອງ ຕໍ່ ID · ບັນທຶກ log ທຸກເທື່ອ ===== */
+function pfGet(){try{return JSON.parse(localStorage.getItem('stpos_pinfail')||'{}');}catch(e){return {};}}
+function pfSet(o){try{localStorage.setItem('stpos_pinfail',JSON.stringify(o));}catch(e){}}
+function pfLeft(id){var o=pfGet()[id];return o&&o.lock>Date.now()?Math.ceil((o.lock-Date.now())/60000):0;}
+function pfBad(id,label){var all=pfGet(),o=all[id]||{n:0},locked=false;if(o.lock&&o.lock<=Date.now())o={n:0};o.n=(o.n||0)+1;o.ts=Date.now();if(o.n>=5){o.lock=Date.now()+5*60000;o.n=0;locked=true;}all[id]=o;pfSet(all);
+ try{logOrder(locked?'PIN ຖືກລັອກ':'PIN ຜິດ',(label||id)+(locked?' — ຜິດ 5 ເທື່ອ ລັອກ 5 ນາທີ':''),'');save();}catch(e){}return locked;}
+function pfOk(id){var all=pfGet();if(all[id]){delete all[id];pfSet(all);}}
+/* ລຶບລາຍການທີ່ສົ່ງຄົວແລ້ວ / ຍົກເລີກໂຕະ: ຄົນທີ່ບໍ່ມີສິດ 'cancel' (ແຄັດເຊຍ…) ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN (ປິດໄດ້ໃນ ຕັ້ງຄ່າ) */
+function discNeedPin(v){if(!(v>0)||can('discountOver'))return false;return state.pinDisc!==false||v>(+state.discLimit||0);}
+function pinNeed(act){return state.pinCancelSent!==false&&!can(act);}
+function pinBox(id,act){return pinNeed(act)?'<label style="margin-top:8px">PIN ຜູ້ຈັດການ ອະນຸມັດ (ຈຳເປັນ)</label><input id="'+id+'" type="password" inputmode="numeric" maxlength="4" placeholder="PIN ຜູ້ຈັດການ" autocomplete="off" style="text-align:center;font-size:20px;letter-spacing:6px">':'';}
+function pinCheck(id,act,label){if(!pinNeed(act))return true;if(pfLeft('ov')){toast('ລັອກ — ລໍ '+pfLeft('ov')+' ນາທີ');return false;}
+ var pin=String((document.getElementById(id)||{}).value||'').trim(),mgr=pin&&(state.users||[]).find(function(x){return (x.pinH===pinHash(pin)||String(x.pin)===pin)&&(!PERMS[x.role]||permEffAct(x,x.role,act));});
+ if(!mgr){var lk=pfBad('ov','PIN ອະນຸມັດ: '+label);toast(lk?'ຜິດ 5 ເທື່ອ — ລັອກ 5 ນາທີ':'PIN ຜູ້ຈັດການບໍ່ຖືກ ຫຼື ບໍ່ມີສິດ');return false;}
+ pfOk('ov');logOrder('ອະນຸມັດ',label+' — ອະນຸມັດໂດຍ '+mgr.name,'');return true;}
 function requireOverride(action,label,cb){if(can(action)){cb();return;}
  openModal('<h2> ຕ້ອງການອະນຸມັດ</h2><p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:8px">"'+cesc(label)+'"<br>ຕ້ອງໃຫ້ ຜູ້ຈັດການ/ເຈົ້າຂອງ ໃສ່ PIN ອະນຸມັດ</p><input id="ovpin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN ຜູ້ຈັດການ" style="text-align:center;font-size:20px;letter-spacing:6px"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="window.__ov()">ອະນຸມັດ</button></div>');
  window.__ov=function(){var pin=(document.getElementById('ovpin')||{}).value||'';
   var mgr=(state.users||[]).find(function(x){return (x.pinH===pinHash(pin)||String(x.pin)===pin)&&(!PERMS[x.role]||permEffAct(x,x.role,action));});
-  if(!mgr){toast('PIN ບໍ່ຖືກຕ້ອງ ຫຼື ບໍ່ມີສິດ');return;}
-  logOrder('ອະນຸມັດ',label+' — ອະນຸມັດໂດຍ '+mgr.name,'');closeModal();cb(mgr);};}
+  if(pfLeft('ov')){toast('ລັອກ — ລໍ '+pfLeft('ov')+' ນາທີ');return;}
+  if(!mgr){var lk=pfBad('ov','PIN ອະນຸມັດ: '+label);toast(lk?'ຜິດ 5 ເທື່ອ — ລັອກ 5 ນາທີ':'PIN ບໍ່ຖືກຕ້ອງ ຫຼື ບໍ່ມີສິດ');return;}
+  pfOk('ov');logOrder('ອະນຸມັດ',label+' — ອະນຸມັດໂດຍ '+mgr.name,'');closeModal();cb(mgr);};}
 function renderUserChip(){var el=document.getElementById('userChip');if(!el)return;var u=curUser();
  var multiLoc=(state.locations||[]).length>1;
  el.innerHTML=u?('<div class="userchip" onclick="openUserMenu()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><span>'+cesc(u.name)+' <small>'+(ROLE_LABELS[u.role]||'')+(state.curShift?' · '+cesc(state.curShift.name):'')+(multiLoc?' · 📍'+cesc(locName(curLoc())):'')+'</small></span></div>'):'';}
@@ -4190,7 +4214,7 @@ function delItem(i){var l=curList();var it=l[i];if(!it)return;
    '<div style="display:flex;gap:8px;align-items:center;justify-content:center;margin:4px 0"><button class="qbtn" style="width:38px;height:38px;font-size:18px" onclick="var e=document.getElementById(\'di_qty\');e.value=Math.max(1,(+e.value||1)-1)">−</button>'+
    '<input id="di_qty" type="number" inputmode="numeric" min="1" max="'+it.qty+'" value="'+it.qty+'" style="width:90px;text-align:center;font-size:18px;font-weight:800">'+
    '<button class="qbtn" style="width:38px;height:38px;font-size:18px" onclick="var e=document.getElementById(\'di_qty\');e.value=Math.min('+it.qty+',(+e.value||1)+1)">+</button></div>'):'')+
-  rsnBox('di_rsn')+
+  rsnBox('di_rsn')+pinBox('di_pin','cancel')+
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" style="background:var(--red)" onclick="doDelConfirmedItem('+i+')">ລຶບລາຍການ</button></div>');}
 /* ເຫດຜົນ: ປຸ່ມລັດ + ພິມເອງ (ບັງຄັບທຸກການລຶບ) */
 var RSN_QUICK=['ຄີເມນູຜິດ','ລູກຄ້າປ່ຽນໃຈ','ຄີຊ້ຳ','ເມນູໝົດ','ລູກຄ້າລໍດົນ'];
@@ -4237,10 +4261,12 @@ function cxFresh(tb,cb){if(window.__cxBusy)return;if(!cxCanFetch()){cb();return;
   (state.orders||[]).forEach(function(o){if(o.table!==tb)return;var v=so[String(o.id)];if(v&&(CX_RANK[v]||0)>(CX_RANK[o.status||'wait']||0))o.status=v;});}}catch(e){}fin();});}
 function cxSig(items){return (items||[]).filter(cxMade).map(function(i){return i.id;}).join(',');}
 function doCancelTable(){var t=state.tables[state.activeTable];var rsn=((document.getElementById('ct_rsn')||{}).value||'').trim();if(!rsn||!t){doCancelTable0();return;}
+ if(!pinCheck('ct_pin','cancel','ຍົກເລີກໂຕະ '+t.name))return;
  var sig=cxSig(t.items),tn=t.name;cxFresh(tn,function(){var t2=state.tables[tn];if(!t2||state.activeTable!==tn){closeModal();return;}
   if(cxSig(t2.items)!==sig){cancelTable2();setTimeout(function(){var e=document.getElementById('ct_rsn');if(e)e.value=rsn;},30);toast('⚠ ຄົວເລີ່ມເຮັດບາງລາຍການລະຫວ່າງນີ້ — ກວດຍອດເສຍແລ້ວກົດອີກຄັ້ງ');return;}
   doCancelTable0();});}
 function doDelConfirmedItem(i){var rsn=((document.getElementById('di_rsn')||{}).value||'').trim();var l=curList(),it=l&&l[i];if(!rsn||!it){doDelConfirmedItem0(i);return;}
+ if(!pinCheck('di_pin','cancel','ລຶບລາຍການທີ່ສົ່ງຄົວແລ້ວ: '+it.name))return;
  var was=cxMade(it),q=(document.getElementById('di_qty')||{}).value,tn=state.activeTable;cxFresh(tn,function(){var l2=curList(),it2=l2&&l2[i];if(state.activeTable!==tn||!it2||String(it2.id)!==String(it.id)){closeModal();toast('ລາຍການປ່ຽນແລ້ວ — ລອງໃໝ່');return;}
   if(cxMade(it2)!==was){delItem(i);setTimeout(function(){var e=document.getElementById('di_rsn');if(e)e.value=rsn;var e2=document.getElementById('di_qty');if(e2&&q)e2.value=q;},30);toast('⚠ ຄົວເລີ່ມເຮັດລາຍການນີ້ລະຫວ່າງນີ້ — ກວດແລ້ວກົດລຶບອີກຄັ້ງ');return;}
   doDelConfirmedItem0(i);});}
@@ -4265,7 +4291,7 @@ function itemDiscount(i){const l=curList();openModal(`<h2>ສ່ວນຫຼຸ�
 function applyItemDisc(i){const v=Math.max(0,Math.min(100,+document.getElementById('dv').value||0));
  var doIt=function(){var it=curList()[i];it.disc=v;if(v>0)logOrder('ສ່ວນຫຼຸດລາຍການ',it.name+' '+v+'%','');save();closeModal();renderCart();};
  if(!can('discount')){toast('ບໍ່ມີສິດໃຫ້ສ່ວນຫຼຸດ');return;}
- if(v>(+state.discLimit||0)&&!can('discountOver')){requireOverride('discountOver','ສ່ວນຫຼຸດ '+v+'% (ເກີນ '+state.discLimit+'%)',doIt);return;}
+ if(discNeedPin(v)){requireOverride('discountOver','ສ່ວນຫຼຸດ '+v+'%'+(v>(+state.discLimit||0)?' (ເກີນ '+state.discLimit+'%)':''),doIt);return;}
  doIt();}
 function itemNote(i){const l=curList();openModal(`<h2>ໝາຍເຫດ</h2><input id="nt" value="${l[i].note||''}" placeholder="ເຊັ່ນ ບໍ່ເຜັດ"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="applyNote(${i})">ບັນທຶກ</button></div>`);}
 function applyNote(i){curList()[i].note=document.getElementById('nt').value;save();closeModal();renderCart();}
@@ -4284,7 +4310,7 @@ function billCOGS(items){return Math.round((items||[]).reduce(function(s,i){retu
 /* ===== ຂະໜາດ & Topping: ສູດຕໍ່ລາຍການ — ຂະໜາດ = ຄູນສູດເມນູ (bm) · topping = ວັດຖຸດິບເພີ່ມ (xb) ===== */
 function lineBomOf(line){var _b=lineBomOf0(line);(line.pk||[]).forEach(function(x){if(x&&x[0]&&+x[1]>0)_b.push([x[0],+x[1]]);});return _b;}
 /* ຕັດສະຕ໋ອກລວມ % ສູນເສຍ (Yield): ສູດ 200 g ແລະ Yield 90% → ຕັດ 222.22 g (ຕັ້ງ "ຕັດສະຕ໋ອກຕາມ Yield" ໃນຕັ້ງຄ່າ → ເປີດ/ປິດ) — ໃຊ້ກັບຂາຍ, ຄືນ Void/ຍົກເລີກ, ຕົ້ນທຶນ, ກວດວັດຖຸດິບບໍ່ພໍ */
-function yieldOn(){return state.yieldCut!==false;}
+function yieldOn(){return state.yieldCut===true;}
 function ingYld(c){var it=state.ingredients&&state.ingredients[c],y=it?+it.yield:0;return (y>0&&y<100)?y/100:1;}
 function sodOn(k){return !!(state.sod&&state.sod[k]===true);}
 function lineBomOf0(line){var def=findMenu(line.code),m=+line.bm>0?+line.bm:1,out=[];if(def&&def.bom)def.bom.forEach(function(b){out.push([b[0],(+b[1]||0)*m]);});(line.xb||[]).forEach(function(x){if(x&&x[0]&&+x[1]>0)out.push([x[0],+x[1]]);});
@@ -4622,7 +4648,7 @@ function mergeTable(){if(nopayGuard())return;if(!Object.values(state.tables).som
 function mergeFrom(name){const main=state.tables[state.activeTable],other=state.tables[name];logOrder('ລວມໂຕະ',name+' → '+main.name,name);logCancel('ລວມໂຕະ','',other.items.map(function(i){return i.qty+'× '+i.name;}).join(', '),other.items.reduce(function(a,i){return a+(i.qty||0);},0),tableTotal(other),name+' → '+main.name,'',{from:name,to:main.name,bill:(other.billTs||other.status==='bill')?'after':'before'});main.items=main.items.concat(other.items);main.status='main';main.main=true;state.orders.forEach(o=>{if(o.table===name)o.table=main.name;});
  if(!main.sd&&other.sd)main.sd=other.sd;other.sd=null;if((other.pkO||[]).length){main.pkO=(main.pkO||[]).concat(other.pkO);other.pkO=null;}other.items=[];other.status='merged';other.mergedInto=main.name;other.customer=null;try{chatClear(other.name);}catch(e){}save();closeModal();render();showSuccess('ລວມໂຕະສຳເລັດ!',name+'  '+main.name);}
 function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເລີກໂຕະ '+state.activeTable,function(){cancelTable2();});return;}cancelTable2();}
-function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ)</p>${(function(){var mk=t.items.filter(cxMade);return mk.length?'<div class="cx-box">'+cxSplitHTML(t.items.length-mk.length,mk.length,cxVal(mk.map(function(x){return {line:x,n:x.qty};}),t.pkO))+'<small>ລາຍການທີ່ຄົວເລີ່ມເຮັດແລ້ວ ວັດຖຸດິບໃຊ້ໄປແລ້ວ — ບໍ່ຄືນສະຕ໋ອກ ແລະ ຂຶ້ນລາຍງານເສຍຫາຍ</small></div>':'<p class="cx-ok">ຄົວຍັງບໍ່ເລີ່ມເຮັດ — ສະຕ໋ອກຈະຄືນທັງໝົດ</p>';})()}${rsnBox('ct_rsn')}<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
+function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ)</p>${(function(){var mk=t.items.filter(cxMade);return mk.length?'<div class="cx-box">'+cxSplitHTML(t.items.length-mk.length,mk.length,cxVal(mk.map(function(x){return {line:x,n:x.qty};}),t.pkO))+'<small>ລາຍການທີ່ຄົວເລີ່ມເຮັດແລ້ວ ວັດຖຸດິບໃຊ້ໄປແລ້ວ — ບໍ່ຄືນສະຕ໋ອກ ແລະ ຂຶ້ນລາຍງານເສຍຫາຍ</small></div>':'<p class="cx-ok">ຄົວຍັງບໍ່ເລີ່ມເຮັດ — ສະຕ໋ອກຈະຄືນທັງໝົດ</p>';})()}${rsnBox('ct_rsn')}${pinBox('ct_pin','cancel')}<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
 function doCancelTable0(){const t=state.tables[state.activeTable];var _rsn=((document.getElementById('ct_rsn')||{}).value||'').trim();if(!_rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');var _e=document.getElementById('ct_rsn');if(_e)_e.focus();return;}logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ — '+_rsn,t.name);var _mk=[];t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ: '+_rsn,{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen,id:line.id});if(cxMade(line)){_mk.push({line:line,n:line.qty});return;}lineBomOf(line).forEach(([ing,q])=>{if(state.ingredients[ing])addStockAtM(line.code,ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
  var _cws=null;if(_mk.length)_cws=cxWaste(_mk,t.pkO,curLoc(),'ຄືນ-ຍົກເລີກໂຕະ','ຍົກເລີກໂຕະ '+t.name,_rsn);else pkoReturn(t.pkO,curLoc(),'ຄືນ-ຍົກເລີກໂຕະ','ບັນຈຸພັນຕໍ່ອໍເດີ (ໂຕະ '+t.name+')');t.pkO=null;
  state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.splitN=null;t.status='free';if(t.dl)t.dl.closed=Date.now();try{chatClear(t.name);}catch(e){}t.billTs=null;t.customer=null;t.memberId=null;t.sd=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name+(_cws?' — ເຮັດແລ້ວ '+_mk.length+' ລາຍການ ບັນທຶກເສຍ '+_cws.no:''));}
@@ -4647,7 +4673,7 @@ function setVat(){numPrompt('VAT (%)',state.vatPct,v=>state.vatPct=v);}
 function setBillDisc(){if(!can('discount')){toast('ບໍ່ມີສິດໃຫ້ສ່ວນຫຼຸດ');return;}
  numPrompt('ສ່ວນຫຼຸດທັງບິນ (%)',state.billDiscPct,function(v){v=Math.max(0,Math.min(100,v));
   var doIt=function(){state.billDiscPct=v;if(v>0)logOrder('ສ່ວນຫຼຸດທັງບິນ',v+'%','');save();renderCart();};
-  if(v>(+state.discLimit||0)&&!can('discountOver')){requireOverride('discountOver','ສ່ວນຫຼຸດທັງບິນ '+v+'% (ເກີນ '+state.discLimit+'%)',doIt);return;}
+  if(discNeedPin(v)){requireOverride('discountOver','ສ່ວນຫຼຸດທັງບິນ '+v+'%'+(v>(+state.discLimit||0)?' (ເກີນ '+state.discLimit+'%)':''),doIt);return;}
   doIt();});}
 function numPrompt(title,cur,cb){openModal(`<h2>${title}</h2><input id="nv" type="number" value="${cur}"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok" onclick="window.__np()">ຕົກລົງ</button></div>`);window.__np=()=>{cb(+document.getElementById('nv').value||0);save();closeModal();renderCart();};}
 /* ===== ຈໍຄົວ / ຈໍບາຣ໌: ໃບອໍເດີຕາມໂຕະ × 3 ຖັນ (ລໍຖ້າ → ກຳລັງເຮັດ → ພ້ອມເສີບ) — ປຸ່ມດຽວຕໍ່ໂຕະ, ແຕະລາຍການເພື່ອເລື່ອນສະເພາະອັນນັ້ນ ===== */
@@ -8424,7 +8450,9 @@ function setSecPay(){var pts=state.payTypes||PAYTYPES;
   sRow('Service charge','',sNum('serviceChargePct',state.serviceChargePct,1,'%',0,100))+
   sRow('VAT','',sNum('vatPct',state.vatPct,1,'%',0,100))+
   sRow('ສ່ວນຫຼຸດທັງບິນ (ຄ່າເລີ່ມຕົ້ນ)','ໃຊ້ກັບທຸກໂຕະ — ປົກກະຕິໃຫ້ເປັນ 0',sNum('billDiscPct',state.billDiscPct,1,'%',0,100))+
-  sRow('ເພດານສ່ວນຫຼຸດ ຂອງແຄັດເຊຍ','ເກີນນີ້ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN ອະນຸມັດ',sNum('discLimit',state.discLimit||0,5,'%',0,100)),'bx-fee')+
+  sRow('ເພດານສ່ວນຫຼຸດ ຂອງແຄັດເຊຍ','ເກີນນີ້ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN ອະນຸມັດ',sNum('discLimit',state.discLimit||0,5,'%',0,100))+
+  sRow('ສ່ວນຫຼຸດທຸກຄັ້ງ ຕ້ອງ PIN ຜູ້ຈັດການ','ເປີດ (ແນະນຳ) = ແຄັດເຊຍໃຫ້ສ່ວນຫຼຸດ ເຖິງຈະບໍ່ເກີນເພດານ ກໍຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN',sSw('pinDisc',state.pinDisc!==false))+
+  sRow('ລຶບລາຍການຫຼັງສົ່ງຄົວ / ຍົກເລີກໂຕະ ຕ້ອງ PIN ຜູ້ຈັດການ','ເປີດ (ແນະນຳ) = ແຄັດເຊຍລຶບລາຍການທີ່ສົ່ງຄົວແລ້ວ ຫຼື ຍົກເລີກທັງໂຕະ ຕ້ອງໃຫ້ຜູ້ຈັດການໃສ່ PIN',sSw('pinCancelSent',state.pinCancelSent!==false)),'bx-fee')+
  sCard('ວິທີຈ່າຍເງິນ','ເປີດ/ປິດ ແລະ ຄ່າທຳນຽມຕໍ່ວິທີ (ເຊັ່ນ ບັດ 3% ຈະບວກໃສ່ຍອດ)',sBtn('+ ເພີ່ມວິທີຈ່າຍ','addPayType()','pri'),
   pts.map(function(p){var off=state.payOff&&state.payOff[p],lock=(p==='ເງິນສົດ'||p==='ຕິດໜີ້'||p==='ກະເປົາລູກຄ້າ');
    return sItem(cesc(p)+(lock?sBadge('ລະບົບ'):'')+(off?sBadge('ປິດຢູ່','off'):''),p==='ຕິດໜີ້'?'ບັນທຶກເປັນໜີ້ຄ້າງ':p==='ກະເປົາລູກຄ້າ'?'ຫັກຈາກເງິນໃນກະເປົາສະມາຊິກ':'',
@@ -8444,7 +8472,8 @@ function setSecOrder(){
  return sCard('ການສັ່ງອາຫານ','','',
   sRow('ສຽງເຕືອນ ອໍເດີໃໝ່','',sSw('soundOn',!!state.soundOn))+
   sRow('ພິມສະລິບເຂົ້າຄົວ / ບາ ອັດຕະໂນມັດ','ເມື່ອກົດ "ຢືນຢັນອໍເດີ"',sSw('printKitchen',!!state.printKitchen))+
-  sRow('ຕັດສະຕ໋ອກຕາມ Yield (% ສູນເສຍ)','ເປີດ = ຂາຍແລ້ວຕັດ ສູດ ÷ Yield (ເຊັ່ນ ສູດ 200 g, ສູນເສຍ 10% → ຕັດ 222.22 g) ເພື່ອໃຫ້ສະຕ໋ອກ ແລະ ຕົ້ນທຶນຕົງຄວາມຈິງ · '+yieldInfo(),sSw('yieldCut',yieldOn()))+
+  sRow('ອອກຈາກລະບົບອັດຕະໂນມັດ ເມື່ອປະເຄື່ອງ','ບໍ່ໃຊ້ງານເກີນເວລານີ້ ກັບໄປໜ້າເລືອກຜູ້ໃຊ້ (0 = ປິດ) · ບໍ່ນັບຈໍຄົວ / ບາ / ເສີບ ທີ່ເປີດຄ້າງໄວ້',sNum('idleMin',idleMinutes(),5,'ນາທີ',0,600))+
+  sRow('ຕັດສະຕ໋ອກຕາມ Yield (% ສູນເສຍ)','⚠ ປິດໄວ້ເປັນຄ່າເລີ່ມຕົ້ນ. ເປີດ = ຂາຍແລ້ວຕັດ ສູດ ÷ Yield (ເຊັ່ນ ສູດ 200 g, ສູນເສຍ 10% → ຕັດ 222.22 g). ເປີດສະເພາະເມື່ອສູດເປັນນ້ຳໜັກສຸດທິ — ຖ້າສູດນຳເຂົ້າຈາກ Excel ມາດຕະຖານ ທີ່ລວມ Yield ແລ້ວ ຫ້າມເປີດ (ຈະຫັກຊ້ຳ) · '+yieldInfo(),sSw('yieldCut',yieldOn()))+
   sRow('ແຍກໜ້າທີ່: ອະນຸມັດເອກະສານຂອງຕົນເອງບໍ່ໄດ້','ຮວມເຈົ້າຂອງ/Admin ດ້ວຍ — PR, PO, ເບີກ, ແຈ້ງເສຍ, ນັບສາງ, ປັບສະຕ໋ອກ ຕ້ອງເປັນຄົນອື່ນອະນຸມັດ',sSwSod('self'))+
   sRow('ແຍກໜ້າທີ່: Void ບິນທີ່ຕົນເອງເກັບເງິນບໍ່ໄດ້','ຕ້ອງເປັນຄົນອື່ນ Void',sSwSod('void'))+
   sRow('ກັນຂາຍ ເມື່ອວັດຖຸດິບບໍ່ພໍ','ຜູ້ຈັດການອະນຸມັດຂາຍຕໍ່ໄດ້ · ລູກຄ້າ QR ຈະເຫັນເປັນ "ໝົດ"',sSw('stockBlock',state.stockBlock!==false))+

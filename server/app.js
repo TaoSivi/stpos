@@ -119,7 +119,7 @@ function curInfo() { const c = readCur(); return (c && c.v === stateV()) ? c : r
 /* ===== ເຂົ້າລະບົບດ້ວຍ PIN ຢູ່ server → ລະຫັດປະຈຳເຄື່ອງ (session) ແທນ API_TOKEN ຫຼັກ =====
  * ລິ້ງ/QR ພະນັກງານ ບໍ່ຕ້ອງມີ token: ເຄື່ອງໃໝ່ເລືອກຜູ້ໃຊ້ + PIN → server ກວດ PIN (pinH ຄືໃນແອັບ) → ອອກ session (HMAC, 180 ມື້)
  * session ຜູກກັບ PIN ປັດຈຸບັນ: ປ່ຽນ PIN = ເຄື່ອງຂອງຜູ້ນັ້ນຕ້ອງເຂົ້າລະບົບໃໝ່ · ປ່ຽນ API_TOKEN = ທຸກເຄື່ອງເຂົ້າລະບົບໃໝ່
- * ກັນເດົາ PIN: ຜິດ 10 ເທື່ອ/ຜູ້ໃຊ້ ຫຼື 30 ເທື່ອ/IP ໃນ 15 ນາທີ → ລັອກ 15 ນາທີ */
+ * ກັນເດົາ PIN: ຜິດ 5 ເທື່ອ/ຜູ້ໃຊ້ ຫຼື 20 ເທື່ອ/IP ໃນ 15 ນາທີ → ລັອກ 15 ນາທີ */
 function apiToken() { return String(shim.props.getProperty('API_TOKEN') || '').trim(); }
 function pinHash(p) { p = 'stpos:' + String(p == null ? '' : p); let h = 5381; for (let i = 0; i < p.length; i++) h = ((h << 5) + h + p.charCodeAt(i)) | 0; let h2 = 52711; for (let j = p.length - 1; j >= 0; j--) h2 = ((h2 << 5) + h2 + p.charCodeAt(j)) | 0; return 'h' + (h >>> 0).toString(16) + '.' + (h2 >>> 0).toString(16); }
 function userPinH(u) { return u ? (u.pinH || (u.pin != null ? pinHash(u.pin) : '')) : ''; }
@@ -162,7 +162,7 @@ function loginApi(q, req) {
     const cache = CacheService.getScriptCache(), uid = String(q.uid || '').slice(0, 80), ip = clientIp(req);
     const ku = 'lfu_' + uid, ki = 'lfi_' + ip, nu = +(cache.get(ku) || 0), ni = +(cache.get(ki) || 0);
     const ua = String((req.headers && req.headers['user-agent']) || '').slice(0, 120), uName = function () { const x = stateUsers().filter(function (z) { return z && z.id === uid; })[0]; return x ? (x.name || uid) : uid; };
-    if (nu >= 10 || ni >= 30) { try { AUDIT.append([{ t: 'login_lock', u: uid, ip: ip, d: { name: uName(), ua: ua } }]); if (nu === 10 || ni === 30 || nu > 10 && nu % 10 === 0) auditAlert(null, ['🔒 PIN ຜິດຫຼາຍເທື່ອ — ລັອກ ' + uName() + ' ຈາກ IP ' + ip], { u: uid, ip: ip }); } catch (e) {} return { ok: false, err: 'locked', msg: 'ໃສ່ PIN ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' }; }
+    if (nu >= 5 || ni >= 20) { try { AUDIT.append([{ t: 'login_lock', u: uid, ip: ip, d: { name: uName(), ua: ua } }]); if (nu === 5 || ni === 20 || nu > 5 && nu % 5 === 0) auditAlert(null, ['🔒 PIN ຜິດຫຼາຍເທື່ອ — ລັອກ ' + uName() + ' ຈາກ IP ' + ip], { u: uid, ip: ip }); } catch (e) {} return { ok: false, err: 'locked', msg: 'ໃສ່ PIN ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' }; }
     const u = stateUsers().filter(function (x) { return x && x.id === uid; })[0];
     if (u && u.active !== false && userPinH(u) && userPinH(u) === pinHash(String(q.pin || ''))) { cache.remove(ku); try { AUDIT.append([{ t: 'login', u: u.id, ip: ip, d: { name: u.name || '', role: u.role || '', ua: ua } }]); } catch (e) {} return { ok: true, tk: sessMake(u), uid: u.id, name: u.name || '' }; }
     cache.put(ku, String(nu + 1), 900); cache.put(ki, String(ni + 1), 900);

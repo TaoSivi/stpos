@@ -399,8 +399,8 @@ function modInfo_(st, def, mods) {
   }
   return { price: price, bm: Math.round(bm * 1000) / 1000, xb: xb, pk: pk };
 }
-/* st (ບໍ່ບັງຄັບ): ຖ້າເປີດ yieldCut (ຄ່າເລີ່ມຕົ້ນ) ຕັດສະຕ໋ອກ = ສູດ ÷ Yield (ເຊັ່ນ 200 g ທີ່ Yield 90% → 222.22 g) — ຕ້ອງຄືກັບ lineBomOf0 ໃນແອັບ */
-function lineBom_(def, line, st) { var m = +line.bm > 0 ? +line.bm : 1, out = [], ing = st && st.ingredients, yc = !!st && st.yieldCut !== false;
+/* st (ບໍ່ບັງຄັບ): ຖ້າເປີດ yieldCut (ປິດເປັນຄ່າເລີ່ມຕົ້ນ — ສູດ Excel ມາດຕະຖານລວມ Yield ແລ້ວ) ຕັດສະຕ໋ອກ = ສູດ ÷ Yield (ເຊັ່ນ 200 g ທີ່ Yield 90% → 222.22 g) — ຕ້ອງຄືກັບ lineBomOf0 ໃນແອັບ */
+function lineBom_(def, line, st) { var m = +line.bm > 0 ? +line.bm : 1, out = [], ing = st && st.ingredients, yc = !!st && st.yieldCut === true;
   var f = function (c) { var i = ing && ing[c], y = i ? +i.yield : 0; return yc && y > 0 && y < 100 ? 100 / y : 1; };
   var put = function (c, q) { out.push([c, Math.round(q * f(c) * 1e6) / 1e6]); };
   (def.bom || []).forEach(function (b) { put(b[0], (+b[1] || 0) * m); }); (line.xb || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) put(x[0], +x[1]); }); (line.pk || []).forEach(function (x) { if (x && x[0] && +x[1] > 0) out.push([x[0], +x[1]]); }); return out; }
