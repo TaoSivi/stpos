@@ -1479,6 +1479,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .kp-hintbox{margin-top:10px;padding:10px 12px;border-radius:14px;background:#f3fbfa;border:1px dashed #bfe3df;font-size:12.5px;color:#3d5653;line-height:1.7}.kp-hintbox .btn-sm{margin-top:6px}
 .kp-lowbar{display:flex;align-items:center;gap:12px;margin:0 18px 12px;padding:10px 14px;border-radius:16px;background:#fff7ed;border:1.5px solid #fed7aa;box-shadow:0 2px 10px rgba(245,158,11,.12)}.kp-lbi{font-size:20px}.kp-lbt{flex:1;min-width:0;font-size:13.5px;color:#7c2d12}.kp-lbt>div{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .kp-lbc{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #fde1bf;border-radius:12px;padding:4px 6px 4px 10px;font-weight:600;color:#062f2d}.kp-lbc.r{border-color:#f6c9cb;background:#fff1f1}.kp-lbc b{color:#c0262d}.kp-lbc button{border:0;border-radius:9px;padding:4px 10px;font-weight:800;background:#ff7a00;color:#fff;cursor:pointer;font-family:inherit}
+#tf_u:not(:empty),#rq_u:not(:empty){font-size:14px!important;color:#075e5b!important;background:#e7f6f5;border-radius:10px;padding:5px 10px;margin-top:6px!important;display:inline-block}
 .kp-sub2{font-size:12.5px;color:#4d7471;margin:-4px 0 10px}.kp-recv{margin-top:14px;padding:10px 12px;border-radius:14px;background:#f3fbfa;border:1px dashed #bfe3df}.kp-rvh{font-weight:800;font-size:13.5px;color:#075e5b}.kp-chips button.on{background:#0A7E7A;color:#fff;border-color:#0A7E7A}
 .kp-sz{margin:0 0 6px;align-items:center}.kp-cza{display:inline-flex;gap:6px;align-items:center}.kp-cza input{width:110px!important;height:40px!important;border-radius:12px!important}.kp-cza button{height:40px;width:40px;padding:0}
 .kp-bag{margin-top:12px;border:1.5px solid #dcecea;border-radius:18px;padding:12px;background:#fbfefd}.kp-bh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.kp-bs{font-size:20px;color:#0A7E7A}.kp-bs small{font-size:12px;color:#6b8f8a;margin-left:4px}
@@ -5190,7 +5191,7 @@ function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
  const bs={};let itemsSold=0;bills.forEach(b=>b.items.forEach(it=>{bs[it.name]=(bs[it.name]||0)+it.qty;itemsSold+=it.qty;}));
  const top=Object.entries(bs).sort((a,b)=>b[1]-a[1]).slice(0,8);
  const lowstk=Object.values(state.ingredients).filter(i=>i.stock<=i.reorder).length;
- const dayExp=(state.expenses||[]).filter(e=>ymd(e.ts)===dashDate).reduce((s,e)=>s+(+e.amount||0),0);const profit=sales-dayExp;
+ const dayExp=(state.expenses||[]).filter(e=>ymd(e.ts)===dashDate).reduce((s,e)=>s+(+e.amount||0),0);const profit=sales-dayExp;const dayCogs=bills.reduce((s,b)=>s+(b.cogs!==undefined?+b.cogs:billCOGS(b.items)),0),gp=sales-dayCogs;
  const hours=Array(24).fill(0);bills.forEach(b=>{hours[new Date(b.ts).getHours()]+=b.total;});const maxH=Math.max(1,...hours);
  /* ===== ແນວໂນ້ມຍອດຂາຍ ${dashRange} ມື້ (ສິ້ນສຸດວັນທີເລືອກ) ===== */
  const _endD=new Date(dashDate+'T00:00:00');const _dayNet={},_dayBn={};
@@ -5216,7 +5217,9 @@ function renderDash(R){if(!dashDate)dashDate=ymd(Date.now());
    <div class="kpi"><div class="lbl"> ສະຖານະໂຕະ (ປະຈຸບັນ)</div><div class="val">${occ} / ${occ+free}</div><div class="sub">ກຳລັງໃຊ້ ${occ} · ວ່າງ ${free}</div></div>
    <div class="kpi"><div class="lbl"> ວັດຖຸດິບໃກ້ໝົດ</div><div class="val" style="color:${lowstk?'var(--red)':'var(--green)'}">${lowstk}</div><div class="sub">ລາຍການ  ຈຸດສັ່ງຊື້</div></div>
    <div class="kpi"><div class="lbl"> ລາຍຈ່າຍ (${dashDate})</div><div class="val" style="color:var(--red)">${KIP(dayExp)} ₭</div><div class="sub"><span class="lnk" onclick="setView('expense')">[ເບິ່ງ/ເພີ່ມ]</span></div></div>
-   <div class="kpi"><div class="lbl"> ກຳໄລ (ຍອດຂາຍ − ລາຍຈ່າຍ)</div><div class="val" style="color:${profit>=0?'var(--tiff-deep)':'var(--red)'}">${KIP(profit)} ₭</div><div class="sub">ປະຈຳວັນທີເລືອກ</div></div></div>
+   <div class="kpi"><div class="lbl"> ກຳໄລ (ຍອດຂາຍ − ລາຍຈ່າຍ)</div><div class="val" style="color:${profit>=0?'var(--tiff-deep)':'var(--red)'}">${KIP(profit)} ₭</div><div class="sub">ປະຈຳວັນທີເລືອກ · ລວມຄ່າຊື້ຂອງ</div></div>
+   <div class="kpi"><div class="lbl"> ຕົ້ນທຶນວັດຖຸດິບ (COGS)</div><div class="val" style="color:var(--orange)">${KIP(dayCogs)} ₭</div><div class="sub">ຕາມສູດ × ຕົ້ນທຶນສະເລ່ຍ${sales>0?' · '+(dayCogs/sales*100).toFixed(1)+'% ຂອງຍອດຂາຍ':''}</div></div>
+   <div class="kpi"><div class="lbl"> ກຳໄລຂັ້ນຕົ້ນ (ຍອດຂາຍ − COGS)</div><div class="val" style="color:${gp>=0?'var(--tiff-deep)':'var(--red)'}">${KIP(gp)} ₭</div><div class="sub">${sales>0?'GP '+(gp/sales*100).toFixed(1)+'%':'—'}</div></div></div>
   <div style="padding:0 18px 18px"><div class="kpi" style="margin-bottom:14px"><div class="lbl" style="font-weight:700;margin-bottom:10px"> ຍອດຂາຍຕາມຊົ່ວໂມງ</div>
     <div style="display:flex;align-items:flex-end;gap:3px;height:120px">${hours.map((v,h)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div title="${h}:00 = ${KIP(v)}" style="width:100%;background:var(--grad);border-radius:4px 4px 0 0;height:${Math.round(v/maxH*100)}%;min-height:${v>0?4:0}px"></div><div style="font-size:8px;color:var(--muted);margin-top:3px">${h}</div></div>`).join('')}</div></div>
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
@@ -6067,7 +6070,7 @@ function xfRecv(id){var x=xfFind(id);xfBusy(true,'ກຳລັງບັນທຶ
 function xfReject(id){var x=xfFind(id);if(!x)return;var why=pmt('ເຫດຜົນທີ່ປະຕິເສດ ('+x.no+')','',function(){xfReject(id)});if(why===null)return;xfPost('reject',{id:id,note:why},function(r){xfDone(r,'ປະຕິເສດແລ້ວ',['ປະຕິເສດໃບຂໍຂ້າມສາຂາ',x.no+' · '+why]);});}
 function xfCancel(id){var x=xfFind(id);if(!x||!cfm('ຍົກເລີກໃບຂໍ '+x.no+'?',function(){xfCancel(id)}))return;xfPost('cancel',{id:id},function(r){xfDone(r,'ຍົກເລີກແລ້ວ',['ຍົກເລີກໃບຂໍຂ້າມສາຂາ',x.no]);});}
 /* ===== ໃບໂອນ: ຂັ້ນຕອນອະນຸມັດ — ຂໍໂອນ → ອະນຸມັດ (ຕາມຂັ້ນ) → ຕົ້ນທາງສົ່ງອອກ (ຕັດສະຕ໋ອກ) → ຜູ້ຮັບກວດຮັບ ===== */
-function tfFlow(){if(!state.tfFlow||typeof state.tfFlow!=='object')state.tfFlow={steps:[],recv:''};if(!Array.isArray(state.tfFlow.steps))state.tfFlow.steps=[];return state.tfFlow;}
+function tfFlow(){if(!state.tfFlow||typeof state.tfFlow!=='object')state.tfFlow={steps:['r:manager'],recv:''};if(!Array.isArray(state.tfFlow.steps))state.tfFlow.steps=[];if(!state.tfFlow.upd&&!state.tfFlow.steps.length)state.tfFlow.steps=['r:manager'];return state.tfFlow;} /* ຍັງບໍ່ເຄີຍຕັ້ງ → ຕ້ອງຜູ້ຈັດການອະນຸມັດ (ເຈົ້າຂອງປ່ຽນໄດ້ໃນ ຕັ້ງຄ່າ) */
 function tfFlowSet(k,v,i){if(!isOwner())return;var f=tfFlow();if(k==='add'&&v)f.steps.push(v);else if(k==='del')f.steps.splice(i,1);else if(k==='set')f.steps[i]=v;else if(k==='recv')f.recv=v;f.upd=Date.now();
  logOrder('ຕັ້ງຂັ້ນຕອນໂອນ',(f.steps.length?f.steps.map(stepName).join(' → '):'ບໍ່ຕ້ອງອະນຸມັດ')+' · ຜູ້ຮັບ: '+(f.recv?stepName(f.recv):'ທຸກຄົນ'),'');save();render();}
 function tfFlowHTML(){var f=tfFlow(),own=isOwner();var opt=function(sel,js){return '<select class="ap-sel" onchange="'+js+'">'+wfOptions().map(function(o){return '<option value="'+o[0]+'"'+(o[0]===sel?' selected':'')+'>'+cesc(o[1])+'</option>';}).join('')+'</select>';};
@@ -6131,7 +6134,9 @@ function tfDelItem(i){window.__tf.items.splice(i,1);renderTfList();}
 function doCreateTransfer(){var d=window.__tf;var cl=curLoc();if(!d||d.busy)return;
  if(!d.items.length){toast('ຍັງບໍ່ມີລາຍການ');return;}if(d.to===cl){toast('ປາຍທາງຕ້ອງບໍ່ແມ່ນບ່ອນດຽວກັນ');return;}
  var short=d.items.filter(function(it){return stockAt(it.code,cl)<it.qty;});
- if(short.length&&!cfm('ບາງລາຍການສະຕ໋ອກບໍ່ພໍ ('+short.map(function(s){return state.ingredients[s.code].name;}).join(', ')+') — ໂອນຕໍ່ບໍ? (ຈະຕິດລົບ)',function(){doCreateTransfer()}))return;
+ if(short.length&&!d.ovOK){var sn=short.map(function(s){return state.ingredients[s.code].name;}).join(', ');
+  if(!can('stockApprove')){requireOverride('stockApprove','ໂອນເກີນສະຕ໋ອກທີ່ມີ ('+sn+')',function(){d.ovOK=1;doCreateTransfer();});return;}
+  if(!cfm('ບາງລາຍການສະຕ໋ອກບໍ່ພໍ ('+sn+') — ໂອນຕໍ່ບໍ? (ຈະຕິດລົບ)',function(){d.ovOK=1;doCreateTransfer()}))return;}
  if(!Array.isArray(state.transfers))state.transfers=[];
  d.busy=1;var no=genTfNo(),id='tf'+Date.now().toString(36)+Math.floor(Math.random()*1000);
  var fl=tfFlow(),needAp=fl.steps.length>0;
@@ -7116,8 +7121,11 @@ function doGRN(poId){var po=findPO(poId);if(!po||['APPROVED','ORDERED','PARTIAL'
  var lines=[],bad='';po.lines.forEach(function(l,i){var q=+((document.getElementById('gr_q'+i)||{}).value||0);var pe=document.getElementById('gr_p'+i);var p=pe?(+pe.value||0):l.price;var rem=l.qty-(+l.recv||0);
   if(q<0)bad='ຈຳນວນຕ້ອງບໍ່ຕິດລົບ';if(q>rem+1e-9)bad=l.name+': ຮັບເກີນທີ່ສັ່ງ ('+KIP(rem)+')';if(q>0)lines.push(bfCopy(l,{i:i,code:l.code,name:l.name,unit:l.unit,qty:q,price:p}));});
  if(bad){toast(bad);return;}if(!lines.length){toast('ໃສ່ຈຳນວນທີ່ຮັບຢ່າງໜ້ອຍ 1 ລາຍການ');return;}
+ var odd=grnPriceOdd(lines);if(odd.length&&!cfm('⚠ ລາຄາຮັບເຂົ້າຜິດປົກກະຕິ (ຕ່າງຈາກຕົ້ນທຶນເດີມ ≥ 3 ເທົ່າ):\n'+odd.map(function(o){return '• '+o.name+': ເດີມ '+KIP(Math.round(o.old*100)/100)+' → ໃໝ່ '+KIP(Math.round(o.nw*100)/100)+' ກີບ/'+o.unit+' ('+o.x.toFixed(1)+' ເທົ່າ)';}).join('\n')+'\n\nລາຄາຖືກບໍ? ຖ້າພິມຜິດ ຈະເຮັດໃຫ້ຕົ້ນທຶນສະເລ່ຍ ແລະ ກຳໄລເພີ້ຍ.',function(){doGRN(poId);}))return;
  var note=((document.getElementById('gr_note')||{}).value||'').trim();var r=postGRN(po,lines,note,{});var g=r.g,full=r.full;
  save();closeModal();procDetail={id:po.prId,doc:'grn'};render();toast('ຮັບເຂົ້າສະຕ໋ອກແລ້ວ · '+g.no+(full?'':' (ຮັບບາງສ່ວນ)'));}
+/* ລາຄາຮັບເຂົ້າ (ຕໍ່ຫົວໜ່ວຍເກັບ) ຕ່າງຈາກຕົ້ນທຶນປັດຈຸບັນ ≥ 3 ເທົ່າ (ຂຶ້ນ ຫຼື ລົງ) */
+function grnPriceOdd(lines){var out=[];lines.forEach(function(x){var it=state.ingredients[x.code];if(!it||!(+it.cost>0)||!(x.price>0))return;var nw=x.price/lineF(x),x3=nw/(+it.cost);if(x3>=3||x3<=1/3)out.push({name:it.name||x.code,unit:it.unit||'',old:+it.cost,nw:nw,x:x3>=1?x3:1/x3});});return out;}
 /* ບັນທຶກ GRN: ເພີ່ມສະຕ໋ອກ + ອັບເດດຕົ້ນທຶນ + ລາຍຈ່າຍ (ຍົກເວັ້ນ opt.noExpense) + ສະຖານະ PO */
 function postGRN(po,lines,note,opt){opt=opt||{};var u=curUser();
  var g={id:procId('gr'),no:procNo('GRN',state.grns),ts:Date.now(),uid:SESSION.uid,byName:u?u.name:'',poId:po.id,poNo:po.no,vendor:po.vendor,loc:po.loc,note:note,status:'POSTED',lines:lines.map(function(x){return bfCopy(x,{code:x.code,name:x.name,unit:x.unit,qty:x.qty,price:x.price});}),total:Math.round(lines.reduce(function(s,x){return s+x.qty*x.price;},0)),upd:Date.now()};
