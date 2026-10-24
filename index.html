@@ -1327,7 +1327,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 /* ===== ການຕັ້ງຄ່າ (ອອກແບບໃໝ່) ===== */
 .setpage{max-width:none}
 .setwrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:24px;align-items:start}
-.setrail{position:sticky;top:8px;background:#fff;border-radius:22px;padding:14px 10px 12px;box-shadow:var(--sh-1);z-index:6}
+.setrail{position:sticky;top:8px;background:#fff;border-radius:22px;padding:14px 10px 12px;box-shadow:var(--sh-1);z-index:6;max-height:calc(100dvh - 112px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#bcd9d6 transparent}
 .setrail h2{font-size:20px;font-weight:800;color:var(--ink);padding:4px 12px 6px;margin:0}
 .setrail .sg{font-size:12px;font-weight:700;color:#6d8f8b;letter-spacing:.2px;padding:14px 12px 4px}
 .setrail button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;margin:1px 0;border:0;border-radius:12px;background:none;font:inherit;font-size:15px;font-weight:700;color:#24504c;cursor:pointer;text-align:left;line-height:1.3}
@@ -1435,7 +1435,7 @@ input::placeholder,textarea::placeholder{color:#55706d!important}
 .smenu{padding-top:16px}.smenu .mnu-t{display:none}
 @media (max-width:900px){
  .setwrap{grid-template-columns:1fr;gap:12px}
- .setrail{position:sticky;top:0;display:flex;overflow-x:auto;gap:4px;padding:6px;border-radius:16px;scrollbar-width:none}
+ .setrail{position:sticky;top:0;display:flex;overflow-x:auto;overflow-y:hidden;max-height:none;gap:4px;padding:6px;border-radius:16px;scrollbar-width:none}
  .setrail::-webkit-scrollbar{display:none}
  .setrail h2,.setrail .sg{display:none}
  .setrail button{width:auto;white-space:nowrap;flex-shrink:0;padding:9px 13px;font-size:14px}
