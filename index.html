@@ -1597,6 +1597,8 @@ html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .confi
 .wg-q{display:flex;gap:6px;margin-top:6px}.wg-q .btn-sm{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700}.wg-t{text-align:center;font-size:18px;margin:12px 0;color:#0a6b67;min-height:24px}
 .mp-br{display:grid;grid-template-columns:1fr 70px auto;gap:6px;margin-bottom:6px}.mp-br input{min-width:0;padding:8px;border:1px solid var(--line);border-radius:10px;font:inherit}
 .opbtn.active{background:#0a7e7a!important;color:#fff!important;border-color:#0a7e7a!important}
+html[data-biz="mart"] #langBtn{display:inline-flex!important;align-items:center;justify-content:center;font-size:12px;font-weight:800;width:auto;padding:0 10px}
+.mp-fx{text-align:right;font-size:12px;color:var(--muted);margin:2px 2px 6px}
 .repttl{margin:0 0 10px;font-size:22px}.lot-r{background:#fff1f1}.lot-o{background:#fff7ed}.lot-y{background:#fefce8}
 .py-k{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 12px}.py-k>div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}.py-k small{display:block;color:var(--muted);font-size:12px}.py-k b{font-size:20px}.py-k .bad b{color:var(--red)}
 .py-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.py-bar .btn-sm{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:700}.py-tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}.py-tabs button{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:700}.py-tabs button.on{background:#0a7e7a;color:#fff;border-color:#0a7e7a}
@@ -3160,7 +3162,7 @@ body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px +
   <div id="drawerMask" onclick="toggleDrawer(false)"></div>
   <div id="main">
     <div class="topbar"><button class="tb-menu" onclick="toggleDrawer()" aria-label="ເມນູ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      <div class="tb-title"><h1>ST POS</h1><div class="tb-date" id="tbDate"></div></div><span id="netDot" title="ສະຖານະເນັດ"></span><button class="tb-theme" id="themeBtn" onclick="toggleTheme()" title="ປ່ຽນທີມ ມືດ/ສະຫວ່າງ" aria-label="ປ່ຽນທີມ"></button><button class="tb-theme tb-bell" id="alertBell" onclick="alertOpen()" title="ແຈ້ງເຕືອນສະຕ໋ອກ" aria-label="ແຈ້ງເຕືອນ" style="display:none">🔔<i id="alertN"></i></button><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
+      <div class="tb-title"><h1>ST POS</h1><div class="tb-date" id="tbDate"></div></div><span id="netDot" title="ສະຖານະເນັດ"></span><button class="tb-theme" id="langBtn" data-notr="1" onclick="mtSetLang(MT_LANG==='en'?'lo':'en')" title="Language" style="display:none">EN</button><button class="tb-theme" id="themeBtn" onclick="toggleTheme()" title="ປ່ຽນທີມ ມືດ/ສະຫວ່າງ" aria-label="ປ່ຽນທີມ"></button><button class="tb-theme tb-bell" id="alertBell" onclick="alertOpen()" title="ແຈ້ງເຕືອນສະຕ໋ອກ" aria-label="ແຈ້ງເຕືອນ" style="display:none">🔔<i id="alertN"></i></button><div id="userChip"></div><div class="ordno" id="ordNo">1</div><span style="font-size:24px"></span></div>
     <div id="viewRoot"></div>
   </div>
   <nav id="bnav"></nav>
@@ -3602,7 +3604,7 @@ function setNet(off){_offline=off;var d=document.getElementById('netDot');
  if(d)d.innerHTML=off?'<span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:800;padding:4px 10px;border-radius:12px"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span>ອອບລາຍ — ຂາຍໄດ້ ຈະ sync ເອງ</span>':'<span title="ອອນລາຍ" style="width:9px;height:9px;border-radius:50%;background:#16a34a;display:inline-block"></span>';
  if(off){if(!_offRetry)_offRetry=setInterval(function(){if(navigator.onLine){setNet(false);}},4000);}
  else{if(_offRetry){clearInterval(_offRetry);_offRetry=null;}if(state&&_loaded!==false&&!isCust()){save();toast(' ເນັດກັບມາແລ້ວ — ກຳລັງ sync ຂໍ້ມູນ');}}}
-function afterBoot(){document.getElementById('boot').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
+function afterBoot(){try{mtBtn();document.documentElement.setAttribute('lang',MT_LANG==='en'?'en':'lo');}catch(e){}document.getElementById('boot').classList.add('hidden');document.getElementById('app').classList.remove('hidden');
  document.querySelectorAll('.navitem').forEach(b=>{var ic=b.querySelector('.ic');if(ic&&(NAV_IC[b.dataset.v]||b.dataset.v==='daily'))ic.innerHTML=navSvg(b.dataset.v);b.onclick=()=>{setView(b.dataset.v);toggleDrawer(false);};});tickClock();setInterval(tickClock,30000);
  window.addEventListener('offline',function(){setNet(true);});
  window.addEventListener('online',function(){setNet(false);});
@@ -4263,7 +4265,7 @@ function addItem(p){if(bizCur()==='medical'&&!isCust()){var _tt=state.tables[sta
 function toggleSoldOut(code){if(!can('soldout')){toast('ບໍ່ມີສິດ');return;}if(!state.soldOut)state.soldOut={};
  var m=findMenu(code);if(state.soldOut[code]){delete state.soldOut[code];toast((m?m.n:code)+' ກັບມາຂາຍແລ້ວ');}else{state.soldOut[code]=true;toast((m?m.n:code)+' ໝົດ/ງົດຂາຍ');}
  logOrder(state.soldOut[code]?'ງົດຂາຍເມນູ':'ເປີດຂາຍເມນູ',(m?m.n:code),'');save();render();}
-function activePromo(){var ps=state.promos||[];var d=new Date();var hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+function activePromo(){var ps=(state&&state.promos)||[];var d=new Date();var hm=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
  for(var i=0;i<ps.length;i++){var p=ps[i];if(!p||p.active===false)continue;if(p.from&&p.to){if(hm<p.from||hm>=p.to)continue;}return p;}return null;}
 function pushToDraft(p,mods,modPrice,x,qty){if(isCust()&&custLocked()){toast('ບິນເຊັກແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ ກະລຸນາບອກພະນັກງານ','warn');return;}mods=(mods||[]).filter(Boolean);if(bizCur()==='medical')mods=mods.filter(function(m){return m!=='ຢູ່ຮ້ານ'&&m!=='ກັບບ້ານ';});if(!state.draft)state.draft=[];qty=+qty>0?+qty:1;const key=p.c+'|'+mods.join(',');const ex=state.draft.find(d=>(d.code+'|'+d.mods.join(','))===key);
  if(ex){ex.qty+=qty;}else{var ln={id:Date.now()+Math.random(),code:p.c,name:p.n,price:p.p,qty:qty,mods,modPrice,disc:0,k:p.k};if(p.wt){ln.wt=1;ln.wu=p.wu||'kg';}if(x&&+x.bm>0&&+x.bm!==1)ln.bm=+x.bm;if(x&&x.xb&&x.xb.length)ln.xb=x.xb;if(mods[0]==='ກັບບ້ານ'&&!isCust()){var pk=pkgFor(p,mods);if(pk.length){ln.pk=pk;pkgShortWarn(pk,p.n);}}state.draft.push(ln);}save();renderCart();}
@@ -4311,7 +4313,7 @@ function modQty(d){modState.qty=Math.max(1,Math.min(99,modState.qty+d));renderMo
 function confirmMod(){var miss=null;modState.groups.forEach(function(g,gi){if(!miss&&(mgType(g)==='size'||g.req)&&modState.sel[gi]==null)miss=g;});if(miss){toast('ເລືອກ "'+miss.title+'" ກ່ອນ');return;}
  var c=modCalc(),q=modState.qty,p=modState.p;pushToDraft(p,c.mods,c.extra,{bm:c.bm,xb:c.xb},q);closeModal();if(!isCust())toast('ເພີ່ມ '+p.n+(q>1?' ×'+q:''));}
 function curList(){return state.draft.length?state.draft:state.tables[state.activeTable].items;}
-function renderCart(){renderCart0();try{if(bizCur()==='mart'&&!isCust()){var _f=document.getElementById('cartFoot');if(_f)_f.insertAdjacentHTML('afterbegin',mpHoldBar());}}catch(e){}}
+function renderCart(){renderCart0();try{if(bizCur()==='mart'&&!isCust()){var _f=document.getElementById('cartFoot');if(_f){_f.insertAdjacentHTML('afterbegin',mpHoldBar());var _tt=state.tables[state.activeTable],_ls=(state.draft&&state.draft.length)?state.draft:((_tt&&_tt.items)||[]);_f.insertAdjacentHTML('afterbegin',mpFxHTML(_ls.reduce(function(s,i){return s+lineTotal(i);},0)));}}}catch(e){}}
 function renderCart0(){if(isCust()){var Rv=document.getElementById('viewRoot');if(custView==='review'&&Rv)renderCustReview(Rv);else if(custView==='menu'&&document.getElementById('products'))renderProducts();custBar();return;}
  try{draftKeep();}catch(e){}const draft=state.draft,t=state.tables[state.activeTable],inDraft=draft.length>0,items=inDraft?draft:t.items;
  recalcPromos(items);
@@ -9953,7 +9955,7 @@ var BIZ_WORDS=[[/ກົດບັດເພື່ອສັ່ງ · ກົດ\s*�
 BIZ_WORDS.unshift([/Smart Restaurant POS/g,'Clinic & Pharmacy POS'],[/ \(ຢູ່ຮ້ານ\)| · ຢູ່ຮ້ານ/g,''],[/ຢືນຢັນອໍເດີ/g,'ບັນທຶກລາຍການ'],[/ອໍເດີ/g,'ລາຍການ']);
 var MART_WORDS=[[/ກ່ອນເສີບຮອດເຄົາເຕີ|ກ່ອນເສີບຮອດໂຕະ/g,'ກ່ອນມອບໃຫ້ລູກຄ້າ'],[/ຄົວຍັງບໍ່ເລີ່ມເຮັດ/g,'ຍັງບໍ່ເລີ່ມຈັດ'],[/ຄົວກຳລັງເຮັດ/g,'ກຳລັງຈັດ'],[/ເຮັດແລ້ວ ລໍຖ້າເສີບ/g,'ຈັດແລ້ວ ລໍມອບ'],[/ຫຼັງເສີບແລ້ວ/g,'ຫຼັງມອບແລ້ວ'],[/ລຶບຫຼັງຄົວເລີ່ມເຮັດ \/ ຫຼັງເສີບ/g,'ລຶບຫຼັງເລີ່ມຈັດ / ຫຼັງມອບ'],[/ລຶບຕອນຢູ່ໃນຄົວ/g,'ລຶບຕອນກຳລັງຈັດ'],[/ລຶບທັນ ກ່ອນຄົວເລີ່ມເຮັດ/g,'ລຶບທັນ ກ່ອນເລີ່ມຈັດ'],[/ຍັງບໍ່ສົ່ງຄົວ/g,'ຍັງບໍ່ຢືນຢັນບິນ'],[/ສົ່ງຄົວ/g,'ຢືນຢັນບິນ'],[/ໃຊ້ຕາມສູດ/g,'ຂາຍອອກ'],[/ຕາມສູດ/g,'ຕາມຈຳນວນຂາຍ'],[/ຕົ້ນທຶນ\/ຈານ/g,'ຕົ້ນທຶນ/ຊິ້ນ'],[/ກຳໄລ\/ຈານ/g,'ກຳໄລ/ຊິ້ນ'],[/ຈານ\/ຈອກ/g,'ລາຍການ'],[/ຈານ/g,'ຊິ້ນ'],[/ເສີບ/g,'ມອບ'],[/ລາຄາ\/ສູດ/g,'ລາຄາ'],[/ປັບສູດໃໝ່/g,'ປັບລາຄາໃໝ່'],[/ຄົວກາງ/g,'ສາງກາງ'],[/ຕົວເລືອກເສີມ \(Topping\)/g,'ຕົວເລືອກເສີມ'],[/ບໍ່ມີສູດ/g,'ບໍ່ໄດ້ຜູກສະຕ໋ອກ'],[/ສູດອ້າງ/g,'ຜູກສະຕ໋ອກກັບ'],[/ຕັດສູດ/g,'ຕັດຂາຍ'],[/ຢາໝົດອາຍຸ/g,'ສິນຄ້າໝົດອາຍຸ'],[/ຢຸດຈ່າຍ/g,'ຢຸດຂາຍ'],[/ລັອດຢາ/g,'ລັອດສິນຄ້າ'],[/ຮັບຢາເຂົ້າສາງ/g,'ຮັບສິນຄ້າເຂົ້າສາງ'],[/Smart Restaurant POS/g,'Mini-mart & Retail POS'],[/ \(ຢູ່ຮ້ານ\)| · ຢູ່ຮ້ານ/g,''],[/ຕົ້ນທຶນອາຫານ/g,'ຕົ້ນທຶນສິນຄ້າ'],[/ສູດອາຫານ/g,'ການຕັດສະຕ໋ອກ'],[/ສັ່ງອາຫານ/g,'ຂາຍ'],[/ເມນູ(?!ຂ້າງ)/g,'ສິນຄ້າ'],[/ວັດຖຸດິບ/g,'ສິນຄ້າ'],[/ຈານ\/ຈອກ/g,'ລາຍການ'],[/ອາຫານ(?!ເສີມ)/g,'ສິນຄ້າ'],[/ຢືນຢັນອໍເດີ/g,'ຢືນຢັນບິນ'],[/ອໍເດີ/g,'ບິນ'],[/ເລືອກໂຕະ/g,'ເລືອກເຄົາເຕີ'],[/ໂຕະ/g,'ເຄົາເຕີ'],[/ & ສູດຕັດສະຕ໋ອກ/g,''],[/ & ສູດ(?!ຕັດ)/g,''],[/ແລະ ສູດຕັດສະຕ໋ອກ/g,'ແລະ ສະຕ໋ອກ'],[/ສູດຕັດສະຕ໋ອກ \(ການຕັດສະຕ໋ອກ\)/g,'ການຕັດສະຕ໋ອກ']];
 function bizTxt(root){var _bw=bizCur()==='medical'?BIZ_WORDS:bizCur()==='mart'?MART_WORDS:null;if(!_bw)return;try{var w=document.createTreeWalker(root||document.body,4,null),n,L=[];while((n=w.nextNode()))L.push(n);L.forEach(function(t){var v=t.nodeValue;if(!v||!/ໂຕະ|ອາຫານ|ຈອງ|ເມນູ|ວັດຖຸດິບ|ສະມາຊິກ|ຈານ|ລູກຄ້າ|ຄົວ|ເສີບ|ກົດບັດເພື່ອສັ່ງ|ອໍເດີ|ຢູ່ຮ້ານ|Restaurant|ສູດ|ຈອກ/.test(v))return;var p=t.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION)$/.test(p.nodeName)||(p.closest&&p.closest('[data-notr]')))return;var o=v;_bw.forEach(function(r){v=v.replace(r[0],r[1]);});if(v!==o)t.nodeValue=v;});if(_bw===MART_WORDS)(root||document.body).querySelectorAll('[title],[placeholder]').forEach(function(e){['title','placeholder'].forEach(function(k){var v=e.getAttribute(k);if(!v||!/ເມນູ|ວັດຖຸດິບ|ສູດ|ຈານ|ຄົວ|ໂຕະ|ອາຫານ|ເສີບ/.test(v))return;var o=v;_bw.forEach(function(r){v=v.replace(r[0],r[1]);});if(v!==o)e.setAttribute(k,v);});});}catch(e){}}
-(function(){var q=0;function sch(){if(q)return;q=requestAnimationFrame(function(){q=0;bizTxt();});}if(window.MutationObserver)new MutationObserver(sch).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('load',sch);sch();})();
+(function(){var q=0;function sch(){if(q)return;q=requestAnimationFrame(function(){q=0;bizTxt();try{mtTrans();}catch(e){}});}if(window.MutationObserver)new MutationObserver(sch).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('load',sch);sch();})();
 function bizCur(){return (state&&state.bizType&&BIZ[state.bizType])?state.bizType:'fnb';}
 function bizNav(){var N=BIZ[bizCur()].navNames||{};if(bizCur()==='medical'){var rxe=document.querySelector('#sidebar .navitem[data-v="rx"]');if(rxe&&rxe.parentNode){var f=rxe.parentNode.querySelector('.navitem');if(f&&f!==rxe)rxe.parentNode.insertBefore(rxe,f);}}document.querySelectorAll('#sidebar .navitem').forEach(function(el){var v=el.dataset.v;var _ic=el.querySelector('.ic');if(_ic&&v==='tables'){var want=bizCur()==='medical'?'tables_med':'tables';if(_ic.dataset.k!==want){_ic.innerHTML=navSvg(want);_ic.dataset.k=want;}}if(!el.__tn){for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i];if(n.nodeType===3&&n.nodeValue.trim()){el.__tn=n;el.__on=n.nodeValue.trim();break;}}}if(el.__tn)el.__tn.nodeValue=' '+(N[v]||el.__on)+' ';});}
 function bizLabels(){var b=BIZ[bizCur()];try{document.documentElement.setAttribute('data-nopay',(bizCur()==='medical'&&!can('pay'))?'1':'');}catch(e){}try{document.documentElement.setAttribute('data-biz',bizCur());}catch(e){}try{bizNav();}catch(e){}Object.keys(ROLE_LABELS_DEF).forEach(function(k){ROLE_LABELS[k]=(b.labels&&b.labels[k])||ROLE_LABELS_DEF[k];});}
@@ -10046,7 +10048,7 @@ function mpGenBc(){var b;do{state.bcSeq=(+state.bcSeq||0)+1;var d='20'+String(st
 function renderMprod(R){var cats=Object.keys(MSRC());
  R.innerHTML='<div class="mp"><div class="mp-h"><div><h2>ສິນຄ້າ</h2><small id="mpn"></small></div><input id="mpq" type="search" autocomplete="off" placeholder="ຄົ້ນຫາຊື່ / ລະຫັດ / ບາໂຄດ…" value="'+aesc(mpQ)+'" oninput="mpQ=this.value;mpList()" onkeydown="if(event.key===\'Enter\')mpEnter(this)">'+
   '<select id="mpc" onchange="mpCat=this.value;mpList()"><option value="">ທຸກໝວດ</option>'+cats.map(function(c){return '<option'+(mpCat===c?' selected':'')+'>'+cesc(c)+'</option>';}).join('')+'</select>'+
-  (can('menuEdit')?'<button class="btn-ok grad" onclick="mpEdit()">＋ ເພີ່ມສິນຄ້າ</button><button class="btn-sm" onclick="mpBundle()">＋ ສິນຄ້າຊຸດ</button><button class="btn-sm" onclick="mpXlOpen()">📥 Excel</button><button class="btn-sm" onclick="mpScanNew()">📷 ສະແກນເພີ່ມ</button>':'')+'</div><div id="mpl" class="mp-l"></div></div>';
+  (can('menuEdit')?'<button class="btn-ok grad" onclick="mpEdit()">＋ ເພີ່ມສິນຄ້າ</button><button class="btn-sm" onclick="mpBundle()">＋ ສິນຄ້າຊຸດ</button><button class="btn-sm" onclick="mpXlOpen()">📥 Excel</button><button class="btn-sm" onclick="lbOpen()">🏷 ພິມປ້າຍ</button><button class="btn-sm" onclick="mpScanNew()">📷 ສະແກນເພີ່ມ</button>':'')+'</div><div id="mpl" class="mp-l"></div></div>';
  mpList();}
 function mpEnter(el){var v=el.value.trim();if(!v)return;var m=menuByBc(v);if(m){mpEdit(m.u&&m.u.of?m.u.of:m.c);el.value='';mpQ='';return;}if(can('menuEdit')&&/^[0-9A-Za-z-]{6,}$/.test(v)&&!mpAll().some(function(x){return x.c.toLowerCase()===v.toLowerCase();})){mpEdit('',bcNorm(v));el.value='';mpQ='';}}
 function mpList(){var el=document.getElementById('mpl');if(!el)return;var q=(mpQ||'').toLowerCase().trim(),L=mpAll().filter(function(m){if(mpCat&&mpCatOf(m.c)!==mpCat)return false;if(!q)return true;return m.n.toLowerCase().indexOf(q)>=0||String(m.c).toLowerCase().indexOf(q)>=0||mpBcHit(m,q);});
@@ -10234,6 +10236,7 @@ function pyDocGo(){var d=window.__pd,rv=d.kind==='rv',lines=d.lines.filter(funct
  if(rv){var odd=grnPriceOdd(lines);if(odd.length&&!cfm('⚠ ລາຄາຮັບເຂົ້າຜິດປົກກະຕິ (ຕ່າງຈາກຕົ້ນທຶນເດີມ ≥ 3 ເທົ່າ):\n'+odd.map(function(o){return '• '+o.name+': ເດີມ '+KIP(Math.round(o.old*100)/100)+' → ໃໝ່ '+KIP(Math.round(o.nw*100)/100)+' ກີບ/'+o.unit;}).join('\n')+'\n\nຖ້າພິມຜິດ ຕົ້ນທຶນ ແລະ ກຳໄລຈະເພີ້ຍ. ຢືນຢັນບໍ?',function(){pyDocGo();}))return;
   var u=curUser(),g={id:procId('gr'),no:procNo('GRN',state.grns),ts:Date.now(),uid:SESSION.uid,byName:u?u.name:'',poId:'',poNo:'ຮັບດ່ວນ'+(d.inv?' · '+d.inv:''),vendor:d.vendor,loc:loc,note:d.inv?'ບິນ '+d.inv:'',status:'POSTED',quick:1,credit:d.credit?1:0,lines:lines.map(function(l){return {code:l.code,name:l.name,unit:l.unit,qty:l.qty,price:l.price};}),total:Math.round(lines.reduce(function(s,l){return s+l.qty*l.price;},0)),upd:Date.now()};
   lines.forEach(function(l){addStockAt(l.code,loc,l.qty,'ຮັບສິນຄ້າດ່ວນ',g.no+' · '+vendorName(d.vendor));var it=state.ingredients[l.code];if(it){if(l.lotExp){if(!Array.isArray(it.lots))it.lots=[];it.lots.push({id:'lt'+Date.now()+Math.random().toString(36).slice(2,5),no:g.no,exp:l.lotExp,qty:l.qty,ts:Date.now(),loc:loc});}if(l.price>0)costIn(l.code,l.qty,l.price,g.no);if(!it.vendor)it.vendor=d.vendor;}});
+  window.__lbLast=lines.map(function(l){var m=allMenu().find(function(x){return !x.u&&!x.bundle&&(x.bom||[]).length===1&&x.bom[0][0]===l.code&&+x.bom[0][1]===1;});return m?{c:m.c,q:l.qty}:null;}).filter(Boolean);
   state.grns.push(g);if(g.total>0){if(d.credit){var terms=pyTerms(d.vendor);pyAdd({vendor:d.vendor,type:'inv',amt:g.total,due:g.ts+terms*864e5,ref:g.no,grnId:g.id,note:d.inv?'ບິນ '+d.inv:''});}else state.expenses.push({id:Date.now()+Math.random(),ts:g.ts,cat:EXP_CATS[0],note:'ຮັບສິນຄ້າ '+g.no+' ('+vendorName(d.vendor)+')',amount:g.total,by:whoBy(),grnId:g.id});}
   logOrder('ຈັດຊື້',g.no+' ຮັບສິນຄ້າດ່ວນຈາກ '+vendorName(d.vendor)+' ('+lines.length+' ລາຍການ)'+(d.credit?' · ຊື້ເຊື່ອ':''),'');save();closeModal();render();toast('ຮັບເຂົ້າສະຕ໋ອກແລ້ວ · '+g.no+(d.credit?' · ບັນທຶກເປັນໜີ້':''));return;}
  var rs=(d.reason||'').trim();if(!rs){toast('ໃສ່ເຫດຜົນທີ່ຄືນ');return;}var bad=lines.find(function(l){return l.qty>stockAt(l.code,loc)+1e-9;});if(bad){toast(bad.name+': ສະຕ໋ອກມີ '+KIP(stockAt(bad.code,loc))+' — ຄືນເກີນບໍ່ໄດ້');return;}
@@ -10349,6 +10352,802 @@ function dbRemind(id){var d=debtorList().find(function(x){return String(x.id)===
 function dbLog(how){var d=window.__dbr;if(d)logOrder('ເຕືອນໜີ້ລູກຄ້າ',d.name+' · '+KIP(d.outstanding)+' ກີບ · '+how,'');save();}
 function dbCopy(){var t=document.getElementById('dbr_t').value;try{navigator.clipboard.writeText(t);}catch(e){var x=document.getElementById('dbr_t');x.select();try{document.execCommand('copy');}catch(e2){}}dbLog('ສຳເນົາ');toast('ສຳເນົາຂໍ້ຄວາມແລ້ວ');}
 function dbWa(){var d=window.__dbr,t=document.getElementById('dbr_t').value;window.open('https://wa.me/'+dbWaNum(d.phone)+'?text='+encodeURIComponent(t),'_blank');dbLog('WhatsApp');}
+/* ===== ST Mart ໄລຍະ 5: ພິມປ້າຍບາໂຄດ + ລາຄາ · ລາຄາເທົ່າບາດ/ໂດລາ ===== */
+var LB_SZ={r50x30:['ມ້ວນ 50×30 mm',50,30,0,0,0],r40x30:['ມ້ວນ 40×30 mm',40,30,0,0,0],r60x40:['ມ້ວນ 60×40 mm',60,40,0,0,0],a3x8:['A4 ສະຕິກເກີ 3×8 (63.5×33.9 mm)',63.5,33.9,3,7.2,12.9],a5x13:['A4 ສະຕິກເກີ 5×13 (38.1×21.2 mm)',38.1,21.2,5,9.7,10.7]};
+var lbSel={},lbQ='',lbSize='r50x30',lbOpt={price:1,name:1,shop:0,assign:1,cat:''};
+var _EL=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'],_EG=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'],_ER=['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'],_EP=['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+function lbChk(c){var n=c.length,s=0;for(var i=0;i<n-1;i++)s+=(n===13?(i%2?3:1):(i%2?1:3))*(+c[i]);return (10-s%10)%10===+c[n-1];}
+function lbBits(code){code=String(code||'').replace(/\s/g,'');if(!/^\d+$/.test(code))return null;if(code.length===12)code='0'+code;if((code.length!==13&&code.length!==8)||!lbChk(code))return null;var b='101',i;
+ if(code.length===13){var p=_EP[+code[0]];for(i=1;i<=6;i++)b+=(p[i-1]==='L'?_EL:_EG)[+code[i]];b+='01010';for(i=7;i<=12;i++)b+=_ER[+code[i]];}
+ else{for(i=0;i<4;i++)b+=_EL[+code[i]];b+='01010';for(i=4;i<8;i++)b+=_ER[+code[i]];}return b+'101';}
+function lbSvgBits(bits,q){var w=bits.length+q*2,r='',i=0;while(i<bits.length){if(bits[i]==='1'){var j=i;while(j<bits.length&&bits[j]==='1')j++;r+='<rect x="'+(q+i)+'" y="0" width="'+(j-i)+'" height="50"/>';i=j;}else i++;}
+ return '<svg class="bc" viewBox="0 0 '+w+' 50" preserveAspectRatio="none" shape-rendering="crispEdges" fill="#000">'+r+'</svg>';}
+function lbLoadJsb(cb){if(window.JsBarcode){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';s.onload=function(){cb();};s.onerror=function(){cb(true);};document.head.appendChild(s);}
+function lbSvg(code){var b=lbBits(code);if(b)return lbSvgBits(b,9);if(window.JsBarcode){try{var s=document.createElementNS('http://www.w3.org/2000/svg','svg');JsBarcode(s,String(code),{format:'CODE128',displayValue:false,margin:0,height:50,width:1});s.setAttribute('class','bc');s.setAttribute('preserveAspectRatio','none');return s.outerHTML;}catch(e){}}return '';}
+function lbRows(){return allMenu().map(function(m){var it=mpIngOf(m),own=!!(m.u||m.bundle),bc=own?bcList(m)[0]:(it?bcList(it)[0]:'');return {m:m,bc:bc||'',own:own,cat:mpCatOf(m.c)};});}
+function lbOpen(codes){if(!can('menuEdit')&&!can('stockAdjust')&&!isOwner()){toast('ບໍ່ມີສິດພິມປ້າຍ');return;}if(codes){lbSel={};codes.forEach(function(c){lbSel[c.c||c]=Math.max(1,Math.round(c.q||1));});}lbRender();}
+function lbRender(){var rows=lbRows(),q=lbQ.toLowerCase().trim(),cats=Object.keys(MSRC()),n=Object.keys(lbSel).length,tot=0;Object.keys(lbSel).forEach(function(k){tot+=lbSel[k];});
+ var list=rows.filter(function(r){if(lbOpt.cat==='__nobc'){if(r.bc)return false;}else if(lbOpt.cat&&r.cat!==lbOpt.cat)return false;return !q||r.m.n.toLowerCase().indexOf(q)>=0||String(r.m.c).toLowerCase().indexOf(q)>=0||(r.bc||'').indexOf(q)>=0;}).slice(0,150);
+ openModal('<h2>🏷 ພິມປ້າຍບາໂຄດ / ລາຄາ</h2><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><input id="lb_q" type="search" placeholder="ຄົ້ນຫາ…" value="'+aesc(lbQ)+'" oninput="lbQ=this.value;lbRenderKeep()" style="flex:2;min-width:120px"><select onchange="lbOpt.cat=this.value;lbRender()" style="flex:1;min-width:110px"><option value="">ທຸກໝວດ</option><option value="__nobc"'+(lbOpt.cat==='__nobc'?' selected':'')+'>ຍັງບໍ່ມີບາໂຄດ</option>'+cats.map(function(c){return '<option'+(lbOpt.cat===c?' selected':'')+'>'+cesc(c)+'</option>';}).join('')+'</select></div>'+
+  '<div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap"><button type="button" class="btn-sm" onclick="lbAll(1)">ເລືອກທັງໝົດທີ່ເຫັນ</button><button type="button" class="btn-sm" onclick="lbAll(0)">ລ້າງ</button>'+(window.__lbLast&&window.__lbLast.length?'<button type="button" class="btn-sm" onclick="lbOpen(window.__lbLast)">ຮັບເຂົ້າຫຼ້າສຸດ ('+window.__lbLast.length+')</button>':'')+'</div>'+
+  '<div style="max-height:36vh;overflow:auto;border:1px solid var(--line);border-radius:12px"><table class="tbl"><tbody>'+(list.map(function(r){var on=lbSel[r.m.c]!=null;return '<tr><td style="width:30px"><input type="checkbox" style="width:auto" data-c="'+aesc(r.m.c)+'"'+(on?' checked':'')+' onchange="lbTick(this)"></td><td><b>'+cesc(r.m.n)+'</b><br><small style="color:var(--muted)">'+(r.bc?'▮ '+cesc(r.bc):'<span style="color:#b45309">ບໍ່ມີບາໂຄດ</span>')+' · '+KIP(r.m.p)+'</small></td><td style="width:70px">'+(on?'<input type="number" min="1" value="'+lbSel[r.m.c]+'" data-c="'+aesc(r.m.c)+'" style="width:62px;padding:5px" onchange="lbSel[this.dataset.c]=Math.max(1,Math.round(+this.value||1));lbCnt()">':'')+'</td></tr>';}).join('')||'<tr><td class="empty" style="padding:20px;text-align:center">ບໍ່ພົບສິນຄ້າ</td></tr>')+'</tbody></table></div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><div><label>ຂະໜາດປ້າຍ</label><select onchange="lbSize=this.value">'+Object.keys(LB_SZ).map(function(k){return '<option value="'+k+'"'+(lbSize===k?' selected':'')+'>'+LB_SZ[k][0]+'</option>';}).join('')+'</select></div><div style="display:flex;flex-direction:column;gap:2px;justify-content:flex-end;font-size:13px"><label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" style="width:auto"'+(lbOpt.price?' checked':'')+' onchange="lbOpt.price=this.checked?1:0"> ສະແດງລາຄາ</label><label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" style="width:auto"'+(lbOpt.name?' checked':'')+' onchange="lbOpt.name=this.checked?1:0"> ສະແດງຊື່</label><label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" style="width:auto"'+(lbOpt.assign?' checked':'')+' onchange="lbOpt.assign=this.checked?1:0"> ສ້າງບາໂຄດໃຫ້ສິນຄ້າທີ່ບໍ່ມີ</label></div></div>'+
+  '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="lbPrint()">ພິມ <span id="lb_n">'+tot+'</span> ປ້າຍ ('+n+' ສິນຄ້າ)</button></div>');}
+function lbRenderKeep(){var q=document.getElementById('lb_q'),pos=q?q.selectionStart:0;lbRender();var e=document.getElementById('lb_q');if(e){e.focus();try{e.setSelectionRange(pos,pos);}catch(x){}}}
+function lbCnt(){var t=0,n=0;Object.keys(lbSel).forEach(function(k){t+=lbSel[k];n++;});var e=document.getElementById('lb_n');if(e)e.textContent=t;}
+function lbTick(el){var c=el.dataset.c;if(el.checked)lbSel[c]=lbSel[c]||1;else delete lbSel[c];lbRenderKeep();}
+function lbAll(on){var q=lbQ.toLowerCase().trim();lbRows().forEach(function(r){if(lbOpt.cat==='__nobc'){if(r.bc)return;}else if(lbOpt.cat&&r.cat!==lbOpt.cat)return;if(q&&r.m.n.toLowerCase().indexOf(q)<0&&String(r.m.c).toLowerCase().indexOf(q)<0)return;if(on)lbSel[r.m.c]=lbSel[r.m.c]||1;else delete lbSel[r.m.c];});lbRender();}
+function lbLabelHTML(r,sz){var m=r.m,bc=r.bc,h='<div class="lb">';if(lbOpt.name)h+='<div class="n">'+cesc(m.n)+'</div>';var svg=bc?lbSvg(bc):'';h+=svg?svg+'<div class="c">'+cesc(bc)+'</div>':(bc?'<div class="c">'+cesc(bc)+'</div>':'');if(lbOpt.price)h+='<div class="p">'+KIP(m.p)+' ກີບ'+(m.wt?' / '+cesc(m.wu||'kg'):'')+'</div>';return h+'</div>';}
+function lbPrint(){var keys=Object.keys(lbSel);if(!keys.length){toast('ເລືອກສິນຄ້າກ່ອນ');return;}var sz=LB_SZ[lbSize],R=lbRows(),by={};R.forEach(function(r){by[r.m.c]=r;});var made=0;
+ if(lbOpt.assign){keys.forEach(function(c){var r=by[c];if(!r||r.bc)return;var nb=mpGenBc();if(r.own)r.m.bc=nb;else{var it=mpIngOf(r.m);if(!it)return;it.bc=nb;}r.bc=nb;made++;});if(made){logOrder('ສ້າງບາໂຄດພາຍໃນ',made+' ສິນຄ້າ (ເພື່ອພິມປ້າຍ)','');save();}}
+ var need=keys.some(function(c){var r=by[c];return r&&r.bc&&!lbBits(r.bc);});
+ var go=function(err){var h='',cnt=0;keys.forEach(function(c){var r=by[c];if(!r)return;var one=lbLabelHTML(r,sz);for(var i=0;i<lbSel[c];i++){h+=one;cnt++;}});
+  var W=sz[1],H=sz[2],cols=sz[3],sheet=cols>0,k=Math.max(.8,Math.min(1.25,H/30));
+  var css='*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans Lao","Phetsarath OT",Arial,sans-serif;color:#000}.lb{width:'+W+'mm;height:'+H+'mm;padding:1.2mm 1.5mm;display:flex;flex-direction:column;justify-content:center;align-items:stretch;overflow:hidden;'+(sheet?'':'page-break-after:always;')+'text-align:center}'+
+   '.lb .n{font-size:'+(7.5*k).toFixed(1)+'pt;font-weight:700;line-height:1.15;max-height:2.3em;overflow:hidden}.lb .bc{width:100%;height:'+(H*0.36).toFixed(1)+'mm;margin:.6mm 0}.lb .c{font-size:'+(6.5*k).toFixed(1)+'pt;letter-spacing:.3mm;line-height:1}.lb .p{font-size:'+(11*k).toFixed(1)+'pt;font-weight:800;margin-top:.5mm}'+
+   (sheet?'@page{size:A4;margin:'+sz[5]+'mm '+sz[4]+'mm}.sheet{display:grid;grid-template-columns:repeat('+cols+','+W+'mm);grid-auto-rows:'+H+'mm}':'@page{size:'+W+'mm '+H+'mm;margin:0}');
+  var w=window.open('','_blank');if(!w){toast('ເບຣາວເຊີບລັອກໜ້າຕ່າງພິມ — ອະນຸຍາດ pop-up');return;}
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>ປ້າຍ</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700;800&display=swap" rel="stylesheet"><style>'+css+'</style></head><body>'+(sheet?'<div class="sheet">'+h+'</div>':h)+'<script>window.onload=function(){setTimeout(function(){window.print();},500)}<\/script></body></html>');w.document.close();
+  logOrder('ພິມປ້າຍບາໂຄດ',cnt+' ປ້າຍ · '+keys.length+' ສິນຄ້າ','');save();toast('ສົ່ງ '+cnt+' ປ້າຍ ໄປພິມ'+(made?' · ສ້າງບາໂຄດໃໝ່ '+made+' ສິນຄ້າ':''));};
+ if(need)lbLoadJsb(function(err){if(err)toast('ບາໂຄດບາງອັນບໍ່ແມ່ນ EAN — ໂຫຼດຕົວສ້າງ Code128 ບໍ່ໄດ້ (ກວດອິນເຕີເນັດ) ຈະພິມພຽງເລກ');go(err);});else go();}
+/* ---- ລາຄາເປັນບາດ / ໂດລາ ໃຕ້ຍອດລວມ (ສຳລັບຮ້ານໃກ້ຊາຍແດນ) ---- */
+function mpFxHTML(total){if(!(total>0))return '';var t=+state.rateTHB>0?(total/state.rateTHB):0,u=+state.rateUSD>0?(total/state.rateUSD):0;if(!t&&!u)return '';return '<div class="mp-fx" title="ອັດຕາແລກປ່ຽນ ຕັ້ງທີ່ ຕັ້ງຄ່າ › ການຄິດເງິນ">≈ '+(t?'฿ '+t.toFixed(2):'')+(t&&u?' · ':'')+(u?'$ '+u.toFixed(2):'')+'</div>';}
+/* ===== ST Mart: ສອງພາສາ ລາວ / English — ແປຂໍ້ຄວາມທີ່ສະແດງໃນໜ້າຈໍ (ຕໍ່ເຄື່ອງ) · ບໍ່ແຕະຂໍ້ມູນຂອງຮ້ານ (ຊື່ສິນຄ້າ ຊື່ລູກຄ້າ) ===== */
+var MT_RAW=`ຂາຍ (POS) => Sell (POS)
+ສະຕ໋ອກສິນຄ້າ => Stock
+ໜີ້ຜູ້ສະໜອງ & ຮັບສິນຄ້າ => Supplier payables & receiving
+ໜີ້ຜູ້ສະໜອງ => Supplier debt
+ປະຫວັດການຂາຍ => Sales history
+ສາງ & ຈັດຊື້ => Stock & purchasing
+ກະ & ເງິນ => Shifts & cash
+ຂາຍໜ້າຮ້ານ => Front of shop
+ຈັດຊື້ (PR/PO) => Purchasing (PR/PO)
+ເບີກເຄື່ອງ (ສາງ) => Stock requisition
+ເບີກເຄື່ອງ => Requisition
+ນັບສາງ => Stock count
+ແຈ້ງເສຍ => Waste
+ແຈ້ງເສຍຫາຍ => Report waste
+ໃບແຈ້ງເສຍ => Waste notes
+ພາບລວມ => Overview
+ລາຍງານ => Reports
+ສະຫຼຸບບັນຊີປະຈຳວັນ (ເອກະສານ) => Daily summary (document)
+ສະຫຼຸບບັນຊີປະຈຳວັນ => Daily summary
+ການຕັ້ງຄ່າ => Settings
+ຕິດຕາມກວດສອບ => Audit
+ລະບົບ => System
+ປະຫວັດ => History
+ສະມາຊິກ => Members
+ໜີ້ຄ້າງ => Receivables
+ລາຍຈ່າຍ => Expenses
+ກະ / ລີ້ນຊັກເງິນ => Shift / cash drawer
+ແຈ້ງເຕືອນສະຕ໋ອກ => Stock alerts
+ແຈ້ງເຕືອນ: ສະຕ໋ອກຕ່ຳ => Alert: low stock
+ກົດກະດິ່ງ => tap the bell
+ສະຖານະເນັດ => Network status
+ອອນລາຍ => Online
+ອອບລາຍ — ຂາຍໄດ້ ຈະ sync ເອງ => Offline — you can keep selling, it will sync automatically
+ປ່ຽນທີມ ມືດ/ສະຫວ່າງ => Switch dark / light theme
+ລ້າງຂໍ້ມູນທົດລອງ ແລ້ວເລີ່ມໃໝ່ => Clear demo data and restart
+↺ ເລີ່ມໃໝ່ => ↺ Restart
+ເບິ່ງແບບ: => View as:
+Admin (ເຈົ້າຂອງ) => Admin (Owner)
+ແຄັດເຊຍ / ພະນັກງານຂາຍ => Cashier / sales staff
+ຜູ້ຈັດການ => Manager
+ນາຍສາງ => Storekeeper
+ເຈົ້າຂອງຮ້ານ => Owner
+ຜູ້ຈັດການຮ້ານ => Store manager
+ແຄັດເຊຍ => Cashier
+ສະບາຍດີຕອນເຊົ້າ => Good morning
+ສະບາຍດີຕອນບ່າຍ => Good afternoon
+ສະບາຍດີຕອນແລງ => Good evening
+ສະບາຍດີ => Hello
+ວັນອາທິດ => Sunday
+ວັນຈັນ => Monday
+ວັນອັງຄານ => Tuesday
+ວັນພຸດ => Wednesday
+ວັນພະຫັດ => Thursday
+ວັນສຸກ => Friday
+ວັນເສົາ => Saturday
+ກຳລັງໂຫຼດ... => Loading...
+ເພີ່ມເຕີມ => More
+ຄົ້ນຫາໜ້າ / ຟັງຊັນ… => Search pages / functions…
+ເຂົ້າລະບົບ => Log in
+ອອກຈາກລະບົບ => Log out
+ເລືອກຜູ້ໃຊ້ => Select user
+ຄົ້ນຫາ / ສະແກນ barcode... => Search / scan barcode...
+ຄົ້ນຫາຊື່ / ລະຫັດ / ບາໂຄດ… => Search name / code / barcode…
+ຄົ້ນຫາ ຊື່ / ລະຫັດ / barcode => Search name / code / barcode
+ຄົ້ນຫາ ເລກທີ / ຊື່ / ຜູ້ຂາຍ => Search no. / name / supplier
+ຄົ້ນຫາ ເລກທີ / ຊື່ / ພະແນກ => Search no. / name / dept
+ຄົ້ນຫາ ເລກທີ / ຊື່ / ລາຍການ => Search no. / name / item
+ຄົ້ນຫາ ຊື່ / ເບີ / ລາຍລະອຽດ => Search name / phone / note
+ຄົ້ນຫາ ຊື່/ເບີໂທ => Search name/phone
+=ຄົ້ນຫາ => Search
+ຄົ້ນຫາ… => Search…
+ສະແກນເພື່ອຄົ້ນຫາ => Scan to search
+＋ ຂາຍລາຄາເປີດ (ສິນຄ້າ/ບໍລິການທົ່ວໄປ) => ＋ Open-price sale (general item / service)
+＋ ຂາຍລາຄາເປີດ => ＋ Open-price item
+ຊື່ລາຍການ => Item name
+ເຊັ່ນ ສິນຄ້າທົ່ວໄປ / ຄ່າບໍລິການ => e.g. General item / service fee
+ລາຄາ (ກີບ) => Price (LAK)
+ລາຍການນີ້ບໍ່ຕັດສະຕ໋ອກ (ບໍ່ໄດ້ຜູກສະຕ໋ອກ) — ເໝາະສຳລັບຂາຍດ່ວນ ຫຼື ຄ່າບໍລິການ => This item does not deduct stock — for quick sales or service fees
+ລາຍການນີ້ບໍ່ຕັດສະຕ໋ອກ => This item does not deduct stock
+ເໝາະສຳລັບຂາຍດ່ວນ ຫຼື ຄ່າບໍລິການ => for quick sales or service fees
+=ເພີ່ມ => Add
+ຍົກເລີກ => Cancel
+ບັນທຶກ => Save
+=ລົບ => Delete
+ແກ້ໄຂ => Edit
+=ປິດ => Close
+=ລ້າງ => Clear
+=ພິມ => Print
+=ໝາຍເຫດ => Note
+ສ່ວນຫຼຸດ => Discount
+ສ່ວນຫຼຸດ (0%) => Discount (0%)
+[ປ່ຽນ] => [change]
+[ເບິ່ງ/ເພີ່ມ] => [view/add]
+ລົບລາຍການ => Remove item
+ຍອດລວມ: => Total:
+ຍອດລວມ => Total
+ສຸດທິ: => Net:
+ຍອດໃໝ່: => New total:
+ຍອດໃໝ່ => New total
+ເຊັກບິນ => Check bill
+ຮັບເງິນ => Receive payment
+ບັນທຶກລາຍການ => Save items
+ຢືນຢັນບິນ => Confirm bill
+ຢືນຢັນ => Confirm
+ຂາຍດີ => Best seller
+ໝົດ? => Out?
+ໝົດ/ງົດຂາຍ => Out / stop selling
+=ໝົດ => Out
+ຢູ່ຮ້ານ => Dine-in
+ກັບບ້ານ => Take-away
++ ຢູ່ຮ້ານ => + Dine-in
+ໜ້າຮ້ານ => Front shop
+ເຄົາເຕີ => Counter
+ເຄົາເຕີ ໜ້າຮ້ານ => Counter · Front shop
+ລາຍການໃນເຄົາເຕີ => Items at counter
+ລວມເຄົາເຕີ => Merge counters
+ຍ້າຍເຄົາເຕີ => Move counter
+ຍ້າຍລາຍການ => Move items
+ແບ່ງຈ່າຍ => Split payment
+ລາຄາສົ່ງ => Wholesale price
+ລາຄາສົ່ງ (ກີບ) => Wholesale price (LAK)
+🏷 ລາຄາສົ່ງ => 🏷 Wholesale
+· ເປີດ => · ON
+⏸ ພັກບິນ => ⏸ Hold bill
+ພັກບິນ => Hold bill
+▶ ບິນທີ່ພັກ => ▶ Held bills
+ບິນທີ່ພັກ => Held bills
+ເອີ້ນຄືນ => Resume
++ ເລືອກລູກຄ້າ => + Select customer
+ຍັງບໍ່ມີລາຍການ => No items yet
+ກົດເລືອກສິນຄ້າ => Tap a product to add
+ຍັງບໍ່ມີ => None yet
+=ເບິ່ງ => View
+=ສະແດງ => Showing
+=ຈາກ => of
+ຮັບມາ => Received
+ເງິນທອນ => Change
+ພໍດີ => Exact
+ຕ້ອງຮັບ => Amount due
+ຈ່າຍພໍດີ => Pay exact
+ຍັງຂາດ => Short
+ຈ່າຍ · ທອນ => Pay · change
+=ຈ່າຍ => Pay
+ຮັບມາຈັກກີບ (ວ່າງ = ພໍດີ) => Amount received (LAK) (blank = exact)
+ປະເພດການຈ່າຍ => Payment type
+=ເງິນສົດ => Cash
+ໂອນ BCEL => BCEL transfer
+ໂອນ LDB(VISA) => LDB (VISA) transfer
+ໂອນ LDB => LDB transfer
+=ໂອນ => Transfer
+=ຕິດໜີ້ => On credit
+ກະເປົາລູກຄ້າ => Customer wallet
+⇄ ຈ່າຍ ສົດ + ໂອນ => ⇄ Pay cash + transfer
+‹ ກັບໄປແກ້ໄຂບິນ => ‹ Back to edit bill
+ບໍ່ນັບເປັນຍອດຂາຍ => Not counted as sales
+ທິບພະນັກງານ => Staff tip
+ທິບລວມ => Total tips
+ສ່ວນທີ່ຂາດ => Shortfall
+=ກີບ => LAK
+=ບາດ => THB
+=ໂດລາ => USD
+ອັດຕາແລກປ່ຽນ ຕັ້ງທີ່ ຕັ້ງຄ່າ › ການຄິດເງິນ => Exchange rate: Settings › Payment
+ສະແດງລາຄາ => Show price
+ສະແດງຊື່ => Show name
+ສິນຄ້າ & ສະຕ໋ອກ => Products & stock
+ສິນຄ້າທັງໝົດ => All products
+ເພີ່ມສິນຄ້າ => Add product
+＋ ເພີ່ມສິນຄ້າ => ＋ Add product
+＋ ເພີ່ມສິນຄ້າ / ສິນຄ້າ => ＋ Add product
+ແກ້ໄຂສິນຄ້າ => Edit product
+＋ ສິນຄ້າຊຸດ => ＋ Bundle
+ສ້າງສິນຄ້າຊຸດ => Create bundle
+ແກ້ໄຂສິນຄ້າຊຸດ => Edit bundle
+ສິນຄ້າຊຸດ => Bundle
+ຊື່ຊຸດ => Bundle name
+ລາຄາຂາຍຊຸດ (ກີບ) => Bundle price (LAK)
+ບາໂຄດຊຸດ => Bundle barcode
+ສິ່ງທີ່ຢູ່ໃນຊຸດ => What's in the bundle
++ ເພີ່ມສິນຄ້າໃນຊຸດ => + Add product to bundle
+ພິມຊື່ / ລະຫັດ ສິນຄ້າ => Type product name / code
+ເຊັ່ນ ຊຸດນ້ຳ + ຂະໜົມ => e.g. Drink + snack set
+📷 ສະແກນເພີ່ມ => 📷 Scan to add
+ສະແກນເພີ່ມ => Scan to add
+🏷 ພິມປ້າຍ => 🏷 Print labels
+ພິມປ້າຍ => Print labels
+ພິມປ້າຍບາໂຄດ / ລາຄາ => Print barcode / price labels
+📥 Excel => 📥 Excel
+ທຸກໝວດ => All categories
+=ໝວດ => Category
+=ທັງໝົດ => All
+ຊື່ສິນຄ້າ => Product name
+ເຊັ່ນ ນ້ຳອັດລົມ => e.g. Soft drink
+ເຊັ່ນ ນ້ຳດື່ມ 600ml => e.g. Water 600ml
+ພິມໃໝ່ ຫຼື ເລືອກ => Type new or choose
+ລາຄາຂາຍ (ກີບ) => Selling price (LAK)
+ລາຄາຂາຍ => Selling price
+ຕົ້ນທຶນ / ຫົວໜ່ວຍ => Cost / unit
+=ຕົ້ນທຶນ => Cost
+ຫົວໜ່ວຍ (ຊິ້ນ) => Unit (piece)
+=ຫົວໜ່ວຍ => Unit
+ສະຕ໋ອກເລີ່ມຕົ້ນ => Opening stock
+ສະຕ໋ອກດຽວນີ້ (ແກ້ທີ່ໜ້າສະຕ໋ອກ) => Current stock (change on the Stock page)
+ເຕືອນເມື່ອເຫຼືອ ≤ => Alert when ≤
+ລະຫັດສິນຄ້າ => Product code
+ວ່າງ = ໃຫ້ລະບົບຕັ້ງ => blank = auto
+=ບາໂຄດ => Barcode
+(ບໍ່ມີກໍໄດ້ — ຄົ້ນຊື່ ຫຼື ກົດປຸ່ມຮູບໄດ້) => (optional — search by name or tap the picture)
+ສະແກນ / ພິມ => Scan / type
+ສ້າງເອງ => Generate
+ກຸ່ມສິນຄ້າຫຼາຍແບບ => Variant group
+ແບບ / ຂະໜາດ => Variant / size
+ເຊັ່ນ ສີແດງ, 1.5L => e.g. Red, 1.5L
+ບໍ່ບັງຄັບ => optional
+ຂາຍແບບຊັ່ງນ້ຳໜັກ => Sell by weight
+ບໍ່ — ຂາຍເປັນຊິ້ນ => No — sell by piece
+ຊັ່ງເປັນ kg (ລາຄາ = ກີບ/kg) => Weigh in kg (price = LAK/kg)
+ຊັ່ງເປັນ g (ລາຄາ = ກີບ/g) => Weigh in g (price = LAK/g)
+=ຜູ້ສະໜອງ => Supplier
+— ບໍ່ລະບຸ — => — none —
+ໃຊ້ໃນ "ແນະນຳສັ່ງຊື້" => used for "Reorder suggestions"
+ຂາຍເປັນຫົວໜ່ວຍອື່ນ => Sell in other units
+(ແພັກ / ໂຫຼ / ລັງ — ຕັດສະຕ໋ອກເປັນຊິ້ນ) => (pack / case / carton — stock is deducted in pieces)
++ ເພີ່ມຫົວໜ່ວຍຂາຍ => + Add selling unit
+ຄົ້ນຫາ… => Search…
+ເລືອກທັງໝົດທີ່ເຫັນ => Select all shown
+ຍັງບໍ່ມີບາໂຄດ => No barcode yet
+ບໍ່ມີບາໂຄດ => No barcode
+ຂະໜາດປ້າຍ => Label size
+ສ້າງບາໂຄດໃຫ້ສິນຄ້າທີ່ບໍ່ມີ => Generate barcodes for products without one
+=ມ້ວນ => Roll
+ປ້າຍ => labels
+ແຜ່ນສະຕິກເກີ => sticker sheet
+=ເຄື່ອງດື່ມ => Drinks
+=ສິນຄ້າແຫ້ງ => Dry goods
+=ອາຫານແຫ້ງ => Dry food
+=ຂະໜົມ => Snacks
+=ເຄື່ອງໃຊ້ໃນບ້ານ => Household
+=ຕຸກ => bottle
+=ກະປ໋ອງ => can
+=ຊອງ => sachet
+=ຖົງ => bag
+=ກ່ອງ => box
+=ຂວດ => bottle
+=ຄູ່ => pair
+=ອັນ => pc
+=ກ້ອນ => bar
+=ແທ່ງ => bar
+=ຫຼອດ => tube
+=ມ້ວນ => roll
+=ຊິ້ນ => pc
+=ແພັກ => pack
+=ໂຫຼ => case
+=ລັງ => carton
+ເຄົາເຕີ 1 => Counter 1
+ເຄົາເຕີ 2 => Counter 2
+ແຖວຕໍ່ໜ້າ => Front row
+ສະຕ໋ອກ => Stock
+ລາຍການສະຕ໋ອກ => Stock items
+ຄົງເຫຼືອ => On hand
+=ເຫຼືອ => Left
+=ກຽມສັ່ງ => Order soon
+=ປົກກະຕິ => Normal
+ໃກ້ໝົດ (≤ ຈຸດເຕືອນ) => Low (≤ alert level)
+ໃກ້ໝົດ => Low / near expiry
+ໝົດສະຕ໋ອກ => Out of stock
+ກົດເພື່ອໃສ່/ປ່ຽນຮູບ => Tap to add/change picture
+ຫຼັງ 3 ມື້ => in 3 days
+ພາຍໃນ 1–3 ມື້ => within 1–3 days
+ຈະໝົດກ່ອນເຄື່ອງມາຮອດ => will run out before delivery
+ແຜນຈັດຊື້ => Purchase plan
+ຕ້ອງສັ່ງຊື້ => Need to order
+ຈັດຊື້ດ່ວນ => Urgent purchase
+ວາງແຜນລ່ວງໜ້າ => Plan ahead
+ຄຳຂໍປັບສະຕ໋ອກ => Stock adjustment requests
+ປະຫວັດເຄື່ອນໄຫວ => Movement history
+ຕັ້ງ Min/Max ທັງໝົດ => Set all Min/Max
+ວິເຄາະ & ອາຍຸການເກັບ => Analysis & shelf life
+ກວດສູດ (ຫາຂໍ້ຜິດພາດ) => Check data (find errors)
+ຕັ້ງສະຕ໋ອກໃໝ່ທັງໝົດ… => Reset all stock…
+Export ສະຕ໋ອກ (Excel) => Export stock (Excel)
+Import ສະຕ໋ອກ (Excel) => Import stock (Excel)
+Export / Import ຂໍ້ມູນ => Export / Import data
+⋯ ເພີ່ມເຕີມ => ⋯ More
++ ຮັບເຂົ້າ => + Receive
+ສະແກນຮັບເຂົ້າ => Scan to receive
+ສະແກນນັບສະຕ໋ອກ => Scan to count stock
+ເບິ່ງສູດສິນຄ້າ => View product details
+ຫົວໜ່ວຍບັນຈຸ — ກົດ ແກ້ໄຂ › ປ່ຽນຫົວໜ່ວຍ => Package unit — tap Edit › change unit
+ຈັດການ => Manage
+ສະແກນນັບ => Scan count
+ຈັດຊື້ສິນຄ້າ => Purchasing
+ລໍອະນຸມັດ PR => PRs awaiting approval
+ອະນຸມັດແລ້ວ ລໍອອກ PO => Approved — awaiting PO
+PO ລໍອະນຸມັດ => POs awaiting approval
+ລໍຮັບເຄື່ອງ (ສາຂາຫຼັກ) => Awaiting delivery (Main)
+ຮັບເຄື່ອງເດືອນນີ້ (ກີບ) => Received this month (LAK)
+ຕິດຕາມສະຖານະ => Track status
+ໃບຂໍຊື້ (PR) => Purchase requests (PR)
+ໃບສັ່ງຊື້ (PO) => Purchase orders (PO)
+ຮັບເຄື່ອງ (GRN) => Goods receipt (GRN)
+=ຜູ້ຂາຍ => Vendors
+Workflow ອະນຸມັດ => Approval workflow
+➕ ສ້າງໃບຂໍຊື້ (PR) => ➕ Create purchase request (PR)
+ສ້າງໃບຂໍຊື້ (PR) => Create purchase request (PR)
+⚡ PR ຈາກລາຍການໃກ້ໝົດ => ⚡ PR from low-stock items
+PR ຈາກລາຍການໃກ້ໝົດ => PR from low-stock items
+ສະຕ໋ອກເລີ່ມຕົ້ນ (ຜ່ານຈັດຊື້) => Opening stock (via purchasing)
+ຜູ້ຂໍ / ບ່ອນ => Requester / location
+ຂັ້ນຕອນ => Steps
+ຂັ້ນຕອນ & ລໍຖ້າໃຜ => Steps & waiting for
+ຍັງບໍ່ມີໃບຂໍຊື້ — ກົດ "ສ້າງໃບຂໍຊື້ (PR)" => No purchase requests yet — tap "Create purchase request (PR)"
+PR → ອະນຸມັດຕາມ Workflow → PO → ອະນຸມັດ PO → ຮັບເຄື່ອງເຂົ້າສະຕ໋ອກ => PR → approval workflow → PO → PO approval → goods received into stock
+ໃບເບີກ => Requisitions
+ໃບຂອງຂ້ອຍ => My notes
+ລໍທ່ານ => Waiting for you
+ລໍທ່ານດຳເນີນການ => Waiting for your action
+ລໍອະນຸມັດ => Awaiting approval
+ລໍນາຍສາງຈ່າຍ => Awaiting storekeeper
+ຈ່າຍແລ້ວ ເດືອນນີ້ => Issued this month
+ຜູ້ເບີກ / ພະແນກ => Requester / dept
+ຈາກ → ໄປ => From → To
+ມູນຄ່າ (ກີບ) => Value (LAK)
+ຂັ້ນຕອນອະນຸມັດ => Approval steps
++ ສ້າງໃບເບີກ => + New requisition
+ຍັງບໍ່ມີໃບເບີກ — ກົດ "ສ້າງໃບເບີກ" => No requisitions yet — tap "New requisition"
+ຂໍເບີກ → ອະນຸມັດ → ນາຍສາງຈ່າຍ → ຕັດສະຕ໋ອກ ອັດຕະໂນມັດ => Request → approve → storekeeper issues → stock deducted automatically
+ຮອບນັບ => Count rounds
+ກຳລັງນັບ => Counting
+ຄວາມຄືບໜ້າ => Progress
+ປັບແລ້ວ ເດືອນນີ້ => Adjusted this month
+ສ່ວນຕ່າງ (ກີບ) => Difference (LAK)
+ບ່ອນເກັບ / ໝວດ => Location / category
++ ເລີ່ມຮອບນັບ => + Start count
+ຍັງບໍ່ມີຮອບນັບ — ກົດ "ເລີ່ມຮອບນັບ" => No counts yet — tap "Start count"
+ເລີ່ມຮອບນັບ → ໃສ່ຈຳນວນທີ່ນັບໄດ້ → ສົ່ງກວດ → ອະນຸມັດ ແລ້ວປັບສະຕ໋ອກ => Start count → enter counted qty → submit → approve to adjust stock
+ເສຍເດືອນນີ້ => Waste this month
+ຜູ້ແຈ້ງ => Reported by
+ບ່ອນເກັບ => Location
+ບ່ອນເກັບ: => Location:
+ລາຍການ / ສາເຫດ => Item / reason
+ລໍທ່ານອະນຸມັດ => Awaiting your approval
+＋ ແຈ້ງເສຍ => ＋ Report waste
++ ແຈ້ງເສຍ => + Report waste
+ຍັງບໍ່ມີໃບແຈ້ງເສຍ — ກົດ "+ ແຈ້ງເສຍ" => No waste notes yet — tap "+ Report waste"
+ແຈ້ງ → ອະນຸມັດ → ຕັດສະຕ໋ອກອັດຕະໂນມັດ => Report → approve → stock deducted automatically
++ ເພີ່ມລາຍຈ່າຍ => + Add expense
+ບໍ່ມີລາຍຈ່າຍໃນວັນທີນີ້ => No expenses on this date
+ຈຳນວນ (ກີບ) => Amount (LAK)
+ໂດຍ => By
+=ເວລາ => Time
+ວັນທີ: => Date:
+ລາຍລະອຽດ => Details
+ຄ່າເຊົ່າ => Rent
+ໄຟຟ້າ-ນ້ຳ-ເນັດ => Utilities
+ອຸປະກອນ/ສ້ອມແປງ => Equipment / repairs
+ການຕະຫຼາດ => Marketing
+ເງິນເດືອນພະນັກງານ => Staff salary
+ວັດຖຸດິບ/ສິນຄ້າ => Goods
+ສິນຄ້າ/ສິນຄ້າ => Goods
+=ອື່ນໆ => Other
+ເປີດກະ => Open shift
+ເປີດກະໃໝ່ ເພື່ອເລີ່ມຂາຍ => Open a new shift to start selling
+ຍັງບໍ່ໄດ້ເປີດກະ => No shift opened yet
+ປະຫວັດກະ => Shift history
+ລູກໜີ້ => Debtors
+ບໍ່ມີໜີ້ຄ້າງ => No outstanding debts
+ໜີ້ຄ້າງ (ຕິດໜີ້) => Receivables (credit)
+ຕິດໜີ້ໄດ້ທີ່ໜ້າຮັບເງິນ → ເລືອກ "ຕິດໜີ້" => You can sell on credit at the payment screen → choose "On credit"
+ຕັ້ງຄ່າວົງເງິນ => Credit limit settings
+ພິມລາຍງານ => Print report
+ລຽງ: => Sort:
+ຄ້າງດົນສຸດກ່ອນ => Oldest first
+ຍອດຫຼາຍສຸດກ່ອນ => Largest first
+ຄ້າງດົນສຸດ => Oldest debt
+ເກີນ 30 ມື້ => Over 30 days
+ເກີນ 90+ ມື້ => Over 90+ days
+ເກີນ 1–30 ມື້ => Over 1–30 days
+ເກີນ 31–60 ມື້ => Over 31–60 days
+ເກີນ 61–90 ມື້ => Over 61–90 days
+ຍັງບໍ່ຄົບກຳນົດ => Not yet due
+ເກີນກຳນົດ => Overdue
+ຄ້າງມາ => Overdue for
+ຍອດຄ້າງ => Balance
+ໜີ້ຄ້າງລວມ => Total outstanding
+ເຄຣດິດ => Credit terms
+ຈ່າຍຄັ້ງຫຼ້າສຸດ => Last payment
+ຈ່າຍເດືອນນີ້ => Paid this month
+ຄືນສິນຄ້າ => Returns
+↩ ຄືນສິນຄ້າຜູ້ສະໜອງ => ↩ Return to supplier
+↩ ຄືນສິນຄ້າໃຫ້ຜູ້ສະໜອງ => ↩ Return goods to supplier
+＋ ຍອດຍົກມາ => ＋ Opening balance
+＋ ຜູ້ສະໜອງ => ＋ Supplier
+＋ ຮັບສິນຄ້າ (ບໍ່ມີ PO) => ＋ Receive goods (no PO)
+ຮັບສິນຄ້າເຂົ້າສະຕ໋ອກ (ບໍ່ມີ PO) => Receive goods into stock (no PO)
+ຢືນຢັນຮັບເຂົ້າສະຕ໋ອກ => Confirm receive into stock
+ເລກໃບສົ່ງເຄື່ອງ / ບິນຜູ້ສະໜອງ => Delivery note / supplier invoice no.
+ເພີ່ມສິນຄ້າ (ສະແກນບາໂຄດ ຫຼື ພິມຊື່/ລະຫັດ) => Add product (scan barcode or type name/code)
+ບາໂຄດ / ຊື່ / ລະຫັດ => Barcode / name / code
+ຍັງບໍ່ມີລາຍການ => No items yet
+ລວມ 0 ກີບ => Total 0 LAK
+=ລວມ => Total
+ຊື້ເຊື່ອ — ຈ່າຍພາຍຫຼັງ (ບັນທຶກເປັນໜີ້ຜູ້ສະໜອງ => On credit — pay later (recorded as supplier debt
+ແນະນຳສັ່ງຊື້ => Reorder suggestions
+ປະຫວັດ => History
+ໜີ້ຜູ້ສະໜອງ & ຮັບສິນຄ້າ => Supplier debt & receiving
+ຮັບສິນຄ້າເຊື່ອ → ຈ່າຍທີຫຼັງ · ຄືນສິນຄ້າໃຫ້ຜູ້ສະໜອງ · ແນະນຳຈຳນວນສັ່ງຊື້ ຈາກຍອດຂາຍ => Receive on credit → pay later · return goods to supplier · suggested order quantities from sales
+ຍັງບໍ່ມີໜີ້ — ເມື່ອຮັບສິນຄ້າແບບ "ຊື້ເຊື່ອ" ໜີ້ຈະຂຶ້ນຢູ່ນີ້ => No debt yet — debts from "on credit" receiving will appear here
+ຂາຍດີ / ຂາຍບໍ່ອອກ => Best / slow sellers
+ມູນຄ່າສະຕ໋ອກ & ໝົດອາຍຸ => Stock value & expiry
+ມູນຄ່າສະຕ໋ອກ & ສິນຄ້າໝົດອາຍຸ => Stock value & expired products
+ໜີ້ລູກຄ້າ & ຜູ້ສະໜອງ => Customer & supplier debt
+ສິນຄ້າຂາຍດີ => Best-selling products
+ສິນຄ້າຂາຍບໍ່ອອກ => Slow-moving products
+ສິນຄ້າຂາຍບໍ່ອອກ (30 ມື້) => Slow-moving products (30 days)
+ທຶນທີ່ຈົມຢູ່ໃນສະຕ໋ອກ => Capital tied up in stock
+ຂາຍດີອັນດັບ 1 => #1 best seller
+🔥 ຂາຍດີ 15 ອັນດັບ => 🔥 Top 15 sellers
+ຂາຍ (ໜ່ວຍ) => Sold (units)
+ກຳໄລ (ປະມານ) => Profit (approx.)
+ຂາຍຫຼ້າສຸດ => Last sold
+ທຶນຈົມ => Tied-up cost
+ບໍ່ເຄີຍຂາຍ => Never sold
+ບໍ່ມີສິນຄ້າຄ້າງສາງ => No slow stock
+ມູນຄ່າສະຕ໋ອກ (ຕົ້ນທຶນ) => Stock value (cost)
+ມູນຄ່າຖ້າຂາຍໝົດ (ລາຄາຂາຍ) => Value if all sold (retail)
+ກຳໄລທີ່ຄາດໄວ້ => Expected profit
+ມູນຄ່າແຍກຕາມໝວດ => Value by category
+ມູນຄ່າ (ທຶນ) => Value (cost)
+ມູນຄ່າ (ຂາຍ) => Value (retail)
+=ມູນຄ່າ => Value
+ໃກ້ໝົດອາຍຸ => Near expiry
+ໝົດອາຍຸແລ້ວ => Expired
+ໝົດອາຍຸ => Expiry
+ວັນໝົດອາຍຸທີ່ຕັ້ງໄວ້ => Expiry dates set
+ບໍ່ມີສິນຄ້າໃກ້ໝົດອາຍຸ => No near-expiry products
+ຕັດເປັນຂອງເສຍ => Write off as waste
+=ລັອດ => Lot
+=ລາຍການ => Items
+ລູກຄ້າຄ້າງເຮົາ => Customers owe us
+ເຮົາຄ້າງຜູ້ສະໜອງ => We owe suppliers
+ສ່ວນຕ່າງ (ຄ້າງຮັບ − ຄ້າງຈ່າຍ) => Net (receivable − payable)
+ກຳນົດຖັດໄປ => Next due
+ໄປໜ້າ ໜີ້ຄ້າງ (ລູກຄ້າ) => Go to Receivables (customers)
+ໄປໜ້າ ໜີ້ຜູ້ສະໜອງ => Go to Supplier debt
+🔔 ເຕືອນ => 🔔 Remind
+ບໍ່ມີລູກຄ້າຄ້າງຊຳລະ => No customers with outstanding balance
+ບໍ່ມີໜີ້ຜູ້ສະໜອງ => No supplier debt
+ຈ່າຍເດືອນນີ້ => Paid this month
+ສະຫຼຸບການຂາຍ => Sales summary
+ຕົ້ນທຶນ & ກຳໄລ => Cost & profit
+ລວມທຸກສາຂາ => All branches
+ກຳໄລ & ລາຄາ => Profit & pricing
+ກຳໄລຕໍ່ສິນຄ້າ & ລາຄາ => Profit per product & price
+ພະນັກງານ => Staff
+ຜົນງານພະນັກງານ => Staff performance
+ກວດສອບ => Audit
+ຂໍ້ມູນ => Data
+ສູນຂໍ້ມູນ Export / Import => Data center Export / Import
+ການປ່ຽນແປງບິນ => Bill changes
+ລຶບສິນຄ້າ / ຍ້າຍເຄົາເຕີ => Deleted items / moved counters
+ສູນເສຍ % (ສະຕ໋ອກ) => Shrinkage % (stock)
+ມື້ນີ້ => Today
+ວານນີ້ => Yesterday
+ເດືອນນີ້ => This month
+ເດືອນກ່ອນ => Last month
+ປີນີ້ => This year
+ຈາກວັນທີ => From
+ຮອດວັນທີ => To
+ຍອດຂາຍລວມ => Total sales
+=ຍອດຂາຍ => Sales
+ຈຳນວນບິນ => No. of bills
+ຍອດຂາຍຕາມຜູ້ໃຊ້ => Sales by user
+ຍອດຂາຍຕາມລູກຄ້າ => Sales by customer
+ຍອດລວມຕາມປະເພດຊຳລະ => Totals by payment type
+ຕາມໝວດສິນຄ້າ => By category
+ລູກຄ້າທົ່ວໄປ => Walk-in customers
+ສ່ວນຫຼຸດລວມ => Total discounts
+ຄ່າທຳນຽມລວມ => Total fees
+=ຄ່າທຳນຽມ => Fees
+ກຳໄລ (−ລາຍຈ່າຍ) => Profit (− expenses)
+ກຳໄລສຸດທິ => Net profit
+ກຳໄລຂັ້ນຕົ້ນ (ຍອດຂາຍ − COGS) => Gross profit (sales − COGS)
+ກຳໄລຂັ້ນຕົ້ນ => Gross profit
+ກຳໄລ (ຍອດຂາຍ − ລາຍຈ່າຍ) => Profit (sales − expenses)
+=ກຳໄລ => Profit
+ຕົ້ນທຶນສິນຄ້າ (COGS) => Cost of goods (COGS)
+ຕົ້ນທຶນສິນຄ້າ => Cost of goods
+ລາຍຈ່າຍອື່ນ => Other expenses
+ສ່ວນຫຼຸດທີ່ໃຫ້ => Discounts given
+=ເງິນສົດ => Cash
+=ພິມ => Print
+=ຕົວຢ່າງ => Sample
+=ປະເພດ => Type
+=ຊື່ => Name
+=ເບີໂທ => Phone
+=ແກ້ => Edit
+=ແຕ້ມ => Points
+ເຕີມເງິນ => Top up
+ກະເປົາເງິນ => Wallet
+ເພີ່ມສະມາຊິກ => Add member
+ສະມາຊິກ (3) => Members (3)
+ປະຫວັດສ່ວນລົດ => Discount history
+ສ່ວນລົດພະນັກງານ => Staff discount
+ຍອດກະເປົາລວມ (ໜີ້ຮ້ານ): => Total wallet balance (shop liability):
+ສະສົມແຕ້ມ: 10,000 ກີບ = 1 ແຕ້ມ => Earn points: 10,000 LAK = 1 point
+ຕັ້ງຄ່າແຕ້ມ (1 ແຕ້ມ = 10,000 ກີບ) => Points settings (1 point = 10,000 LAK)
+ເລກບິນ => Bill no.
+ຕາມບິນ => By bill
+ແຍກລາຍສິນຄ້າ => By product
+ຕາມເຄົາເຕີ => By counter
+ລວມທຸກວິທີ => All methods
+ເວລາສັ່ງ => Ordered
+ເວລາຈ່າຍ => Paid
+ວິທີຈ່າຍ => Payment method
+ລາຄາ/ໜ່ວຍ => Price/unit
+ຄີໂດຍ => Entered by
+ສະເລ່ຍ/ມື້ => Avg/day
+ລວມ 7 ມື້ => Total 7 days
+ເລືອກວັນທີ: => Select date:
+ມື້ຂາຍດີສຸດ => Best day
+ມື້ທີ່ມີຍອດ => Days with sales
+ວິທີການຊຳລະ => Payment methods
+ສິນຄ້າໃກ້ໝົດ => Low-stock products
+ລາຍການ ຈຸດສັ່ງຊື້ => Items at reorder point
+ແນວໂນ້ມຍອດຂາຍ 7 ມື້ => 7-day sales trend
+ຍອດຂາຍຕາມຊົ່ວໂມງ => Sales by hour
+ສະຖານະເຄົາເຕີ (ປະຈຸບັນ) => Counter status (now)
+ກຳລັງໃຊ້ => In use
+=ວ່າງ => Free
+ລາຍການ ໃນວັນທີເລືອກ => items on selected date
+ຈຳນວນລາຍການຂາຍ => Items sold
+ປະຈຳວັນທີເລືອກ · ລວມຄ່າຊື້ຂອງ => For selected date · including purchases of
+ຕາມຈຳນວນຂາຍ × ຕົ້ນທຶນສະເລ່ຍ => By qty sold × average cost
+ຂອງຍອດຂາຍ => of sales
+ຄຳ = ມື້ຂາຍດີສຸດ => Gold = best day
+= ທ້າຍອາທິດ (ເສົາ/ອາທິດ) => = weekend (Sat/Sun)
+ສີບົວ => Pink
+=ມື້ => days
+=ບິນ => bills
+=ຜູ້ໃຊ້ => User
+=ວັນທີ => Date
+=ເວລາ => Time
+=ເຫດຜົນ => Reason
+=ຈຳນວນ => Qty
+=ສະຖານະ => Status
+ເລກທີ => No.
+ຂໍ້ຄວາມ => Message
+ບັນທຶກແລ້ວ => Saved
+=ບໍ່ມີ => None
+=ທັງໝົດ => All
+=ສົດ => Cash
+ຈັດຊື້ => Purchasing
+=ສິນຄ້າ => Products
+=ຂາຍ => Sell
+=ລູກຄ້າ => Customers
+=ຍອດ => Total
+=ລາຍຮັບ => Revenue
+=ເຄື່ອງໃຊ້ => Supplies
+=ສາຂາຫຼັກ => Main branch
+=ຜູ້ສະໜອງ => Supplier
+=ລູກໜີ້ => Debtors
+=ຕົ້ນທຶນ => Cost
+=ໜ່ວຍ => unit
+ໜ່ວຍ => unit
+ທຶນ => Cost
+ສະເລ່ຍ => avg
+ຍັງບໍ່ມີ => None yet
+ທຸກການເສຍມີເອກະສານ => every waste has a record
+ບໍ່ຕ້ອງເປັນສະມາຊິກ => no membership needed
+ສາຂາຫຼັກ => Main branch
+ວັນໝົດອາຍຸໃສ່ຕອນ "ຮັບສິນຄ້າ" (ຊ່ອງ ໝົດອາຍຸ) ຫຼື ຮັບເຂົ້າສະຕ໋ອກ. ເວລາຂາຍ ແອັບຕັດລັອດທີ່ໝົດກ່ອນຫຼຸດກ່ອນ (FEFO). => Enter the expiry date when receiving goods (Expiry column) or when receiving stock. When selling, the app deducts the lot that expires first (FEFO).
+ສິນຄ້າທີ່ເພີ່ມເຂົ້າລະບົບບໍ່ເຖິງ => Products added less than
+ບໍ່ນັບວ່າ "ຂາຍບໍ່ອອກ" => are not counted as "slow-moving"
+ກຳໄລ = ລາຍຮັບ − (ຈຳນວນ × ຕົ້ນທຶນປັດຈຸບັນ) ເປັນຕົວເລກປະມານ. => Profit = revenue − (qty × current cost), approximate.
+ມີສະຕ໋ອກ ແຕ່ບໍ່ມີຂາຍເລີຍ => has stock but no sales at all
+🐢 ຂາຍບໍ່ອອກ => 🐢 Slow-moving
+ລູກຄ້າຄ້າງຊຳລະ => Customers with balance
+ຜູ້ສະໜອງ — ເຮົາຄ້າງຈ່າຍ => Suppliers — we owe
+ໃບຂໍຊື້ => Purchase requests
+ໃບສັ່ງຊື້ => Purchase orders
+ຈຳນວນທີ່ນັບໄດ້ => counted qty
+ເລີ່ມຮອບນັບ => Start count
+ສົ່ງກວດ => submit
+ອະນຸມັດ => approve
+ແລ້ວປັບສະຕ໋ອກ => then adjust stock
+=₭/ຕຸກ => ₭/bottle
+=₭/ຂວດ => ₭/bottle
+=₭/ຊອງ => ₭/sachet
+=₭/ຖົງ => ₭/bag
+=₭/ກ່ອງ => ₭/box
+=₭/ຄູ່ => ₭/pair
+=₭/ແທ່ງ => ₭/bar
+=₭/ກ້ອນ => ₭/bar
+=₭/ຫຼອດ => ₭/tube
+=₭/ມ້ວນ => ₭/roll
+=₭/ກະປ໋ອງ => ₭/can
+=₭/ອັນ => ₭/pc
+=₭/ຊິ້ນ => ₭/pc
+=₭/ແພັກ => ₭/pack
+=₭/ໂຫຼ => ₭/case
+=₭/ລັງ => ₭/carton
+ລຶບສິນຄ້າ / ຍົກເລີກ => Deleted / cancelled
+=ສະແດງ => Showing
+ສິນຄ້າໝົດອາຍຸ / ໃກ້ໝົດອາຍຸ (ພາຍໃນ => Expired / near-expiry products (within
+ຕົ້ນທຶນ / ໜ່ວຍ => Cost / unit
+ຍອດຂາຍ ( => Sales (
+ລາຍຈ່າຍ ( => Expenses (
+ກຳໄລ ( => Profit (
+ກະເຮັດວຽກ => Work shifts
+ໂປຣໂມຊັນ => Promotions
+ຈໍລູກຄ້າ => Customer display
+ຜູ້ໃຊ້ & ສິດ => Users & permissions
+Location & ສາຂາ => Locations & branches
+ສຳຮອງ & ຂັ້ນສູງ => Backup & advanced
+Data ຮ້ານ & ໃບບິນ => Shop info & receipts
+ຂໍ້ມູນຮ້ານ & ໃບບິນ => Shop info & receipts
+ໂມດູນ & ສິດບົດບາດ => Modules & role permissions
+ການຄິດເງິນ & ຈ່າຍເງິນ => Billing & payment
+ການເຊື່ອມຕໍ່ & Reports => Connection & reports
+ການເຊື່ອມຕໍ່ & ລາຍງານ => Connection & reports
+=ສາງ => Warehouse
+ຮ້ານຂອງເຮົາ => Our shop
+ສິນຄ້າ & ລາຄາ => Products & pricing
+Front shop & ການຂາຍ => Shop floor & sales
+ໜ້າຮ້ານ & ການຂາຍ => Shop floor & sales
+=ເລີ່ມ => Start
+ຄົ້ນຫາ Settings … => Search settings …
+ຄົ້ນຫາການຕັ້ງຄ່າ… => Search settings…
+ປິດທັງໝົດ => Close all
+ເບິ່ງສິນຄ້າທີ່ໃຊ້ => View products used
+ປິດຢູ່ => Off
+(ບໍ່ໃຊ້) => (not used)
+ເປີດ/ປິດ => On/Off
+=ຜູ້ຖື => Holder
+ຄວນປ່ຽນ => Should rotate
+ຊື່ key => Key name
+ທຸກ (ມື້) => Every (days)
+ປ່ຽນຫຼ້າສຸດ => Last rotated
+ໃຊ້ເຮັດຫຍັງ / ສິດ => Purpose / access
+ປ່ຽນ PIN — ຢ່າໃຊ້ເລກຊ້ຳ / ລຽງ => Change PIN — avoid repeated / sequential digits
+ລຶບກະ => Delete shift
+ສົ່ງທົດສອບ => Send test
+ໃຊ້ສິດ & ບົດບາດນີ້ => Use these permissions & roles
+ປ່ຽນ PIN ຄັ້ງໜຶ່ງ ເພື່ອເຂົ້າລະຫັດ => Change PIN once to encrypt it
+ໂຫຼດຕົວຢ່າງ + ຮູບ… => Load sample + pictures…
+ໂອນ Stock ລະຫວ່າງສາຂາ => Transfer stock between branches
+ບ່ອນຕັດ Stock ແລະ ສາຂາ => Stock locations & branches
+ໜ້າຈໍທີ 2 ທີ່ຫັນໃສ່ລູກຄ້າ => Second screen facing the customer
+ຫຼຸດລາຄາອັດຕະໂນມັດ ຕາມຊ່ວງເວລາ => Automatic discounts by time period
+ຊື່ກະ ແລະ ການບັງຄັບ Open shift => Shift names & forced shift opening
+ຊື່ ທີ່ຢູ່ ໂລໂກ້ ແລະ ເຄື່ອງພິມໃບບິນ => Name, address, logo & receipt printer
+ຄ່າບໍລິການ ພາສີ Discount Payment method ແລະ QR ໂອນ => Service charge, tax, discount, payment methods & transfer QR
+ສະຖານະ server ແລະ Reports ປະຈຳວັນ => Server status & daily reports
+ສຳຮອງ ກູ້ຄືນ ແລະ ລ້າງ Data => Backup, restore & clear data
+ໃຜ Log in ໄດ້ ແລະ ເຮັດຫຍັງໄດ້ => Who can log in and what they can do
+ເປີດ/ປິດໂມດູນ ແລະ ກຳນົດສິດຂອງແຕ່ລະບົດບາດ => Turn modules on/off and set permissions per role
+ກະ / ລິ້ນຊັກເງິນ => Shift / cash drawer
+ສິນຄ້າ (ເພີ່ມ / ແກ້ — ST Mart) => Products (add / edit — ST Mart)
+ທ້າຍລິ້ງ => end of link
+ອັບໂຫລດຮູບ => Upload picture
++ ເພີ່ມຮູບ => + Add picture
++ ເພີ່ມ => + Add
+ຕາຕະລາງສິດ => Permission table
+ສຳຮອງ Data => Back up data
+ສຳຮອງດຽວນີ້ => Back up now
+ລ້າງ Data => Clear data
+ລ້າງ Data … => Clear data …
+ຍ້າຍບິນເກົ່າ… => Archive old bills…
+ບິນປັດຈຸບັນ => Current bill
+ຄິດໃສ່ທຸກບິນ => Applies to every bill
+ອັດຕາແລກປ່ຽນ => Exchange rate
+ເປີດຈໍລູກຄ້າ => Open customer display
+ຫຼັງຈ່າຍເງິນ => After payment
+ຈຸດທີ່ຄວນແກ້ => Items to fix
+ເບິ່ງຕົວຢ່າງ => Preview
+ສິດຕາມບົດບາດ => Permissions by role
+ປ່ຽນຮູບທຸກໆ => Change picture every
+Message ຂອບໃຈ => Thank-you message
+Message ຕ້ອນຮັບ => Welcome message
+ຊື່ ເຊັ່ນ ແຕະ => Name e.g. tray
++ ເພີ່ມຜູ້ໃຊ້ => + Add user
++ ເພີ່ມໂປຣໂມຊັນ => + Add promotion
++ ເພີ່ມກະ => + Add shift
++ ເພີ່ມ key => + Add key
++ ເພີ່ມສາຂາ => + Add branch
++ ເພີ່ມ Location => + Add location
+ຕັ້ງເບີ WhatsApp => Set WhatsApp number
+ເຄື່ອງພິມໃບບິນ => Receipt printer
+ຮູບ QR ຂອງຮ້ານ => Shop QR image
+ສະແດງໂລໂກ້ຮ້ານ => Show shop logo
+ອັບໂຫລດຮູບ QR => Upload QR image
+ທົດລອງພິມ => Test print
+ຂະໜາດເຈ້ຍ => Paper size
+ຊື່ຮ້ານ => Shop name
+=ທີ່ຢູ່ => Address
+=ໂລໂກ້ => Logo
+=ເຄື່ອງນີ້ => This device
+ຍັງບໍ່ໃສ່ => Not set
+ໜ້າທີ່ເຂົ້າໄດ້ => Accessible pages
+ເຮັດຫຍັງໄດ້ແດ່ => What they can do
+ສິດການເຮັດວຽກ => Work permissions
+ຂາຍ & ເງິນ => Sales & cash
+ຮັບຊຳລະໜີ້ => Collect debt payments
+ຕັ້ງສິນຄ້າໝົດ => Mark product out of stock
+ສິນຄ້າ & ລູກຄ້າ => Products & customers
+Manage ໂປຣໂມຊັນ => Manage promotions
+Manage ຜູ້ຂາຍ => Manage vendors
+Stock & ໂອນສາຂາ => Stock & branch transfer
+Counter / ຂາຍ => Counter / sales
+ກະເຊົ້າ => Morning shift
+ກະບ່າຍ => Afternoon shift
+ກະຄ່ຳ => Evening shift
+ກະເຊົ້າ - Admin => Morning shift - Admin
+=ເຈົ້າ => Owner
+ວິນາທີ => seconds
+ຖືກຕ້ອງ (≤ 2) => Allowed errors (≤ 2)
+1 ຂີດ = 100 g => 1 step = 100 g
+1 ແຕະ = 30 ຟອງ => 1 tray = 30 eggs
+1 ໂຫຼ = 12 pcs => 1 case = 12 pcs
+1 ແຕ້ມ ມີມູນຄ່າ => 1 point is worth
+ລຶບ ຫຼື ປິດຂາຍ => Delete or stop selling
+Data ໃນ System => Data in the system
+ເຄື່ອງພິມ => Printer
+ລະຫັດຜ່ານ => Password
+ເບີໂທລະສັບ => Phone number
+=ບັນຊີ => Account
+=ໃຊ້ງານ => Active
+ປິດໃຊ້ງານ => Disabled
+=ເປີດ => On
+=ປິດ => Off
+=ຕັ້ງຄ່າ => Settings
+=ເລືອກ => Select
+ບັນທຶກແລ້ວ => Saved
+=ສຳເລັດ => Done
+=ຜິດພາດ => Error
+ກວດຄວາມປອດໄພ => Security check
+ຕາຕະລາງສິດຂັດກັນ (SoD) => Conflicting permissions table (SoD)
+ອອກອັດຕະໂນມັດ => Auto logout
+ບໍ່ໃຊ້ງານ => idle
+ນາທີ => minutes
+ຊົ່ວໂມງ => hours`;
+var MT_LANG='lo',MT_MAP=null,MT_RE=null,MT_NU=null,MT_EX=null,MT_LAO=/[\u0E80-\u0EFF]/,MT_UNIT={'\u0E9A\u0EB4\u0E99':'bills','\u0EA1\u0EB7\u0EC9':'days','\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99':'items','\u0EAA\u0EB4\u0E99\u0E84\u0EC9\u0EB2':'products','\u0E84\u0EBB\u0E99':'people','\u0EA5\u0EB2\u0E8D':'entries','\u0EC3\u0E9A':'notes','\u0EAE\u0EAD\u0E9A':'rounds','\u0EA5\u0EB1\u0EAD\u0E94':'lots','\u0E81\u0EB5\u0E9A':'LAK','\u0E95\u0EB8\u0E81':'bottles','\u0E82\u0EA7\u0E94':'bottles','\u0E96\u0EBB\u0E87':'bags','\u0E8A\u0EAD\u0E87':'sachets','\u0E81\u0EC8\u0EAD\u0E87':'boxes','\u0E81\u0EB0\u0E9B\u0ECB\u0EAD\u0E87':'cans','\u0E84\u0EB9\u0EC8':'pairs','\u0EC1\u0E97\u0EC8\u0E87':'bars','\u0E81\u0EC9\u0EAD\u0E99':'bars','\u0EAB\u0EBC\u0EAD\u0E94':'tubes','\u0EA1\u0EC9\u0EA7\u0E99':'rolls','\u0EAD\u0EB1\u0E99':'pcs','\u0E8A\u0EB4\u0EC9\u0E99':'pcs','\u0E9A\u0EB2\u0E94':'THB','\u0EC2\u0E94\u0EA5\u0EB2':'USD'};
+try{MT_LANG=localStorage.getItem('stpos_lang')==='en'?'en':'lo';}catch(e){}
+function mtInit(){if(MT_MAP)return;MT_MAP={};MT_EX={};var ks=[];MT_RAW.split('\n').forEach(function(l){var i=l.indexOf(' => ');if(i<1)return;var k=l.slice(0,i).trim(),v=l.slice(i+4).trim(),ex=k.charAt(0)==='=';if(ex)k=k.slice(1);if(k&&v){var T=ex?MT_EX:MT_MAP;if(!Object.prototype.hasOwnProperty.call(T,k)){T[k]=v;if(!ex)ks.push(k);}}});
+ ks.sort(function(a,b){return b.length-a.length;});MT_NU=new RegExp('(\\d[\\d,.]*)\\s*('+Object.keys(MT_UNIT).sort(function(a,b){return b.length-a.length;}).join('|')+')(?![\\u0E80-\\u0EFF])','g');MT_RE=new RegExp(ks.map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|'),'g');}
+function mtOn(){return MT_LANG==='en'&&typeof bizCur==='function'&&bizCur()==='mart';}
+function mtStr(s){mtInit();var m=/^(\s*)([\s\S]*?)(\s*)$/.exec(s),core=m[2];if(!core)return s;if(Object.prototype.hasOwnProperty.call(MT_EX,core))return m[1]+MT_EX[core]+m[3];if(Object.prototype.hasOwnProperty.call(MT_MAP,core))return m[1]+MT_MAP[core]+m[3];
+ var r=core.replace(/^ສະແດງ (\d+)[–-](\d+) ຈາກ (\d+)/,'Showing $1–$2 of $3').replace(/^ມ້ວນ (\d)/,'Roll $1').replace(/^ເພີ່ມ (?=\S)/,'Added ').replace(/^ສິນຄ້າ (?=\d)/,'Goods ').replace(/ກຳລັງໃຊ້ (\d+) · ວ່າງ (\d+)/,'In use $1 · Free $2').replace(/ສົດ (?=\d)/g,'Cash ').replace(/ໂອນ (?=\d)/g,'Transfer ').replace(MT_NU,function(x,n,u){return n+' '+MT_UNIT[u]+' ';}).replace(MT_RE,function(x){return ' '+MT_MAP[x]+' ';});if(r===core)return s;r=r.replace(/[ \t]{2,}/g,' ').replace(/\s+([.,:;!?)\]])/g,'$1').replace(/([(\[])\s+/g,'$1').trim();return m[1]+r+m[3];}
+function mtTrans(root){if(!mtOn())return;root=root||document.body;var w=document.createTreeWalker(root,4,null),n,L=[];while((n=w.nextNode()))L.push(n);
+ L.forEach(function(t){var v=t.nodeValue;if(t.__en===v||!MT_LAO.test(v))return;var p=t.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)||(p.nodeName==='OPTION'&&!p.hasAttribute('value'))||(p.closest&&p.closest('[data-notr]')))return;var r=mtStr(v);if(r!==v){t.__lo=v;t.__en=r;t.nodeValue=r;}});
+ [].forEach.call(root.querySelectorAll('[title],[placeholder]'),function(e){['title','placeholder'].forEach(function(k){var v=e.getAttribute(k);if(!v||!MT_LAO.test(v)||(e.closest&&e.closest('[data-notr]')))return;var r=mtStr(v);if(r!==v){(e.__lo=e.__lo||{})[k]=[v,r];e.setAttribute(k,r);}});});}
+function mtRestore(){var w=document.createTreeWalker(document.body,4,null),n,L=[];while((n=w.nextNode()))L.push(n);L.forEach(function(t){if(t.__lo!==undefined&&t.nodeValue===t.__en){t.nodeValue=t.__lo;}delete t.__lo;delete t.__en;});
+ [].forEach.call(document.querySelectorAll('[title],[placeholder]'),function(e){if(!e.__lo)return;Object.keys(e.__lo).forEach(function(k){if(e.getAttribute(k)===e.__lo[k][1])e.setAttribute(k,e.__lo[k][0]);});e.__lo=null;});}
+function mtSetLang(l){MT_LANG=l==='en'?'en':'lo';try{localStorage.setItem('stpos_lang',MT_LANG);}catch(e){}if(MT_LANG==='lo')mtRestore();document.documentElement.setAttribute('lang',MT_LANG==='en'?'en':'lo');mtBtn();try{render();tickClock();}catch(e){}mtTrans();}
+function mtBtn(){var b=document.getElementById('langBtn');if(b)b.textContent=MT_LANG==='en'?'ລາວ':'EN';}
 /* ===== ໂໝດທົດລອງ (Demo): ໃຫ້ລູກຄ້າເຂົ້າລອງໄດ້ເລີຍ ບໍ່ຕ້ອງຕິດຕັ້ງ/ບໍ່ມີລະຫັດ — ເປີດຜ່ານ ?demo=medical | cafe ===== */
 var DEMO_USERS=[['d_mgr','ຜູ້ຈັດການ','manager','2222'],['d_cash','ແຄັດເຊຍ / ພະນັກງານຂາຍ','cashier','1111'],['d_stk','ນາຍສາງ','storekeeper','4444']];
 var DEMO_USERS_CAFE=[['d_wait','ພະນັກງານເສີບ','waiter','3333']];

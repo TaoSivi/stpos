@@ -66,7 +66,7 @@ function brFind(id) { return branches().filter(function (b) { return b.id === id
 function brFromPath(pathname) { const seg = String(pathname || '').split('/').filter(Boolean), last = (seg[seg.length - 1] || '').toLowerCase(); if (!last || last === 'api') return brFind('b1') || branches()[0]; return /^[a-z0-9_-]{1,32}$/.test(last) ? brFind(last) : null; }
 function useBranch(b) { CURBR = b; shim.use(brDir(b)); }
 /* ສາຂາໃໝ່ ສຳເນົາ "ການຕັ້ງຄ່າ" ຈາກສາຂາແມ່ແບບ (ເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ການຊຳລະ workflow ຜູ້ໃຊ້) · "ການເຄື່ອນໄຫວ" ເລີ່ມວ່າງ */
-const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
+const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], holds: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
 const BR_DROP = ['curShift', 'activeShift', 'activeStaff', 'activeTable', 'activeCat', 'activeSub', '_srcLoc', '_v', 'servedToday', '_reset'];
 function branchTemplate(st, name, id, type, srcId) {
   const n = JSON.parse(JSON.stringify(st || {}));
@@ -74,7 +74,7 @@ function branchTemplate(st, name, id, type, srcId) {
   Object.keys(BR_RESET).forEach(function (k) { if (k in n) n[k] = JSON.parse(JSON.stringify(BR_RESET[k])); });
   n.orderNo = 1; n.receiptSeq = 0; n.transferSeq = 0; n.shopName = name; n.branchId = id;
   n.locations = [{ id: 'main', name: name, type: type === 'warehouse' ? 'warehouse' : 'branch', active: true }];
-  Object.keys(n.ingredients || {}).forEach(function (k) { const it = n.ingredients[k]; it.locs = { main: 0 }; it.stock = 0; delete it.lastIn; });
+  Object.keys(n.ingredients || {}).forEach(function (k) { const it = n.ingredients[k]; it.locs = { main: 0 }; it.stock = 0; delete it.lastIn; delete it.lots; });
   const tb = {}; Object.keys(n.tables || {}).forEach(function (k) { const t = n.tables[k]; if (!t || t.dl) return; /* ອໍເດີ delivery ບໍ່ສຳເນົາ */
     const c = JSON.parse(JSON.stringify(t)); ['items', 'customer', 'main', 'mergedInto', 'reserved', 'memberId', 'billTs', 'del', 'sd', 'pkO', 'callTs', 'callPay', 'xfer', 'xferNotice', 'upd'].forEach(function (f) { delete c[f]; });
     c.status = 'free'; c.items = []; c.customer = null; c.dv = 1; c.upd = Date.now(); tb[k] = c; }); /* ເກັບຜັງ (ຊັ້ນ ຕຳແໜ່ງ ຮູບຮ່າງ ບ່ອນນັ່ງ) */
@@ -347,7 +347,7 @@ function menuPush(ids, by) {
         st.catalog = r.menu.catalog; st.menuImg = r.menu.menuImg; st.modGroups = r.menu.modGroups;
         let addIng = 0; if (!st.ingredients) st.ingredients = {};
         ingRefs(r.menu).forEach(function (code) { if (st.ingredients[code]) return; const si = srcSt.ingredients && srcSt.ingredients[code]; if (!si) return;
-          const ni = JSON.parse(JSON.stringify(si)); ni.locs = { main: 0 }; ni.stock = 0; delete ni.lastIn; ni.addTs = Date.now(); st.ingredients[code] = ni; addIng++; });
+          const ni = JSON.parse(JSON.stringify(si)); ni.locs = { main: 0 }; ni.stock = 0; delete ni.lastIn; delete ni.lots; delete ni.vendor; ni.addTs = Date.now(); st.ingredients[code] = ni; addIng++; });
         st.menuV = mv; st.menuHQ = { src: src.id, srcName: src.name || src.id, mode: rule.mode, ts: mv, by: by || '', codes: r.codes, gids: r.gids };
         st._v = Math.max(Date.now(), (+st._v || 0) + 1);
         G.saveStateRaw_(JSON.stringify(st), true, true);
