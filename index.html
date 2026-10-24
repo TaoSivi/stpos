@@ -1517,7 +1517,7 @@ html:not([data-theme="glass"]) body #app:not(.cust) .subcat{border-radius:999px;
 html:not([data-theme="glass"]) body #app:not(.cust) .subcat.active{background:#0A7E7A;color:#fff;border-color:#0A7E7A;box-shadow:0 6px 14px rgba(10,126,122,.25)}
 html:not([data-theme="glass"]) body #app:not(.cust) .subcat.active small{color:rgba(255,255,255,.85)}
 /* ບັດເມນູ */
-html:not([data-theme="glass"]) body #app:not(.cust) .products{gap:16px!important;grid-template-columns:repeat(auto-fill,minmax(176px,1fr))!important;padding:2px 2px 90px}
+html:not([data-theme="glass"]) body #app:not(.cust) .products{gap:16px!important;grid-template-columns:repeat(auto-fill,minmax(156px,1fr))!important;padding:2px 2px 90px}
 html:not([data-theme="glass"]) body #app:not(.cust) .products .product{border:1px solid #e3f0ee!important;border-radius:24px!important;padding:10px 10px 14px!important;background:#fff;box-shadow:0 6px 18px rgba(6,47,45,.07)!important;transition:transform .16s,box-shadow .16s;gap:0!important}
 html:not([data-theme="glass"]) body #app:not(.cust) .products .product:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(6,47,45,.13)!important}
 html:not([data-theme="glass"]) body #app:not(.cust) .products .product:active{transform:scale(.985)}
@@ -1548,6 +1548,41 @@ html:not([data-theme="glass"]) body #app:not(.cust) .citem .ci-right{font-weight
 html:not([data-theme="glass"]) body #app:not(.cust) .cart-foot{background:#f1f9f8;border:1px solid #e1efed}
 html:not([data-theme="glass"]) body #app:not(.cust) .confirm{background:linear-gradient(135deg,#13C7C1,#0A7E7A)!important;box-shadow:0 12px 24px rgba(10,126,122,.30)!important;border-radius:18px!important}
 @media(max-width:899px){html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat{min-width:86px;padding:10px 10px 9px!important;border-radius:18px!important}html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ci{width:38px!important;height:38px!important}html:not([data-theme="glass"]) body #app:not(.cust) .products{grid-template-columns:1fr 1fr!important;gap:12px!important}html:not([data-theme="glass"]) body #app:not(.cust) .products .product{border-radius:20px!important;padding:8px 8px 12px!important}html:not([data-theme="glass"]) body #app:not(.cust) .ordtools{border-radius:18px}}
+/* ===== ແກ້ "ບັງລາຍການເມນູ": ຫົວ (ໝວດ/ຄົ້ນຫາ/ໝວດຍ່ອຍ) ກະທັດຮັດ + ເລື່ອນພ້ອມລາຍການ · ກະຕ່າມືຖືຍ່ໍສ່ວນລຸ່ມ ===== */
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .menupane{display:block!important;overflow-y:auto!important;overflow-x:hidden}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .products{overflow:visible!important;flex:none!important;height:auto!important}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar{gap:8px;padding-bottom:0!important}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cats{flex-wrap:wrap!important;overflow:visible!important;gap:8px;padding:2px 0 4px}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat{flex-direction:row!important;gap:9px!important;min-width:0!important;padding:6px 16px 6px 6px!important;border-radius:999px!important;text-align:left}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ci{width:36px!important;height:36px!important}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ct{align-items:flex-start;gap:0}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ct b{font-size:13.5px}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ct small{font-size:11px}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordtools{padding:6px 8px;border-radius:18px;gap:8px}
+html:not([data-theme="glass"]) body #app:not(.cust) .ordtools .searchbox input{height:42px}
+html:not([data-theme="glass"]) body #app:not(.cust) .opbtn{height:42px}
+html:not([data-theme="glass"]) body #app:not(.cust) .subcats{padding:0 0 6px!important;gap:6px}
+html:not([data-theme="glass"]) body #app:not(.cust) .subcat{height:36px;padding:0 14px;font-size:13px}
+@media(max-width:899px){
+ html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cats{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none}
+ html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cats::-webkit-scrollbar{display:none}
+ html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat{min-width:0!important;padding:5px 14px 5px 5px!important}
+ html:not([data-theme="glass"]) body #app:not(.cust) .ordbar .cat .ci{width:32px!important;height:32px!important}
+ html:not([data-theme="glass"]) body #app:not(.cust) .subcats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+ html:not([data-theme="glass"]) body #app:not(.cust) .subcats::-webkit-scrollbar{display:none}
+ html:not([data-theme="glass"]) body #app:not(.cust) .subcat{flex:none}
+}
+/* ກະຕ່າ: ຍ່ໍຍອດ + ປຸ່ມ ໃຫ້ລາຍການເຫັນ (ທັງຄອມ ແລະ ມືຖື) */
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-items{min-height:150px!important;flex:1 1 auto}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot{flex:none;margin:0 8px 8px!important;padding:8px 12px!important;border-radius:18px}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .totrow{padding:1px 0;font-size:12.5px;line-height:1.35}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .totrow.grand{font-size:17px;padding:4px 0}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .actions{grid-template-columns:repeat(6,1fr)!important;gap:6px!important;margin-top:6px}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .actions button{padding:9px 4px!important;font-size:13px!important;border-radius:12px!important;grid-column:span 2;min-height:40px}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .actions .b-bill,html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .actions .b-pay{grid-column:span 3;min-height:48px;font-size:15px!important}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .actions .b-cancel{grid-column:span 4}
+html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .confirm{height:50px;font-size:16px!important;margin-top:6px
+}
 .kp-sub2{font-size:12.5px;color:#4d7471;margin:-4px 0 10px}.kp-recv{margin-top:14px;padding:10px 12px;border-radius:14px;background:#f3fbfa;border:1px dashed #bfe3df}.kp-rvh{font-weight:800;font-size:13.5px;color:#075e5b}.kp-chips button.on{background:#0A7E7A;color:#fff;border-color:#0A7E7A}
 .kp-sz{margin:0 0 6px;align-items:center}.kp-cza{display:inline-flex;gap:6px;align-items:center}.kp-cza input{width:110px!important;height:40px!important;border-radius:12px!important}.kp-cza button{height:40px;width:40px;padding:0}
 .kp-bag{margin-top:12px;border:1.5px solid #dcecea;border-radius:18px;padding:12px;background:#fbfefd}.kp-bh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.kp-bs{font-size:20px;color:#0A7E7A}.kp-bs small{font-size:12px;color:#6b8f8a;margin-left:4px}
