@@ -11148,6 +11148,28 @@ function mtRestore(){var w=document.createTreeWalker(document.body,4,null),n,L=[
  [].forEach.call(document.querySelectorAll('[title],[placeholder]'),function(e){if(!e.__lo)return;Object.keys(e.__lo).forEach(function(k){if(e.getAttribute(k)===e.__lo[k][1])e.setAttribute(k,e.__lo[k][0]);});e.__lo=null;});}
 function mtSetLang(l){MT_LANG=l==='en'?'en':'lo';try{localStorage.setItem('stpos_lang',MT_LANG);}catch(e){}if(MT_LANG==='lo')mtRestore();document.documentElement.setAttribute('lang',MT_LANG==='en'?'en':'lo');mtBtn();try{render();tickClock();}catch(e){}mtTrans();}
 function mtBtn(){var b=document.getElementById('langBtn');if(b)b.textContent=MT_LANG==='en'?'ລາວ':'EN';}
+/* ===== ST Hotel ໄລຍະ 1: ຫ້ອງ + ລາຄາ — ຂໍ້ມູນ: htTypes htRooms htRates htPlans htCfg (ທຸກແຖວມີ id + upd) ===== */
+function htInit(){['htTypes','htRooms','htRates','htPlans'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.htCfg||typeof state.htCfg!=='object')state.htCfg={};
+ var c=state.htCfg,d={ci:'14:00',co:'12:00',audit:'02:00',weekend:[5,6],taxes:[],los:[],policyDays:3};Object.keys(d).forEach(function(k){if(c[k]===undefined)c[k]=d[k];});}
+function htUtc(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));if(!m)return null;var y=+m[1],mo=+m[2],d=+m[3],t=Date.UTC(y,mo-1,d),o=new Date(t);return (o.getUTCFullYear()===y&&o.getUTCMonth()===mo-1&&o.getUTCDate()===d)?t:null;}
+function htFmt(t){var o=new Date(t);return o.getUTCFullYear()+'-'+('0'+(o.getUTCMonth()+1)).slice(-2)+'-'+('0'+o.getUTCDate()).slice(-2);}
+function htDays(from,to){var a=htUtc(from),b=htUtc(to);if(a==null||b==null||b<=a)return null;var L=[];for(var t=a;t<b;t+=864e5)L.push(htFmt(t));return L;}
+function htType(id){return (state.htTypes||[]).find(function(x){return x.id===id;})||null;}
+function htCmp(a,b){for(var i=0;i<a.length;i++){if(a[i]>b[i])return 1;if(a[i]<b[i])return -1;}return 0;}
+/* ກົດລາຄາທີ່ຊະນະ: prio ສູງ → ຊ່ວງວັນແຄບກວ່າ → ປະເພດສະເພາະ (ບໍ່ແມ່ນ '*') → id ຫຼ້າສຸດ */
+function htRuleFor(typeId,date){var t=htUtc(date);if(t==null)return null;var dow=new Date(t).getUTCDay(),best=null,bs=null;
+ (state.htRates||[]).forEach(function(r){if(r.active===false)return;if(r.type&&r.type!=='*'&&r.type!==typeId)return;if(r.from&&date<r.from)return;if(r.to&&date>r.to)return;if(Array.isArray(r.days)&&r.days.length&&r.days.indexOf(dow)<0)return;
+  var span=(r.from&&r.to)?(htUtc(r.to)-htUtc(r.from)):1e15,s=[+r.prio||0,-span,(r.type&&r.type!=='*')?1:0,String(r.id)];if(!bs||htCmp(s,bs)>0){best=r;bs=s;}});return best;}
+function htNightBase(typeId,date){var r=htRuleFor(typeId,date);if(r&&+r.price>0)return Math.round(+r.price);var ty=htType(typeId);return ty&&+ty.baseRate>0?Math.round(+ty.baseRate):null;}
+function htQuote(o){htInit();var days=htDays(o&&o.from,o&&o.to),ty=o&&htType(o.type);if(!days||!ty)return null;var cfg=state.htCfg,ad=Math.max(1,Math.floor(+o.adults||1)),kd=Math.max(0,Math.floor(+o.kids||0)),eb=Math.max(0,Math.floor(+o.extraBeds||0)),pl=(state.htPlans||[]).find(function(p){return p.id===o.plan;}),adj=pl?(+pl.adj||0):0,
+ los=0;(cfg.los||[]).forEach(function(l){if(days.length>=(+l.min||0)&&(+l.pct||0)>los)los=+l.pct;});
+ var cap=Math.max(1,+ty.cap||1),over=Math.max(0,ad+kd-cap),ok2=Math.min(kd,over),oa=over-ok2,extra=Math.round(oa*(+ty.extraAdult||0)+ok2*(+ty.extraChild||0)+eb*(+ty.extraBed||0)),
+ q={nights:[],roomSub:0,extraSub:0,losPct:los,sub:0,taxes:[],total:0,thb:0,usd:0,missing:[]};
+ days.forEach(function(d){var base=htNightBase(ty.id,d);if(base==null){q.missing.push(d);q.nights.push({d:d,room:0,extra:0,total:0,missing:true});return;}
+  var room=Math.round(base*(1+adj/100));if(los)room=Math.round(room*(1-los/100));q.nights.push({d:d,room:room,extra:extra,total:room+extra});q.roomSub+=room;q.extraSub+=extra;});
+ q.sub=q.roomSub+q.extraSub;var n=days.length;
+ (cfg.taxes||[]).forEach(function(t){if(t.active===false)return;var v=t.kind==='perNight'?(+t.amt||0)*n:t.kind==='perPersonNight'?(+t.amt||0)*(ad+kd)*n:q.sub*(+t.pct||0)/100;q.taxes.push({id:t.id,name:t.name,amt:Math.round(v)});});
+ q.total=q.sub+q.taxes.reduce(function(s,t){return s+t.amt;},0);q.thb=+state.rateTHB>0?Math.round(q.total/state.rateTHB*100)/100:0;q.usd=+state.rateUSD>0?Math.round(q.total/state.rateUSD*100)/100:0;return q;}
 /* ===== ໂໝດທົດລອງ (Demo): ໃຫ້ລູກຄ້າເຂົ້າລອງໄດ້ເລີຍ ບໍ່ຕ້ອງຕິດຕັ້ງ/ບໍ່ມີລະຫັດ — ເປີດຜ່ານ ?demo=medical | cafe ===== */
 var DEMO_USERS=[['d_mgr','ຜູ້ຈັດການ','manager','2222'],['d_cash','ແຄັດເຊຍ / ພະນັກງານຂາຍ','cashier','1111'],['d_stk','ນາຍສາງ','storekeeper','4444']];
 var DEMO_USERS_CAFE=[['d_wait','ພະນັກງານເສີບ','waiter','3333']];
