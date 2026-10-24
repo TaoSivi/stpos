@@ -11408,7 +11408,7 @@ function htPlanSave(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້ແ
  Object.assign(p,{name:n,adj:adj,breakfast:!!document.getElementById('hp_bf').checked,refundable:!!document.getElementById('hp_ref').checked,active:!!document.getElementById('hp_act').checked,upd:Date.now()});htLg(id?'ແກ້ໄຂແຜນລາຄາ':'ເພີ່ມແຜນລາຄາ',n+' · '+adj+'%');save();closeModal();render();toast('ບັນທຶກແລ້ວ');}
 /* ---- ຕັ້ງຄ່າ + ພາສີ + ພັກຍາວ ---- */
 var HT_TK={pct:'% ຂອງຍອດ',perNight:'ຄົງທີ່ ຕໍ່ຄືນ',perPersonNight:'ຕໍ່ຄົນ ຕໍ່ຄືນ'};
-function htCfgDraft(){if(!window.__htCfgDraft)window.__htCfgDraft=JSON.parse(JSON.stringify(state.htCfg));return window.__htCfgDraft;}
+function htCfgDraft(){var u=state.htCfg.upd||0;if(!window.__htCfgDraft||window.__htCfgU!==u){window.__htCfgDraft=JSON.parse(JSON.stringify(state.htCfg));window.__htCfgU=u;}return window.__htCfgDraft;}
 function htRenderCfg(B){var c=htCfgDraft(),ed=htCan(),dis=ed?'':' disabled';
  B.innerHTML='<div class="ht-cfg"><h3>ເວລາ</h3><div class="mp-2"><div><label>Check-in</label><input id="hc_ci" type="time" value="'+aesc(c.ci)+'"'+dis+'></div><div><label>Check-out</label><input id="hc_co" type="time" value="'+aesc(c.co)+'"'+dis+'></div></div><div class="mp-2"><div><label>ປິດບັນຊີກາງຄືນ (night audit)</label><input id="hc_au" type="time" value="'+aesc(c.audit)+'"'+dis+'></div><div><label>ຄືນເງິນມັດຈຳເຕັມ ຖ້າຍົກເລີກກ່ອນ (ມື້)</label><input id="hc_pol" type="number" min="0" max="60" value="'+aesc(c.policyDays)+'"'+dis+'></div></div>'+
   '<label>ມື້ທ້າຍອາທິດ (ໃຊ້ຕອນສ້າງກົດທ້າຍອາທິດ)</label><div class="ht-days">'+HT_DN.map(function(n,i){return '<label><input type="checkbox" class="hc-wd" data-d="'+i+'" style="width:auto"'+((c.weekend||[]).indexOf(i)>=0?' checked':'')+dis+'> '+n+'</label>';}).join('')+'</div>'+
