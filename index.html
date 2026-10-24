@@ -1598,7 +1598,7 @@ html:not([data-theme="glass"]) body #app:not(.cust) #orderWrap .cart-foot .confi
 .wg-q{display:flex;gap:6px;margin-top:6px}.wg-q .btn-sm{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700}.wg-t{text-align:center;font-size:18px;margin:12px 0;color:#0a6b67;min-height:24px}
 .mp-br{display:grid;grid-template-columns:1fr 70px auto;gap:6px;margin-bottom:6px}.mp-br input{min-width:0;padding:8px;border:1px solid var(--line);border-radius:10px;font:inherit}
 .opbtn.active{background:#0a7e7a!important;color:#fff!important;border-color:#0a7e7a!important}
-html[data-biz="mart"] #langBtn{display:inline-flex!important;align-items:center;justify-content:center;font-size:12px;font-weight:800;width:auto;padding:0 10px}
+html[data-biz="mart"] #langBtn,html[data-biz="hotel"] #langBtn{display:inline-flex!important;align-items:center;justify-content:center;font-size:12px;font-weight:800;width:auto;padding:0 10px}
 .ht-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}.ht-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px}.ht-card.ht-edit{cursor:pointer}.ht-card.ht-edit:hover{border-color:#13C7C1;box-shadow:0 4px 14px rgba(10,126,122,.12)}.ht-card.off{opacity:.55}
 .ht-img{height:110px;border-radius:12px;background:linear-gradient(135deg,#d5f6f4,#eafbfa);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:34px}.ht-img img{width:100%;height:100%;object-fit:cover}.ht-card small{color:var(--muted)}.ht-p{font-size:18px;font-weight:800;color:#0a6b67}.ht-p small{display:block;font-size:12px;font-weight:400}
 .ht-ch{display:flex;gap:4px;flex-wrap:wrap}.ht-ch span{font-size:11px;background:#e0f5f3;color:#0a6b67;border-radius:999px;padding:1px 8px}.ht-ch span.bad{background:#fee2e2;color:#991b1b}
@@ -3446,10 +3446,10 @@ function stampUpd(){if(!state)return;var now=Date.now(),T=state.tables||{},S={t:
  (state.customers||[]).forEach(function(c){var id=String(c.id),s=_updKey(c);if(_updSnap.c[id]!==s)c.upd=now;S.c[id]=s;});_updSnap=S;}
 let _booted=false;function ingTomb(){var d=state&&state.ingDel;if(!d||!state.ingredients)return;Object.keys(d).forEach(function(c){var it=state.ingredients[c];if(it&&!((+it.addTs||0)>d[c]))delete state.ingredients[c];});}
 /* ST Mart (ແອັບແຍກ ສ້າງຈາກ build.py ໃສ່ window.__APP_BIZ='mart'): ເປີດຄັ້ງທຳອິດ (ຍັງບໍ່ມີປະເພດທຸລະກິດ) = ຮ້ານຄ້າເປົ່າ ບໍ່ມີເມນູຮ້ານອາຫານຕົວຢ່າງ */
-function martFirst(){if(window.__APP_BIZ!=='mart'||!state||state.bizType||state._martInit)return;state._martInit=1;var now=Date.now(),b=BIZ.mart;
+function martFirst(){var AB=window.__APP_BIZ;if(!AB||!BIZ[AB]||!state||state.bizType||state._martInit)return;state._martInit=1;var now=Date.now(),b=BIZ[AB];
  Object.keys(EMPTY_KEYS).forEach(function(k){state[k]=JSON.parse(JSON.stringify(EMPTY_KEYS[k]));});
  state.floors=b.floors.slice();state.tables={};b.tables.forEach(function(nm){state.tables[nm]={name:nm,floor:b.floors[0],status:'free',items:[],customer:null,main:false,mergedInto:null};});
- state.shopName='ST Mart';state.emptyShop=true;state.menuV=now;state.activeCat=null;state.activeSub=null;state.activeTable=Object.keys(state.tables)[0];bizApply('mart',true);}
+ state.shopName=window.__APP_NAME||'ST Mart';state.emptyShop=true;state.menuV=now;state.activeCat=null;state.activeSub=null;state.activeTable=Object.keys(state.tables)[0];bizApply(AB,true);if(AB==='hotel')htInit();}
 function ensureDefaults(){try{martFirst();}catch(e){}ensureDemoIng();try{ingTomb();}catch(e){}try{dlGC();}catch(e){}try{migrateCancelLog();}catch(e){}const d={shopName:"ST POS",qrGlobal:true,qrPinRequired:true,qrExpires:true,soundOn:true,payTypes:[...PAYTYPES],floors:[...DEFAULT_FLOORS],shifts:["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"],staff:["Namfon","Pam","Nit"],activeShift:"ກະເຊົ້າ",activeStaff:"Namfon",menuImg:{},pointRate:10000};for(const k in d){if(state[k]===undefined)state[k]=d[k];}if(!Array.isArray(state.expenses))state.expenses=[];['bills','customers','resv','rx','stockCounts','wastes','prs','pos','grns','reqs','transfers','stockLog'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});['tables','ingredients'].forEach(function(k){if(!state[k]||typeof state[k]!=='object'||Array.isArray(state[k]))state[k]={};});if(!Array.isArray(state.menuLog))state.menuLog=[];if(!Array.isArray(state.orderLog))state.orderLog=[];if(typeof state.bankQR!=='string')state.bankQR='';
  if(!Array.isArray(state.shifts)||!state.shifts.length)state.shifts=["ກະເຊົ້າ","ກະບ່າຍ","ກະຄ່ຳ"];
  if(!Array.isArray(state.staff)||!state.staff.length)state.staff=["Namfon","Pam","Nit"];
@@ -10495,7 +10495,7 @@ Admin (ເຈົ້າຂອງ) => Admin (Owner)
 ລາຍການນີ້ບໍ່ຕັດສະຕ໋ອກ => This item does not deduct stock
 ເໝາະສຳລັບຂາຍດ່ວນ ຫຼື ຄ່າບໍລິການ => for quick sales or service fees
 =ເພີ່ມ => Add
-ຍົກເລີກ => Cancel
+=ຍົກເລີກ => Cancel
 ບັນທຶກ => Save
 =ລົບ => Delete
 ແກ້ໄຂ => Edit
@@ -11154,12 +11154,129 @@ Data ໃນ System => Data in the system
 ອອກອັດຕະໂນມັດ => Auto logout
 ບໍ່ໃຊ້ງານ => idle
 ນາທີ => minutes
-ຊົ່ວໂມງ => hours`;
-var MT_LANG='lo',MT_MAP=null,MT_RE=null,MT_NU=null,MT_EX=null,MT_LAO=/[\u0E80-\u0EFF]/,MT_UNIT={'\u0E9A\u0EB4\u0E99':'bills','\u0EA1\u0EB7\u0EC9':'days','\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99':'items','\u0EAA\u0EB4\u0E99\u0E84\u0EC9\u0EB2':'products','\u0E84\u0EBB\u0E99':'people','\u0EA5\u0EB2\u0E8D':'entries','\u0EC3\u0E9A':'notes','\u0EAE\u0EAD\u0E9A':'rounds','\u0EA5\u0EB1\u0EAD\u0E94':'lots','\u0E81\u0EB5\u0E9A':'LAK','\u0E95\u0EB8\u0E81':'bottles','\u0E82\u0EA7\u0E94':'bottles','\u0E96\u0EBB\u0E87':'bags','\u0E8A\u0EAD\u0E87':'sachets','\u0E81\u0EC8\u0EAD\u0E87':'boxes','\u0E81\u0EB0\u0E9B\u0ECB\u0EAD\u0E87':'cans','\u0E84\u0EB9\u0EC8':'pairs','\u0EC1\u0E97\u0EC8\u0E87':'bars','\u0E81\u0EC9\u0EAD\u0E99':'bars','\u0EAB\u0EBC\u0EAD\u0E94':'tubes','\u0EA1\u0EC9\u0EA7\u0E99':'rolls','\u0EAD\u0EB1\u0E99':'pcs','\u0E8A\u0EB4\u0EC9\u0E99':'pcs','\u0E9A\u0EB2\u0E94':'THB','\u0EC2\u0E94\u0EA5\u0EB2':'USD'};
+ຊົ່ວໂມງ => hours
+ຫ້ອງ & ລາຄາ => Rooms & rates
+ປະເພດຫ້ອງ => Room types
+=ຫ້ອງ => Rooms
+=ລາຄາ => Rates
+=ແຜນ => Plans
+ຕັ້ງຄ່າ & ພາສີ => Settings & taxes
+ທົດລອງຄິດລາຄາ => Try pricing
+＋ ປະເພດຫ້ອງ => ＋ Room type
+＋ ຫ້ອງ => ＋ Room
+＋ ເພີ່ມຫຼາຍຫ້ອງ => ＋ Add many rooms
+＋ ກົດລາຄາ => ＋ Rate rule
+＋ ກົດທ້າຍອາທິດ => ＋ Weekend rule
+＋ ແຜນລາຄາ => ＋ Price plan
+ຍັງບໍ່ມີປະເພດຫ້ອງ — ກົດ "＋ ປະເພດຫ້ອງ" => No room types yet — tap "＋ Room type"
+ຍັງບໍ່ມີປະເພດຫ້ອງ => No room types yet
+ຍັງບໍ່ມີຫ້ອງ — ກົດ "＋ ຫ້ອງ" ຫຼື "＋ ເພີ່ມຫຼາຍຫ້ອງ" => No rooms yet — tap "＋ Room" or "＋ Add many rooms"
+ຍັງບໍ່ມີຫ້ອງ => No rooms yet
+ຍັງບໍ່ມີກົດ — ໃຊ້ລາຄາຖານ => No rules yet — base rate is used
+ຍັງບໍ່ມີແຜນ — ຄິດລາຄາຫ້ອງເປົ່າ => No plans yet — room-only pricing
+=ໃຊ້ງານ => Active
+ເປີດໃຊ້ງານ => Active
+=ຊັ້ນ => Floor
+ໂຊນ / ຕຶກ => Zone / building
+ເລກຫ້ອງ => Room no.
+ແກ້ໄຂປະເພດຫ້ອງ => Edit room type
+ເພີ່ມປະເພດຫ້ອງ => Add room type
+ແກ້ໄຂຫ້ອງ => Edit room
+ເພີ່ມຫ້ອງ => Add room
+ເພີ່ມຫຼາຍຫ້ອງ => Add many rooms
+ແກ້ໄຂກົດລາຄາ => Edit rate rule
+ເພີ່ມກົດລາຄາ => Add rate rule
+ແກ້ໄຂແຜນລາຄາ => Edit price plan
+ເພີ່ມແຜນລາຄາ => Add price plan
+ຊື່ປະເພດ => Type name
+ຈຳນວນຄົນລວມໃນລາຄາ => Guests included in price
+=ຕຽງ => Bed
+ເຊັ່ນ 1 ຕຽງຄູ່ => e.g. 1 double bed
+ລາຄາຖານ ຕໍ່ຄືນ (ກີບ) => Base rate per night (LAK)
+ຜູ້ໃຫຍ່ເກີນ/ຄືນ => Extra adult / night
+ເດັກເກີນ/ຄືນ => Extra child / night
+ຕຽງເສີມ/ຄືນ => Extra bed / night
+ສິ່ງອຳນວຍຄວາມສະດວກ => Amenities
+(ຂັ້ນດ້ວຍຈຸດ ,) => (comma separated)
+ເຊັ່ນ ຫ້ອງມາດຕະຖານ / ດີລັກ / ວິລລາ => e.g. Standard / Deluxe / Villa
+=ຮູບ => Picture
+ສ້າງເລກຫ້ອງຕໍ່ເນື່ອງ ເຊັ່ນ ນຳໜ້າ "A" ຈາກ 1 ຫາ 10 → A1…A10 (ເລກທີ່ມີແລ້ວຖືກຂ້າມ) => Create consecutive room numbers, e.g. prefix "A" from 1 to 10 → A1…A10 (existing numbers are skipped)
+ຕົວນຳໜ້າ (ບໍ່ບັງຄັບ) => Prefix (optional)
+ຈາກເລກ => From no.
+ຫາເລກ => To no.
+=ສ້າງ => Create
+ໂຊນ => Zone
+=ກົດ => Rule
+ຊ່ວງວັນ => Date range
+ມື້ໃນອາທິດ => Days of week
+ລາຄາ/ຄືນ => Rate / night
+=ລຳດັບ => Priority
+ທຸກປະເພດ => All types
+ທຸກວັນ => Every day
+ທຸກມື້ => Every day
+ຈາກລາຄາຖານ => from base rate
+ລາຄາ ຕໍ່ຄືນ (ກີບ) => Price per night (LAK)
+ຫຼື ປັບ % ຈາກລາຄາຖານ => or adjust % from base rate
+ໃສ່ຢ່າງດຽວ: ລາຄາກີບ (ກຳນົດຕາຍ) ຫຼື % (ເໝາະກັບກົດ "ທຸກປະເພດ") => Enter one: a fixed LAK price or a % (best for "all types" rules)
+ໃຊ້ກັບປະເພດ => Applies to type
+ຕັ້ງແຕ່ວັນທີ => From date
+ຊື່ກົດ => Rule name
+ລຳດັບ (ສູງ = ຊະນະ) => Priority (higher wins)
+ບໍ່ມີກົດ = ໃຊ້ລາຄາຖານຂອງປະເພດ. ກົດຫຼາຍອັນຊ້ອນກັນ: ເລືອກ "ລຳດັບ" ສູງສຸດ → ຊ່ວງວັນແຄບກວ່າ → ປະເພດສະເພາະ. => No rule = the room type's base rate. When rules overlap: highest "priority" → narrower date range → specific type.
+ເລືອກ "ລຳດັບ" ສູງສຸດ => highest priority
+ຄິດລາຄາ => Calculate
+=ຜູ້ໃຫຍ່ => Adults
+=ເດັກ => Children
+=ຕຽງເສີມ => Extra bed
+=ມາ => Arrive
+=ໄປ => Depart
+— ບໍ່ມີແຜນ — => — No plan —
+=ຄືນ => Night
+ຄ່າຫ້ອງ => Room
+ຄົນ/ຕຽງເພີ່ມ => Extra person / bed
+ລວມກ່ອນພາສີ: => Subtotal before tax:
+ລວມທັງໝົດ: => Grand total:
+ພັກຍາວ => Long stay
+ຍັງບໍ່ຕັ້ງລາຄາ ສຳລັບວັນທີ: => Price not set for dates:
+ວັນທີບໍ່ຖືກຕ້ອງ (ວັນໄປຕ້ອງຢູ່ຫຼັງວັນມາ) ຫຼື ຍັງບໍ່ໄດ້ເລືອກປະເພດຫ້ອງ => Invalid dates (departure must be after arrival) or no room type selected
+ຕັ້ງ "ລາຄາຖານ" ຂອງປະເພດ ຫຼື ເພີ່ມກົດລາຄາ => set the type's "base rate" or add a rate rule
+ປັບລາຄາ => Price adjustment
+=ອາຫານເຊົ້າ => Breakfast
+ຍົກເລີກໄດ້ => Refundable
+=ໄດ້ => Yes
+=ບໍ່ໄດ້ => No
+ຊື່ແຜນ => Plan name
+ລວມອາຫານເຊົ້າ => Includes breakfast
+ຍົກເລີກ / ຄືນເງິນໄດ້ => Cancellable / refundable
+ປັບລາຄາ % ຈາກລາຄາຫ້ອງ => Adjust price % of room rate
+=ເວລາ => Time
+ປິດບັນຊີກາງຄືນ (night audit) => Night audit time
+ຄືນເງິນມັດຈຳເຕັມ ຖ້າຍົກເລີກກ່ອນ (ມື້) => Full deposit refund if cancelled before (days)
+ມື້ທ້າຍອາທິດ (ໃຊ້ຕອນສ້າງກົດທ້າຍອາທິດ) => Weekend days (used for the weekend rule)
+ພາສີ / ຄ່າບໍລິການ / ຄ່າທຳນຽມ => Taxes / service / fees
+ເລີ່ມຕົ້ນ 0% — ຕັ້ງຕາມກົດໝາຍຂອງທ່ານ => default 0% — set per your local law
++ ເພີ່ມພາສີ => + Add tax
+ພັກຍາວ — ຫຼຸດຄ່າຫ້ອງ => Long stay — room discount
+ເຊັ່ນ 7 ຄືນຂຶ້ນໄປ ຫຼຸດ 10% => e.g. 7+ nights get 10% off
++ ເພີ່ມກົດພັກຍາວ => + Add long-stay rule
+ບັນທຶກການຕັ້ງຄ່າ => Save settings
+% ຂອງຍອດ => % of subtotal
+ຄົງທີ່ ຕໍ່ຄືນ => Fixed per night
+ຕໍ່ຄົນ ຕໍ່ຄືນ => Per person per night
+ພັກ ≥ ຄືນ => Stay ≥ nights
+ຫຼຸດ % => Discount %
+ຊື່ ເຊັ່ນ VAT => Name e.g. VAT
+=ໃຊ້ => On
+ຮ້ານອາຫານ => Restaurant
+=ບາ => Bar
+ເຈົ້າຂອງທີ່ພັກ => Owner
+ຕ້ອນຮັບ (Front desk) => Front desk
+ພະນັກງານຮ້ານອາຫານ => Restaurant staff`;
+var MT_LANG='lo',MT_MAP=null,MT_RE=null,MT_NU=null,MT_EX=null,MT_LAO=/[\u0E80-\u0EFF]/,MT_UNIT={'\u0E9A\u0EB4\u0E99':'bills','\u0EA1\u0EB7\u0EC9':'days','\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99':'items','\u0EAA\u0EB4\u0E99\u0E84\u0EC9\u0EB2':'products','\u0E84\u0EBB\u0E99':'people','\u0EA5\u0EB2\u0E8D':'entries','\u0EC3\u0E9A':'notes','\u0EAE\u0EAD\u0E9A':'rounds','\u0EA5\u0EB1\u0EAD\u0E94':'lots','\u0E81\u0EB5\u0E9A':'LAK','\u0E95\u0EB8\u0E81':'bottles','\u0E82\u0EA7\u0E94':'bottles','\u0E96\u0EBB\u0E87':'bags','\u0E8A\u0EAD\u0E87':'sachets','\u0E81\u0EC8\u0EAD\u0E87':'boxes','\u0E81\u0EB0\u0E9B\u0ECB\u0EAD\u0E87':'cans','\u0E84\u0EB9\u0EC8':'pairs','\u0EC1\u0E97\u0EC8\u0E87':'bars','\u0E81\u0EC9\u0EAD\u0E99':'bars','\u0EAB\u0EBC\u0EAD\u0E94':'tubes','\u0EA1\u0EC9\u0EA7\u0E99':'rolls','\u0EAD\u0EB1\u0E99':'pcs','\u0E8A\u0EB4\u0EC9\u0E99':'pcs','\u0E9A\u0EB2\u0E94':'THB','\u0EC2\u0E94\u0EA5\u0EB2':'USD','ຫ້ອງ':'rooms','ຄືນ':'nights','ປະເພດ':'types'};
 try{MT_LANG=localStorage.getItem('stpos_lang')==='en'?'en':'lo';}catch(e){}
 function mtInit(){if(MT_MAP)return;MT_MAP={};MT_EX={};var ks=[];MT_RAW.split('\n').forEach(function(l){var i=l.indexOf(' => ');if(i<1)return;var k=l.slice(0,i).trim(),v=l.slice(i+4).trim(),ex=k.charAt(0)==='=';if(ex)k=k.slice(1);if(k&&v){var T=ex?MT_EX:MT_MAP;if(!Object.prototype.hasOwnProperty.call(T,k)){T[k]=v;if(!ex)ks.push(k);}}});
  ks.sort(function(a,b){return b.length-a.length;});MT_NU=new RegExp('(\\d[\\d,.]*)\\s*('+Object.keys(MT_UNIT).sort(function(a,b){return b.length-a.length;}).join('|')+')(?![\\u0E80-\\u0EFF])','g');MT_RE=new RegExp(ks.map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|'),'g');}
-function mtOn(){return MT_LANG==='en'&&typeof bizCur==='function'&&bizCur()==='mart';}
+function mtOn(){return MT_LANG==='en'&&typeof bizCur==='function'&&(bizCur()==='mart'||bizCur()==='hotel');}
 function mtStr(s){mtInit();var m=/^(\s*)([\s\S]*?)(\s*)$/.exec(s),core=m[2];if(!core)return s;if(Object.prototype.hasOwnProperty.call(MT_EX,core))return m[1]+MT_EX[core]+m[3];if(Object.prototype.hasOwnProperty.call(MT_MAP,core))return m[1]+MT_MAP[core]+m[3];
  var r=core.replace(/^ສະແດງ (\d+)[–-](\d+) ຈາກ (\d+)/,'Showing $1–$2 of $3').replace(/^ມ້ວນ (\d)/,'Roll $1').replace(/^ເພີ່ມ (?=\S)/,'Added ').replace(/^ສິນຄ້າ (?=\d)/,'Goods ').replace(/ກຳລັງໃຊ້ (\d+) · ວ່າງ (\d+)/,'In use $1 · Free $2').replace(/ສົດ (?=\d)/g,'Cash ').replace(/ໂອນ (?=\d)/g,'Transfer ').replace(MT_NU,function(x,n,u){return n+' '+MT_UNIT[u]+' ';}).replace(MT_RE,function(x){return ' '+MT_MAP[x]+' ';});if(r===core)return s;r=r.replace(/[ \t]{2,}/g,' ').replace(/\s+([.,:;!?)\]])/g,'$1').replace(/([(\[])\s+/g,'$1').trim();return m[1]+r+m[3];}
 function mtTrans(root){if(!mtOn())return;root=root||document.body;var w=document.createTreeWalker(root,4,null),n,L=[];while((n=w.nextNode()))L.push(n);
@@ -11170,6 +11287,16 @@ function mtRestore(){var w=document.createTreeWalker(document.body,4,null),n,L=[
 function mtSetLang(l){MT_LANG=l==='en'?'en':'lo';try{localStorage.setItem('stpos_lang',MT_LANG);}catch(e){}if(MT_LANG==='lo')mtRestore();document.documentElement.setAttribute('lang',MT_LANG==='en'?'en':'lo');mtBtn();try{render();tickClock();}catch(e){}mtTrans();}
 function mtBtn(){var b=document.getElementById('langBtn');if(b)b.textContent=MT_LANG==='en'?'ລາວ':'EN';}
 NAV_IC.htRooms=NAV_IC.stock;
+/* ===== ST Hotel: ຂໍ້ມູນຕົວຢ່າງ — 4 ປະເພດ · 24 ຫ້ອງ · ກົດ ທ້າຍອາທິດ (+20%) / ລະດູສູງທ້າຍປີ (+40%) · 3 ແຜນ · ພັກຍາວ ===== */
+function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new Date().getFullYear(),mk=function(i,no,fl,zn,ty){return {id:'hrm_s'+i,no:no,floor:fl,zone:zn,type:ty,hk:'clean',active:true,upd:now};};
+ state.htTypes=[{id:'hty_s1',name:'ຫ້ອງມາດຕະຖານ',cap:2,beds:'1 ຕຽງຄູ່',baseRate:400000,extraAdult:100000,extraChild:50000,extraBed:80000,amen:['ແອ','WiFi','ໂທລະທັດ'],active:true,upd:now},
+  {id:'hty_s2',name:'ດີລັກ',cap:2,beds:'1 ຕຽງໃຫຍ່',baseRate:600000,extraAdult:120000,extraChild:60000,extraBed:100000,amen:['ແອ','WiFi','ລະບຽງ','ຕູ້ເຢັນ'],active:true,upd:now},
+  {id:'hty_s3',name:'ແຟມິລີ',cap:4,beds:'2 ຕຽງຄູ່',baseRate:900000,extraAdult:150000,extraChild:75000,extraBed:100000,amen:['ແອ','WiFi','ຫ້ອງຮັບແຂກ'],active:true,upd:now},
+  {id:'hty_s4',name:'ວິລລາ',cap:4,beds:'1 ຕຽງໃຫຍ່ + ຕຽງເສີມ',baseRate:1500000,extraAdult:200000,extraChild:100000,extraBed:120000,amen:['ແອ','WiFi','ສະລອຍນ້ຳສ່ວນຕົວ','ເຮືອນຄົວ'],active:true,upd:now}];
+ state.htRooms=[];var n=0,i;for(i=1;i<=8;i++)state.htRooms.push(mk(++n,'10'+i,'1','ຕຶກ A','hty_s1'));for(i=1;i<=8;i++)state.htRooms.push(mk(++n,'20'+i,'2','ຕຶກ A','hty_s2'));for(i=1;i<=4;i++)state.htRooms.push(mk(++n,'30'+i,'3','ຕຶກ B','hty_s3'));for(i=1;i<=4;i++)state.htRooms.push(mk(++n,'V'+i,'-','ວິລລາ','hty_s4'));
+ state.htRates=[{id:'hrt_s1',name:'ທ້າຍອາທິດ',type:'*',days:[5,6],from:'',to:'',price:0,adj:20,prio:0,active:true,upd:now},{id:'hrt_s2',name:'ລະດູສູງທ້າຍປີ',type:'*',days:[],from:y+'-12-15',to:(y+1)+'-01-10',price:0,adj:40,prio:5,active:true,upd:now}];
+ state.htPlans=[{id:'hpl_s1',name:'ຫ້ອງເປົ່າ',adj:0,breakfast:false,refundable:true,active:true,upd:now},{id:'hpl_s2',name:'ມີອາຫານເຊົ້າ',adj:10,breakfast:true,refundable:true,active:true,upd:now},{id:'hpl_s3',name:'ຍົກເລີກບໍ່ໄດ້',adj:-10,breakfast:false,refundable:false,active:true,upd:now}];
+ state.htCfg.los=[{min:7,pct:10},{min:28,pct:25}];state.htCfg.taxes=[];if(!state.shopName||/ຊື່ຮ້ານຂອງທ່ານ|DEMO|ST Mart|ST Hotel$/.test(state.shopName))state.shopName='ST Hotel ຕົວຢ່າງ';}
 /* ===== ST Hotel ໄລຍະ 1: ຫ້ອງ + ລາຄາ — ຂໍ້ມູນ: htTypes htRooms htRates htPlans htCfg (ທຸກແຖວມີ id + upd) ===== */
 function htInit(){['htTypes','htRooms','htRates','htPlans'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.htCfg||typeof state.htCfg!=='object')state.htCfg={};
  var c=state.htCfg,d={ci:'14:00',co:'12:00',audit:'02:00',weekend:[5,6],taxes:[],los:[],policyDays:3};Object.keys(d).forEach(function(k){if(c[k]===undefined)c[k]=d[k];});}
@@ -11201,7 +11328,7 @@ function htGv(id){var e=document.getElementById(id);return e?String(e.value).tri
 function htRoomsOf(typeId){return (state.htRooms||[]).filter(function(r){return r.type===typeId&&r.active!==false;});}
 function htLg(a,d){try{logOrder(a,d,'');}catch(e){}}
 function htOpts(sel,withAll){var L=(withAll?'<option value="*"'+(sel==='*'?' selected':'')+'>ທຸກປະເພດ</option>':'')+(state.htTypes||[]).filter(function(t){return t.active!==false||t.id===sel;}).map(function(t){return '<option value="'+aesc(t.id)+'"'+(t.id===sel?' selected':'')+'>'+cesc(t.name)+'</option>';}).join('');return L;}
-function renderHtRooms(R){htInit();var tabs=[['type','ປະເພດຫ້ອງ'],['room','ຫ້ອງ'],['rate','ລາຄາ'],['plan','ແຜນ'],['cfg','ຕັ້ງຄ່າ & ພາສີ']],nr=(state.htRooms||[]).filter(function(r){return r.active!==false;}).length;
+function renderHtRooms(R){htInit();HT_DN=mtOn()?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['ອາ','ຈ','ອ','ພ','ພຫ','ສຸ','ສ'];var tabs=[['type','ປະເພດຫ້ອງ'],['room','ຫ້ອງ'],['rate','ລາຄາ'],['plan','ແຜນ'],['cfg','ຕັ້ງຄ່າ & ພາສີ']],nr=(state.htRooms||[]).filter(function(r){return r.active!==false;}).length;
  R.innerHTML='<div class="pad"><div class="tv-head"><div><div class="ttl">ຫ້ອງ & ລາຄາ</div><div class="sub">'+(state.htTypes||[]).filter(function(t){return t.active!==false;}).length+' ປະເພດ · '+nr+' ຫ້ອງ</div></div></div><div class="py-tabs ht-tabs">'+tabs.map(function(t){return '<button type="button" data-t="'+t[0]+'" class="'+(htTab===t[0]?'on':'')+'" onclick="htTab=this.dataset.t;window.__htCfgDraft=null;render()">'+t[1]+'</button>';}).join('')+'</div><div id="htBody"></div></div>';
  var B=document.getElementById('htBody'),f={type:htRenderTypes,room:htRenderRooms,rate:htRenderRates,plan:htRenderPlans,cfg:htRenderCfg}[htTab]||htRenderTypes;f(B);}
 /* ---- ປະເພດຫ້ອງ ---- */
@@ -11304,15 +11431,15 @@ function htCfgSave(){if(!htCan()){toast('ບໍ່ມີສິດແກ້ຕັ
 var DEMO_USERS=[['d_mgr','ຜູ້ຈັດການ','manager','2222'],['d_cash','ແຄັດເຊຍ / ພະນັກງານຂາຍ','cashier','1111'],['d_stk','ນາຍສາງ','storekeeper','4444']];
 var DEMO_USERS_CAFE=[['d_wait','ພະນັກງານເສີບ','waiter','3333']];
 function demoUsers(){var u=DEMO_USERS.slice();if(window.__DEMO!=='medical'&&window.__DEMO!=='mart')u=u.concat(DEMO_USERS_CAFE);if(window.__DEMO==='medical'){u.push(['d_nurse','ພະຍາບານ ນາງ ແສງ','waiter','3333'],['d_lab','ເຕັກນິກແລັບ','lab','7777'],['d_doc','ທ່ານໝໍ ສົມສັກ','doctor','5555'],['d_ph','ຫ້ອງຢາ (ເພສັດ)','kitchen','6666']);}return u;}
-function demoChooser(){document.body.innerHTML='<div class="dm-ch"><h1>ST POS</h1><p>ລອງໃຊ້ໂປຣແກຣມ ຟຣີ — ບໍ່ຕ້ອງລົງທະບຽນ · ຂໍ້ມູນຕົວຢ່າງ ບໍ່ກະທົບຮ້ານຈິງ</p><div class="dm-g">'+[['mart','🛒','ST Mart (ຮ້ານຄ້າ)','ສະແກນບາໂຄດ · ສະຕ໋ອກ · ຮັບສິນຄ້າ'],['medical','💊','ຮ້ານຢາ & ຄລີນິກ','ຢາ · ຄ່າກວດ · ແລັບ · ຫ້ອງຢາ'],['cafe','☕','ຮ້ານກາເຟ / ອາຫານ','ໂຕະ · ຄົວ · ບາ']].map(function(x){return '<a href="?demo='+x[0]+'"><i>'+x[1]+'</i><b>'+x[2]+'</b><small>'+x[3]+'</small></a>';}).join('')+'</div></div><style>body{overflow:auto!important;background:linear-gradient(135deg,#edf9f8,#cfeeee)}.dm-ch{max-width:860px;margin:0 auto;padding:60px 20px;text-align:center;color:#062f2d}.dm-ch h1{font-size:44px;font-weight:800}.dm-ch p{margin:8px 0 28px;color:#4d7471}.dm-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.dm-g a{display:flex;flex-direction:column;gap:6px;align-items:center;text-decoration:none;color:inherit;background:#fff;border-radius:24px;padding:28px 16px;box-shadow:0 8px 24px rgba(6,47,45,.12)}.dm-g i{font-size:46px;font-style:normal}.dm-g b{font-size:19px}.dm-g small{color:#4d7471}</style>';}
+function demoChooser(){document.body.innerHTML='<div class="dm-ch"><h1>ST POS</h1><p>ລອງໃຊ້ໂປຣແກຣມ ຟຣີ — ບໍ່ຕ້ອງລົງທະບຽນ · ຂໍ້ມູນຕົວຢ່າງ ບໍ່ກະທົບຮ້ານຈິງ</p><div class="dm-g">'+[['hotel','🏨','ST Hotel (ທີ່ພັກ)','ຫ້ອງ · ລາຄາ · ການຈອງ · ຮ້ານອາຫານ'],['mart','🛒','ST Mart (ຮ້ານຄ້າ)','ສະແກນບາໂຄດ · ສະຕ໋ອກ · ຮັບສິນຄ້າ'],['medical','💊','ຮ້ານຢາ & ຄລີນິກ','ຢາ · ຄ່າກວດ · ແລັບ · ຫ້ອງຢາ'],['cafe','☕','ຮ້ານກາເຟ / ອາຫານ','ໂຕະ · ຄົວ · ບາ']].map(function(x){return '<a href="?demo='+x[0]+'"><i>'+x[1]+'</i><b>'+x[2]+'</b><small>'+x[3]+'</small></a>';}).join('')+'</div></div><style>body{overflow:auto!important;background:linear-gradient(135deg,#edf9f8,#cfeeee)}.dm-ch{max-width:860px;margin:0 auto;padding:60px 20px;text-align:center;color:#062f2d}.dm-ch h1{font-size:44px;font-weight:800}.dm-ch p{margin:8px 0 28px;color:#4d7471}.dm-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.dm-g a{display:flex;flex-direction:column;gap:6px;align-items:center;text-decoration:none;color:inherit;background:#fff;border-radius:24px;padding:28px 16px;box-shadow:0 8px 24px rgba(6,47,45,.12)}.dm-g i{font-size:46px;font-style:normal}.dm-g b{font-size:19px}.dm-g small{color:#4d7471}</style>';}
 function demoReset(){try{var R=window.__rawLS,ks=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('demo_')===0)ks.push(k);}ks.forEach(function(k){R.r.call(localStorage,k);});}catch(e){}location.reload();}
 function demoRole(id){SESSION.uid=id;try{localStorage.setItem('stpos_uid',id);}catch(e){}state.activeStaff=(curUser()||{}).name||state.activeStaff;try{setView(homeView());}catch(e){}render();demoBar();}
 function demoBar(){var o=document.getElementById('demoBar');if(o)o.remove();var u=curUser()||{},all=[{id:'u1',name:'Admin (ເຈົ້າຂອງ)'}].concat(demoUsers().map(function(x){return {id:x[0],name:x[1]};}));
  var d=document.createElement('div');d.id='demoBar';d.innerHTML='<b>DEMO</b><span>ເບິ່ງແບບ:</span><select onchange="demoRole(this.value)">'+all.map(function(x){return '<option value="'+x.id+'"'+(x.id===u.id?' selected':'')+'>'+x.name+'</option>';}).join('')+'</select><button onclick="demoReset()" title="ລ້າງຂໍ້ມູນທົດລອງ ແລ້ວເລີ່ມໃໝ່">↺ ເລີ່ມໃໝ່</button>';var tb=document.querySelector('.topbar'),uc=document.getElementById('userChip');if(tb&&uc)tb.insertBefore(d,uc);else document.body.appendChild(d);}
 var DEMO_VER=20261024.1;
 function demoInit(){if(!window.__DEMO||!state)return;if(state._demo&&state._demoVer!==DEMO_VER){demoReset();return;}if(state._demo)return;var t=window.__DEMO;state._demo=1;state._demoVer=DEMO_VER;
- if(t==='mart'){bizLoad(t);}else if(t==='medical'||t==='pharmacy'||t==='clinic'){t='medical';window.__DEMO=t;bizLoad(t);}else{bizApply('fnb',true);Object.keys(state.ingredients||{}).forEach(function(k){var g=state.ingredients[k];ensLocs(g);g.locs[curLoc()]=2000;g.stock=2000;});}
- state.requireShift=false;state.shopName='DEMO · '+(t==='medical'?'ຮ້ານຢາ & ຄລີນິກ':t==='mart'?'ST Mart':'ຮ້ານກາເຟ');
+ if(t==='hotel'){htLoadSample();}else if(t==='mart'){bizLoad(t);}else if(t==='medical'||t==='pharmacy'||t==='clinic'){t='medical';window.__DEMO=t;bizLoad(t);}else{bizApply('fnb',true);Object.keys(state.ingredients||{}).forEach(function(k){var g=state.ingredients[k];ensLocs(g);g.locs[curLoc()]=2000;g.stock=2000;});}
+ state.requireShift=false;state.shopName='DEMO · '+(t==='medical'?'ຮ້ານຢາ & ຄລີນິກ':t==='mart'?'ST Mart':t==='hotel'?'ST Hotel':'ຮ້ານກາເຟ');
  state.users=(state.users||[]).filter(function(u){return u.id==='u1';});state.users[0].name='Admin';demoUsers().forEach(function(x){var uo={id:x[0],name:x[1],role:x[2],pin:x[3],active:true};if(x[0]==='d_doc')uo.room='ໝໍ ສົມສັກ';state.users.push(uo);});
  var flat=[];Object.values(MSRC()).forEach(function(c){Object.values(c).forEach(function(l){l.forEach(function(i){flat.push(i);});});});var now=Date.now(),bills=[];
  for(var n=0;n<18&&flat.length;n++){var its=[],tot=0,cg=0,cnt=1+(n%3);for(var j=0;j<cnt;j++){var p=flat[(n*5+j*3)%flat.length],q=1+((n+j)%3);its.push({id:'dm'+n+'_'+j,code:p.c,name:p.n,qty:q,price:p.p,mods:[]});tot+=p.p*q;cg+=Math.round(p.p*q*0.6);}
@@ -11764,11 +11891,12 @@ function rxDemo(){try{state.customers[0].note='ແພ້ Penicillin';state.custo
 var EMPTY_KEYS={catalog:{},menuImg:{},modGroups:[],ingredients:{},ingDel:{},bills:[],orders:[],draft:[],expenses:[],menuLog:[],orderLog:[],shiftLog:[],stockLog:[],cancelLog:[],prs:[],pos:[],grns:[],transfers:[],reqs:[],chkSubs:[],stockCounts:[],resv:[],stockAdj:[],wastes:[],dlSettles:[],costAlerts:[],kdsLog:[],customers:[],_custDel:[],vendors:[],promos:[],qr:{},soldOut:{}};
 var _rst={mode:'empty',fail:0,until:0};
 function confirmReset(pre){if(!can('sysAdv')){toast('ບໍ່ມີສິດ');return;}var me=curUser()||{},sup=me.role==='superadmin',S=(state.users||[]).filter(function(u){return u.role==='superadmin'&&u.active!==false;});
- if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode=(pre==='medical'||pre==='mart')?pre:'empty';
+ if(!S.length){toast('ບໍ່ມີ Super Admin — ລ້າງບໍ່ໄດ້');return;}_rst.mode=(pre==='medical'||pre==='mart'||pre==='hotel')?pre:'empty';
  var card=function(m,t,d){return '<button type="button" class="rst-card" data-m="'+m+'" onclick="_rst.mode=this.dataset.m;document.querySelectorAll(\'.rst-card\').forEach(function(b){b.classList.toggle(\'on\',b.dataset.m===_rst.mode);})"><b>'+t+'</b><small>'+d+'</small></button>';};
  openModal('<h2 style="color:var(--red)">ລ້າງຂໍ້ມູນ</h2><p class="uc-lead">ລ້າງແລ້ວ ໃຊ້ສຳຮອງທີ່ສ້າງອັດຕະໂນມັດກ່ອນລ້າງ ເພື່ອກູ້ຄືນໄດ້ (ສຳຮອງ & ຂັ້ນສູງ)</p>'+
   '<div class="rst-cards">'+card('empty','ລ້າງເປັນຮ້ານເປົ່າ','<u>ລຶບ</u>: ເມນູ ສູດ ຮູບ · ວັດຖຸດິບ & ສະຕ໋ອກ · ບິນ ອໍເດີ ລາຍຈ່າຍ · ເອກະສານສາງ / ຈັດຊື້ · ສະມາຊິກ ຜູ້ຂາຍ ໂປຣ · ປະຫວັດ<br><u>ເກັບໄວ້</u>: ຂໍ້ມູນຮ້ານ & ໃບບິນ · ການຊຳລະ · ຜູ້ໃຊ້ & PIN · ໂຕະ & ຊັ້ນ · ບ່ອນເກັບ · ຫົວໜ່ວຍ · ການຕັ້ງຄ່າ')+
    card('demo','ລ້າງເປັນຂໍ້ມູນຕົວຢ່າງ','ລຶບທຸກຢ່າງ ແລ້ວໃສ່ເມນູ ວັດຖຸດິບ ແລະ ຜູ້ໃຊ້ຕົວຢ່າງ (Admin) — ສຳລັບທົດລອງ / ສາທິດ')+
+   card('hotel','ຕົວຢ່າງ: ST Hotel (ທີ່ພັກ)','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ 4 ປະເພດຫ້ອງ · 24 ຫ້ອງ · ກົດລາຄາ · ແຜນ · ພັກຍາວ ແລະ ໃຊ້ສິດ/ບົດບາດຂອງທີ່ພັກ')+
    card('mart','ຕົວຢ່າງ: ST Mart (ຮ້ານຄ້າ)','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ສິນຄ້າ 26 ລາຍການ (ມີບາໂຄດ) + ສະຕ໋ອກ + ສະມາຊິກ ແລະ ໃຊ້ສິດ/ບົດບາດຮ້ານຄ້າ')+
    card('medical','ຕົວຢ່າງ: ຮ້ານຢາ & ຄລີນິກ','ລຶບຂໍ້ມູນເດີມ ແລ້ວໃສ່ ຄ່າກວດ · ແລັບ · ຢາ 30 ກວ່າລາຍການ + ຮູບ + ສະຕ໋ອກ + ແຄັດເຊຍ + ບັດແພດ 3 ທ່ານ + ສະມາຊິກ · ໃຊ້ສິດ/ບົດບາດຮ້ານຢາ & ຄລີນິກ ແລະ ນັດໝາຍ')+'</div>'+
   '<div class="rst-auth"><b>'+(sup?'ຢືນຢັນດ້ວຍ PIN ຂອງທ່ານ (Super Admin)':'ຕ້ອງໃຫ້ Super Admin ອະນຸມັດ — ໃຫ້ Super Admin ໃສ່ PIN')+'</b>'+
@@ -11781,7 +11909,7 @@ function rstGo(){if(!can('sysAdv'))return;if(Date.now()<_rst.until){toast('ໃ�
  if(!a||a.role!=='superadmin'){toast('ຕ້ອງເປັນ Super Admin');return;}if(!/^\d{4}$/.test(pin)){toast('ໃສ່ PIN 4 ຕົວ');return;}
  var ok=a.pinH?a.pinH===pinHash(pin):String(a.pin)===pin;if(!ok){_rst.fail++;if(_rst.fail>=5){_rst.until=Date.now()+5*60000;_rst.fail=0;}toast('PIN ບໍ່ຖືກຕ້ອງ');var e=document.getElementById('rst_pin');if(e){e.value='';e.focus();}return;}
  _rst.fail=0;var mode=_rst.mode,me=curUser()||{},by=(me.name||'')+(a.id!==me.id?' · ອະນຸມັດໂດຍ '+a.name:''),bt=document.getElementById('rst_go');if(bt){bt.disabled=true;bt.textContent='ກຳລັງສຳຮອງ…';}
- var go=function(){if(mode==='empty')doResetEmpty(by);else if(mode==='medical'||mode==='mart'){doResetEmpty(by);bizLoad(mode);save();render();showSuccess('ໂຫຼດຕົວຢ່າງ '+BIZ[mode].name+' ແລ້ວ','ລອງຂາຍ / ເບິ່ງສະຕ໋ອກ ໄດ້ເລີຍ');}else doReset(by);};
+ var go=function(){if(mode==='empty')doResetEmpty(by);else if(mode==='hotel'){doResetEmpty(by);htLoadSample();save();render();showSuccess('ໂຫຼດຕົວຢ່າງ ST Hotel ແລ້ວ','ເບິ່ງ ຫ້ອງ & ລາຄາ ໄດ້ເລີຍ');}else if(mode==='medical'||mode==='mart'){doResetEmpty(by);bizLoad(mode);save();render();showSuccess('ໂຫຼດຕົວຢ່າງ '+BIZ[mode].name+' ແລ້ວ','ລອງຂາຍ / ເບິ່ງສະຕ໋ອກ ໄດ້ເລີຍ');}else doReset(by);};
  if(HAS_API&&!/script\.google/.test(API_URL))jsonp_('bak=now&token='+encodeURIComponent(TOKEN),function(r){if(!(r&&r.ok)){if(bt){bt.disabled=false;bt.textContent='ລ້າງເລີຍ';}toast('ສຳຮອງບໍ່ສຳເລັດ — ຍັງບໍ່ລ້າງ (ກວດອິນເຕີເນັດ)');return;}go();});else go();}
 function doResetEmpty(by){var ns=JSON.parse(JSON.stringify(state)),now=Date.now();
  Object.keys(EMPTY_KEYS).forEach(function(k){ns[k]=JSON.parse(JSON.stringify(EMPTY_KEYS[k]));});
