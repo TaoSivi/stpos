@@ -86,10 +86,23 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       const stale = JSON.parse(JSON.stringify(s)); stale.htTask.find(function (x) { return x.id === 'hk_R1_2026-11-12_clean'; }).status = 'doing'; assert.strictEqual(await save('b1', stale), 'ok');
       s = await st('b1'); assert.strictEqual(s.htTask.find(function (x) { return x.id === 'hk_R1_2026-11-12_clean'; }).status, 'ok');
     });
+    await test('ST Hotel P5: service catalog + orders merge across devices; fixed-id folio rows from POS/service do not duplicate; newer void wins', async function () {
+      const a = await st('b1'), b = await st('b1');
+      const row = function () { return { id: 'hx_pos_0000000001', bk: 'BKA', dept: 'fnb', desc: 'POS', qty: 1, amt: 50000, payer: 'A', void: false, upd: 8000 }; };
+      a.htChg = (a.htChg || []).concat([row()]); b.htChg = (b.htChg || []).concat([row(), { id: 'hx_so_O1', bk: 'BKA', dept: 'svc', desc: 'laundry', qty: 2, amt: 15000, payer: 'A', void: false, upd: 8001 }]);
+      a.htSvc = [{ id: 'SV1', cat: 'spa', name: 'massage', price: 180000, cap: 2, mins: 60, upd: 8002 }]; b.htSvcOrd = [{ id: 'O1', item: 'SV1', bk: 'BKA', qty: 2, status: 'req', upd: 8003 }];
+      assert.strictEqual(await save('b1', a), 'ok'); assert.strictEqual(await save('b1', b), 'ok');
+      let s = await st('b1');
+      assert.strictEqual(s.htChg.filter(function (x) { return x.id === 'hx_pos_0000000001'; }).length, 1);
+      assert.strictEqual(s.htSvc.length, 1); assert.strictEqual(s.htSvcOrd.length, 1);
+      const v = await st('b1'); const o = v.htSvcOrd[0]; o.status = 'void'; o.upd = 9500; assert.strictEqual(await save('b1', v), 'ok');
+      const stale = JSON.parse(JSON.stringify(s)); stale.htSvcOrd[0].status = 'done'; assert.strictEqual(await save('b1', stale), 'ok');
+      s = await st('b1'); assert.strictEqual(s.htSvcOrd[0].status, 'void');
+    });
     await test('new branch starts with NO rooms / types / rates / plans / bookings / guests / promos but keeps settings (times, taxes)', async function () {
       assert.ok((await jp('b1', 'hq=add&name=' + encodeURIComponent('ທີ່ພັກ 2') + '&token=' + T)).ok);
       const s = await st('b2');
-      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg', 'htTask', 'htMt', 'htLf'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
+      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg', 'htTask', 'htMt', 'htLf', 'htSvc', 'htSvcOrd'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
       assert.strictEqual(s.htCfg.ci, '14:00'); assert.strictEqual(s.htCfg.bizDate, undefined); assert.strictEqual(s.htCfg.lastAudit, undefined); assert.strictEqual(s.htCfg.taxes.length, 1);
     });
     console.log('\n' + passed + ' passed');
