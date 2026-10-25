@@ -11,7 +11,7 @@
 <script>/* ໂໝດທົດລອງ (?demo=pharmacy|clinic|cafe|1): ແຍກບ່ອນເກັບຂໍ້ມູນ (ຄຳນຳໜ້າ demo_) · ບໍ່ເຊື່ອມ server · ບໍ່ແຕະຂໍ້ມູນຮ້ານຈິງ */
 (function(){var m=(location.search.match(/[?&]demo=(\w+)/)||[])[1];if(!m)return;window.__DEMO=m;var P=Storage.prototype,g=P.getItem,st=P.setItem,r=P.removeItem;window.__rawLS={g:g,s:st,r:r};
  var X='demo_'+m+'_';P.getItem=function(k){return g.call(this,X+k);};P.setItem=function(k,v){return st.call(this,X+k,v);};P.removeItem=function(k){return r.call(this,X+k);};
- try{st.call(localStorage,X+'stpos_local','1');if(!g.call(localStorage,X+'stpos_uid'))st.call(localStorage,X+'stpos_uid','u1');}catch(e){}})();</script>
+ try{st.call(localStorage,X+'stpos_local','1');if(!g.call(localStorage,X+'stpos_uid')&&((navigator.webdriver&&!/[?&]login=1/.test(location.search))||/[?&]nologin=1/.test(location.search)))st.call(localStorage,X+'stpos_uid','u1');}catch(e){}})(); /* ຄົນຈິງເປີດ ?demo= → ເຫັນໜ້າເລືອກຜູ້ໃຊ້ + PIN; ເທສອັດຕະໂນມັດ (webdriver) ຂ້າມ — ໃຊ້ &login=1 ເພື່ອເທສໜ້າເຂົ້າລະບົບ */</script>
 <script>(function(){try{var q=(location.search.match(/[?&]theme=(\w+)/)||[])[1];if(q)localStorage.setItem('stpos_theme',q);document.documentElement.setAttribute('data-theme',localStorage.getItem('stpos_theme')||'classic');var g=parseFloat(localStorage.getItem('stpos_glass_l1'));if(g>=0){var r=document.documentElement.style,a=g/100,b=a*0.36;r.setProperty('--l1a',a);r.setProperty('--l1b',b);r.setProperty('--l2a',a+.045);r.setProperty('--l2b',b+.02);r.setProperty('--l3a',a+.095);r.setProperty('--l3b',b+.05);}}catch(e){document.documentElement.setAttribute('data-theme','classic');}})();</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23062f2d%22/%3E%3Ctext x=%2232%22 y=%2242%22 font-size=%2226%22 font-weight=%22800%22 text-anchor=%22middle%22 fill=%22%237ff0e9%22 font-family=%22Arial%22%3EST%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -179,7 +179,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 .loginbox{background:#fff;border-radius:20px;padding:26px;width:400px;max-width:94vw;box-shadow:0 20px 60px rgba(7,46,44,.18);text-align:center}
 .loginbox h2{font-size:22px;margin-bottom:4px;background:var(--grad-deep);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .loginbox .lsub{font-size:13px;color:var(--muted);margin-bottom:14px}
-.usersgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;max-height:250px;overflow:auto;margin-bottom:8px;padding:3px}.usersgrid .ucard{flex:0 0 104px;box-sizing:border-box}
+.usersgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;max-height:min(330px,42vh);overflow:auto;margin-bottom:8px;padding:3px}.usersgrid .ucard{flex:0 0 104px;box-sizing:border-box}
 .ucard{background:#f3fbfb;border:2px solid var(--line);border-radius:14px;padding:12px 6px;cursor:pointer;transition:.13s}
 .ucard:hover{border-color:var(--tiff);transform:translateY(-2px)}
 .ucard.sel{border-color:var(--tiff);background:#eafbfa;box-shadow:0 4px 12px rgba(10,186,181,.25)}
@@ -3677,7 +3677,7 @@ function showLogin(){var el=document.getElementById('loginScreen');if(!el){el=do
   '<div class="usersgrid">'+users.map(function(u){return '<div class="ucard '+(_loginSel===u.id?'sel':'')+'" onclick="_loginSel=\''+u.id+'\';_loginPin=\'\';showLogin()"><div class="uav">'+cesc((u.name||'?').slice(0,2).toUpperCase())+'</div><div class="unm">'+cesc(u.name)+'</div><div class="url">'+(ROLE_LABELS[u.role]||u.role)+'</div></div>';}).join('')+'</div>'+
   (_loginSel?('<div class="pindots">'+[0,1,2,3].map(function(i){return '<span class="'+(i<_loginPin.length?'f':'')+'"></span>';}).join('')+'</div>'+
   '<div class="numpad">'+[1,2,3,4,5,6,7,8,9].map(function(n){return '<button onclick="loginKey(\''+n+'\')">'+n+'</button>';}).join('')+'<button onclick="loginKey(\'C\')">C</button><button onclick="loginKey(\'0\')">0</button><button onclick="loginKey(\'⌫\')">⌫</button></div>'):
-  '<div style="font-size:12px;color:var(--muted);margin-top:6px">ຄ່າເລີ່ມຕົ້ນ: Admin / PIN 1234</div>')+'</div>';}
+  (window.__DEMO?'<div id="demoPins" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">ລະຫັດທົດລອງ (ກົດຊື່ ແລ້ວໃສ່ PIN):<br>'+[['Admin','1234']].concat(demoUsers().map(function(x){return [x[1],x[3]];})).map(function(x){return '<b>'+cesc(x[0])+'</b> '+cesc(x[1]);}).join(' · ')+'</div>':'<div style="font-size:12px;color:var(--muted);margin-top:6px">ຄ່າເລີ່ມຕົ້ນ: Admin / PIN 1234</div>'))+'</div>';}
 function loginKey(k){if(k==='C')_loginPin='';else if(k==='⌫')_loginPin=_loginPin.slice(0,-1);else if(_loginPin.length<4)_loginPin+=k;
  if(_loginPin.length>=4){var u=(state.users||[]).find(function(x){return x.id===_loginSel;});
   if(pfLeft('u:'+_loginSel)){_loginPin='';toast('ບັນຊີນີ້ຖືກລັອກ (PIN ຜິດຫຼາຍເທື່ອ) — ລໍ '+pfLeft('u:'+_loginSel)+' ນາທີ');showLogin();return;}
