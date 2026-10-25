@@ -38,10 +38,29 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       assert.strictEqual(await save('b1', stale), 'ok');
       const s = await st('b1'); assert.strictEqual(s.htTypes[0].baseRate, 520000);
     });
-    await test('new branch starts with NO rooms / types / rates / plans but keeps settings (times, taxes)', async function () {
+    await test('ST Hotel P2: two devices book the SAME room at the same time: both bookings kept (client flags the overlap), guests/promos merge', async function () {
+      const a = await st('b1'), b = await st('b1');
+      const ln = function (id) { return [{ id: 'l' + id, room: 'R1', type: 'T1', from: '2026-11-10', to: '2026-11-12', adults: 2, kids: 0 }]; };
+      a.htBookings = (a.htBookings || []).concat([{ id: 'BKA', no: 'BK-2611-0001', status: 'conf', guest: { name: 'A' }, lines: ln('a'), upd: 5000 }]);
+      b.htBookings = (b.htBookings || []).concat([{ id: 'BKB', no: 'BK-2611-0001', status: 'tent', guest: { name: 'B' }, lines: ln('b'), upd: 5100 }]);
+      a.htGuests = [{ id: 'G1', name: 'A', phone: '020 1', upd: 5000 }]; b.htGuests = [{ id: 'G2', name: 'B', phone: '020 2', upd: 5100 }];
+      b.htPromos = [{ id: 'P1', code: 'SAVE10', kind: 'pct', val: 10, upd: 5100 }];
+      assert.strictEqual(await save('b1', a), 'ok'); assert.strictEqual(await save('b1', b), 'ok');
+      const s = await st('b1');
+      assert.deepStrictEqual(s.htBookings.map(function (x) { return x.id; }).sort(), ['BKA', 'BKB']);
+      assert.strictEqual(s.htGuests.length, 2); assert.strictEqual(s.htPromos.length, 1);
+    });
+    await test('ST Hotel P2: a stale OLDER copy cannot revive a cancelled booking; cancel on one device wins over older edit', async function () {
+      const a = await st('b1'); const bk = a.htBookings.find(function (x) { return x.id === 'BKB'; });
+      bk.status = 'cancel'; bk.upd = 9000; assert.strictEqual(await save('b1', a), 'ok');
+      const stale = JSON.parse(JSON.stringify(a)); stale.htBookings.find(function (x) { return x.id === 'BKB'; }).status = 'conf'; stale.htBookings.find(function (x) { return x.id === 'BKB'; }).upd = 5200;
+      assert.strictEqual(await save('b1', stale), 'ok');
+      const s = await st('b1'); assert.strictEqual(s.htBookings.find(function (x) { return x.id === 'BKB'; }).status, 'cancel');
+    });
+    await test('new branch starts with NO rooms / types / rates / plans / bookings / guests / promos but keeps settings (times, taxes)', async function () {
       assert.ok((await jp('b1', 'hq=add&name=' + encodeURIComponent('ທີ່ພັກ 2') + '&token=' + T)).ok);
       const s = await st('b2');
-      ['htTypes', 'htRooms', 'htRates', 'htPlans'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
+      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
       assert.strictEqual(s.htCfg.ci, '14:00'); assert.strictEqual(s.htCfg.taxes.length, 1);
     });
     console.log('\n' + passed + ' passed');

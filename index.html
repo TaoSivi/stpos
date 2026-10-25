@@ -10509,6 +10509,11 @@ Admin (ເຈົ້າຂອງ) => Admin (Owner)
 =ລົບ => Delete
 ແກ້ໄຂ => Edit
 =ປິດ => Close
+=ໂຄ້ດ => Code
+=ມາດຕະຖານ => Standard
+ຍົກເລີກຕອນນີ້ => cancelling now
+ປ່ຽນ/ປິດບໍ່ໄດ້ => Cannot change/close
+ໃຊ້ປະເພດນີ້ => using this type
 =ລ້າງ => Clear
 =ພິມ => Print
 =ໝາຍເຫດ => Note
@@ -11280,14 +11285,136 @@ Data ໃນ System => Data in the system
 =ບາ => Bar
 ເຈົ້າຂອງທີ່ພັກ => Owner
 ຕ້ອນຮັບ (Front desk) => Front desk
-ພະນັກງານຮ້ານອາຫານ => Restaurant staff`;
-var MT_LANG='lo',MT_MAP=null,MT_RE=null,MT_NU=null,MT_EX=null,MT_LAO=/[\u0E80-\u0EFF]/,MT_UNIT={'\u0E9A\u0EB4\u0E99':'bills','\u0EA1\u0EB7\u0EC9':'days','\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99':'items','\u0EAA\u0EB4\u0E99\u0E84\u0EC9\u0EB2':'products','\u0E84\u0EBB\u0E99':'people','\u0EA5\u0EB2\u0E8D':'entries','\u0EC3\u0E9A':'notes','\u0EAE\u0EAD\u0E9A':'rounds','\u0EA5\u0EB1\u0EAD\u0E94':'lots','\u0E81\u0EB5\u0E9A':'LAK','\u0E95\u0EB8\u0E81':'bottles','\u0E82\u0EA7\u0E94':'bottles','\u0E96\u0EBB\u0E87':'bags','\u0E8A\u0EAD\u0E87':'sachets','\u0E81\u0EC8\u0EAD\u0E87':'boxes','\u0E81\u0EB0\u0E9B\u0ECB\u0EAD\u0E87':'cans','\u0E84\u0EB9\u0EC8':'pairs','\u0EC1\u0E97\u0EC8\u0E87':'bars','\u0E81\u0EC9\u0EAD\u0E99':'bars','\u0EAB\u0EBC\u0EAD\u0E94':'tubes','\u0EA1\u0EC9\u0EA7\u0E99':'rolls','\u0EAD\u0EB1\u0E99':'pcs','\u0E8A\u0EB4\u0EC9\u0E99':'pcs','\u0E9A\u0EB2\u0E94':'THB','\u0EC2\u0E94\u0EA5\u0EB2':'USD','ຫ້ອງ':'rooms','ຄືນ':'nights','ປະເພດ':'types'};
+ພະນັກງານຮ້ານອາຫານ => Restaurant staff
+ປະຕິທິນ & ການຈອງ => Calendar & bookings
+=ປະຕິທິນ => Calendar
+ລາຍການຈອງ => Booking list
+ໂຄ້ດສ່ວນຫຼຸດ => Promo codes
+＋ ຈອງຫ້ອງ => ＋ Book a room
+＋ ໂຄ້ດສ່ວນຫຼຸດ => ＋ Promo code
+ການຈອງທີ່ໃຊ້ງານ => active bookings
+=ມື້ນີ້ => Today
+ຍັງບໍ່ກຳນົດຫ້ອງ => Room not assigned yet
+ກຳນົດຫ້ອງພາຍຫຼັງ => Assign room later
+(ວ່າງ) => (free)
+ແຖວຫົວປະເພດ = ຈຳນວນຫ້ອງວ່າງ · ກົດຊ່ອງວ່າງເພື່ອຈອງ => Type rows = free rooms · tap an empty cell to book
+ຍັງບໍ່ມີຫ້ອງ — ໄປຕັ້ງໃນ "ຫ້ອງ & ລາຄາ" ກ່ອນ => No rooms yet — set them up in "Rooms & rates" first
+=ຈອງຊົ່ວຄາວ => Tentative
+=ຢືນຢັນແລ້ວ => Confirmed
+=ເຂົ້າພັກ => Checked in
+=ອອກແລ້ວ => Checked out
+=ຢືນຢັນ => Confirm
+ຈອງຊົ່ວຄາວ => Tentative
+ຢືນຢັນແລ້ວ => Confirmed
+ເຂົ້າພັກ => Checked in
+ອອກແລ້ວ => Checked out
+ມີການຈອງຊ້ອນ => Overlapping bookings:
+ເກີດເມື່ອສອງເຄື່ອງຈອງພ້ອມກັນ. ກົດເລືອກ ແລ້ວຍ້າຍ ຫຼື ຍົກເລີກອັນໜຶ່ງ => happens when two devices book at once. Tap one, then move or cancel one of them
+ ຊ້ອນ  =>  overlaps
+ຈອງຫ້ອງໃໝ່ => New booking
+ແກ້ໄຂການຈອງ => Edit booking
+ຊື່ແຂກ * => Guest name *
+ເບີໂທ => Phone
+=ສັນຊາດ => Nationality
+ແຫຼ່ງຈອງ: => Source:
+=ແຫຼ່ງຈອງ => Booking source
+ມາເອງ (Walk-in) => Walk-in
+=ໂທ => Phone call
+=ຕົວແທນ => Agent
+=ເວັບໄຊ => Website
+ລົບຫ້ອງນີ້ => Remove this room
+＋ ເພີ່ມຫ້ອງ (ຈອງກຸ່ມ) => ＋ Add room (group booking)
+=ຖ້າມີ => if any
+ມັດຈຳ (ກີບ) => Deposit (LAK)
+ມັດຈຳ => Deposit
+=ຈ່າຍດ້ວຍ => Paid by
+=ບັດ => Card
+ບັນທຶກ & ຢືນຢັນ => Save & confirm
+ບໍ່ວ່າງ => unavailable
+ວ່າງໃຫ້ຈອງ => Available
+(ທຸກຫ້ອງ) => (all rooms)
+ສ່ວນຫຼຸດໂຄ້ດ: => Promo discount:
+ພາສີ/ຄ່າທຳນຽມ: => Taxes/fees:
+ລວມ: => Total:
+ຍັງເຫຼືອ => balance due
+ຜູ້ໃຫຍ່+ເດັກ => Adults+children
+ການຈອງນີ້ຊ້ອນກັບການຈອງອື່ນ — ກວດ ແລ້ວຍ້າຍຫ້ອງ ຫຼື ຍົກເລີກອັນໜຶ່ງ => This booking overlaps another — check, then move the room or cancel one
+ຖ້າຍົກເລີກຕອນນີ້ => If cancelled now
+ກ່ອນວັນມາ => before arrival
+ຄືນມັດຈຳ => Refund deposit
+ບໍ່ຄືນມັດຈຳ — ຍຶດ => No refund — forfeit
+ບໍ່ຄືນ — ຍຶດ => No refund — forfeit
+ຄືນມັດຈຳເຕັມ => Full deposit refund
+ນະໂຍບາຍ => policy
+ຍົກເລີກແລ້ວ => Cancelled
+ຍຶດມັດຈຳ => Deposit forfeited
+ຍຶດ => forfeit
+ຂໍ້ຄວາມຢືນຢັນ => Confirmation message
+ຍົກເລີກການຈອງ => Cancel booking
+ຢືນຢັນຍົກເລີກ => Confirm cancellation
+=ກັບຄືນ => Back
+ຢືນຢັນ No-show => Confirm No-show
+=ສຳເນົາ => Copy
+ບັນທຶກເປັນຍອດຂອງການຈອງ (ຍັງບໍ່ເຂົ້າເງິນສົດ/ບິນ — ຈະເຊື່ອມໃນໄລຍະຕໍ່ໄປ). ໃສ່ 0 ເພື່ອລຶບມັດຈຳ. => Recorded on the booking (not yet posted to cash/folio — linked in a later phase). Enter 0 to remove the deposit.
+ແຂກບໍ່ມາ — ປ່ອຍຫ້ອງ => Guest did not arrive — release the room
+ແນ່ໃຈບໍ? => Are you sure?
+ແລະ ຍຶດມັດຈຳ => and keep the deposit
+ໃຊ້ໄດ້ => Valid
+ຄືນຕ່ຳສຸດ => Min nights
+=ໃຊ້ແລ້ວ => Used
+ແບບຫຼຸດ => Discount type
+ເປີເຊັນ % => Percent %
+ຈຳນວນເງິນ (ກີບ) => Fixed amount (LAK)
+=ຄ່າ => Value
+ໃຊ້ໄດ້ຕັ້ງແຕ່ (ວັນມາ) => Valid from (arrival date)
+=ເຖິງ => To
+ພັກຢ່າງໜ້ອຍ (ຄືນ) => Minimum stay (nights)
+ເພີ່ມໂຄ້ດສ່ວນຫຼຸດ => Add promo code
+ແກ້ໄຂໂຄ້ດສ່ວນຫຼຸດ => Edit promo code
+ບັນທຶກການຈອງ => Booking saved
+ບັນທຶກ No-show => No-show recorded
+ສຳເນົາແລ້ວ => Copied
+ບັນທຶກໂຄ້ດ => Promo saved
+ບໍ່ມີສິດຈອງຫ້ອງ => No permission to book rooms
+ບໍ່ມີສິດແກ້ໂຄ້ດ => No permission to edit promo codes
+ໃສ່ຊື່ແຂກ => Enter the guest name
+ເພີ່ມຢ່າງໜ້ອຍ 1 ຫ້ອງ => Add at least 1 room
+ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຫ້ອງ => At least 1 room is required
+ວັນທີບໍ່ຖືກຕ້ອງ (ວັນໄປຕ້ອງຢູ່ຫຼັງວັນມາ) => Invalid dates (departure must be after arrival)
+ເລືອກປະເພດຫ້ອງ => Choose a room type
+ບໍ່ພົບຫ້ອງ => Room not found
+ປິດຊ່ອມໃນຊ່ວງນີ້ => out of order in this period
+ຖືກຈອງແລ້ວ => already booked
+ຊ້ອນກັນໃນການຈອງດຽວກັນ => overlaps within the same booking
+ບໍ່ມີຫ້ອງວ່າງ => No rooms available
+ເຕັມໃນຊ່ວງນີ້ => full in this period
+=ໃສ່ໂຄ້ດ => Enter a code
+ບໍ່ພົບໂຄ້ດນີ້ => Code not found
+ໂຄ້ດນີ້ຖືກປິດແລ້ວ => This code is switched off
+ໂຄ້ດໝົດອາຍຸ / ຍັງບໍ່ເຖິງວັນໃຊ້ => Code expired / not valid yet
+ໂຄ້ດນີ້ຕ້ອງພັກ => This code needs a stay of
+ຍັງບໍ່ຕັ້ງລາຄາ ປະເພດ => Rate not set for type
+— ໄປຕັ້ງໃນ ຫ້ອງ & ລາຄາ ກ່ອນ => — set it up in Rooms & rates first
+ການຈອງນີ້ປິດແລ້ວ — ແກ້ບໍ່ໄດ້ => This booking is closed — cannot be edited
+ບໍ່ພົບການຈອງ => Booking not found
+ຍັງບໍ່ເຖິງວັນມາ => Arrival date not reached yet
+ມີໂຄ້ດນີ້ແລ້ວ => This code already exists
+ເປີເຊັນຕ້ອງ 1–100 => Percent must be 1–100
+ໃສ່ຈຳນວນເງິນທີ່ຫຼຸດ => Enter the discount amount
+ວັນສິ້ນສຸດຕ້ອງຫຼັງວັນເລີ່ມ => End date must be after start date
+ຍັງບໍ່ມີການຈອງ => No bookings yet
+ຍັງບໍ່ມີໂຄ້ດສ່ວນຫຼຸດ => No promo codes yet
+ຄົ້ນຫາ ຊື່ / ເບີໂທ / ເລກຈອງ => Search name / phone / booking no.
+=ເລກຈອງ => Booking no.
+=ແຂກ => Guest
+ເຂົ້າ → ອອກ => Check-in → out`;
+var MT_LANG='lo',MT_MAP=null,MT_RE=null,MT_NU=null,MT_EX=null,MT_LAO=/[\u0E80-\u0EFF]/,MT_UNIT={'\u0EA7\u0EB1\u0E99':'days','\u0E9A\u0EB4\u0E99':'bills','\u0EA1\u0EB7\u0EC9':'days','\u0EA5\u0EB2\u0E8D\u0E81\u0EB2\u0E99':'items','\u0EAA\u0EB4\u0E99\u0E84\u0EC9\u0EB2':'products','\u0E84\u0EBB\u0E99':'people','\u0EA5\u0EB2\u0E8D':'entries','\u0EC3\u0E9A':'notes','\u0EAE\u0EAD\u0E9A':'rounds','\u0EA5\u0EB1\u0EAD\u0E94':'lots','\u0E81\u0EB5\u0E9A':'LAK','\u0E95\u0EB8\u0E81':'bottles','\u0E82\u0EA7\u0E94':'bottles','\u0E96\u0EBB\u0E87':'bags','\u0E8A\u0EAD\u0E87':'sachets','\u0E81\u0EC8\u0EAD\u0E87':'boxes','\u0E81\u0EB0\u0E9B\u0ECB\u0EAD\u0E87':'cans','\u0E84\u0EB9\u0EC8':'pairs','\u0EC1\u0E97\u0EC8\u0E87':'bars','\u0E81\u0EC9\u0EAD\u0E99':'bars','\u0EAB\u0EBC\u0EAD\u0E94':'tubes','\u0EA1\u0EC9\u0EA7\u0E99':'rolls','\u0EAD\u0EB1\u0E99':'pcs','\u0E8A\u0EB4\u0EC9\u0E99':'pcs','\u0E9A\u0EB2\u0E94':'THB','\u0EC2\u0E94\u0EA5\u0EB2':'USD','ຫ້ອງ':'rooms','ຄືນ':'nights','ປະເພດ':'types'};
 try{MT_LANG=localStorage.getItem('stpos_lang')==='en'?'en':'lo';}catch(e){}
 function mtInit(){if(MT_MAP)return;MT_MAP={};MT_EX={};var ks=[];MT_RAW.split('\n').forEach(function(l){var i=l.indexOf(' => ');if(i<1)return;var k=l.slice(0,i).trim(),v=l.slice(i+4).trim(),ex=k.charAt(0)==='=';if(ex)k=k.slice(1);if(k&&v){var T=ex?MT_EX:MT_MAP;if(!Object.prototype.hasOwnProperty.call(T,k)){T[k]=v;if(!ex)ks.push(k);}}});
  ks.sort(function(a,b){return b.length-a.length;});MT_NU=new RegExp('(\\d[\\d,.]*)\\s*('+Object.keys(MT_UNIT).sort(function(a,b){return b.length-a.length;}).join('|')+')(?![\\u0E80-\\u0EFF])','g');MT_RE=new RegExp(ks.map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|'),'g');}
 function mtOn(){return MT_LANG==='en'&&typeof bizCur==='function'&&(bizCur()==='mart'||bizCur()==='hotel');}
 function mtStr(s){mtInit();var m=/^(\s*)([\s\S]*?)(\s*)$/.exec(s),core=m[2];if(!core)return s;if(Object.prototype.hasOwnProperty.call(MT_EX,core))return m[1]+MT_EX[core]+m[3];if(Object.prototype.hasOwnProperty.call(MT_MAP,core))return m[1]+MT_MAP[core]+m[3];
- var r=core.replace(/^ສະແດງ (\d+)[–-](\d+) ຈາກ (\d+)/,'Showing $1–$2 of $3').replace(/^ມ້ວນ (\d)/,'Roll $1').replace(/^ເພີ່ມ (?=\S)/,'Added ').replace(/^ສິນຄ້າ (?=\d)/,'Goods ').replace(/ກຳລັງໃຊ້ (\d+) · ວ່າງ (\d+)/,'In use $1 · Free $2').replace(/ສົດ (?=\d)/g,'Cash ').replace(/ໂອນ (?=\d)/g,'Transfer ').replace(MT_NU,function(x,n,u){return n+' '+MT_UNIT[u]+' ';}).replace(MT_RE,function(x){return ' '+MT_MAP[x]+' ';});if(r===core)return s;r=r.replace(/[ \t]{2,}/g,' ').replace(/\s+([.,:;!?)\]])/g,'$1').replace(/([(\[])\s+/g,'$1').trim();return m[1]+r+m[3];}
+ var r=core.replace(/^ສະແດງ (\d+)[–-](\d+) ຈາກ (\d+)/,'Showing $1–$2 of $3').replace(/^ມ້ວນ (\d)/,'Roll $1').replace(/ຫ້ອງ (?=[A-Za-z0-9])/g,'Room ').replace(/^ເພີ່ມ (?=\S)/,'Added ').replace(/^ສິນຄ້າ (?=\d)/,'Goods ').replace(/ກຳລັງໃຊ້ (\d+) · ວ່າງ (\d+)/,'In use $1 · Free $2').replace(/ສົດ (?=\d)/g,'Cash ').replace(/ໂອນ (?=\d)/g,'Transfer ').replace(MT_NU,function(x,n,u){return n+' '+MT_UNIT[u]+' ';}).replace(MT_RE,function(x){return ' '+MT_MAP[x]+' ';});if(r===core)return s;r=r.replace(/[ \t]{2,}/g,' ').replace(/\s+([.,:;!?)\]])/g,'$1').replace(/([(\[])\s+/g,'$1').trim();return m[1]+r+m[3];}
 function mtTrans(root){if(!mtOn())return;root=root||document.body;var w=document.createTreeWalker(root,4,null),n,L=[];while((n=w.nextNode()))L.push(n);
  L.forEach(function(t){var v=t.nodeValue;if(t.__en===v||!MT_LAO.test(v))return;var p=t.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)||(p.nodeName==='OPTION'&&!p.hasAttribute('value'))||(p.closest&&p.closest('[data-notr]')))return;var r=mtStr(v);if(r!==v){t.__lo=v;t.__en=r;t.nodeValue=r;}});
  [].forEach.call(root.querySelectorAll('[title],[placeholder]'),function(e){['title','placeholder'].forEach(function(k){var v=e.getAttribute(k);if(!v||!MT_LAO.test(v)||(e.closest&&e.closest('[data-notr]')))return;var r=mtStr(v);if(r!==v){(e.__lo=e.__lo||{})[k]=[v,r];e.setAttribute(k,r);}});});}
@@ -11324,6 +11451,7 @@ function htPromoFor(code,from,to){var c=String(code||'').trim().toLowerCase();if
 function htCancelInfo(bk,nowYmd){var arr=(bk.lines||[]).reduce(function(m,l){return !m||l.from<m?l.from:m;},''),days=arr?htDayDiff(nowYmd||htFmt(Date.now()-new Date().getTimezoneOffset()*6e4),arr):0,dep=bk.dep&&+bk.dep.amt>0?Math.round(+bk.dep.amt):0,pol=+((state.htCfg||{}).policyDays);if(isNaN(pol))pol=3;var ref=days>=pol?dep:0;return {days:days,refund:ref,forfeit:dep-ref};}
 /* ===== ST Hotel ໄລຍະ 2: ການຈອງ — ບັນທຶກ / ຢືນຢັນ / ຍົກເລີກ / no-show / ມັດຈຳ / ຂໍ້ຄວາມ ===== */
 var HT_SRC=[['walk','ມາເອງ (Walk-in)'],['phone','ໂທ'],['chat','WhatsApp / Facebook'],['ota','Booking / Agoda'],['agent','ຕົວແທນ'],['web','ເວັບໄຊ']];
+function htLiveBk(f){var t=htToday();return (state.htBookings||[]).find(function(b){return htBkBlocks(b)&&(b.lines||[]).some(function(l){return l.to>t&&f(l);});})||null;}
 function htBkCan(){return can('htBook')||isOwner();}
 function htToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
 function htBkNo(){var d=new Date(),p='BK-'+String(d.getFullYear()).slice(2)+('0'+(d.getMonth()+1)).slice(-2)+'-',m=0;(state.htBookings||[]).forEach(function(b){if(String(b.no||'').indexOf(p)===0)m=Math.max(m,+String(b.no).slice(p.length)||0);});return p+('000'+(m+1)).slice(-4);}
@@ -11413,10 +11541,10 @@ function htBkCollect(){var g=htGv;return {id:window.__htBkId||'',guest:{name:g('
  lines:[].slice.call(document.querySelectorAll('.hbl')).map(function(r){var q=function(c){return r.querySelector(c);};return {id:r.dataset.lid,type:q('.hl-type').value,room:q('.hl-room').value,from:q('.hl-from').value,to:q('.hl-to').value,adults:+q('.hl-ad').value,kids:+q('.hl-kd').value,plan:q('.hl-plan').value,extraBeds:+q('.hl-eb').value};})};}
 function htBkLive(){var d=htBkCollect(),old=d.id?state.htBookings.find(function(x){return x.id===d.id;}):null,rows=document.querySelectorAll('.hbl'),out=document.getElementById('hb_out');if(!out)return;
  rows.forEach(function(r){htBkFillRooms(r,d.id);});d=htBkCollect();var bad=false;
- d.lines.forEach(function(l,i){var m=htLineCheck(l,old,d.lines.filter(function(_,j){return j!==i;})),e=rows[i].querySelector('.hl-msg');if(m)bad=true;e.className='hl-msg '+(m?'bad':'good');e.textContent=m||('✓ ຫວ່າງ · '+(htDays(l.from,l.to)||[]).length+' ຄືນ');});
+ d.lines.forEach(function(l,i){var m=htLineCheck(l,old,d.lines.filter(function(_,j){return j!==i;})),e=rows[i].querySelector('.hl-msg');if(m)bad=true;e.className='hl-msg '+(m?'bad':'good');e.textContent=m||('✓ ວ່າງໃຫ້ຈອງ · '+(htDays(l.from,l.to)||[]).length+' ຄືນ');});
  var r=htBkSave(Object.assign({},d,{dry:true})),e2=document.getElementById('hb_err');
  if(r.err){out.innerHTML='';if(e2)e2.textContent=bad?'':r.err;return;}if(e2)e2.textContent='';var t=htBkTotals({lines:r.lines,dep:d.dep});
- out.innerHTML='<div>'+t.rooms+' ຫ້ອງ · '+t.nights+' ຄືນ-ຫ້ອງ</div>'+(t.disc?'<div>ສ່ວນຫຼຸດໂຄ້ດ: −'+KIP(t.disc)+'</div>':'')+(t.tax?'<div>ພາສີ/ຄ່າທຳນຽມ: '+KIP(t.tax)+'</div>':'')+'<div class="ht-tot">ລວມ: '+KIP(t.total)+' ກີບ</div>'+(t.dep?'<div>ມັດຈຳ '+KIP(t.dep)+' · ຍັງເຫຼືອ '+KIP(t.balance)+'</div>':'');}
+ out.innerHTML='<div>'+t.rooms+' ຫ້ອງ · '+t.nights+' ຄືນ (ທຸກຫ້ອງ)</div>'+(t.disc?'<div>ສ່ວນຫຼຸດໂຄ້ດ: −'+KIP(t.disc)+'</div>':'')+(t.tax?'<div>ພາສີ/ຄ່າທຳນຽມ: '+KIP(t.tax)+'</div>':'')+'<div class="ht-tot">ລວມ: '+KIP(t.total)+' ກີບ</div>'+(t.dep?'<div>ມັດຈຳ '+KIP(t.dep)+' · ຍັງເຫຼືອ '+KIP(t.balance)+'</div>':'');}
 function htBkEdit(id,pre){if(!htBkCan()){toast('ບໍ່ມີສິດຈອງຫ້ອງ');return;}htInit();var old=id?state.htBookings.find(function(x){return x.id===id;}):null;if(id&&!old)return;if(old&&['cancel','noshow','out'].indexOf(old.status)>=0){htBkView(id);return;}
  var ft=(state.htTypes||[]).find(function(t){return t.active!==false;});if(!ft){toast('ສ້າງປະເພດຫ້ອງກ່ອນ (ຫ້ອງ & ລາຄາ)');return;}
  var P=old||pre||{},g=P.guest||{},ls=(P.lines&&P.lines.length?P.lines:[{type:ft.id,room:'',from:htToday(),to:htNext(htToday()),adults:2,kids:0}]);window.__htBkId=id||'';var dp=P.dep||{};
@@ -11450,7 +11578,7 @@ function htBkMsgShow(id){var bk=state.htBookings.find(function(x){return x.id===
  openModal('<h2>ຂໍ້ຄວາມຢືນຢັນ</h2><textarea id="hm_t" rows="11" readonly style="width:100%">'+cesc(htBkMsg(bk))+'</textarea><div class="modal-btns"><button class="btn-cancel" data-id="'+aesc(id)+'" onclick="htBkView(this.dataset.id)">ກັບຄືນ</button><button class="btn-ok grad" onclick="htCopy(\'hm_t\')">ສຳເນົາ</button></div>');}
 function htCopy(i){var e=document.getElementById(i);if(!e)return;e.select();try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(e.value);else document.execCommand('copy');toast('✓ ສຳເນົາແລ້ວ');}catch(x){toast('ກົດຄ້າງເພື່ອສຳເນົາ');}}
 function htBkCancelAsk(id){var bk=state.htBookings.find(function(x){return x.id===id;});if(!bk)return;var ci=htCancelInfo(bk),pol=state.htCfg.policyDays,dep=bk.dep?+bk.dep.amt:0;
- openModal('<h2>ຍົກເລີກ '+cesc(bk.no)+'</h2><p>'+(dep?'ມັດຈຳ '+KIP(dep)+' ກີບ — ຍົກເລີກຕອນນີ້ (ກ່ອນວັນມາ '+ci.days+' ວັນ, ນະໂຍບາຍ ≥ '+pol+' ວັນ): <b>'+(ci.refund?'ຄືນມັດຈຳເຕັມ':'ບໍ່ຄືນ — ຍຶດ '+KIP(ci.forfeit))+'</b>':'ບໍ່ມີມັດຈຳ')+'</p><label>ເຫດຜົນ</label><input id="hb_rsn">'+
+ openModal('<h2>ຍົກເລີກການຈອງ '+cesc(bk.no)+'</h2><p>'+(dep?'ມັດຈຳ '+KIP(dep)+' ກີບ — ຍົກເລີກຕອນນີ້ (ກ່ອນວັນມາ '+ci.days+' ວັນ, ນະໂຍບາຍ ≥ '+pol+' ວັນ): <b>'+(ci.refund?'ຄືນມັດຈຳເຕັມ':'ບໍ່ຄືນ — ຍຶດ '+KIP(ci.forfeit))+'</b>':'ບໍ່ມີມັດຈຳ')+'</p><label>ເຫດຜົນ</label><input id="hb_rsn">'+
   '<div class="modal-btns"><button class="btn-cancel" data-id="'+aesc(id)+'" onclick="htBkView(this.dataset.id)">ກັບຄືນ</button><button class="btn-ok grad" style="background:#dc2626" data-id="'+aesc(id)+'" onclick="htBkCancelGo(this.dataset.id)">ຢືນຢັນຍົກເລີກ</button></div>');}
 function htBkCancelGo(id){var r=htBkCancel(id,htGv('hb_rsn'));if(r.err){toast(r.err);return;}closeModal();render();toast('ຍົກເລີກແລ້ວ');}
 function htBkNoShowAsk(id){var bk=state.htBookings.find(function(x){return x.id===id;});if(!bk)return;var dep=bk.dep?+bk.dep.amt:0;
@@ -11475,7 +11603,14 @@ function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new
  state.htRooms=[];var n=0,i;for(i=1;i<=8;i++)state.htRooms.push(mk(++n,'10'+i,'1','ຕຶກ A','hty_s1'));for(i=1;i<=8;i++)state.htRooms.push(mk(++n,'20'+i,'2','ຕຶກ A','hty_s2'));for(i=1;i<=4;i++)state.htRooms.push(mk(++n,'30'+i,'3','ຕຶກ B','hty_s3'));for(i=1;i<=4;i++)state.htRooms.push(mk(++n,'V'+i,'-','ວິລລາ','hty_s4'));
  state.htRates=[{id:'hrt_s1',name:'ທ້າຍອາທິດ',type:'*',days:[5,6],from:'',to:'',price:0,adj:20,prio:0,active:true,upd:now},{id:'hrt_s2',name:'ລະດູສູງທ້າຍປີ',type:'*',days:[],from:y+'-12-15',to:(y+1)+'-01-10',price:0,adj:40,prio:5,active:true,upd:now}];
  state.htPlans=[{id:'hpl_s1',name:'ຫ້ອງເປົ່າ',adj:0,breakfast:false,refundable:true,active:true,upd:now},{id:'hpl_s2',name:'ມີອາຫານເຊົ້າ',adj:10,breakfast:true,refundable:true,active:true,upd:now},{id:'hpl_s3',name:'ຍົກເລີກບໍ່ໄດ້',adj:-10,breakfast:false,refundable:false,active:true,upd:now}];
- state.htCfg.los=[{min:7,pct:10},{min:28,pct:25}];state.htCfg.taxes=[];if(!state.shopName||/ຊື່ຮ້ານຂອງທ່ານ|DEMO|ST Mart|ST Hotel$/.test(state.shopName))state.shopName='ST Hotel ຕົວຢ່າງ';}
+ state.htCfg.los=[{min:7,pct:10},{min:28,pct:25}];state.htCfg.taxes=[];if(!state.shopName||/ຊື່ຮ້ານຂອງທ່ານ|DEMO|ST Mart|ST Hotel$/.test(state.shopName))state.shopName='ST Hotel ຕົວຢ່າງ';
+ state.htGuests=[];state.htBookings=[];state.htPromos=[{id:'hpm_s1',code:'WELCOME10',kind:'pct',val:10,from:'',to:'',minNights:2,active:true,upd:now},{id:'hpm_s2',code:'OFF100K',kind:'amt',val:100000,from:'',to:'',minNights:0,active:true,upd:now}];
+ var T0=htToday(),dd=function(k){return htFmt(htUtc(T0)+k*864e5);},ym=String(new Date().getFullYear()).slice(2)+('0'+(new Date().getMonth()+1)).slice(-2);
+ [['ທ້າວ ສົມຊາຍ','020 5551001','LA','walk','in',0,[['hty_s1','hrm_s1',-1,2,2,0]]],['Mr. John Smith','+1 415 5550102','US','ota','conf',500000,[['hty_s2','hrm_s10',1,4,2,0]]],['ນາງ ແກ້ວມະນີ','020 5551003','LA','phone','tent',0,[['hty_s3','hrm_s17',3,5,2,2]]],
+  ['ກຸ່ມທົວ ລາວທ່ອງທ່ຽວ','030 5551004','LA','agent','conf',1000000,[['hty_s1','hrm_s2',5,7,2,0],['hty_s1','hrm_s3',5,7,2,0]]],['ທ້າວ ບຸນມີ','020 5551005','LA','web','conf',0,[['hty_s4','hrm_s21',2,6,2,1]]],['ນາງ ມະນີ','020 5551006','LA','chat','conf',200000,[['hty_s2','',4,6,2,0]]]].forEach(function(x,i){
+  var g={id:'hgu_s'+i,name:x[0],phone:x[1],nat:x[2],upd:now},L=x[6].map(function(y,j){var l={id:'hl_s'+i+'_'+j,type:y[0],room:y[1],from:dd(y[2]),to:dd(y[3]),adults:y[4],kids:y[5],plan:'',extraBeds:0},q=htQuote(l);l.rate=q.nights;l.q={roomSub:q.roomSub,extraSub:q.extraSub,losPct:q.losPct,disc:0,sub:q.sub,taxes:q.taxes,tax:0,total:q.total};return l;}),b={id:'hbk_s'+i,no:'BK-'+ym+'-000'+(i+1),created:now,status:x[4],guestId:g.id,guest:{name:x[0],phone:x[1],nat:x[2]},lines:L,source:x[3],note:'',promo:null,upd:now};
+  if(x[5])b.dep={amt:x[5],method:'cash',at:now};state.htGuests.push(g);state.htBookings.push(b);});
+}
 /* ===== ST Hotel ໄລຍະ 1: ຫ້ອງ + ລາຄາ — ຂໍ້ມູນ: htTypes htRooms htRates htPlans htCfg (ທຸກແຖວມີ id + upd) ===== */
 function htInit(){['htTypes','htRooms','htRates','htPlans','htBookings','htGuests','htPromos'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.htCfg||typeof state.htCfg!=='object')state.htCfg={};
  var c=state.htCfg,d={ci:'14:00',co:'12:00',audit:'02:00',weekend:[5,6],taxes:[],los:[],policyDays:3};Object.keys(d).forEach(function(k){if(c[k]===undefined)c[k]=d[k];});}
@@ -11527,7 +11662,7 @@ function htImgLoad(inp){var f=inp.files&&inp.files[0];if(!f)return;var rd=new Fi
 function htTypeSave(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້ປະເພດຫ້ອງ');return;}htInit();var n=htGv('ht_n'),cap=Math.floor(+htGv('ht_cap')||0),num=function(k){var s=htGv(k);return s===''?0:+s;},base=num('ht_base'),xa=num('ht_xa'),xc=num('ht_xc'),xb=num('ht_xb'),act=!!(document.getElementById('ht_act')||{checked:true}).checked;
  if(!n){toast('ໃສ່ຊື່ປະເພດ');return;}if(state.htTypes.some(function(x){return x.id!==id&&htNm(x.name)===htNm(n);})){toast('ມີປະເພດຊື່ນີ້ແລ້ວ');return;}if(cap<1){toast('ຈຳນວນຄົນຕ້ອງ ≥ 1');return;}
  if([base,xa,xc,xb].some(function(v){return isNaN(v)||v<0;})){toast('ໃສ່ຕົວເລກໃຫ້ຖືກ (ບໍ່ຕິດລົບ)');return;}
- var t=id?htType(id):null;if(id&&!t)return;if(t&&!act){var nr=htRoomsOf(id).length;if(nr){toast('ປິດບໍ່ໄດ້ — ຍັງມີ '+nr+' ຫ້ອງເປີດຢູ່ໃນປະເພດນີ້');return;}}
+ var t=id?htType(id):null;if(id&&!t)return;if(t&&!act){var nr=htRoomsOf(id).length;if(nr){toast('ປິດບໍ່ໄດ້ — ຍັງມີ '+nr+' ຫ້ອງເປີດຢູ່ໃນປະເພດນີ້');return;}var lb=htLiveBk(function(l){return l.type===id;});if(lb){toast('ປິດບໍ່ໄດ້ — ມີການຈອງ '+lb.no+' ໃຊ້ປະເພດນີ້');return;}}
  if(!t){t={id:procId('hty')};state.htTypes.push(t);}Object.assign(t,{name:n,cap:cap,beds:htGv('ht_beds'),baseRate:Math.round(base),extraAdult:Math.round(xa),extraChild:Math.round(xc),extraBed:Math.round(xb),amen:htGv('ht_am').split(',').map(function(s){return s.trim();}).filter(Boolean),active:act,upd:Date.now()});
  if(window.__htImg)t.img=window.__htImg;htLg(id?'ແກ້ໄຂປະເພດຫ້ອງ':'ເພີ່ມປະເພດຫ້ອງ',n+' · '+KIP(t.baseRate)+' ກີບ');save();closeModal();render();toast('ບັນທຶກແລ້ວ');}
 /* ---- ຫ້ອງ ---- */
@@ -11542,7 +11677,7 @@ function htRoomEdit(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້ຫ
   '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" data-id="'+aesc(id||'')+'" onclick="htRoomSave(this.dataset.id)">ບັນທຶກ</button></div>');}
 function htRoomSave(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້ຫ້ອງ');return;}htInit();var no=htGv('hr_no'),ty=htGv('hr_type'),act=!!(document.getElementById('hr_act')||{checked:true}).checked;
  if(!no){toast('ໃສ່ເລກຫ້ອງ');return;}if(!htType(ty)){toast('ເລືອກປະເພດຫ້ອງ');return;}if(state.htRooms.some(function(x){return x.id!==id&&htNm(x.no)===htNm(no);})){toast('ມີຫ້ອງເລກ '+no+' ແລ້ວ');return;}
- var r=id?state.htRooms.find(function(x){return x.id===id;}):null;if(id&&!r)return;if(!r){r={id:procId('hrm'),hk:'clean'};state.htRooms.push(r);}Object.assign(r,{no:no,floor:htGv('hr_floor'),zone:htGv('hr_zone'),type:ty,active:act,upd:Date.now()});
+ var r=id?state.htRooms.find(function(x){return x.id===id;}):null;if(id&&!r)return;if(r&&(!act||r.type!==ty)){var lb=htLiveBk(function(l){return l.room===r.id;});if(lb){toast('ປ່ຽນ/ປິດບໍ່ໄດ້ — ຫ້ອງ '+r.no+' ມີການຈອງ '+lb.no);return;}}if(!r){r={id:procId('hrm'),hk:'clean'};state.htRooms.push(r);}Object.assign(r,{no:no,floor:htGv('hr_floor'),zone:htGv('hr_zone'),type:ty,active:act,upd:Date.now()});
  htLg(id?'ແກ້ໄຂຫ້ອງ':'ເພີ່ມຫ້ອງ',no+' · '+htType(ty).name);save();closeModal();render();toast('ບັນທຶກແລ້ວ');}
 function htRoomBulk(){if(!htCan()){toast('ບໍ່ມີສິດແກ້ຫ້ອງ');return;}htInit();if(!state.htTypes.some(function(t){return t.active!==false;})){toast('ສ້າງປະເພດຫ້ອງກ່ອນ');return;}
  openModal('<h2>ເພີ່ມຫຼາຍຫ້ອງ</h2><p style="font-size:13px;color:var(--muted);text-align:center;margin-top:-4px">ສ້າງເລກຫ້ອງຕໍ່ເນື່ອງ ເຊັ່ນ ນຳໜ້າ "A" ຈາກ 1 ຫາ 10 → A1…A10 (ເລກທີ່ມີແລ້ວຖືກຂ້າມ)</p><div class="mp-2"><div><label>ຕົວນຳໜ້າ (ບໍ່ບັງຄັບ)</label><input id="hb_pre"></div><div></div></div><div class="mp-2"><div><label>ຈາກເລກ</label><input id="hb_from" type="number" inputmode="numeric"></div><div><label>ຫາເລກ</label><input id="hb_to" type="number" inputmode="numeric"></div></div>'+
