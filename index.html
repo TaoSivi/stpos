@@ -11594,6 +11594,34 @@ function htPromoEdit(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້�
 function htPromoSave(id){if(!htCan()){toast('ບໍ່ມີສິດແກ້ໂຄ້ດ');return;}htInit();var code=htGv('hp_code').toUpperCase().replace(/\s+/g,''),kind=htGv('hp_kind'),val=+htGv('hp_val')||0,fr=htGv('hp_from'),to=htGv('hp_to'),mn=Math.max(0,Math.floor(+htGv('hp_min')||0));
  if(!code){toast('ໃສ່ໂຄ້ດ');return;}if(state.htPromos.some(function(x){return x.id!==id&&String(x.code).toUpperCase()===code;})){toast('ມີໂຄ້ດນີ້ແລ້ວ');return;}if(!(val>0)||(kind==='pct'&&val>100)){toast(kind==='pct'?'ເປີເຊັນຕ້ອງ 1–100':'ໃສ່ຈຳນວນເງິນທີ່ຫຼຸດ');return;}if(fr&&to&&to<fr){toast('ວັນສິ້ນສຸດຕ້ອງຫຼັງວັນເລີ່ມ');return;}
  var p=id?state.htPromos.find(function(x){return x.id===id;}):null;if(id&&!p)return;if(!p){p={id:procId('hpm')};state.htPromos.push(p);}p.code=code;p.kind=kind;p.val=Math.round(val*100)/100;p.from=fr;p.to=to;p.minNights=mn;p.active=!!document.getElementById('hp_act').checked;p.upd=Date.now();save();closeModal();render();toast('✓ ບັນທຶກໂຄ້ດ');}
+/* ===== ST Hotel ໄລຍະ 3: ບິນຫ້ອງ (folio) — ເຄື່ອງບໍລິສຸດ · ຄ່າໃຊ້ຈ່າຍ htChg / ຮັບເງິນ htPay ແຍກອາເຣ (merge ຕາມ id) ===== */
+/* ແບ່ງຍອດຂອງແຖວຈອງເປັນລາຍຄືນ (ຫ້ອງ gross, ຫຼຸດ, ພາສີ) ໃຫ້ຜົນລວມ = line.q ແນ່ນອນ (ເສດໃສ່ຄືນສຸດທ້າຍ) */
+function htNightSplit(line){var R=line.rate||[],q=line.q||{},N=R.length,G=R.reduce(function(s,n){return s+(+n.total||0);},0),disc=+q.disc||0,out=[],dl=0,tl={};
+ R.forEach(function(n,i){var last=i===N-1,g=+n.total||0,w=G>0?g/G:1/N,d=last?disc-dl:Math.round(disc*w);dl+=d;
+  out.push({d:n.d,gross:g,disc:d,taxes:(q.taxes||[]).map(function(t){var a=last?(+t.amt||0)-(tl[t.id]||0):Math.round((+t.amt||0)*w);tl[t.id]=(tl[t.id]||0)+a;return {id:t.id,name:t.name,amt:a};})});});
+ return out;}
+function htFolio(bkId){var f={rows:(state.htChg||[]).filter(function(r){return r.bk===bkId;}),pays:(state.htPay||[]).filter(function(r){return r.bk===bkId;}),charges:0,paid:0,balance:0,byPayer:{}},P=function(k){return f.byPayer[k]||(f.byPayer[k]={charges:0,paid:0,balance:0});};
+ f.rows.forEach(function(r){if(r.void)return;var a=Math.round((+r.qty||1)*(+r.amt||0));f.charges+=a;P(r.payer||'A').charges+=a;});
+ f.pays.forEach(function(r){if(r.void)return;var a=Math.round(+r.amt||0);f.paid+=a;P(r.payer||'A').paid+=a;});
+ P('A');f.balance=f.charges-f.paid;Object.keys(f.byPayer).forEach(function(k){var x=f.byPayer[k];x.balance=x.charges-x.paid;});return f;}
+function htNightId(bkId,lineId,d,kind){return 'hc_'+[bkId,lineId,d,kind].join('_').replace(/[^\w]/g,'_');}
+/* ລົງຄ່າຫ້ອງ/ຫຼຸດ/ພາສີ ຂອງຄືນ d < endExcl — id ຕາຍຕົວ: ຮັນຊ້ຳ/ສອງເຄື່ອງ ບໍ່ຊ້ຳ; ແຖວທີ່ void ແລ້ວ ບໍ່ຖືກສ້າງໃໝ່ */
+function htPostNights(bk,endExcl,by){htInit();var n=0,now=Date.now(),have={};state.htChg.forEach(function(r){have[r.id]=1;});
+ (bk.lines||[]).forEach(function(l){var no=htRoomNo(l.room);htNightSplit(l).forEach(function(s){if(!(s.d<endExcl))return;
+  var add=function(kind,dept,desc,amt){var id=htNightId(bk.id,l.id,s.d,kind);if(have[id]||!amt)return;have[id]=1;state.htChg.push({id:id,bk:bk.id,ts:now,date:s.d,dept:dept,desc:desc,qty:1,amt:amt,payer:'A',key:id,void:false,by:by||'',upd:now});n++;};
+  add('room','room','ຄ່າຫ້ອງ '+no+' · '+s.d,s.gross);if(s.disc)add('disc','adj','ສ່ວນຫຼຸດ'+(bk.promo?' ໂຄ້ດ '+bk.promo.code:'')+' · '+s.d,-s.disc);s.taxes.forEach(function(t){add('tx_'+t.id,'tax',t.name+' · '+s.d,t.amt);});});});
+ return n;}
+/* ປິດມື້ (night audit): ລົງຄືນ ≤ bizDate ຂອງທຸກການຈອງ in-house ແລ້ວເລື່ອນ bizDate */
+function htAuditRun(today,by){if(!(can('htAudit')||isOwner()))return {err:'ບໍ່ມີສິດປິດມື້'};htInit();today=today||htToday();var c=state.htCfg,bd=c.bizDate||today;if(bd>today)return {err:'ປິດມື້ລ່ວງໜ້າບໍ່ໄດ້ (ມື້ທຸລະກິດ '+bd+')'};
+ var posted=0,inh=0,next=htNext(bd);state.htBookings.forEach(function(b){if(b.status!=='in')return;inh++;posted+=htPostNights(b,next,by);});
+ c.bizDate=next;c.upd=Date.now();htLg('ປິດມື້',bd+' · ລົງ '+posted+' ແຖວ');save();return {ok:true,date:bd,posted:posted,inHouse:inh};}
+function htAuditCatchup(today,by){today=today||htToday();htInit();var days=0;while((state.htCfg.bizDate||today)<today&&days<62){var r=htAuditRun(today,by);if(r.err)return r;days++;}return {ok:true,days:days};}
+/* ຕັດແຖວຈອງໃຫ້ສັ້ນລົງ (ອອກກ່ອນ / ຍ້າຍຫ້ອງ): ສົ່ງສຳເນົາໃໝ່ ບໍ່ແກ້ຕົ້ນສະບັບ */
+function htTruncLine(line,newTo){var keep=htNightSplit(line).filter(function(n){return n.d<newTo;}),L=JSON.parse(JSON.stringify(line)),room=0,extra=0,disc=0,tm={},tax=0;
+ L.to=newTo<line.to?newTo:line.to;L.rate=(line.rate||[]).filter(function(n){return n.d<newTo;});L.rate.forEach(function(n){room+=+n.room||0;extra+=+n.extra||0;});
+ keep.forEach(function(n){disc+=n.disc;n.taxes.forEach(function(t){tm[t.id]=tm[t.id]||{id:t.id,name:t.name,amt:0};tm[t.id].amt+=t.amt;});});
+ var taxes=Object.keys(tm).map(function(k){return tm[k];});taxes.forEach(function(t){tax+=t.amt;});var sub=room+extra-disc;
+ L.q=Object.assign({},line.q||{},{roomSub:room,extraSub:extra,disc:disc,sub:sub,taxes:taxes,tax:tax,total:sub+tax});return L;}
 /* ===== ST Hotel: ຂໍ້ມູນຕົວຢ່າງ — 4 ປະເພດ · 24 ຫ້ອງ · ກົດ ທ້າຍອາທິດ (+20%) / ລະດູສູງທ້າຍປີ (+40%) · 3 ແຜນ · ພັກຍາວ ===== */
 function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new Date().getFullYear(),mk=function(i,no,fl,zn,ty){return {id:'hrm_s'+i,no:no,floor:fl,zone:zn,type:ty,hk:'clean',active:true,upd:now};};
  state.htTypes=[{id:'hty_s1',name:'ຫ້ອງມາດຕະຖານ',cap:2,beds:'1 ຕຽງຄູ່',baseRate:400000,extraAdult:100000,extraChild:50000,extraBed:80000,amen:['ແອ','WiFi','ໂທລະທັດ'],active:true,upd:now},
@@ -11612,7 +11640,7 @@ function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new
   if(x[5])b.dep={amt:x[5],method:'cash',at:now};state.htGuests.push(g);state.htBookings.push(b);});
 }
 /* ===== ST Hotel ໄລຍະ 1: ຫ້ອງ + ລາຄາ — ຂໍ້ມູນ: htTypes htRooms htRates htPlans htCfg (ທຸກແຖວມີ id + upd) ===== */
-function htInit(){['htTypes','htRooms','htRates','htPlans','htBookings','htGuests','htPromos'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.htCfg||typeof state.htCfg!=='object')state.htCfg={};
+function htInit(){['htTypes','htRooms','htRates','htPlans','htBookings','htGuests','htPromos','htChg','htPay','htAcc','htImg'].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});if(!state.htCfg||typeof state.htCfg!=='object')state.htCfg={};
  var c=state.htCfg,d={ci:'14:00',co:'12:00',audit:'02:00',weekend:[5,6],taxes:[],los:[],policyDays:3};Object.keys(d).forEach(function(k){if(c[k]===undefined)c[k]=d[k];});}
 function htUtc(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));if(!m)return null;var y=+m[1],mo=+m[2],d=+m[3],t=Date.UTC(y,mo-1,d),o=new Date(t);return (o.getUTCFullYear()===y&&o.getUTCMonth()===mo-1&&o.getUTCDate()===d)?t:null;}
 function htFmt(t){var o=new Date(t);return o.getUTCFullYear()+'-'+('0'+(o.getUTCMonth()+1)).slice(-2)+'-'+('0'+o.getUTCDate()).slice(-2);}
