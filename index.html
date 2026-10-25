@@ -11287,6 +11287,32 @@ function mtRestore(){var w=document.createTreeWalker(document.body,4,null),n,L=[
 function mtSetLang(l){MT_LANG=l==='en'?'en':'lo';try{localStorage.setItem('stpos_lang',MT_LANG);}catch(e){}if(MT_LANG==='lo')mtRestore();document.documentElement.setAttribute('lang',MT_LANG==='en'?'en':'lo');mtBtn();try{render();tickClock();}catch(e){}mtTrans();}
 function mtBtn(){var b=document.getElementById('langBtn');if(b)b.textContent=MT_LANG==='en'?'ລາວ':'EN';}
 NAV_IC.htRooms=NAV_IC.stock;
+/* ===== ST Hotel ໄລຍະ 2: ເຄື່ອງຈອງ (ບໍລິສຸດ) — ຊ່ວງ [from,to) · ບລັອກຫ້ອງ: tent conf in out ===== */
+function htOverlap(a1,a2,b1,b2){return a1<b2&&b1<a2;}
+function htBkBlocks(b){return !!b&&['tent','conf','in','out'].indexOf(b.status)>=0;}
+function htAllBk(){return (state.htBookings||[]).concat(window.__htVirt||[]);}
+function htDayDiff(a,b){return Math.round((htUtc(b)-htUtc(a))/864e5);}
+function htNext(d){return htFmt(htUtc(d)+864e5);}
+function htRoomBusy(roomId,from,to,exceptBk){var r=(state.htRooms||[]).find(function(x){return x.id===roomId;});
+ if(r&&r.ooo&&r.ooo.from&&r.ooo.to&&htOverlap(from,to,r.ooo.from,r.ooo.to))return {ooo:true,no:r.no};
+ return htAllBk().find(function(b){return b.id!==exceptBk&&htBkBlocks(b)&&(b.lines||[]).some(function(l){return l.room===roomId&&htOverlap(from,to,l.from,l.to);});})||null;}
+/* ຈຳນວນຫ້ອງວ່າງຂອງປະເພດ ຕະຫຼອດຊ່ວງ (ນັບການຈອງລະດັບປະເພດທີ່ຍັງບໍ່ກຳນົດຫ້ອງ ເປັນ 1 ຫ້ອງຕໍ່ແຖວ) */
+function htTypeFree(typeId,from,to,exceptBk){var days=htDays(from,to);if(!days)return 0;var rooms=(state.htRooms||[]).filter(function(r){return r.type===typeId&&r.active!==false;}),min=1e9;
+ days.forEach(function(d){var d2=htNext(d),free=rooms.filter(function(r){return !htRoomBusy(r.id,d,d2,exceptBk);}).length,un=0;
+  htAllBk().forEach(function(b){if(b.id===exceptBk||!htBkBlocks(b))return;(b.lines||[]).forEach(function(l){if(!l.room&&l.type===typeId&&htOverlap(d,d2,l.from,l.to))un++;});});min=Math.min(min,Math.max(0,free-un));});return min===1e9?0:min;}
+/* ກວດ 1 ແຖວ: ຄືນຂໍ້ຄວາມຜິດ ຫຼື null. extraLines = ແຖວອື່ນໃນຮ່າງດຽວກັນ (ນັບເປັນການຈອງແລ້ວ) */
+function htLineCheck(line,bk,extraLines){if(!htDays(line.from,line.to))return 'ວັນທີບໍ່ຖືກຕ້ອງ (ວັນໄປຕ້ອງຢູ່ຫຼັງວັນມາ)';var ty=htType(line.type);if(!ty||ty.active===false)return 'ເລືອກປະເພດຫ້ອງ';var ex=bk&&bk.id,res=null;
+ window.__htVirt=[{id:'__v',status:'conf',lines:(extraLines||[]).map(function(l){return {room:l.room||'',type:l.type,from:l.from,to:l.to};})}];
+ try{if(line.room){var r=(state.htRooms||[]).find(function(x){return x.id===line.room;});if(!r||r.active===false)res='ບໍ່ພົບຫ້ອງ';else{var bz=htRoomBusy(line.room,line.from,line.to,ex);if(bz){res=bz.ooo?'ຫ້ອງ '+r.no+' ປິດຊ່ອມໃນຊ່ວງນີ້':(bz.id==='__v'?'ຫ້ອງ '+r.no+' ຊ້ອນກັນໃນການຈອງດຽວກັນ':'ຫ້ອງ '+r.no+' ຖືກຈອງແລ້ວ ('+(bz.no||'')+')');}}}
+  else if(htTypeFree(line.type,line.from,line.to,ex)<1)res='ບໍ່ມີຫ້ອງວ່າງ — ປະເພດ "'+ty.name+'" ເຕັມໃນຊ່ວງນີ້';}finally{window.__htVirt=null;}return res;}
+/* ການຈອງທີ່ຊ້ອນກັນ (ເກີດໄດ້ເມື່ອສອງເຄື່ອງຈອງພ້ອມກັນ ແລ້ວ server merge ເກັບທັງສອງ) */
+function htConflicts(){var B=(state.htBookings||[]).filter(htBkBlocks),out=[],seen={};
+ for(var i=0;i<B.length;i++)for(var j=i+1;j<B.length;j++)(B[i].lines||[]).forEach(function(x){(B[j].lines||[]).forEach(function(y){if(x.room&&x.room===y.room&&htOverlap(x.from,x.to,y.from,y.to)){var k=x.room+'|'+B[i].id+'|'+B[j].id;if(!seen[k]){seen[k]=1;out.push({kind:'room',room:x.room,a:B[i].id,b:B[j].id});}}});});
+ var dates={};B.forEach(function(b){(b.lines||[]).forEach(function(l){(htDays(l.from,l.to)||[]).forEach(function(d){dates[d]=1;});});});
+ (state.htTypes||[]).forEach(function(t){var n=(state.htRooms||[]).filter(function(r){return r.type===t.id&&r.active!==false;}).length;Object.keys(dates).sort().forEach(function(d){var c=0,d2=htNext(d);B.forEach(function(b){(b.lines||[]).forEach(function(l){if(l.type===t.id&&htOverlap(d,d2,l.from,l.to))c++;});});if(c>n)out.push({kind:'type',type:t.id,date:d,count:c,rooms:n});});});return out;}
+function htPromoFor(code,from,to){var c=String(code||'').trim().toLowerCase();if(!c)return {err:'ໃສ່ໂຄ້ດ'};var p=(state.htPromos||[]).find(function(x){return String(x.code||'').toLowerCase()===c;});if(!p)return {err:'ບໍ່ພົບໂຄ້ດນີ້'};if(p.active===false)return {err:'ໂຄ້ດນີ້ຖືກປິດແລ້ວ'};
+ if(p.from&&from<p.from||p.to&&from>p.to)return {err:'ໂຄ້ດໝົດອາຍຸ / ຍັງບໍ່ເຖິງວັນໃຊ້'};var n=(htDays(from,to)||[]).length;if(+p.minNights>0&&n<+p.minNights)return {err:'ໂຄ້ດນີ້ຕ້ອງພັກ ≥ '+p.minNights+' ຄືນ'};return {promo:p};}
+function htCancelInfo(bk,nowYmd){var arr=(bk.lines||[]).reduce(function(m,l){return !m||l.from<m?l.from:m;},''),days=arr?htDayDiff(nowYmd||htFmt(Date.now()-new Date().getTimezoneOffset()*6e4),arr):0,dep=bk.dep&&+bk.dep.amt>0?Math.round(+bk.dep.amt):0,pol=+((state.htCfg||{}).policyDays);if(isNaN(pol))pol=3;var ref=days>=pol?dep:0;return {days:days,refund:ref,forfeit:dep-ref};}
 /* ===== ST Hotel: ຂໍ້ມູນຕົວຢ່າງ — 4 ປະເພດ · 24 ຫ້ອງ · ກົດ ທ້າຍອາທິດ (+20%) / ລະດູສູງທ້າຍປີ (+40%) · 3 ແຜນ · ພັກຍາວ ===== */
 function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new Date().getFullYear(),mk=function(i,no,fl,zn,ty){return {id:'hrm_s'+i,no:no,floor:fl,zone:zn,type:ty,hk:'clean',active:true,upd:now};};
  state.htTypes=[{id:'hty_s1',name:'ຫ້ອງມາດຕະຖານ',cap:2,beds:'1 ຕຽງຄູ່',baseRate:400000,extraAdult:100000,extraChild:50000,extraBed:80000,amen:['ແອ','WiFi','ໂທລະທັດ'],active:true,upd:now},
@@ -11313,10 +11339,10 @@ function htNightBase(typeId,date){var r=htRuleFor(typeId,date),ty=htType(typeId)
 function htQuote(o){htInit();var days=htDays(o&&o.from,o&&o.to),ty=o&&htType(o.type);if(!days||!ty)return null;var cfg=state.htCfg,ad=Math.max(1,Math.floor(+o.adults||1)),kd=Math.max(0,Math.floor(+o.kids||0)),eb=Math.max(0,Math.floor(+o.extraBeds||0)),pl=(state.htPlans||[]).find(function(p){return p.id===o.plan;}),adj=pl?(+pl.adj||0):0,
  los=0;(cfg.los||[]).forEach(function(l){if(days.length>=(+l.min||0)&&(+l.pct||0)>los)los=+l.pct;});
  var cap=Math.max(1,+ty.cap||1),over=Math.max(0,ad+kd-cap),ok2=Math.min(kd,over),oa=over-ok2,extra=Math.round(oa*(+ty.extraAdult||0)+ok2*(+ty.extraChild||0)+eb*(+ty.extraBed||0)),
- q={nights:[],roomSub:0,extraSub:0,losPct:los,sub:0,taxes:[],total:0,thb:0,usd:0,missing:[]};
+ q={nights:[],roomSub:0,extraSub:0,disc:0,losPct:los,sub:0,taxes:[],total:0,thb:0,usd:0,missing:[]};
  days.forEach(function(d){var base=htNightBase(ty.id,d);if(base==null){q.missing.push(d);q.nights.push({d:d,room:0,extra:0,total:0,missing:true});return;}
   var room=Math.round(base*(1+adj/100));if(los)room=Math.round(room*(1-los/100));q.nights.push({d:d,room:room,extra:extra,total:room+extra});q.roomSub+=room;q.extraSub+=extra;});
- q.sub=q.roomSub+q.extraSub;var n=days.length;
+ var dsc=o.disc&&+o.disc.val>0?(o.disc.kind==='pct'?Math.round((q.roomSub+q.extraSub)*(+o.disc.val)/100):Math.round(+o.disc.val)):0;dsc=Math.max(0,Math.min(dsc,q.roomSub+q.extraSub));q.disc=dsc;q.sub=q.roomSub+q.extraSub-dsc;var n=days.length;
  (cfg.taxes||[]).forEach(function(t){if(t.active===false)return;var v=t.kind==='perNight'?(+t.amt||0)*n:t.kind==='perPersonNight'?(+t.amt||0)*(ad+kd)*n:q.sub*(+t.pct||0)/100;q.taxes.push({id:t.id,name:t.name,amt:Math.round(v)});});
  q.total=q.sub+q.taxes.reduce(function(s,t){return s+t.amt;},0);q.thb=+state.rateTHB>0?Math.round(q.total/state.rateTHB*100)/100:0;q.usd=+state.rateUSD>0?Math.round(q.total/state.rateUSD*100)/100:0;return q;}
 /* ===== ST Hotel ໄລຍະ 1: ໜ້າ "ຫ້ອງ & ລາຄາ" (5 ແທັບ) ===== */
