@@ -66,12 +66,13 @@ function brFind(id) { return branches().filter(function (b) { return b.id === id
 function brFromPath(pathname) { const seg = String(pathname || '').split('/').filter(Boolean), last = (seg[seg.length - 1] || '').toLowerCase(); if (!last || last === 'api') return brFind('b1') || branches()[0]; return /^[a-z0-9_-]{1,32}$/.test(last) ? brFind(last) : null; }
 function useBranch(b) { CURBR = b; shim.use(brDir(b)); }
 /* ສາຂາໃໝ່ ສຳເນົາ "ການຕັ້ງຄ່າ" ຈາກສາຂາແມ່ແບບ (ເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ການຊຳລະ workflow ຜູ້ໃຊ້) · "ການເຄື່ອນໄຫວ" ເລີ່ມວ່າງ */
-const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], holds: [], htTypes: [], htRooms: [], htRates: [], htPlans: [], htBookings: [], htGuests: [], htPromos: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
+const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], holds: [], htTypes: [], htRooms: [], htRates: [], htPlans: [], htBookings: [], htGuests: [], htPromos: [], htChg: [], htPay: [], htAcc: [], htImg: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
 const BR_DROP = ['curShift', 'activeShift', 'activeStaff', 'activeTable', 'activeCat', 'activeSub', '_srcLoc', '_v', 'servedToday', '_reset'];
 function branchTemplate(st, name, id, type, srcId) {
   const n = JSON.parse(JSON.stringify(st || {}));
   BR_DROP.forEach(function (k) { delete n[k]; });
   Object.keys(BR_RESET).forEach(function (k) { if (k in n) n[k] = JSON.parse(JSON.stringify(BR_RESET[k])); });
+  if (n.htCfg) { delete n.htCfg.bizDate; delete n.htCfg.lastAudit; } /* ST Hotel: ມື້ທຸລະກິດຂອງສາຂາໃໝ່ເລີ່ມໃໝ່ */
   n.orderNo = 1; n.receiptSeq = 0; n.transferSeq = 0; n.shopName = name; n.branchId = id;
   n.locations = [{ id: 'main', name: name, type: type === 'warehouse' ? 'warehouse' : 'branch', active: true }];
   Object.keys(n.ingredients || {}).forEach(function (k) { const it = n.ingredients[k]; it.locs = { main: 0 }; it.stock = 0; delete it.lastIn; delete it.lots; });

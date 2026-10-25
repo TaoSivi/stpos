@@ -18,7 +18,7 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
     await start();
     const base = { shopName: 'Hotel HQ', bizType: 'hotel', users: [], tables: {}, bills: [], orders: [], catalog: {}, menuImg: {}, modGroups: [], ingredients: {},
       htTypes: [{ id: 'T1', name: 'ມາດຕະຖານ', cap: 2, baseRate: 500000, upd: 1000 }], htRooms: [{ id: 'R0', no: '100', type: 'T1', upd: 1000 }], htRates: [], htPlans: [],
-      htCfg: { ci: '14:00', co: '12:00', taxes: [{ id: 'x', name: 'VAT', kind: 'pct', pct: 10 }] } };
+      htCfg: { ci: '14:00', co: '12:00', bizDate: '2026-11-10', lastAudit: { date: '2026-11-09' }, taxes: [{ id: 'x', name: 'VAT', kind: 'pct', pct: 10 }] } };
     assert.ok((await (await fetch(ROOT + '/?admin=import&key=hotel-admin-key-1', { method: 'POST', body: JSON.stringify(base) })).json()).ok);
     await test('two devices add rooms / edit rates at the same time: all kept, newer row wins', async function () {
       const a = await st('b1'), b = await st('b1');
@@ -57,11 +57,27 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       assert.strictEqual(await save('b1', stale), 'ok');
       const s = await st('b1'); assert.strictEqual(s.htBookings.find(function (x) { return x.id === 'BKB'; }).status, 'cancel');
     });
+    await test('ST Hotel P3: two devices add charges / payments to the SAME folio at once → all kept; night-audit rows (fixed ids) do not duplicate; newer void wins', async function () {
+      const a = await st('b1'), b = await st('b1');
+      const aud = function () { return { id: 'hc_BKA_l_2026-11-10_room', bk: 'BKA', date: '2026-11-10', dept: 'room', desc: 'room', qty: 1, amt: 500000, payer: 'A', void: false, upd: 6000 }; };
+      a.htChg = (a.htChg || []).concat([aud(), { id: 'hx1', bk: 'BKA', dept: 'fnb', desc: 'food', qty: 1, amt: 45000, payer: 'A', void: false, upd: 6001 }]);
+      b.htChg = (b.htChg || []).concat([aud(), { id: 'hx2', bk: 'BKA', dept: 'svc', desc: 'laundry', qty: 1, amt: 30000, payer: 'B', void: false, upd: 6002 }]);
+      a.htPay = [{ id: 'hy1', bk: 'BKA', amt: 100000, method: 'cash', payer: 'A', void: false, upd: 6003 }]; b.htPay = [{ id: 'hy2', bk: 'BKA', amt: 50000, method: 'card', payer: 'A', void: false, upd: 6004 }];
+      a.htAcc = [{ id: 'AC1', name: 'ACME', terms: 30, upd: 6005 }]; b.htImg = [{ id: 'IM1', guest: 'G1', img: 'data:image/jpeg;base64,AAAA', void: false, upd: 6006 }];
+      assert.strictEqual(await save('b1', a), 'ok'); assert.strictEqual(await save('b1', b), 'ok');
+      let s = await st('b1');
+      assert.deepStrictEqual(s.htChg.map(function (x) { return x.id; }).sort(), ['hc_BKA_l_2026-11-10_room', 'hx1', 'hx2']);
+      assert.deepStrictEqual(s.htPay.map(function (x) { return x.id; }).sort(), ['hy1', 'hy2']);
+      assert.strictEqual(s.htAcc.length, 1); assert.strictEqual(s.htImg.length, 1);
+      const v = await st('b1'); const r = v.htChg.find(function (x) { return x.id === 'hx1'; }); r.void = true; r.upd = 9000; assert.strictEqual(await save('b1', v), 'ok');
+      const stale = JSON.parse(JSON.stringify(s)); stale.htChg.find(function (x) { return x.id === 'hx1'; }).amt = 1; assert.strictEqual(await save('b1', stale), 'ok');
+      s = await st('b1'); const f = s.htChg.find(function (x) { return x.id === 'hx1'; }); assert.strictEqual(f.void, true); assert.strictEqual(f.amt, 45000);
+    });
     await test('new branch starts with NO rooms / types / rates / plans / bookings / guests / promos but keeps settings (times, taxes)', async function () {
       assert.ok((await jp('b1', 'hq=add&name=' + encodeURIComponent('ທີ່ພັກ 2') + '&token=' + T)).ok);
       const s = await st('b2');
-      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
-      assert.strictEqual(s.htCfg.ci, '14:00'); assert.strictEqual(s.htCfg.taxes.length, 1);
+      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
+      assert.strictEqual(s.htCfg.ci, '14:00'); assert.strictEqual(s.htCfg.bizDate, undefined); assert.strictEqual(s.htCfg.lastAudit, undefined); assert.strictEqual(s.htCfg.taxes.length, 1);
     });
     console.log('\n' + passed + ' passed');
   } catch (e) { console.error('\n✗ FAILED:', e && e.stack || e); process.exitCode = 1; }
