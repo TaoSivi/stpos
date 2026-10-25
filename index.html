@@ -4589,7 +4589,7 @@ function receivePayment(subsetIds){if(!can('pay')){toast('ບໍ່ມີສິ�
  _paySubset=(Array.isArray(subsetIds)&&subsetIds.length)?subsetIds.slice():null;
  doPayment();}
 function payItemsNow(){const t=state.tables[state.activeTable];if(!_paySubset)return t.items;return t.items.filter(function(it){return _paySubset.indexOf(it.id)>=0;});}
-function activePayTypes(){return (state.payTypes||PAYTYPES).filter(function(p){return !(state.payOff&&state.payOff[p])&&!(p==='ຕິດໜີ້'&&!modOn('debt'))&&!(p==='ກະເປົາລູກຄ້າ'&&!modOn('members'));});}
+function activePayTypes(){return (state.payTypes||PAYTYPES).filter(function(p){return !(state.payOff&&state.payOff[p])&&!(p==='ຕິດໜີ້'&&!modOn('debt'))&&!(p==='ກະເປົາລູກຄ້າ'&&!modOn('members'));}).concat((bizCur()==='hotel'&&modOn('htFnb')&&htPosGuests().length)?['ຕິດບິນຫ້ອງ']:[]);}
 function doPayment(){const items=payItemsNow(),base=grandTotalItems(items);var ap=activePayTypes();var _tt=state.tables[state.activeTable];payState={split:(!_paySubset&&_tt&&_tt.splitN>1)?_tt.splitN:0,grand:base,received:0,recvCurr:'LAK',recvAmt:0,type:ap[0]||(state.payTypes||PAYTYPES)[0],partial:!!_paySubset,parts:null,tip:0,redeem:0};renderPayment();}
 function payFeeNow(){var pct=(state.payFee&&+state.payFee[payState.type])||0;return Math.round(payState.grand*pct/100);}
 function payRedeemVal(){return Math.min((+payState.redeem||0)*(+state.pointValue||0),payState.grand);}
@@ -4612,7 +4612,7 @@ function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=p
  var lbl=function(v){return curr==='LAK'?KIP(v):v;};
  var head=`<h2> ຮັບເງິນ${payState.partial?' <span style="font-size:13px;color:var(--tiff-deep)">(ແບ່ງບິນ)</span>':''}</h2>${payState.split>1?'<div class="splitnote">ຫານ <b>'+payState.split+'</b> ຄົນ · ຄົນລະ <b>'+KIP(Math.ceil(g/payState.split))+'</b> ກີບ</div>':''}<div class="paysummary"><div class="row"><span>ຍອດສິນຄ້າ:</span><b>${KIP(g)} ກີບ</b></div>`;
  if(payState.parts){ /* ---- ຈ່າຍ ສົດ + ໂອນ: ໃສ່ເງິນສົດ → ສ່ວນທີ່ເຫຼືອໄປວິທີທີ່ເລືອກອັດຕະໂນມັດ ---- */
-  var others=activePayTypes().filter(function(x){return x!=='ເງິນສົດ'&&x!=='ຕິດໜີ້';});
+  var others=activePayTypes().filter(function(x){return x!=='ເງິນສົດ'&&x!=='ຕິດໜີ້'&&x!=='ຕິດບິນຫ້ອງ';});
   if(!payState.mixType||others.indexOf(payState.mixType)<0)payState.mixType=others[0]||'';
   var cash=Math.max(0,Math.min(g,Math.round(+payState.mixCash||0))),rest=g-cash;
   var tt1=state.tables[state.activeTable];
@@ -4631,16 +4631,18 @@ function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=p
   var mc=document.getElementById('mixcash');if(mc&&window.innerWidth>700){mc.focus();}return;}
  var due=payDue();rl=payRecvLAK();chg=rl-due;var fee=payFeeNow();var rv=payRedeemVal();var feePct=(state.payFee&&+state.payFee[payState.type])||0;
  var tt0=state.tables[state.activeTable];var mem0=(tt0&&tt0.memberId)?(state.customers||[]).find(function(x){return x.id===tt0.memberId;}):null;
- var isCredit=payState.type==='ຕິດໜີ້';var isWallet=payState.type==='ກະເປົາລູກຄ້າ';
+ var isCredit=payState.type==='ຕິດໜີ້';var isWallet=payState.type==='ກະເປົາລູກຄ້າ';var isRoom=payState.type==='ຕິດບິນຫ້ອງ';
    var nItems=payItemsNow().reduce(function(a,i){return a+(+i.qty||0);},0);
   var brk=[];brk.push('ສິນຄ້າ '+KIP(g));if(rv)brk.push('ແຕ້ມ −'+KIP(rv));if(payState.tip)brk.push('ທິບ +'+KIP(payState.tip));if(fee)brk.push('ຄ່າທຳນຽມ '+feePct+'% +'+KIP(fee));
   var seg=function(arr,cur,on){return '<div class="p2-seg">'+arr.map(function(a){return '<button class="'+(cur===a[0]?'on':'')+'" onclick="'+on(a[0])+'">'+a[1]+'</button>';}).join('')+'</div>';};
-  var left='<div class="p2-due'+(isCredit?' credit':'')+'"><small>'+(isCredit?'ບັນທຶກຕິດໜີ້':'ຕ້ອງຮັບ')+'</small><div class="amt">'+KIP(due)+'<span>ກີບ</span></div><div class="brk">'+brk.join(' · ')+'</div>'+(payState.split>1?'<div class="p2-evn">ຫານ <b>'+payState.split+'</b> ຄົນ · ຄົນລະ <b>'+KIP(Math.ceil(due/payState.split))+'</b> ກີບ</div>':'')+'</div>';
+  var left='<div class="p2-due'+(isCredit?' credit':'')+'"><small>'+(isCredit?'ບັນທຶກຕິດໜີ້':isRoom?'ຕິດບິນຫ້ອງ':'ຕ້ອງຮັບ')+'</small><div class="amt">'+KIP(due)+'<span>ກີບ</span></div><div class="brk">'+brk.join(' · ')+'</div>'+(payState.split>1?'<div class="p2-evn">ຫານ <b>'+payState.split+'</b> ຄົນ · ຄົນລະ <b>'+KIP(Math.ceil(due/payState.split))+'</b> ກີບ</div>':'')+'</div>';
   if(isCredit){
    left+='<div class="p2-box"><div class="p2-lbl">ຕິດໜີ້ໃສ່</div><div class="p2-who">'+(mem0?cesc(mem0.name)+' <small>ໜີ້ເກົ່າ '+KIP(mem0.debt||0)+'</small>':'ໂຕະ '+cesc(tt0?tt0.name:'')+(tt0&&tt0.customer?' · '+cesc(tt0.customer):'')+' <small>ບໍ່ຕ້ອງເປັນສະມາຊິກ</small>')+'</div>'+
     creditPayInfo(mem0,due)+'<textarea id="pay_crnote" rows="2" oninput="payState.crNote=this.value" placeholder="ລາຍລະອຽດ (ບໍ່ບັງຄັບ) — ເຊັ່ນ ອ້າຍຄຳ, ນັດຈ່າຍທ້າຍເດືອນ">'+cesc(payState.crNote!=null?payState.crNote:(tt0&&!mem0&&tt0.customer?tt0.customer:''))+'</textarea>'+
     (mem0?'':'<input id="pay_crphone" type="tel" inputmode="tel" oninput="payState.crPhone=this.value" value="'+cesc(payState.crPhone||'')+'" placeholder="ເບີໂທ (ບໍ່ບັງຄັບ)">')+
     '<div class="p2-hint">ບໍ່ຮັບເງິນຕອນນີ້ — ຮັບຊຳລະພາຍຫຼັງທີ່ໜ້າ "ໜີ້ຄ້າງ"</div></div>';
+  }else if(isRoom){if(!payState.roomBk)payState.roomBk=htRoomForTable(tt0?tt0.name:'')||'';
+   left+='<div class="p2-box"><div class="p2-lbl">ຕິດບິນຫ້ອງຂອງ</div><select id="pay_room" onchange="payState.roomBk=this.value"><option value="">— ເລືອກແຂກທີ່ພັກຢູ່ —</option>'+htPosGuests().map(function(g){return '<option value="'+aesc(g.id)+'"'+(g.id===payState.roomBk?' selected':'')+'>ຫ້ອງ '+cesc(g.rooms)+' · '+cesc(g.name)+'</option>';}).join('')+'</select><div class="p2-hint">ບໍ່ຮັບເງິນດຽວນີ້ — ເຂົ້າບິນຫ້ອງ ຮັບເງິນຕອນ check-out</div></div>';
   }else{
    left+='<div class="p2-rc"><div><small>ຮັບມາ</small><b id="pRecv">'+(payState.recvAmt>0?KIP(rl)+' ກີບ':'ພໍດີ')+'</b></div><div class="chg"><small>ເງິນທອນ</small><b id="pChg">'+(chg>0&&payState.recvAmt>0?KIP(chg):0)+' ກີບ</b></div></div>'+
     (isWallet?'<div class="p2-hint" style="color:'+(mem0&&(mem0.wallet||0)>=due?'var(--green)':'var(--red)')+'">ກະເປົາສະມາຊິກ: '+(mem0?cesc(mem0.name)+' · ມີ '+KIP(mem0.wallet||0)+' ກີບ':'ຍັງບໍ່ຕິດສະມາຊິກ — ກົດ "ກັບໄປແກ້ໄຂບິນ" ແລ້ວເລືອກລູກຄ້າ')+'</div>':
@@ -4652,8 +4654,8 @@ function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=p
    '<div class="p2-lbl">ທິບພະນັກງານ <small>ບໍ່ນັບເປັນຍອດຂາຍ</small></div>'+
    '<div class="p2-seg">'+[0,5000,10000,20000].map(function(tv){return '<button class="'+((payState.tip||0)===tv?'on':'')+'" onclick="payState.tip='+tv+';renderPayment()">'+(tv===0?'ບໍ່ມີ':KIP(tv))+'</button>';}).join('')+'<button class="'+([0,5000,10000,20000].indexOf(payState.tip||0)<0?'on':'')+'" onclick="tipCustom()">ອື່ນໆ</button></div>'+
    ((mem0&&state.pointRedeem!==false&&(mem0.points||0)>0&&!isCredit)?'<div class="p2-lbl">ໃຊ້ແຕ້ມ <small>ມີ '+mem0.points+' ★ · 1★ = '+KIP(state.pointValue||0)+'</small></div><div class="p2-seg">'+[0,10,20,50].filter(function(n){return n<=(mem0.points||0)||n===0;}).map(function(n){return '<button class="'+((payState.redeem||0)===n?'on':'')+'" onclick="payState.redeem='+n+';renderPayment()">'+(n===0?'ບໍ່ໃຊ້':n+'★')+'</button>';}).join('')+'<button onclick="redeemCustom('+mem0.points+')">ອື່ນໆ</button></div>':'')+
-   (isCredit?'':'<div class="p2-links"><button onclick="paySplit()">⇄ ຈ່າຍ ສົດ + ໂອນ</button>'+(state.bankQR?'<button onclick="payBankQR()">▦ ສະແດງ QR ໂອນ</button>':'')+'</div>')+
-   '<div class="p2-go">'+(isCredit?'':'<button id="payRestX" class="p2-restx" style="display:none" onclick="paySplit()"></button>')+(isCredit?'<button class="p2-pay credit" onclick="finishPayment()">ບັນທຶກຕິດໜີ້ '+KIP(due)+' ກີບ</button>':'<button id="payGo" class="p2-pay" onclick="finishPayment()">'+payGoLabel()+'</button>')+
+   ((isCredit||isRoom)?'':'<div class="p2-links"><button onclick="paySplit()">⇄ ຈ່າຍ ສົດ + ໂອນ</button>'+(state.bankQR?'<button onclick="payBankQR()">▦ ສະແດງ QR ໂອນ</button>':'')+'</div>')+
+   '<div class="p2-go">'+((isCredit||isRoom)?'':'<button id="payRestX" class="p2-restx" style="display:none" onclick="paySplit()"></button>')+(isCredit?'<button class="p2-pay credit" onclick="finishPayment()">ບັນທຶກຕິດໜີ້ '+KIP(due)+' ກີບ</button>':isRoom?'<button class="p2-pay credit" onclick="finishPayment()">ຕິດບິນຫ້ອງ '+KIP(due)+' ກີບ</button>':'<button id="payGo" class="p2-pay" onclick="finishPayment()">'+payGoLabel()+'</button>')+
    '<button class="p2-back" onclick="closeModal();setView(\'order\')">‹ ກັບໄປແກ້ໄຂບິນ</button></div>';
   openModal('<div class="pay2"><div class="p2-top"><h2>ຮັບເງິນ'+(payState.partial?' <span class="p2-tag">ແບ່ງບິນ</span>':'')+'</h2><span class="p2-tb">ໂຕະ '+cesc(tt0?tt0.name:'')+' · '+nItems+' ລາຍການ'+(mem0?' · '+cesc(mem0.name):'')+'</span><button class="p2-x" title="ປິດ" onclick="closeModal();setView(\'order\')">✕</button></div>'+
    '<div class="p2-grid"><div class="p2-left">'+left+'</div><div class="p2-right">'+right+'</div></div></div>');
@@ -4687,7 +4689,7 @@ function finishPayment(){mpWs=false;const t=state.tables[state.activeTable];
   if(wp>0){if(!mem){toast('ມີສ່ວນຈ່າຍດ້ວຍກະເປົາ — ຕ້ອງຕິດສະມາຊິກກ່ອນ');return;}if((mem.wallet||0)<wp){toast('ເງິນກະເປົາບໍ່ພໍ');return;}}
   payParts=payState.parts.map(function(p){return {type:p.type,amt:+p.amt||0};});payLabel='ປະສົມ ('+payParts.map(function(p){return p.type;}).join('+')+')';
  }
- var credit=false,goodsNet=payState.grand,fee=0,redeemPts=0,redeemVal=0,due=0;
+ var credit=false,roomBk=null,goodsNet=payState.grand,fee=0,redeemPts=0,redeemVal=0,due=0;
  if(!mixed){
   goodsNet=payGoodsNet();fee=payFeeNow();redeemPts=+payState.redeem||0;redeemVal=payRedeemVal();due=payDue();
   if(redeemPts>0){if(!mem){toast('ຕ້ອງຕິດສະມາຊິກກ່ອນຈຶ່ງໃຊ້ແຕ້ມໄດ້');return;}if((mem.points||0)<redeemPts){toast('ແຕ້ມບໍ່ພໍ');return;}}
@@ -4700,6 +4702,7 @@ function finishPayment(){mpWs=false;const t=state.tables[state.activeTable];
   }else if(payState.type==='ກະເປົາລູກຄ້າ'){if(!mem){toast('ຕ້ອງຕິດສະມາຊິກກ່ອນ — ກົດ "ເລືອກລູກຄ້າ" ຄົ້ນຫາສະມາຊິກ');return;}
    if((mem.wallet||0)<due){toast('ເງິນກະເປົາບໍ່ພໍ — '+cesc(mem.name)+' ມີ '+KIP(mem.wallet||0)+' ກີບ');return;}
    payState.recvCurr='LAK';payState.recvAmt=due;var rlw=payRecvLAK();if(rlw<due){toast('ເງິນທີ່ຮັບບໍ່ພໍ');return;}chg=rlw-due;payLabel=payState.type;
+  }else if(payState.type==='ຕິດບິນຫ້ອງ'){var _rc=htRoomBillCheck(payState.roomBk);if(_rc.err){toast(_rc.err);return;}roomBk=_rc.bk;chg=0;payLabel='ຕິດບິນຫ້ອງ';payState.recvAmt=0;
   }else{if(!(payState.recvAmt>0)){payState.recvCurr='LAK';payState.recvAmt=due;} /* ບໍ່ໃສ່ຈຳນວນ = ຮັບພໍດີ (ກົດດຽວ) */
    var rl=payRecvLAK();if(rl<due){toast('ເງິນທີ່ຮັບບໍ່ພໍ');return;}chg=rl-due;payLabel=payState.type;}
  }
@@ -4714,7 +4717,8 @@ function finishPayment(){mpWs=false;const t=state.tables[state.activeTable];
  if(credit){bill.credit=true;bill.creditMemberId=mem?mem.id:null;bill.creditName=mem?mem.name:('ໂຕະ '+t.name+(t.customer?' · '+t.customer:''));var cpEl=document.getElementById('pay_crphone');bill.creditPhone=mem?(mem.phone||''):String(cpEl?cpEl.value:(payState.crPhone||'')).trim().slice(0,40);
   var crEl=document.getElementById('pay_crnote');var crn=String(crEl?crEl.value:(payState.crNote||'')).trim().slice(0,300);if(crn)bill.creditNote=crn;bill.creditOwed=goodsNet+(payState.tip||0)+fee;bill.creditPaid=0;
   if(!mem)logOrder('ຕິດໜີ້',bill.creditName+' +'+KIP(bill.creditOwed)+' ກີບ'+(crn?' — '+crn:''),t.name);}
- pkoToBill(t,bill);state.bills.push(bill);try{rxOnPaid(t.name,billItems,rno,bill);}catch(e){}
+ if(roomBk)bill.room={bk:roomBk.id,no:roomBk.no,rooms:htBkRoomsTxt(roomBk),guest:(roomBk.guest||{}).name||''};
+ pkoToBill(t,bill);state.bills.push(bill);if(roomBk){htPosPost(roomBk,rno,t.name,due);logOrder('ຕິດບິນຫ້ອງ','ບິນ '+rno+' → '+roomBk.no+' · '+KIP(due)+' ກີບ',t.name);}try{rxOnPaid(t.name,billItems,rno,bill);}catch(e){}
  logOrder(credit?'ຕິດໜີ້':'ຮັບເງິນ','ບິນ '+rno+' · '+KIP(bill.total)+' ກີບ · '+payLabel+(payState.partial?' (ແບ່ງບິນ '+billItems.length+' ລາຍການ)':'')+(redeemVal?' (ໃຊ້ '+redeemPts+' ແຕ້ມ −'+KIP(redeemVal)+')':'')+(payState.recvCurr&&payState.recvCurr!=='LAK'&&!mixed&&!credit?' (ຮັບ '+payState.recvCurr+')':''),t.name);
  var ptsMsg='';
  if(mem){if(!Array.isArray(mem.ledger))mem.ledger=[];if(!Array.isArray(mem.debtLedger))mem.debtLedger=[];
@@ -5041,7 +5045,7 @@ function billPayNet(b){if(b.voided)return {};var m=billPayMap(b),out={};Object.k
  if(b.credit){var k0=Object.keys(out)[0];if(k0&&k0!=='ຕິດໜີ້'){out['ຕິດໜີ້']=out[k0];delete out[k0];}}
  var r=+b.refundAmt||0;if(r>0){var c=Math.min(r,out['ເງິນສົດ']||0);if(c){out['ເງິນສົດ']-=c;r-=c;}Object.keys(out).forEach(function(k){if(r>0&&out[k]>0){var d=Math.min(r,out[k]);out[k]-=d;r-=d;}});}
  return out;}
-function payKind(t){t=String(t||'');return t==='ເງິນສົດ'?'cash':t==='ຕິດໜີ້'?'credit':t==='ກະເປົາລູກຄ້າ'?'wallet':'xfer';}
+function payKind(t){t=String(t||'');return t==='ເງິນສົດ'?'cash':t==='ຕິດໜີ້'?'credit':t==='ກະເປົາລູກຄ້າ'?'wallet':t==='ຕິດບິນຫ້ອງ'?'room':'xfer';}
 function payCellHTML(b){if(b.voided)return '<span style="color:var(--muted)">'+cesc(b.pay)+'</span>';var m=billPayNet(b),ks=Object.keys(m).filter(function(k){return m[k]>0;});
  if(!ks.length)return cesc(b.pay||'-');if(ks.length===1)return '<span class="pm '+payKind(ks[0])+'">'+cesc(ks[0])+'</span>';
  return '<div class="pmlist">'+ks.map(function(k){return '<span class="pm '+payKind(k)+'">'+cesc(k)+' <b>'+KIP(m[k])+'</b></span>';}).join('')+'</div>';}
@@ -12207,6 +12211,14 @@ function htHkCfgSave(){if(!htCan()){toast('ບໍ່ມີສິດແກ້ຕ�
  Object.assign(state.htCfg,{hkKit:kit,hkInspect:document.getElementById('kt_insp').checked,stayClean:document.getElementById('kt_stay').checked,upd:Date.now()});htLg('ຕັ້ງຄ່າແມ່ບ້ານ','ຊຸດ '+kit.length+' ລາຍການ');save();render();toast('ບັນທຶກແລ້ວ');}
 function htUseOpen(room){closeModal();openModal('<h2>ເບີກຜ້າ / ເຄື່ອງໃຊ້</h2><label>ຫ້ອງ</label><select id="us_room"><option value="">— ບໍ່ລະບຸ —</option>'+(state.htRooms||[]).filter(function(r){return r.active!==false;}).slice().sort(htRoomSort).map(function(r){return '<option value="'+aesc(r.id)+'"'+(r.id===room?' selected':'')+'>'+cesc(r.no)+'</option>';}).join('')+'</select><label>ລາຍການ</label><select id="us_ing">'+htIngOpts('')+'</select><div class="mp-2"><div><label>ຈຳນວນ</label><input id="us_qty" type="number" min="0" step="any" value="1"></div><div><label>ເຫດຜົນ</label><input id="us_rsn" placeholder="ເຊັ່ນ ປ່ຽນຜ້າປູ"></div></div><div class="ht-warn" id="us_err" style="background:none;border:0;padding:4px 0"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="htUseGo()">ບັນທຶກ</button></div>');}
 function htUseGo(){var r=htHkUse(htGv('us_room'),htGv('us_ing'),htGv('us_qty'),htGv('us_rsn'));if(r.err){document.getElementById('us_err').textContent=r.err;return;}closeModal();render();toast('ເບີກແລ້ວ');}
+/* ===== ST Hotel ໄລຍະ 5: ຮ້ານອາຫານ/ບາ → ບິນຫ້ອງ (ວິທີຈ່າຍ "ຕິດບິນຫ້ອງ" ໃນໜ້າຮັບເງິນເດີມ) ===== */
+function htPosGuests(){return (state.htBookings||[]).filter(function(b){return b.status==='in';}).map(function(b){return {id:b.id,no:b.no,name:(b.guest||{}).name||'',rooms:htBkRoomsTxt(b)};}).sort(function(x,y){return String(x.rooms).localeCompare(String(y.rooms),undefined,{numeric:true});});}
+function htRoomBillCheck(bkId){var bk=htFindBk(bkId);if(!bk)return {err:'ເລືອກແຂກທີ່ພັກຢູ່ ກ່ອນຕິດບິນຫ້ອງ'};if(bk.status!=='in')return {err:'ແຂກນີ້ບໍ່ໄດ້ພັກຢູ່ — ຕິດບິນຫ້ອງບໍ່ໄດ້'};return {bk:bk};}
+/* ໂຕະທີ່ຕັ້ງຊື່ "ຫ້ອງ 101" (room service / QR ໃນຫ້ອງ) → ແຂກທີ່ພັກຫ້ອງນັ້ນ */
+function htRoomForTable(name){var m=/^ຫ້ອງ\s*(\S+)$/.exec(String(name||'').trim());if(!m)return '';var r=(state.htRooms||[]).find(function(x){return htNm(x.no)===htNm(m[1]);});if(!r)return '';var td=htToday(),bk=(state.htBookings||[]).find(function(b){return b.status==='in'&&(b.lines||[]).some(function(l){return l.room===r.id&&l.from<=td&&td<=l.to;});});return bk?bk.id:'';}
+function htPosPost(bk,rno,table,amt){htInit();var id='hx_pos_'+rno;if(state.htChg.some(function(r){return r.id===id;}))return null;var now=Date.now(),r={id:id,bk:bk.id,ts:now,date:htToday(),dept:'fnb',desc:'ຮ້ານອາຫານ/ບາ · ບິນ '+rno+(table?' · '+table:''),qty:1,amt:Math.round(amt),payer:'A',key:id,void:false,by:htBy(),upd:now};state.htChg.push(r);return r;}
+function htPosVoidCheck(b){if(!b||!b.room)return '';var bk=htFindBk(b.room.bk);if(!bk)return 'ບໍ່ພົບການຈອງຂອງບິນນີ້';if(bk.status==='out')return 'ແຂກ check-out ແລ້ວ — void ບິນນີ້ບໍ່ໄດ້ (ແກ້ດ້ວຍການປັບຍອດໃນບິນຫ້ອງ)';return '';}
+function htPosVoid(b,reason){if(!b||!b.room)return;var r=(state.htChg||[]).find(function(x){return x.id==='hx_pos_'+b.receipt;});if(r&&!r.void){r.void=true;r.vreason='Void ບິນ POS: '+String(reason||'');r.vby=htBy();r.upd=Date.now();}}
 /* ===== ST Hotel: ຂໍ້ມູນຕົວຢ່າງ — 4 ປະເພດ · 24 ຫ້ອງ · ກົດ ທ້າຍອາທິດ (+20%) / ລະດູສູງທ້າຍປີ (+40%) · 3 ແຜນ · ພັກຍາວ ===== */
 function htLoadSample(){bizApply('hotel',true);htInit();var now=Date.now(),y=new Date().getFullYear(),mk=function(i,no,fl,zn,ty){return {id:'hrm_s'+i,no:no,floor:fl,zone:zn,type:ty,hk:'clean',active:true,upd:now};};
  state.htTypes=[{id:'hty_s1',name:'ຫ້ອງມາດຕະຖານ',cap:2,beds:'1 ຕຽງຄູ່',baseRate:400000,extraAdult:100000,extraChild:50000,extraBed:80000,amen:['ແອ','WiFi','ໂທລະທັດ'],active:true,upd:now},
@@ -12963,6 +12975,7 @@ function printLast(){if(__rcptHTML)printHTML(__rcptHTML);}
 function printReceipt(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b){toast('ບໍ່ພົບບິນ');return;}printHTML(buildReceiptHTML(b));}
 /* ===== VOID / REFUND ບິນ ===== */
 function voidBill(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b){toast('ບໍ່ພົບບິນ');return;}if(b.voided){toast('ບິນນີ້ void ແລ້ວ');return;}
+ var _hv=htPosVoidCheck(b);if(_hv){toast(_hv);return;}
  if(sodOn('void')&&b.cashier&&b.cashier===whoBy()){toast('Void ບິນທີ່ຕົນເອງເກັບເງິນບໍ່ໄດ້ (ແຍກໜ້າທີ່) — ໃຫ້ຄົນອື່ນ/ຜູ້ຈັດການເຮັດ');return;}
  if(b.deposit&&!isOwner()){toast('ບິນມັດຈຳ void ບໍ່ໄດ້ — ມັດຈຳບໍ່ຄືນ (ສະເພາະເຈົ້າຂອງ ແກ້ກໍລະນີຄີຜິດ)');return;}
  var doIt=function(){openModal('<h2 style="color:var(--red)"> Void ບິນ '+rno+'</h2><div class="paysummary"><div class="row"><span>ໂຕະ '+cesc(b.table)+'</span><b>'+KIP(b.total)+' ກີບ</b></div><div class="row"><span>ຈ່າຍ:</span><span>'+cesc(b.pay)+'</span></div></div>'+
@@ -12977,7 +12990,8 @@ function doVoidBill(rno){var b=(state.bills||[]).find(function(x){return x.recei
  if(retStk)(b.items||[]).forEach(function(line){lineBomOf(line).forEach(function(bm){if(state.ingredients[bm[0]])addStockAtM(line.code,bm[0],b.loc||curLoc(),bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);});});
  if(retStk)pkoReturn(b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ',rno+' ບັນຈຸພັນຕໍ່ອໍເດີ');
  else if(!b.deposit&&(b.items||[]).length)cxWaste(b.items.map(function(x){return {line:x,n:x.qty};}),b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ','Void ບິນ '+rno,rsn);
- b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();try{rxOnVoid(rno,rsn);}catch(e){}
+ var _hv2=htPosVoidCheck(b);if(_hv2){toast(_hv2);return;}
+ b.voided=true;b.voidReason=rsn;b.voidBy=(curUser()?curUser().name:'');b.voidTs=Date.now();htPosVoid(b,rsn);try{rxOnVoid(rno,rsn);}catch(e){}
  var memMsg=billMemberReverse(b,1,rno+' Void');
  (b.items||[]).forEach(function(line){logCancel('Void ບິນ',line.code,line.name,line.qty,lineTotal(line),b.table,rno+' — '+rsn);});
  logOrder('Void ບິນ',rno+' '+KIP(b.total)+' ກີບ — '+rsn+(retStk?' (ຄືນສະຕ໋ອກ)':''),b.table);
