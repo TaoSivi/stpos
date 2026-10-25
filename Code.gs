@@ -218,7 +218,7 @@ function mergeDocs_(curStr, inc) {
   try {
     if (!curStr || !inc || typeof inc !== 'object') return inc;
     var cur = JSON.parse(curStr); if (!cur) return inc;
-    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts', 'chkSubs', 'resv', 'rx', 'stockAdj', 'wastes', 'dlSettles', 'costAlerts', 'kpacks', 'prods', 'apl', 'vrets', 'htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg'].forEach(function (k) {
+    ['prs', 'pos', 'grns', 'vendors', 'procWorkflows', 'reqs', 'stockCounts', 'chkSubs', 'resv', 'rx', 'stockAdj', 'wastes', 'dlSettles', 'costAlerts', 'kpacks', 'prods', 'apl', 'vrets', 'htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg', 'htTask', 'htMt', 'htLf'].forEach(function (k) {
       if (!Array.isArray(cur[k])) return;
       if (!Array.isArray(inc[k])) inc[k] = [];
       var byId = {}; inc[k].forEach(function (d, i) { byId[d.id] = i; });

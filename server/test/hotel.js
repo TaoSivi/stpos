@@ -73,10 +73,23 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       const stale = JSON.parse(JSON.stringify(s)); stale.htChg.find(function (x) { return x.id === 'hx1'; }).amt = 1; assert.strictEqual(await save('b1', stale), 'ok');
       s = await st('b1'); const f = s.htChg.find(function (x) { return x.id === 'hx1'; }); assert.strictEqual(f.void, true); assert.strictEqual(f.amt, 45000);
     });
+    await test('ST Hotel P4: housekeeping tasks (fixed ids), maintenance, lost&found merge across devices; newer done/void wins over stale copy', async function () {
+      const a = await st('b1'), b = await st('b1');
+      const tk = function (u) { return { id: 'hk_R1_2026-11-12_clean', room: 'R1', date: '2026-11-12', kind: 'clean', status: 'todo', void: false, upd: u }; };
+      a.htTask = (a.htTask || []).concat([tk(7000)]); b.htTask = (b.htTask || []).concat([tk(7000), { id: 'hk_R2_2026-11-12_clean', room: 'R2', date: '2026-11-12', kind: 'clean', status: 'todo', void: false, upd: 7001 }]);
+      a.htMt = [{ id: 'M1', room: 'R1', title: 'ac', status: 'open', upd: 7002 }]; b.htLf = [{ id: 'L1', item: 'phone', status: 'kept', upd: 7003 }];
+      assert.strictEqual(await save('b1', a), 'ok'); assert.strictEqual(await save('b1', b), 'ok');
+      let s = await st('b1');
+      assert.deepStrictEqual(s.htTask.map(function (x) { return x.id; }).sort(), ['hk_R1_2026-11-12_clean', 'hk_R2_2026-11-12_clean']);
+      assert.strictEqual(s.htMt.length, 1); assert.strictEqual(s.htLf.length, 1);
+      const v = await st('b1'); const t = v.htTask.find(function (x) { return x.id === 'hk_R1_2026-11-12_clean'; }); t.status = 'ok'; t.upd = 9100; assert.strictEqual(await save('b1', v), 'ok');
+      const stale = JSON.parse(JSON.stringify(s)); stale.htTask.find(function (x) { return x.id === 'hk_R1_2026-11-12_clean'; }).status = 'doing'; assert.strictEqual(await save('b1', stale), 'ok');
+      s = await st('b1'); assert.strictEqual(s.htTask.find(function (x) { return x.id === 'hk_R1_2026-11-12_clean'; }).status, 'ok');
+    });
     await test('new branch starts with NO rooms / types / rates / plans / bookings / guests / promos but keeps settings (times, taxes)', async function () {
       assert.ok((await jp('b1', 'hq=add&name=' + encodeURIComponent('ທີ່ພັກ 2') + '&token=' + T)).ok);
       const s = await st('b2');
-      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
+      ['htTypes', 'htRooms', 'htRates', 'htPlans', 'htBookings', 'htGuests', 'htPromos', 'htChg', 'htPay', 'htAcc', 'htImg', 'htTask', 'htMt', 'htLf'].forEach(function (k) { assert.deepStrictEqual(s[k] || [], [], k + ' not reset'); });
       assert.strictEqual(s.htCfg.ci, '14:00'); assert.strictEqual(s.htCfg.bizDate, undefined); assert.strictEqual(s.htCfg.lastAudit, undefined); assert.strictEqual(s.htCfg.taxes.length, 1);
     });
     console.log('\n' + passed + ' passed');
