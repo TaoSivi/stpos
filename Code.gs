@@ -167,6 +167,8 @@ function mergeStock_(curStr, inc) {
     Object.keys(curIng).forEach(function (code) {
       var ci = curIng[code], ii = incIng[code];
       if (!ii) { if (tomb(code, ci)) return; incIng[code] = ci; return; }          /* ວັດຖຸດິບຫາຍໃນ incoming → ເກັບຂອງ server */
+      /* ຊັ້ນວາງ (rack) ແລະ ຈຳນວນຕໍ່ຊັ້ນ (bins) ແຍກຕາມບ່ອນເກັບ: ບ່ອນອື່ນ = ຂອງ server (ເຄື່ອງເກົ່າຂອງຄົວ ຕ້ອງບໍ່ລຶບຊັ້ນຂອງສາງໃຫຍ່) */
+      if (ci) ['rack', 'bins'].forEach(function (f) { if (ci[f] && typeof ci[f] === 'object') Object.keys(ci[f]).forEach(function (loc) { if (loc !== src) { if (!ii[f] || typeof ii[f] !== 'object') ii[f] = {}; ii[f][loc] = ci[f][loc]; } }); });
       if (!ci || !ci.locs) return;
       if (!ii.locs) ii.locs = {};
       Object.keys(ci.locs).forEach(function (loc) { if (loc !== src) ii.locs[loc] = ci.locs[loc]; }); /* ບ່ອນອື່ນ = ຂອງ server */
