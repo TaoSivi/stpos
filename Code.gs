@@ -28,6 +28,9 @@ function doGet(e) {
     var payload;
     if (p.cust == '1' && p.table) {                       /* ລູກຄ້າ QR: ອ່ານສະເພາະໂຕະຕົນເອງ */
       payload = { ok: true, state: getStateCust(String(p.table), String(p.pin || '')) };
+    } else if (p.book == '1' && p.payload) {               /* ຄົນເຈັບຈອງນັດເອງ (ຄລີນິກ) */
+      var bres; try { bres = bookAction_(JSON.parse(p.payload)); } catch (err) { bres = { ok: false, err: 'payload' }; }
+      payload = bres;
     } else if (p.action && p.payload) {                    /* ລູກຄ້າ QR: ສັ່ງ/ຂໍເຊັກບິນ ຜ່ານ JSONP */
       var res; try { res = custAction_(JSON.parse(p.payload)); } catch (err) { res = { ok: false, err: 'payload' }; }
       payload = res;
@@ -445,6 +448,95 @@ function custFilter_(st, table, pin, prevOk) {
 function getStateCust(table, pin) {
   try { var s = getState_(); if (!s) return ''; return JSON.stringify(custFilter_(JSON.parse(s), String(table), pin, true)); }
   catch (e) { return ''; }
+}
+
+/* ---- ຄົນເຈັບຈອງນັດເອງອອນລາຍ (ຄລີນິກ) ----
+   ປິດເປັນຄ່າເລີ່ມຕົ້ນ (state.bookOn). ຄົນເຈັບບໍ່ມີ token: ເຫັນສະເພາະ ຊື່ຄລີນິກ, ປະເພດນັດ, ເວລາວ່າງ (ບໍ່ເຫັນຊື່/ເບີຂອງຄົນອື່ນ).
+   server ກວດທຸກຢ່າງເອງ (ມື້ປິດ, ມື້ເປີດ, ເວລາ, ຫ້ອງຊ້ອນ, ຈຳນວນຄຳຂໍ). ຄຳຂໍເຂົ້າສະຖານະ 'request' ໃຫ້ພະນັກງານຢືນຢັນ (ເປີດ bookAuto = ເຂົ້າ 'booked' ເລີຍ). */
+function bkMin_(hm) { var m = /^(\d{1,2}):(\d{2})$/.exec(String(hm || '')); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+function bkFmt_(m) { return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + m % 60).slice(-2); }
+function bkToday_() { return Utilities.formatDate(new Date(), 'Asia/Vientiane', 'yyyy-MM-dd'); }
+function bkNowMin_() { return bkMin_(Utilities.formatDate(new Date(), 'Asia/Vientiane', 'HH:mm')); }
+function bkCfg_(st) {
+  var c = st.bookCfg || {};
+  return { from: bkMin_(c.from) != null ? bkFmt_(bkMin_(c.from)) : '08:00', to: bkMin_(c.to) != null ? bkFmt_(bkMin_(c.to)) : '17:00',
+    step: [10, 15, 20, 30, 60].indexOf(+c.step) >= 0 ? +c.step : 30, lead: (+c.lead >= 0 && +c.lead <= 72 && c.lead !== '' && c.lead != null) ? +c.lead : 1,
+    days: (+c.days >= 1 && +c.days <= 120) ? +c.days : 30, dur: (+c.dur >= 5 && +c.dur <= 480) ? +c.dur : 30,
+    dow: Array.isArray(c.dow) ? c.dow.map(Number).filter(function (d) { return d >= 0 && d <= 6; }) : [1, 2, 3, 4, 5, 6], note: String(c.note || '').slice(0, 200), auto: !!st.bookAuto };
+}
+function bkRooms_(st) {
+  var names = Object.keys(st.tables || {}).filter(function (n) { var t = st.tables[n]; return t && !t.dl && t.status !== 'merged' && n !== 'ແຄັດເຊຍ'; });
+  var sel = (st.bookRooms || []).filter(function (n) { return names.indexOf(n) >= 0; });
+  if (sel.length) return sel;
+  var doc = names.filter(function (n) { return st.tables[n].floor === 'ແພດ'; });
+  return doc.length ? doc : names;
+}
+function bkTypes_(st) { return (st.apptTypes || []).filter(function (t) { return t && t.id && t.name && +t.dur >= 5; }).map(function (t) { return { id: t.id, name: String(t.name).slice(0, 60), dur: +t.dur }; }); }
+function bkDiff_(date) { return Math.round((Date.parse(date + 'T00:00:00Z') - Date.parse(bkToday_() + 'T00:00:00Z')) / 86400000); }
+function bkSlots_(st, cfg, date, dur) {
+  var out = [];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return out;
+  var diff = bkDiff_(date); if (isNaN(diff) || diff < 0 || diff > cfg.days) return out;
+  if ((st.rvClosed || []).indexOf(date) >= 0) return out;
+  if (cfg.dow.indexOf(new Date(date + 'T00:00:00Z').getUTCDay()) < 0) return out;
+  var rooms = bkRooms_(st), nowM = bkNowMin_(), from = bkMin_(cfg.from), to = bkMin_(cfg.to);
+  var busy = (st.resv || []).filter(function (x) { return x.date === date && (x.status === 'booked' || x.status === 'seated' || x.status === 'request'); });
+  for (var m = from; m + dur <= to; m += cfg.step) {
+    if (diff * 1440 + m - nowM < cfg.lead * 60) continue;
+    var free = rooms.filter(function (r) { return !busy.some(function (x) { if (x.table !== r) return false; var s = bkMin_(x.time); if (s == null) return true; var d2 = +x.dur || 120; return m < s + d2 && s < m + dur; }); });
+    if (free.length) out.push({ t: bkFmt_(m), rooms: free });
+  }
+  return out;
+}
+function bookAction_(payload) {
+  payload = payload || {};
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+    var s = getState_(); if (!s) return { ok: false, err: 'off' };
+    var st = JSON.parse(s);
+    if (!st.bookOn) return { ok: false, err: 'off' };
+    var cfg = bkCfg_(st), types = bkTypes_(st), act = String(payload.a || '');
+    var dur = function (typeId) { var t = types.filter(function (x) { return x.id === typeId; })[0]; return t ? t.dur : cfg.dur; };
+    if (act === 'info') return { ok: true, shop: String(st.shopName || '').slice(0, 80), note: cfg.note, types: types, rooms: bkRooms_(st), days: cfg.days, dow: cfg.dow, auto: cfg.auto, from: cfg.from, to: cfg.to, closed: (st.rvClosed || []).filter(function (d) { return d >= bkToday_(); }).slice(0, 200) };
+    if (act === 'slots') return { ok: true, slots: bkSlots_(st, cfg, String(payload.date || ''), dur(String(payload.type || ''))) };
+    if (act !== 'req') return { ok: false, err: 'action' };
+    if (String(payload.hp || '') !== '') return { ok: true, no: '' };   /* ຊ່ອງດັກບອດ */
+    var clean = function (v, n) { return String(v == null ? '' : v).replace(/[<>\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n); };
+    var name = clean(payload.name, 60), phone = String(payload.phone || '').replace(/[^\d]/g, ''), date = String(payload.date || ''), time = String(payload.time || '');
+    if (name.length < 2) return { ok: false, err: 'ໃສ່ຊື່' };
+    if (phone.length < 8 || phone.length > 15) return { ok: false, err: 'ເບີໂທບໍ່ຖືກຕ້ອງ' };
+    var typeId = String(payload.type || ''), typeObj = types.filter(function (x) { return x.id === typeId; })[0] || null;
+    if (types.length && !typeObj) return { ok: false, err: 'ເລືອກປະເພດນັດ' };
+    var d = typeObj ? typeObj.dur : cfg.dur, slots = bkSlots_(st, cfg, date, d), slot = slots.filter(function (x) { return x.t === time; })[0];
+    if (!slot) return { ok: false, err: 'ເວລານີ້ບໍ່ວ່າງແລ້ວ — ເລືອກເວລາອື່ນ' };
+    var room = clean(payload.room, 80);
+    if (room) { if (slot.rooms.indexOf(room) < 0) return { ok: false, err: 'ແພດ/ຫ້ອງນີ້ບໍ່ວ່າງເວລານີ້' }; }
+    else {   /* ບໍ່ເລືອກ → ຫ້ອງທີ່ມີນັດໜ້ອຍສຸດໃນມື້ນັ້ນ */
+      var cnt = function (r) { return (st.resv || []).filter(function (x) { return x.date === date && x.table === r && x.status !== 'cancelled' && x.status !== 'noshow'; }).length; };
+      room = slot.rooms.slice().sort(function (a, b) { return cnt(a) - cnt(b); })[0];
+    }
+    if (!st.resv) st.resv = [];
+    var p8 = phone.slice(-8), live = st.resv.filter(function (x) { return (x.status === 'request' || x.status === 'booked') && String(x.phone || '').replace(/[^\d]/g, '').slice(-8) === p8; });
+    var dup = live.filter(function (x) { return x.date === date && x.time === time; })[0];
+    if (dup) return { ok: true, dup: true, no: dup.no, status: dup.status };
+    if (live.filter(function (x) { return x.status === 'request'; }).length >= 3) return { ok: false, err: 'ມີຄຳຂໍທີ່ລໍຢືນຢັນຫຼາຍເກີນໄປ — ກະລຸນາລໍຮ້ານຢືນຢັນ ຫຼື ໂທຫາຮ້ານ' };
+    if (st.resv.filter(function (x) { return x.status === 'request'; }).length >= 200) return { ok: false, err: 'ຂະນະນີ້ຮັບຄຳຂໍບໍ່ໄດ້ — ກະລຸນາໂທຫາຮ້ານ' };
+    var now = Date.now(), td = bkToday_().replace(/-/g, '').slice(2), seq = st.resv.filter(function (x) { return x.online && String(x.no || '').indexOf('OL-' + td) === 0; }).length + 1;
+    var mem = (st.customers || []).filter(function (c) { return String(c.phone || '').replace(/[^\d]/g, '').slice(-8) === p8; })[0];
+    var r = { id: 'rv' + now.toString(36) + Math.floor(Math.random() * 1e6).toString(36), no: 'OL-' + td + '-' + ('000' + seq).slice(-3), date: date, time: time, dur: d, table: room, guests: 1, name: name, phone: phone, memberId: mem ? mem.id : null,
+      note: 'ນັດອອນລາຍ', reason: clean(payload.reason, 200), allergy: clean(payload.allergy, 100), status: cfg.auto ? 'booked' : 'request', online: true, ts: now, upd: now, byName: 'ຄົນເຈັບ (ອອນລາຍ)',
+      hist: [{ ts: now, by: 'ຄົນເຈັບ (ອອນລາຍ)', act: cfg.auto ? 'ຈອງອອນລາຍ' : 'ຂໍນັດອອນລາຍ', note: date + ' ' + time }] };
+    if (payload.first === true || payload.first === false) r.first = payload.first;
+    if (typeObj) { r.type = typeObj.id; r.typeName = typeObj.name; }
+    if (!r.reason) delete r.reason; if (!r.allergy) delete r.allergy;
+    st.resv.push(r);
+    if (!st.orderLog) st.orderLog = [];
+    st.orderLog.push({ ts: now, table: room, action: cfg.auto ? 'ຈອງນັດອອນລາຍ' : 'ຂໍນັດອອນລາຍ', detail: r.no + ' · ' + name + ' · ' + date + ' ' + time, by: 'ຄົນເຈັບ (ອອນລາຍ)' });
+    st._v = Math.max(Date.now(), (+st._v || 0) + 1); saveStateRaw_(JSON.stringify(st), true, true);
+    return { ok: true, no: r.no, status: r.status, date: date, time: time, room: room, shop: String(st.shopName || '') };
+  } catch (err) { return { ok: false, err: 'server' }; }
+  finally { try { lock.releaseLock(); } catch (e) {} }
 }
 
 /* ---- ລູກຄ້າ QR: ສັ່ງອາຫານ / ຂໍເຊັກບິນ (server ກວດ PIN + ຕັດສະຕ໋ອກ) ---- */

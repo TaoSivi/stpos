@@ -66,7 +66,7 @@ function brFind(id) { return branches().filter(function (b) { return b.id === id
 function brFromPath(pathname) { const seg = String(pathname || '').split('/').filter(Boolean), last = (seg[seg.length - 1] || '').toLowerCase(); if (!last || last === 'api') return brFind('b1') || branches()[0]; return /^[a-z0-9_-]{1,32}$/.test(last) ? brFind(last) : null; }
 function useBranch(b) { CURBR = b; shim.use(brDir(b)); }
 /* ສາຂາໃໝ່ ສຳເນົາ "ການຕັ້ງຄ່າ" ຈາກສາຂາແມ່ແບບ (ເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ການຊຳລະ workflow ຜູ້ໃຊ້) · "ການເຄື່ອນໄຫວ" ເລີ່ມວ່າງ */
-const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], giftCards: [], gcTx: [], consents: [],holds: [], htTypes: [], htRooms: [], htRates: [], htPlans: [], htBookings: [], htGuests: [], htPromos: [], htChg: [], htPay: [], htAcc: [], htImg: [], htTask: [], htMt: [], htLf: [], htSvc: [], htSvcOrd: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
+const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], giftCards: [], gcTx: [], consents: [], bookOn: false, holds: [], htTypes: [], htRooms: [], htRates: [], htPlans: [], htBookings: [], htGuests: [], htPromos: [], htChg: [], htPay: [], htAcc: [], htImg: [], htTask: [], htMt: [], htLf: [], htSvc: [], htSvcOrd: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
 const BR_DROP = ['curShift', 'activeShift', 'activeStaff', 'activeTable', 'activeCat', 'activeSub', '_srcLoc', '_v', 'servedToday', '_reset'];
 function branchTemplate(st, name, id, type, srcId) {
   const n = JSON.parse(JSON.stringify(st || {}));
@@ -270,6 +270,17 @@ function hqPost(q, req, res, body) {
   }
   if (q.hq === 'staffSave') return done(staffSave(o, String(q.by || '').slice(0, 60)));
   return done({ ok: false, err: 'hq' });
+}
+/* ຄົນເຈັບຈອງນັດເອງ (ບໍ່ມີ token): ຈຳກັດຕໍ່ IP — ທຸກຄຳຂໍ ≤ 120/10 ນາທີ, ສົ່ງຄຳຂໍນັດ (a=req) ≤ 8/ຊົ່ວໂມງ */
+const BOOK_RATE = new Map();
+function bookRateOk(ip, payload) {
+  const now = Date.now(); let a = ''; try { a = String(JSON.parse(payload || '{}').a || ''); } catch (e) {}
+  if (BOOK_RATE.size > 5000) for (const k of BOOK_RATE.keys()) { const v = BOOK_RATE.get(k); if (!v.all.length || now - v.all[v.all.length - 1] > 3600000) BOOK_RATE.delete(k); }
+  const v = BOOK_RATE.get(ip) || { all: [], req: [] }; BOOK_RATE.set(ip, v);
+  v.all = v.all.filter(function (t) { return now - t < 600000; }); v.req = v.req.filter(function (t) { return now - t < 3600000; });
+  if (v.all.length >= 120) return false;
+  if (a === 'req' && v.req.length >= (+process.env.BOOK_RATE_REQ || 8)) return false;
+  v.all.push(now); if (a === 'req') v.req.push(now); return true;
 }
 function jsonpOut(res, cb, payload) { send(res, 200, String(cb).replace(/[^\w$.]/g, '') + '(' + JSON.stringify(payload) + ')', 'application/javascript'); }
 /* POST ແບບ DZ: = {b: hash ສະບັບພື້ນ, p: patch, h: hash ຜົນ} → {obj: state ເຕັມຂອງເຄື່ອງ, p} · ຜິດ = null ('resend' → ແອັບສົ່ງເຕັມແທນ) */
@@ -769,7 +780,7 @@ function handle(req, res, body) {
     res.writeHead(200, hdr); return res.end(JSON.stringify(r));
   }
   if (q.callback && q.login === 'mybr') return jsonpOut(res, q.callback, myBranches(q.token, req)); /* ກ່ອນ liftToken (ຕ້ອງການ session ເດີມ) */
-  { const su = sessUser(q.token); AU.ctx = { u: su ? su.id : (q.token && q.token === apiToken() ? 'api' : (q.cust || q.action ? 'qr' : '')), role: su ? su.role : '', ip: clientIp(req), arch: !!q.arch }; }
+  { const su = sessUser(q.token); AU.ctx = { u: su ? su.id : (q.token && q.token === apiToken() ? 'api' : (q.cust || q.action || q.book ? 'qr' : '')), role: su ? su.role : '', ip: clientIp(req), arch: !!q.arch }; }
   liftToken(q);
   if (q.callback && q.notify !== undefined) return jsonpOut(res, q.callback, notifyApi(q));
   if (q.callback && q.audit !== undefined) return jsonpOut(res, q.callback, auditApi(q));
@@ -804,8 +815,9 @@ function handle(req, res, body) {
     return jsonpOut(res, q.callback, { ok: true, gz: zlib.gzipSync(s).toString('base64'), v: v, h: c.h, dz: 1 });
   }
   if (q.callback) {
+    if (q.book === '1' && !bookRateOk(clientIp(req), q.payload)) return jsonpOut(res, q.callback, { ok: false, err: 'ລອງຫຼາຍເກີນໄປ — ກະລຸນາລໍສັກຄູ່ ແລ້ວລອງໃໝ່' });
     const r = G.doGet({ parameter: q });
-    if (q.action || q.bak || q.arch) { shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} }
+    if (q.action || q.bak || q.arch || q.book) { shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} }
     return out(res, r);
   }
   return send(res, 200, 'ST POS server OK');
