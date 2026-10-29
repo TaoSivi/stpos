@@ -17,8 +17,8 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
   try {
     await start();
     const M = [
-      { c: 'W1', n: 'ນ້ຳດື່ມ', p: 4000, k: 'food', bom: [['W1', 1]], man: 1, wp: 3500 },
-      { c: 'W1-X12', n: 'ນ້ຳດື່ມ (ແພັກ 12)', p: 45000, k: 'food', bom: [['W1', 12]], u: { of: 'W1', q: 12, n: 'ແພັກ' }, bc: '8850000000099', man: 1 },
+      { c: 'W1', n: 'ນ້ຳດື່ມ', p: 4000, k: 'food', bom: [['W1', 1]], man: 1, wp: 3500, tiers: [{ q: 6, p: 3300 }, { q: 24, p: 3000 }] },
+      { c: 'W1-X12', n: 'ນ້ຳດື່ມ (ແພັກ 12)', p: 45000, k: 'food', bom: [['W1', 12]], u: { of: 'W1', q: 12, n: 'ແພັກ' }, bc: '8850000000099', man: 1, wp: 40000 },
       { c: 'K1', n: 'ໝູ', p: 14000, k: 'food', bom: [['K1', 1]], wt: 1, wu: 'kg', man: 1 },
       { c: 'B0001', n: 'ຊຸດ', p: 6000, k: 'food', bom: [['W1', 1], ['K1', 1]], bundle: 1, bc: '8850000000101', man: 1 }];
     const base = { shopName: 'Mart HQ', bizType: 'mart', users: [], tables: {}, bills: [], orders: [], catalog: { 'ສິນຄ້າ': { 'ທັງໝົດ': M } }, menuImg: {}, modGroups: [],
@@ -29,7 +29,7 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
     await test('push to new branch: product fields kept (wholesale, weighed, pack barcode, bundle)', async function () {
       const r = await jp('b1', 'hq=menuPush&ids=all&by=Owner&token=' + T); assert.ok(r.ok, JSON.stringify(r));
       const s = await st('b2'), it = {}; Object.values(s.catalog).forEach(function (c) { Object.values(c).forEach(function (a) { a.forEach(function (m) { it[m.c] = m; }); }); });
-      assert.strictEqual(it.W1.wp, 3500); assert.strictEqual(it.K1.wt, 1); assert.strictEqual(it.K1.wu, 'kg');
+      assert.strictEqual(it.W1.wp, 3500); assert.deepStrictEqual(it.W1.tiers, [{ q: 6, p: 3300 }, { q: 24, p: 3000 }]); assert.strictEqual(it['W1-X12'].wp, 40000); assert.strictEqual(it.K1.wt, 1); assert.strictEqual(it.K1.wu, 'kg');
       assert.strictEqual(it['W1-X12'].bc, '8850000000099'); assert.deepStrictEqual(it['W1-X12'].u, { of: 'W1', q: 12, n: 'ແພັກ' });
       assert.strictEqual(it.B0001.bundle, 1); assert.deepStrictEqual(it.B0001.bom, [['W1', 1], ['K1', 1]]);
     });
