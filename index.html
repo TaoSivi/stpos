@@ -3911,7 +3911,20 @@ function lineUnit(i){var d=Math.min(100,(+i.disc||0)+(+i.promoPct||0));return (i
 function lineTotal(i){var paid=Math.max(0,(i.qty||0)-(+i.promoFree||0)),r=Math.max(0,lineUnit(i)*paid-(+i.promoAmt||0));return i.wt?Math.round(r):r;}
 /* ===== ໂປຣໂມຊັນ engine (ຄິດຄືນທຸກຄັ້ງທີ່ກະຕ່າປ່ຽນ) ===== */
 function nowHM(){var d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
-function promoInWindow(p,hm){if(p.active===false)return false;if(p.from&&p.to){hm=hm||nowHM();if(hm<p.from||hm>=p.to)return false;}return true;}
+function promoInWindow(p,hm){if(p.active===false)return false;if(p.from&&p.to){hm=hm||nowHM();if(hm<p.from||hm>=p.to)return false;}if(p.code&&!promoCodeOn(p))return false;return true;}
+/* ໂຄ້ດສ່ວນຫຼຸດ: ໂປຣທີ່ມີ p.code ເຮັດວຽກສະເພາະໂຕະທີ່ພະນັກງານໃສ່ໂຄ້ດ (table.pcodes) */
+function promoCodeOn(p){var t=state.tables&&state.tables[state.activeTable];return !!(t&&Array.isArray(t.pcodes)&&t.pcodes.indexOf(p.code)>=0);}
+function promoCodeUses(code){return (state.bills||[]).filter(function(b){return !b.voided&&Array.isArray(b.pcodes)&&b.pcodes.indexOf(code)>=0;}).length;}
+function promoCodeEnter(code){code=gcNorm(code);var t=state.tables[state.activeTable];if(!t||!code)return gcErr('ໃສ່ໂຄ້ດ');
+ var p=(state.promos||[]).find(function(x){return x.code===code&&x.active!==false;});if(!p)return gcErr('ບໍ່ພົບໂຄ້ດນີ້');
+ if(Array.isArray(t.pcodes)&&t.pcodes.indexOf(code)>=0)return {ok:true,dup:true};
+ if(p.from&&p.to){var hm=nowHM();if(hm<p.from||hm>=p.to)return gcErr('ໂຄ້ດນີ້ໃຊ້ໄດ້ສະເພາະ '+p.from+'–'+p.to);}
+ if(+p.maxUse>0&&promoCodeUses(code)>=+p.maxUse)return gcErr('ໂຄ້ດນີ້ຖືກໃຊ້ຄົບ '+p.maxUse+' ຄັ້ງແລ້ວ');
+ if(!Array.isArray(t.pcodes))t.pcodes=[];t.pcodes.push(code);logOrder('ໃສ່ໂຄ້ດສ່ວນຫຼຸດ',code+' ('+p.name+')',state.activeTable);save();render();toast('ໃຊ້ໂຄ້ດ '+code+' ແລ້ວ');return {ok:true};}
+function promoCodeDel(code){var t=state.tables[state.activeTable];if(!t||!Array.isArray(t.pcodes))return;t.pcodes=t.pcodes.filter(function(c){return c!==code;});save();render();}
+function promoCodeAsk(){openModal('<h2>🎟 ໂຄ້ດສ່ວນຫຼຸດ</h2><input id="pc_code" placeholder="ໃສ່ໂຄ້ດ" autocomplete="off" style="text-align:center;font-size:18px;text-transform:uppercase"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="var r=promoCodeEnter(document.getElementById(\'pc_code\').value);if(r.ok)closeModal()">ໃຊ້ໂຄ້ດ</button></div>');setTimeout(function(){var i=document.getElementById('pc_code');if(i)i.focus();},60);}
+function promoCodeBar(t){if(!t||isCust()||!(state.promos||[]).some(function(p){return p.code;}))return '';var cs=Array.isArray(t.pcodes)?t.pcodes:[];
+ return '<div class="crs-bar" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px">'+cs.map(function(c){return '<span class="schip">🎟 '+cesc(c)+'<button type="button" title="ເອົາອອກ" onclick="promoCodeDel(\''+cesc(c)+'\')">×</button></span>';}).join('')+'<button type="button" class="btn-sm" onclick="promoCodeAsk()">🎟 ໂຄ້ດສ່ວນຫຼຸດ</button></div>';}
 function getActivePromos(){return (state.promos||[]).filter(function(p){return promoInWindow(p);});}
 function promoMatchesItem(p,i){
  if(p.scope==='items')return (p.codes||[]).indexOf(i.code)>=0;
@@ -4531,6 +4544,7 @@ function renderCart0(){if(isCust()){var Rv=document.getElementById('viewRoot');i
    <div class="actions"><button class="b-bill" onclick="checkBill()"> ເຊັກບິນ</button><button class="b-pay" onclick="receivePayment()"> ຮັບເງິນ</button><button class="b-split" onclick="splitPayment()"> ແບ່ງຈ່າຍ</button>
    <button class="b-move" onclick="openMoveTable()"> ຍ້າຍໂຕະ</button><button class="b-move b-mvi" onclick="openMoveItems()"> ຍ້າຍລາຍການ</button><button class="b-merge" onclick="mergeTable()"> ລວມໂຕະ</button><button class="b-cancel" onclick="cancelTable()"> ຍົກເລີກ</button></div>`;}
  if(!inDraft){var _cbar=courseBar(t);if(_cbar)foot.insertAdjacentHTML('afterbegin',_cbar);}
+ var _pbar=promoCodeBar(t);if(_pbar)foot.insertAdjacentHTML('afterbegin',_pbar);
  var cb=document.getElementById('cartBar');if(cb){var cn=items.reduce(function(a,i){return a+(+i.qty||0);},0),ct=items.reduce(function(a,i){return a+lineTotal(i);},0);cb.innerHTML='<span class="cb-l"><b>'+cn+'</b> '+(inDraft?'ລາຍການໃໝ່ · ກົດເພື່ອຢືນຢັນ':'ລາຍການໃນໂຕະ')+'</span><span class="cb-r">'+KIP(ct)+' ₭ ›</span>';cb.classList.toggle('draft',inDraft);cb.style.visibility=cn?'visible':'hidden';}
  cdsFromCart();}
 /* ===== ຄອດອາຫານ (Course): ຄອດ 1 ເຂົ້າຄົວທັນທີ · ຄອດ 2-3 ຖືໄວ້ (item.hold) ຈົນກວ່າກົດ "ສົ່ງຄອດ" ===== */
@@ -4773,10 +4787,11 @@ function doPayment(){const items=payItemsNow(),base=grandTotalItems(items);var a
 function payFeeNow(){var pct=(state.payFee&&+state.payFee[payState.type])||0;return Math.round(payState.grand*pct/100);}
 function payRedeemVal(){return Math.min((+payState.redeem||0)*(+state.pointValue||0),payState.grand);}
 function payGoodsNet(){return payState.grand-payRedeemVal();} /* ຍອດສິນຄ້າ ຫຼັງຫັກແຕ້ມ */
-function payDue(){return payGoodsNet()+(payState.tip||0)+payFeeNow();}
+function gcUsed(){return (payState&&payState.gc)?Math.max(0,Math.min(+payState.gc.amt||0,payGoodsNet())):0;}
+function payDue(){return payGoodsNet()+(payState.tip||0)+payFeeNow()-gcUsed();}
 function payRate(){var c=payState.recvCurr||'LAK';return c==='THB'?(state.rateTHB||1):c==='USD'?(state.rateUSD||1):1;}
 function payRecvLAK(){return Math.round((payState.recvAmt||0)*payRate());}
-function paySplit(){var cashIn=payState.type==='ເງິນສົດ'&&(payState.recvCurr||'LAK')==='LAK'&&payState.recvAmt>0&&payState.recvAmt<payState.grand;
+function paySplit(){if(payState.gc){toast('ເອົາບັດຂອງຂວັນອອກກ່ອນ ຈຶ່ງແບ່ງຈ່າຍ ສົດ + ໂອນ ໄດ້');return;}var cashIn=payState.type==='ເງິນສົດ'&&(payState.recvCurr||'LAK')==='LAK'&&payState.recvAmt>0&&payState.recvAmt<payState.grand;
  payState.mixCash=cashIn?Math.round(payState.recvAmt):0;payState.tip=0;payState.redeem=0;payState.parts=[];renderPayment();}
 function payGoLabel(){if(!(payState&&payState.recvAmt>0))return 'ຈ່າຍພໍດີ '+KIP(payDue())+' ກີບ';var c=payRecvLAK()-payDue();return c<0?'ຍັງຂາດ '+KIP(-c)+' ກີບ':(c>0?'ຈ່າຍ · ທອນ '+KIP(c):'ຈ່າຍ');}
 function updatePayChg(){var pg=document.getElementById('payGo');if(pg)pg.textContent=payGoLabel();var g=payDue(),rl=payRecvLAK(),chg=rl-g,has=payState.recvAmt>0;var a=document.getElementById('pRecv');if(a)a.textContent=has?KIP(rl)+' ກີບ':'ພໍດີ';var b=document.getElementById('pChg');if(b){b.textContent=(has&&chg>0?KIP(chg):0)+' ກີບ';b.parentNode.classList.toggle('short',has&&chg<0);}
@@ -4833,6 +4848,7 @@ function renderPayment(){var g=payState.grand,curr=payState.recvCurr||'LAK',rl=p
    '<div class="p2-lbl">ທິບພະນັກງານ <small>ບໍ່ນັບເປັນຍອດຂາຍ</small></div>'+
    '<div class="p2-seg">'+[0,5000,10000,20000].map(function(tv){return '<button class="'+((payState.tip||0)===tv?'on':'')+'" onclick="payState.tip='+tv+';renderPayment()">'+(tv===0?'ບໍ່ມີ':KIP(tv))+'</button>';}).join('')+'<button class="'+([0,5000,10000,20000].indexOf(payState.tip||0)<0?'on':'')+'" onclick="tipCustom()">ອື່ນໆ</button></div>'+
    ((mem0&&state.pointRedeem!==false&&(mem0.points||0)>0&&!isCredit)?'<div class="p2-lbl">ໃຊ້ແຕ້ມ <small>ມີ '+mem0.points+' ★ · 1★ = '+KIP(state.pointValue||0)+'</small></div><div class="p2-seg">'+[0,10,20,50].filter(function(n){return n<=(mem0.points||0)||n===0;}).map(function(n){return '<button class="'+((payState.redeem||0)===n?'on':'')+'" onclick="payState.redeem='+n+';renderPayment()">'+(n===0?'ບໍ່ໃຊ້':n+'★')+'</button>';}).join('')+'<button onclick="redeemCustom('+mem0.points+')">ອື່ນໆ</button></div>':'')+
+   ((isCredit||isRoom||bizCur()==='medical')?'':'<div class="p2-lbl">ບັດຂອງຂວັນ <small>ຫັກຈາກຍອດບັດ</small></div><div class="p2-seg">'+(payState.gc?'<button class="on">'+cesc(payState.gc.code)+' −'+KIP(gcUsed())+'</button><button onclick="gcClear()">ເອົາອອກ</button>':'<button onclick="gcAskCode()">🎁 ໃສ່ລະຫັດບັດ</button>')+'</div>')+
    ((isCredit||isRoom)?'':'<div class="p2-links"><button onclick="paySplit()">⇄ ຈ່າຍ ສົດ + ໂອນ</button>'+(state.bankQR?'<button onclick="payBankQR()">▦ ສະແດງ QR ໂອນ</button>':'')+'</div>')+
    '<div class="p2-go">'+((isCredit||isRoom)?'':'<button id="payRestX" class="p2-restx" style="display:none" onclick="paySplit()"></button>')+(isCredit?'<button class="p2-pay credit" onclick="finishPayment()">ບັນທຶກຕິດໜີ້ '+KIP(due)+' ກີບ</button>':isRoom?'<button class="p2-pay credit" onclick="finishPayment()">ຕິດບິນຫ້ອງ '+KIP(due)+' ກີບ</button>':'<button id="payGo" class="p2-pay" onclick="finishPayment()">'+payGoLabel()+'</button>')+
    '<button class="p2-back" onclick="closeModal();setView(\'order\')">‹ ກັບໄປແກ້ໄຂບິນ</button></div>';
@@ -4885,6 +4901,11 @@ function finishPayment(){var _wsB=mpWsOn()?1:0;mpWs=false;const t=state.tables[s
   }else{if(!(payState.recvAmt>0)){payState.recvCurr='LAK';payState.recvAmt=due;} /* ບໍ່ໃສ່ຈຳນວນ = ຮັບພໍດີ (ກົດດຽວ) */
    var rl=payRecvLAK();if(rl<due){toast('ເງິນທີ່ຮັບບໍ່ພໍ');return;}chg=rl-due;payLabel=payState.type;}
  }
+ var _gcU=0,_gcC=null;
+ if(payState.gc){if(mixed||credit||roomBk){toast('ບັດຂອງຂວັນໃຊ້ຮ່ວມກັບ ຕິດໜີ້ / ຕິດບິນຫ້ອງ / ແບ່ງຈ່າຍ ບໍ່ໄດ້');return;}
+  _gcC=(state.giftCards||[]).find(function(x){return x.id===payState.gc.id;});var _ga=gcAvail(_gcC);
+  if(!_ga.ok||_ga.bal<payState.gc.amt){toast('ຍອດບັດບໍ່ພໍ — '+(_ga.why||('ເຫຼືອ '+KIP(_ga.bal))));return;}
+  _gcU=Math.min(+payState.gc.amt||0,goodsNet);}
  payState.done=true;
  state.receiptSeq++;const rno=String(state.receiptSeq).padStart(10,'0');
  var _sub=billItems.reduce(function(s,i){return s+lineTotal(i);},0);
@@ -4892,6 +4913,10 @@ function finishPayment(){var _wsB=mpWsOn()?1:0;mpWs=false;const t=state.tables[s
  var bill={receipt:rno,table:t.name,items:JSON.parse(JSON.stringify(billItems)),total:(mixed?payState.grand:goodsNet),pay:payLabel,cashier:whoBy(),by:(curUser()?curUser().name:''),sub:_sub,discAmt:_discAmt,cogs:billCOGS(billItems),shiftId:state.curShift?state.curShift.id:null,loc:curLoc(),ts:Date.now()};
  if(payState.split>1)bill.split={n:payState.split,per:Math.ceil(bill.total/payState.split)};if(payParts)bill.payParts=payParts;if(payState.partial)bill.partial=true;if(mem)bill.memberId=mem.id;if(_wsB)bill.ws=1;if(payState.tip>0)bill.tip=payState.tip;if(fee>0)bill.cardFee=fee;
  if(redeemPts>0){bill.pointsUsed=redeemPts;bill.pointRedeemed=redeemVal;}
+ var _pcs=(t.pcodes||[]).filter(function(c){var pp=(state.promos||[]).find(function(x){return x.code===c;});return pp&&billItems.some(function(i){return i.promo&&String(i.promo).split(' + ').indexOf(pp.name)>=0;});});if(_pcs.length)bill.pcodes=_pcs;
+ if(_gcU>0){bill.gc={id:_gcC.id,code:_gcC.code,amt:_gcU};var _gr=goodsNet-_gcU+(payState.tip||0)+fee;
+  if(_gr>0){bill.payParts=[{type:'ບັດຂອງຂວັນ',amt:_gcU},{type:payState.type,amt:_gr}];bill.pay='ປະສົມ (ບັດຂອງຂວັນ+'+payState.type+')';}else{bill.pay='ບັດຂອງຂວັນ';}
+  gcTxAdd(_gcC,-_gcU,'use',rno);_gcC.upd=Date.now();logOrder('ຈ່າຍດ້ວຍບັດຂອງຂວັນ',_gcC.code+' −'+KIP(_gcU)+' ກີບ (ຄົງເຫຼືອ '+KIP(gcBal(_gcC))+')',t.name);}
  var _sdr=sdBillRec(t,billItems);if(_sdr)bill.sd=_sdr;
  if(credit){bill.credit=true;bill.creditMemberId=mem?mem.id:null;bill.creditName=mem?mem.name:('ໂຕະ '+t.name+(t.customer?' · '+t.customer:''));var cpEl=document.getElementById('pay_crphone');bill.creditPhone=mem?(mem.phone||''):String(cpEl?cpEl.value:(payState.crPhone||'')).trim().slice(0,40);
   var crEl=document.getElementById('pay_crnote');var crn=String(crEl?crEl.value:(payState.crNote||'')).trim().slice(0,300);if(crn)bill.creditNote=crn;bill.creditOwed=goodsNet+(payState.tip||0)+fee;bill.creditPaid=0;
@@ -4919,7 +4944,7 @@ function finishPayment(){var _wsB=mpWsOn()?1:0;mpWs=false;const t=state.tables[s
  _paySubset=null;
  if(!t.items.length){ /* ຈ່າຍໝົດໂຕະ */
   state.orders.forEach(o=>{if(o.table===t.name)kdsArch(o);});state.orders=state.orders.filter(o=>o.table!==t.name);Object.values(state.tables).forEach(x=>{if(x.mergedInto===t.name){x.status='free';x.billTs=null;x.items=[];x.customer=null;x.mergedInto=null;try{chatClear(x.name);}catch(e){}}});
-  t.status='free';t.splitN=null;t.billTs=null;t.customer=null;t.main=false;t.memberId=null;try{chatClear(t.name);}catch(e){}save();closeModal();setView('tables');
+  t.status='free';t.splitN=null;t.billTs=null;t.customer=null;t.main=false;t.memberId=null;t.pcodes=[];try{chatClear(t.name);}catch(e){}save();closeModal();setView('tables');
  }else{ /* ຍັງເຫຼືອລາຍການ — ຢູ່ໂຕະຕໍ່ */
   t.status='busy';save();closeModal();setView('order');
  }
@@ -5015,7 +5040,7 @@ function cancelTable(){if(!can('cancel')){requireOverride('cancel','ຍົກເ
 function cancelTable2(){const t=state.tables[state.activeTable];openModal(`<h2> ຍົກເລີກໂຕະ</h2><p style="font-size:14px;margin-bottom:10px">ລ້າງລາຍການທັງໝົດຂອງ <b>${t.name}</b>? (${t.items.length} ລາຍການ)</p>${(function(){var mk=t.items.filter(cxMade);return mk.length?'<div class="cx-box">'+cxSplitHTML(t.items.length-mk.length,mk.length,cxVal(mk.map(function(x){return {line:x,n:x.qty};}),t.pkO))+'<small>ລາຍການທີ່ຄົວເລີ່ມເຮັດແລ້ວ ວັດຖຸດິບໃຊ້ໄປແລ້ວ — ບໍ່ຄືນສະຕ໋ອກ ແລະ ຂຶ້ນລາຍງານເສຍຫາຍ</small></div>':'<p class="cx-ok">ຄົວຍັງບໍ່ເລີ່ມເຮັດ — ສະຕ໋ອກຈະຄືນທັງໝົດ</p>';})()}${rsnBox('ct_rsn')}${pinBox('ct_pin','cancel')}<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--orange)" onclick="doCancelTable()">ຍົກເລີກ</button></div>`);}
 function doCancelTable0(){const t=state.tables[state.activeTable];var _rsn=((document.getElementById('ct_rsn')||{}).value||'').trim();if(!_rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');var _e=document.getElementById('ct_rsn');if(_e)_e.focus();return;}logOrder('ຍົກເລີກໂຕະ',t.items.reduce(function(s,i){return s+i.qty;},0)+' ລາຍການ — '+_rsn,t.name);var _mk=[];t.items.forEach(line=>{var sg=itemStage(line,t);logCancel('ຍົກເລີກໂຕະ',line.code,line.name,line.qty,lineTotal(line),t.name,'ຍົກເລີກທັງໂຕະ: '+_rsn,{serve:sg.serve,bill:sg.bill,kitchen:sg.kitchen,id:line.id});if(cxMade(line)){_mk.push({line:line,n:line.qty});return;}lineBomOf(line).forEach(([ing,q])=>{if(state.ingredients[ing])addStockAtM(line.code,ing,curLoc(),q*line.qty,'ຄືນ-ຍົກເລີກໂຕະ',line.qty+'× '+line.name+' (ໂຕະ '+t.name+')');});});
  var _cws=null;if(_mk.length)_cws=cxWaste(_mk,t.pkO,curLoc(),'ຄືນ-ຍົກເລີກໂຕະ','ຍົກເລີກໂຕະ '+t.name,_rsn);else pkoReturn(t.pkO,curLoc(),'ຄືນ-ຍົກເລີກໂຕະ','ບັນຈຸພັນຕໍ່ອໍເດີ (ໂຕະ '+t.name+')');t.pkO=null;
- state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.splitN=null;t.status='free';if(t.dl)t.dl.closed=Date.now();try{chatClear(t.name);}catch(e){}t.billTs=null;t.customer=null;t.memberId=null;t.sd=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ '+t.name+(_cws?' — ເຮັດແລ້ວ '+_mk.length+' ລາຍການ ບັນທຶກເສຍ '+_cws.no:''));}
+ state.orders=state.orders.filter(o=>o.table!==t.name);t.items=[];t.splitN=null;t.status='free';if(t.dl)t.dl.closed=Date.now();try{chatClear(t.name);}catch(e){}t.billTs=null;t.customer=null;t.memberId=null;t.pcodes=[];t.sd=null;t.main=false;state.draft=[];save();closeModal();setView('tables');toast('ຍົກເລີກໂຕະ'+t.name+(_cws?' — ເຮັດແລ້ວ '+_mk.length+' ລາຍການ ບັນທຶກເສຍ '+_cws.no:''));}
 function openCustomer(){var t=state.tables[state.activeTable];
  openModal('<h2> ເລືອກລູກຄ້າ</h2>'+
   '<label>ຄົ້ນຫາສະມາຊິກ (ຊື່/ເບີໂທ)</label><input id="cm_q" placeholder="ພິມເພື່ອຄົ້ນ..." oninput="custSuggest()">'+
@@ -7666,10 +7691,11 @@ function saveVendor(id){var n=(document.getElementById('vd_n').value||'').trim()
 function toggleVendor(id){var v=(state.vendors||[]).find(function(x){return x.id===id;});if(!v||!(can('vendorMng')||isOwner()))return;v.status=v.status==='BLACKLISTED'?'ACTIVE':'BLACKLISTED';v.upd=Date.now();logOrder('ຈັດຊື້','ຜູ້ຂາຍ '+v.name+' → '+(v.status==='BLACKLISTED'?'Blacklist':'ໃຊ້ງານ'),'');save();render();}
 /* ===== ສະມາຊິກ / ສະສົມແຕ້ມ / ກະເປົາເງິນ ===== */
 let memberQ='',memberTab='mem';
-function renderMembers(R){if(bizCur()==='medical'){renderPatients(R);return;}var tabs=[['mem','ສະມາຊິກ'],['sd','ສ່ວນລົດພະນັກງານ'],['sdh','ປະຫວັດສ່ວນລົດ']];if(!tabs.some(function(t){return t[0]===memberTab;}))memberTab='mem';
+function renderMembers(R){if(bizCur()==='medical'){renderPatients(R);return;}var tabs=[['mem','ສະມາຊິກ'],['gc','ບັດຂອງຂວັນ'],['sd','ສ່ວນລົດພະນັກງານ'],['sdh','ປະຫວັດສ່ວນລົດ']];if(!tabs.some(function(t){return t[0]===memberTab;}))memberTab='mem';
  var td=ymd(Date.now()).slice(0,7),n=(state.bills||[]).filter(function(b){return b&&b.sd&&!b.voided&&ymd(b.ts).slice(0,7)===td;}).length;
  R.innerHTML='<div class="memtabs"><div class="sseg">'+tabs.map(function(t){return '<button type="button" class="'+(memberTab===t[0]?'on':'')+'" onclick="memberTab=\''+t[0]+'\';render()">'+t[1]+(t[0]==='sdh'&&n?' <em class="rbadge">'+n+'</em>':'')+'</button>';}).join('')+'</div></div><div id="membody"></div>';
  var B=document.getElementById('membody');
+ if(memberTab==='gc'){B.className='setmain';renderGiftCards(B);return;}
  if(memberTab==='sd'){B.className='setmain memsd';B.innerHTML=sdSettingsHTML();return;}
  if(memberTab==='sdh'){B.className='memsdh';renderRepSd(B);return;}
  renderMembersList(B);}
@@ -7710,6 +7736,38 @@ function delMember(id){var m=(state.customers||[]).find(function(x){return x.id=
  if((m.wallet||0)>0){toast('ຍັງມີເງິນໃນກະເປົາ '+KIP(m.wallet)+' ກີບ — ຄືນເງິນ/ໃຊ້ໃຫ້ໝົດກ່ອນ');return;}
  openModal('<h2>ລົບສະມາຊິກ '+cesc(m.name)+'?</h2><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ບໍ່</button><button class="btn-ok" style="background:var(--red)" onclick="doDelMember(\''+id+'\')">ລົບ</button></div>');}
 function doDelMember(id){var m=(state.customers||[]).find(function(x){return x.id===id;});if(!Array.isArray(state._custDel))state._custDel=[];state._custDel.push(String(id));if(state._custDel.length>300)state._custDel=state._custDel.slice(-300);state.customers=(state.customers||[]).filter(function(x){return x.id!==id;});if(m)logOrder('ລຶບສະມາຊິກ',m.name,'');save();closeModal();render();toast('ລຶບແລ້ວ');}
+/* ===== ບັດຂອງຂວັນ (Gift card): ບັດ = state.giftCards · ຍອດ = ລວມ ledger state.gcTx (ເພີ່ມຢ່າງດຽວ → ຫຼາຍເຄື່ອງພ້ອມກັນບໍ່ເສຍ) ===== */
+function gcNorm(c){return String(c||'').trim().toUpperCase();}
+function gcFind(code){code=gcNorm(code);return (state.giftCards||[]).find(function(c){return c.code===code;})||null;}
+function gcBal(c){if(!c)return 0;return (state.gcTx||[]).reduce(function(s,x){return x.card===c.id?s+(+x.amt||0):s;},0);}
+function gcAvail(c){if(!c)return {ok:false,bal:0,why:'ບໍ່ພົບບັດນີ້'};var bal=gcBal(c);if(c.exp&&ymd(Date.now())>c.exp)return {ok:false,bal:bal,why:'ບັດໝົດອາຍຸ ('+c.exp+')'};if(bal<=0)return {ok:false,bal:bal,why:'ບັດນີ້ຍອດເຫຼືອ 0'};return {ok:true,bal:bal};}
+function gcErr(m){toast(m);return {ok:false,err:m};}
+function gcTxAdd(c,amt,type,ref){if(!Array.isArray(state.gcTx))state.gcTx=[];state.gcTx.push({id:'gx'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),card:c.id,amt:amt,type:type,ref:ref||'',ts:Date.now(),by:whoBy()});}
+function gcSell(code,amt,pay,exp){code=gcNorm(code);amt=Math.round(+amt||0);
+ if(!code)return gcErr('ໃສ່ລະຫັດບັດ');if(amt<=0)return gcErr('ໃສ່ຈຳນວນເງິນ');if(gcFind(code))return gcErr('ລະຫັດນີ້ມີແລ້ວ');
+ if(pay==='ເງິນສົດ'&&state.requireShift!==false&&modOn('shift')&&!state.curShift)return gcErr('ເປີດກະກ່ອນ ເພື່ອບັນທຶກເງິນເຂົ້າລີ້ນຊັກ');
+ if(!Array.isArray(state.giftCards))state.giftCards=[];
+ var c={id:'gc'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),code:code,init:amt,pay:pay||'',ts:Date.now(),upd:Date.now(),by:whoBy()};if(exp)c.exp=String(exp);
+ state.giftCards.push(c);gcTxAdd(c,amt,'sell','');
+ if(state.curShift&&pay==='ເງິນສົດ'){if(!Array.isArray(state.curShift.cashIO))state.curShift.cashIO=[];state.curShift.cashIO.push({ts:Date.now(),type:'in',amount:amt,note:'ຂາຍບັດຂອງຂວັນ '+code,by:(curUser()?curUser().name:'')});}
+ logOrder('ຂາຍບັດຂອງຂວັນ',code+' '+KIP(amt)+' ກີບ ('+(pay||'')+')','');save();return {ok:true,card:c};}
+function gcApply(code){if(!payState)return gcErr('ຍັງບໍ່ໄດ້ເປີດໜ້າຮັບເງິນ');var c=gcFind(code),a=gcAvail(c);if(!a.ok)return gcErr(a.why);
+ var amt=Math.min(a.bal,payGoodsNet());if(amt<=0)return gcErr('ບິນນີ້ບໍ່ມີຍອດໃຫ້ຫັກ');
+ payState.gc={id:c.id,code:c.code,amt:amt};payState.parts=null;renderPayment();return {ok:true,amt:amt};}
+function gcClear(){if(payState){delete payState.gc;renderPayment();}}
+function gcAskCode(){openModal('<h2>🎁 ບັດຂອງຂວັນ</h2><input id="gc_code" placeholder="ລະຫັດບັດ" autocomplete="off" style="text-align:center;font-size:18px;text-transform:uppercase"><div class="modal-btns"><button class="btn-cancel" onclick="renderPayment()">ຍົກເລີກ</button><button class="btn-ok grad" onclick="gcApply(document.getElementById(\'gc_code\').value)">ໃຊ້ບັດ</button></div>');setTimeout(function(){var i=document.getElementById('gc_code');if(i)i.focus();},60);}
+function gcVoid(b){var c=(state.giftCards||[]).find(function(x){return x.id===b.gc.id;});if(!c)return;gcTxAdd(c,+b.gc.amt||0,'void',b.receipt);c.upd=Date.now();logOrder('ຄືນຍອດບັດຂອງຂວັນ',c.code+' +'+KIP(b.gc.amt)+' ກີບ (void ບິນ '+b.receipt+')','');}
+function gcGenCode(){var c;do{c='GC-'+String(Math.floor(1000+Math.random()*9000));}while(gcFind(c));return c;}
+function gcSellModal(){if(!can('memberMng')){toast('ບໍ່ມີສິດ');return;}
+ openModal('<h2>🎁 ຂາຍບັດຂອງຂວັນ</h2><label>ລະຫັດບັດ <span class="lnk" onclick="document.getElementById(\'gs_code\').value=gcGenCode()">[ສ້າງໃຫ້]</span></label><input id="gs_code" value="'+gcGenCode()+'" style="text-transform:uppercase"><label style="margin-top:8px">ມູນຄ່າ (ກີບ)</label><input id="gs_amt" type="number" inputmode="numeric" value="100000"><label style="margin-top:8px">ໝົດອາຍຸ (ບໍ່ບັງຄັບ)</label><input id="gs_exp" type="date"><label style="margin-top:8px">ຮັບເງິນເປັນ</label><select id="gs_pay">'+(state.payTypes||PAYTYPES).filter(function(x){return x!=='ກະເປົາລູກຄ້າ'&&x!=='ຕິດໜີ້'&&x!=='ຕິດບິນຫ້ອງ';}).map(function(x){return '<option>'+cesc(x)+'</option>';}).join('')+'</select><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="gcSellGo()">ຂາຍບັດ</button></div>');}
+function gcSellGo(){var r=gcSell(document.getElementById('gs_code').value,document.getElementById('gs_amt').value,document.getElementById('gs_pay').value,document.getElementById('gs_exp').value);if(!r.ok)return;closeModal();render();showSuccess('ຂາຍບັດແລ້ວ!',r.card.code+' · '+KIP(r.card.init)+' ກີບ');}
+function gcHist(id){var c=(state.giftCards||[]).find(function(x){return x.id===id;});if(!c)return;var L=(state.gcTx||[]).filter(function(x){return x.card===id;}).sort(function(a,b){return a.ts-b.ts;}),T={sell:'ຂາຍບັດ',use:'ໃຊ້ຈ່າຍ',void:'ຄືນ (void)'};
+ openModal('<h2>'+cesc(c.code)+'</h2><div class="paysummary"><div class="row"><span>ຄົງເຫຼືອ:</span><b>'+KIP(gcBal(c))+' ກີບ</b></div></div><div style="max-height:46vh;overflow:auto"><table class="tbl"><tbody>'+L.map(function(x){return '<tr><td>'+new Date(x.ts).toLocaleString('en-GB')+'</td><td>'+(T[x.type]||x.type)+(x.ref?' <small>'+cesc(x.ref)+'</small>':'')+'</td><td style="text-align:right;color:'+(x.amt<0?'var(--red)':'var(--green)')+'">'+(x.amt>0?'+':'')+KIP(x.amt)+'</td></tr>';}).join('')+'</tbody></table></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button></div>');}
+function renderGiftCards(B){var cs=(state.giftCards||[]).slice().sort(function(a,b){return b.ts-a.ts;}),tot=cs.reduce(function(s,c){return s+Math.max(0,gcBal(c));},0);
+ B.innerHTML='<div class="toolbar"><span style="font-size:17px;font-weight:800">ບັດຂອງຂວັນ</span><button class="btn-sm" style="margin-left:auto" onclick="gcSellModal()">＋ ຂາຍບັດ</button></div><div style="padding:0 18px 18px">'+
+  '<div class="cards" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+repKpi('ຍອດຄ້າງຢູ່ໃນບັດ (ໜີ້ສິນ)',KIP(tot))+repKpi('ຈຳນວນບັດ',cs.length)+'</div>'+
+  '<table class="tbl"><thead><tr><th>ລະຫັດ</th><th>ຂາຍເມື່ອ</th><th style="text-align:right">ມູນຄ່າ</th><th style="text-align:right">ຄົງເຫຼືອ</th><th>ໝົດອາຍຸ</th><th></th></tr></thead><tbody>'+
+  (cs.map(function(c){var a=gcAvail(c);return '<tr><td><b>'+cesc(c.code)+'</b></td><td>'+new Date(c.ts).toLocaleDateString('en-GB')+'</td><td style="text-align:right">'+KIP(c.init)+'</td><td style="text-align:right"><b>'+KIP(gcBal(c))+'</b></td><td style="color:'+((c.exp&&!a.ok&&a.bal>0)?'var(--red)':'inherit')+'">'+(c.exp||'—')+((c.exp&&!a.ok&&a.bal>0)?' (ໝົດອາຍຸ)':'')+'</td><td><button class="btn-sm" onclick="gcHist(\''+c.id+'\')">ປະຫວັດ</button></td></tr>';}).join('')||'<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">ຍັງບໍ່ມີບັດຂອງຂວັນ — ກົດ "＋ ຂາຍບັດ"</td></tr>')+'</tbody></table></div>';}
 function topupMember(id){if(!can('memberMng')){toast('ບໍ່ມີສິດ');return;}var m=(state.customers||[]).find(function(x){return x.id===id;});if(!m)return;
  openModal('<h2> ເຕີມເງິນກະເປົາ — '+cesc(m.name)+'</h2><div class="paysummary"><div class="row"><span>ຍອດປັດຈຸບັນ:</span><b>'+KIP(m.wallet||0)+' ກີບ</b></div></div>'+
   '<label style="margin-top:8px">ຈຳນວນເຕີມ (ກີບ)</label><input id="tp_amt" type="number" inputmode="numeric" value="100000">'+
@@ -9844,10 +9902,12 @@ function renderPromoEdit(){var e=_promoEdit;var body='';
  }
  body+='<div style="display:flex;gap:10px"><div style="flex:1"><label style="margin-top:8px">ເລີ່ມ (ເວລາ)</label><input type="time" value="'+cesc(e.from)+'" oninput="_promoEdit.from=this.value"></div><div style="flex:1"><label style="margin-top:8px">ຮອດ</label><input type="time" value="'+cesc(e.to)+'" oninput="_promoEdit.to=this.value"></div></div>';
  body+='<p style="font-size:11px;color:var(--muted);margin-top:4px">ວ່າງເວລາ = ໃຊ້ໝົດມື້</p>';
+ body+='<div style="display:flex;gap:10px"><div style="flex:2"><label style="margin-top:8px">ໂຄ້ດ (ບໍ່ບັງຄັບ)</label><input value="'+cesc(e.code||'')+'" oninput="_promoEdit.code=this.value" placeholder="ເຊັ່ນ WELCOME10" style="text-transform:uppercase"></div><div style="flex:1"><label style="margin-top:8px">ໃຊ້ໄດ້ (ຄັ້ງ)</label><input type="number" min="0" value="'+(+e.maxUse||'')+'" oninput="_promoEdit.maxUse=+this.value||0" placeholder="ບໍ່ຈຳກັດ"></div></div><p style="font-size:11px;color:var(--muted);margin-top:4px">ມີໂຄ້ດ = ໂປຣນີ້ເຮັດວຽກສະເພາະເມື່ອພະນັກງານກົດ "🎟 ໂຄ້ດສ່ວນຫຼຸດ" ໃນໂຕະ · ວ່າງ = ເຮັດວຽກອັດຕະໂນມັດ</p>';
  body+='<label class="rx-pg" style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" style="width:auto"'+(e.dl?' checked':'')+' onchange="_promoEdit.dl=this.checked"> ໃຊ້ກັບ Delivery ນຳ (ປົກກະຕິໃຊ້ສະເພາະໜ້າຮ້ານ)</label>';
  openModal('<h2> ເພີ່ມໂປຣໂມຊັນ</h2>'+body+'<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ຍົກເລີກ</button><button class="btn-ok green" onclick="doAddPromo()">ບັນທຶກ</button></div>');}
 function doAddPromo(){var e=_promoEdit;var nm=(e.name||'').trim();if(!nm){toast('ໃສ່ຊື່');return;}
  var p={name:nm,type:e.type,from:e.from||'',to:e.to||'',active:true};if(e.dl)p.dl=true;
+ var _pcc=gcNorm(e.code);if(_pcc){if((state.promos||[]).some(function(x){return x.code===_pcc;})){toast('ໂຄ້ດນີ້ມີແລ້ວ');return;}p.code=_pcc;if(+e.maxUse>0)p.maxUse=Math.round(+e.maxUse);}
  var needScope=function(){p.scope=e.scope;if(e.scope==='items'){if(!e.codes.length){toast('ເລືອກເມນູຢ່າງໜ້ອຍ 1');return false;}p.codes=e.codes.slice();}return true;};
  if(e.type==='pct'){p.pct=Math.max(1,Math.min(100,+e.pct||0));if(!p.pct){toast('ໃສ່ % ຫຼຸດ');return;}if(!needScope())return;}
  else if(e.type==='nth'){p.nth=Math.max(2,Math.round(+e.nth||2));p.pct=Math.max(1,Math.min(100,+e.pct||0));if(!p.pct){toast('ໃສ່ % ຫຼຸດ');return;}if(!needScope())return;}
@@ -13560,7 +13620,7 @@ function voidBill(rno){var b=(state.bills||[]).find(function(x){return x.receipt
  doIt();}
 function doVoidBill(rno){var b=(state.bills||[]).find(function(x){return x.receipt===rno;});if(!b)return;
  var rsn=(document.getElementById('vd_rsn').value||'').trim();if(!rsn){toast('ກະລຸນາໃສ່ເຫດຜົນ');return;}
- var _vm=document.querySelector('input[name=vd_mode]:checked');if(!_vm){toast('ເລືອກວ່າ ຄືນສະຕ໋ອກ ຫຼື ເປັນຂອງເສຍ');return;}var retStk=_vm.value==='ret';if(b.deposit&&b.resvId){var _rr=rvFind(b.resvId);if(_rr&&_rr.dep)_rr.dep.voided=true;}
+ var _vm=document.querySelector('input[name=vd_mode]:checked');if(!_vm){toast('ເລືອກວ່າ ຄືນສະຕ໋ອກ ຫຼື ເປັນຂອງເສຍ');return;}var retStk=_vm.value==='ret';if(b.gc)gcVoid(b);if(b.deposit&&b.resvId){var _rr=rvFind(b.resvId);if(_rr&&_rr.dep)_rr.dep.voided=true;}
  if(retStk)(b.items||[]).forEach(function(line){lineBomOf(line).forEach(function(bm){if(state.ingredients[bm[0]])addStockAtM(line.code,bm[0],b.loc||curLoc(),bm[1]*line.qty,'ຄືນ-Void ບິນ',rno+' '+line.qty+'× '+line.name);});});
  if(retStk)pkoReturn(b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ',rno+' ບັນຈຸພັນຕໍ່ອໍເດີ');
  else if(!b.deposit&&(b.items||[]).length)cxWaste(b.items.map(function(x){return {line:x,n:x.qty};}),b.pkO,b.loc||curLoc(),'ຄືນ-Void ບິນ','Void ບິນ '+rno,rsn);
