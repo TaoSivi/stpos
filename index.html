@@ -4518,8 +4518,8 @@ function renderCart0(){if(isCust()){var Rv=document.getElementById('viewRoot');i
  recalcPromos(items);
  const box=document.getElementById('cartItems'),foot=document.getElementById('cartFoot');if(!box||!foot)return;
  box.innerHTML=items.length===0?'<div class="cart-empty">ຍັງບໍ່ມີລາຍການ<br>ກົດເລືອກສິນຄ້າ</div>':items.map((it,idx)=>`<div class="citem">${ciImg(it)}<div class="ci-main"><div class="ci-name">${cesc(it.name)}</div>
-  ${it.mods&&it.mods.length?`<div class="ci-mod">+ ${cesc(it.mods.join(' , '))}</div>`:''}${inDraft&&it.rp>it.price?`<div class="ci-mod" style="color:var(--tiff-deep)">ລາຄາພິເສດ ${KIP(it.price)} (ປົກກະຕິ ${KIP(it.rp)})</div>`:''}<div class="ci-ctrls">${inDraft?`${it.wt?`<b>${it.qty} ${cesc(it.wu||'kg')}</b><button class="qbtn" title="ແກ້ນ້ຳໜັກ" onclick="mpWeigh(null,${idx})">⚖</button>`:`<button class="qbtn" onclick="chgQty(${idx},-1)">−</button><b>${it.qty}</b><button class="qbtn" onclick="chgQty(${idx},1)">+</button>`}`:`<b style="padding:2px 10px;background:#f1f5f9;border-radius:8px">×${it.qty}</b>`}
-  <button class="miniic" title="ສ່ວນຫຼຸດ" onclick="itemDiscount(${idx})">％</button><button class="miniic" title="ໝາຍເຫດ" onclick="itemNote(${idx})">✎</button></div>
+  ${it.mods&&it.mods.length?`<div class="ci-mod">+ ${cesc(it.mods.join(' , '))}</div>`:''}${!inDraft&&it.course>1?`<div class="ci-mod" style="color:var(--blue)">ຄອດ ${it.course}${it.hold?' · ລໍຖ້າສົ່ງຄົວ':''}</div>`:''}${inDraft&&it.rp>it.price?`<div class="ci-mod" style="color:var(--tiff-deep)">ລາຄາພິເສດ ${KIP(it.price)} (ປົກກະຕິ ${KIP(it.rp)})</div>`:''}<div class="ci-ctrls">${inDraft?`${it.wt?`<b>${it.qty} ${cesc(it.wu||'kg')}</b><button class="qbtn" title="ແກ້ນ້ຳໜັກ" onclick="mpWeigh(null,${idx})">⚖</button>`:`<button class="qbtn" onclick="chgQty(${idx},-1)">−</button><b>${it.qty}</b><button class="qbtn" onclick="chgQty(${idx},1)">+</button>`}`:`<b style="padding:2px 10px;background:#f1f5f9;border-radius:8px">×${it.qty}</b>`}
+  <button class="miniic" title="ສ່ວນຫຼຸດ" onclick="itemDiscount(${idx})">％</button><button class="miniic" title="ໝາຍເຫດ" onclick="itemNote(${idx})">✎</button>${inDraft&&courseOn()?`<button class="miniic crs" title="ຄອດອາຫານ (1 ເລີ່ມ · 2 ຈານຫຼັກ · 3 ຫວານ)" onclick="itemCourse(${idx})">C${it.course||1}</button>`:''}</div>
   ${it.promo?`<div style="font-size:11px;color:var(--gold);font-weight:700">★ ${it.promo}${it.promoFree?` — ແຖມ ${it.promoFree} ຟຣີ`:(it.promoPct?` −${it.promoPct}%`:(it.promoAmt?` −${KIP(it.promoAmt)}`:''))}</div>`:''}${it.disc?`<div style="font-size:11px;color:var(--orange)">${it.sdd?'ສ່ວນລົດພະນັກງານ':'ສ່ວນຫຼຸດ'} ${it.disc}%</div>`:''}${it.note?`<div style="font-size:11px;color:var(--blue)"> ${cesc(it.note)}</div>`:''}</div>
   <div class="ci-right">${KIP(lineTotal(it))}<div><button class="trash ci-del" title="ລົບລາຍການ" onclick="delItem(${idx})">${ICO_DEL}</button></div></div></div>`).join('');
  if(inDraft){const sub=draft.reduce((s,i)=>s+lineTotal(i),0);foot.innerHTML=`<div class="totrow grand"><span>ຍອດໃໝ່:</span><span>${KIP(sub)}</span></div><button class="confirm" onclick="${(bizCur()==='medical'||bizCur()==='mart')?'clinicSale()':'confirmOrder()'}">${(bizCur()==='medical'||bizCur()==='mart')?(can('pay')?'ຮັບເງິນ':'ບັນທຶກລາຍການ'):' ຍືນຍັນອໍເດີ'}</button>`;
@@ -4530,8 +4530,19 @@ function renderCart0(){if(isCust()){var Rv=document.getElementById('viewRoot');i
    <div class="totrow grand"><span>ສຸດທິ:</span><span>${KIP(grand)}</span></div>
    <div class="actions"><button class="b-bill" onclick="checkBill()"> ເຊັກບິນ</button><button class="b-pay" onclick="receivePayment()"> ຮັບເງິນ</button><button class="b-split" onclick="splitPayment()"> ແບ່ງຈ່າຍ</button>
    <button class="b-move" onclick="openMoveTable()"> ຍ້າຍໂຕະ</button><button class="b-move b-mvi" onclick="openMoveItems()"> ຍ້າຍລາຍການ</button><button class="b-merge" onclick="mergeTable()"> ລວມໂຕະ</button><button class="b-cancel" onclick="cancelTable()"> ຍົກເລີກ</button></div>`;}
+ if(!inDraft){var _cbar=courseBar(t);if(_cbar)foot.insertAdjacentHTML('afterbegin',_cbar);}
  var cb=document.getElementById('cartBar');if(cb){var cn=items.reduce(function(a,i){return a+(+i.qty||0);},0),ct=items.reduce(function(a,i){return a+lineTotal(i);},0);cb.innerHTML='<span class="cb-l"><b>'+cn+'</b> '+(inDraft?'ລາຍການໃໝ່ · ກົດເພື່ອຢືນຢັນ':'ລາຍການໃນໂຕະ')+'</span><span class="cb-r">'+KIP(ct)+' ₭ ›</span>';cb.classList.toggle('draft',inDraft);cb.style.visibility=cn?'visible':'hidden';}
  cdsFromCart();}
+/* ===== ຄອດອາຫານ (Course): ຄອດ 1 ເຂົ້າຄົວທັນທີ · ຄອດ 2-3 ຖືໄວ້ (item.hold) ຈົນກວ່າກົດ "ສົ່ງຄອດ" ===== */
+function courseOn(){return state.useCourses===true&&bizCur()!=='mart'&&bizCur()!=='medical';}
+function itemCourse(i){var l=state.draft;if(!l||!l[i])return;l[i].course=((+l[i].course||1)%3)+1;save();renderCart();}
+function heldCourses(t){var m={};((t&&t.items)||[]).forEach(function(i){if(+i.hold>1)m[i.hold]=(m[i.hold]||0)+(+i.qty||0);});return m;}
+function fireCourse(c){var t=state.tables[state.activeTable];if(!t)return;c=+c;var now=Date.now(),fired=[];
+ (t.items||[]).forEach(function(i){if(+i.hold===c){delete i.hold;i.ts=now;state.orders.push({id:i.id,table:state.activeTable,code:i.code,name:i.name,qty:i.qty,k:i.k,mods:i.mods,note:i.note||'',status:'wait',ts:now,by:i.by||''});fired.push(i);}});
+ if(!fired.length)return;logOrder('ສົ່ງຄອດ','ຄອດ '+c+' · '+fired.length+' ລາຍການ',state.activeTable);save();
+ if(state.printKitchen)printKitchenTickets(state.activeTable,fired);render();toast('ສົ່ງຄອດ '+c+' ເຂົ້າຄົວ/ບາແລ້ວ');}
+function courseBar(t){var h=heldCourses(t),ks=Object.keys(h).sort();if(!ks.length)return '';
+ return '<div class="crs-bar" style="background:#eef4ff;border:1px solid #c7d7fe;border-radius:12px;padding:8px 10px;margin-bottom:8px;font-size:13px"><b>ຄອດທີ່ຍັງບໍ່ໄດ້ສົ່ງຄົວ</b><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+ks.map(function(c){return '<button type="button" class="btn-sm" onclick="fireCourse('+c+')">ສົ່ງຄອດ '+c+' ('+h[c]+' ລາຍການ) ›</button>';}).join('')+'</div></div>';}
 function toggleCartSheet(on){var w=document.getElementById('orderWrap');if(w)w.classList.toggle('cart-open',!!on);}
 function chgQty(i,d){const l=curList();if(!l[i])return;if(l[i].qty+d<=0){if(isCust()){l.splice(i,1);save();renderCart();}else delItem(i);return;}l[i].qty+=d;if(l===state.draft)mpStamp(l[i]);save();renderCart();}
 function logOrder(action,detail,table){if(!Array.isArray(state.orderLog))state.orderLog=[];state.orderLog.push({ts:Date.now(),table:table||state.activeTable||'',action:action,detail:detail||'',by:whoBy()});if(state.orderLog.length>2000)state.orderLog=state.orderLog.slice(-2000);}
@@ -4719,12 +4730,12 @@ function confirmOrder(force){if(!state.draft.length)return;
    shortNotifyHTML()+'<div class="modal-btns" style="flex-wrap:wrap"><button class="btn-cancel" onclick="closeModal()">ກັບໄປແກ້</button><button class="btn-ok grad" onclick="shortSend()">🔔 ສົ່ງແຈ້ງເຕືອນ</button><button class="btn-ok" style="background:var(--orange)" onclick="stockOverride()">ຂາຍຕໍ່ (ຜູ້ຈັດການ)</button></div>');return;}}
  let short=[];state.draft.forEach(d=>{const def=findMenu(d.code);if(def)stockShortageFor(def,d.qty).forEach(n=>short.push(n));});
  const t=state.tables[state.activeTable];let cntItems=0;const newItems=state.draft.slice();
- var _cu=curUser()||{},_sh=state.curShift;state.draft.forEach(d=>{d.ts=Date.now();d.by=_cu.name||whoBy();d.byId=_cu.id||'';if(_sh){d.shiftId=_sh.id;d.shiftName=_sh.name;}t.items.push(d);deductStock(d);cntItems+=d.qty;state.orders.push({id:d.id,table:state.activeTable,code:d.code,name:d.name,qty:d.qty,k:d.k,mods:d.mods,note:d.note||'',status:'wait',ts:d.ts,by:d.by||''});});
+ var _cu=curUser()||{},_sh=state.curShift;state.draft.forEach(d=>{d.ts=Date.now();d.by=_cu.name||whoBy();d.byId=_cu.id||'';if(_sh){d.shiftId=_sh.id;d.shiftName=_sh.name;}t.items.push(d);deductStock(d);cntItems+=d.qty;if(courseOn()&&(+d.course||1)>1)d.hold=+d.course;else state.orders.push({id:d.id,table:state.activeTable,code:d.code,name:d.name,qty:d.qty,k:d.k,mods:d.mods,note:d.note||'',status:'wait',ts:d.ts,by:d.by||''});});
  if(newItems.some(function(d){return (d.mods||[])[0]==='ກັບບ້ານ';}))pkgOrderCut(state.activeTable);
  if(t.status==='free')t.status='busy';state.draft=[];state.orderNo++;save();
- if(state.printKitchen)printKitchenTickets(state.activeTable,newItems);
- render();
- showSuccess('ສົ່ງອໍເດີສຳເລັດ!','ໂຕະ '+state.activeTable+' · '+cntItems+' ລາຍການ ເຂົ້າຄົວ/ບາແລ້ວ'+(short.length?'  ວັດຖຸດິບໃກ້ໝົດ: '+[...new Set(short)].join(', '):''));}
+ if(state.printKitchen)printKitchenTickets(state.activeTable,newItems.filter(function(d){return !d.hold;}));
+ render();var _nh=newItems.filter(function(d){return d.hold;}).length;
+ showSuccess('ສົ່ງອໍເດີສຳເລັດ!','ໂຕະ '+state.activeTable+' · '+cntItems+' ລາຍການ ເຂົ້າຄົວ/ບາແລ້ວ'+(_nh?' (ຖືໄວ້ '+_nh+' ລາຍການ — ກົດ "ສົ່ງຄອດ" ເມື່ອພ້ອມ)':'')+(short.length?'  ວັດຖຸດິບໃກ້ໝົດ: '+[...new Set(short)].join(', '):''));}
 function nopayGuard(){if(bizCur()==='medical'&&!can('pay')){toast('ບໍ່ມີສິດ — ຜູ້ຮັບເງິນ (ແຄັດເຊຍ) ເປັນຜູ້ເຮັດ');return true;}return false;}
 function clinicSale(){confirmOrder();if(can('pay')&&state.draft&&!state.draft.length&&!document.querySelector('.modal h2[style*="red"]')){closeModal();receivePayment();}}
 /* ລາຍເຊັນບິນ (ຕ້ອງຕົງກັບ tblSig_ ໃນ Code.gs) — ໃຊ້ໃຫ້ server ກວດວ່າບິນບໍ່ປ່ຽນຫຼັງອອກ QR ໂອນ */
@@ -4750,6 +4761,7 @@ function billReceived(b){ /* ເງິນທີ່ຮັບຈິງເຂົ້
 let payState=null;
 let _paySubset=null;
 function receivePayment(subsetIds){if(!can('pay')){toast('ບໍ່ມີສິດຮັບເງິນ — ໃຫ້ແຄັດເຊຍ/ຜູ້ຈັດການເຮັດ');return;}
+ try{var _ht=state.tables[state.activeTable];if(_ht&&Object.keys(heldCourses(_ht)).length)toast('⚠ ຍັງມີຄອດທີ່ຍັງບໍ່ໄດ້ສົ່ງເຂົ້າຄົວ');}catch(e){}
  if(state.requireShift!==false&&modOn('shift')&&!state.curShift){openModal('<h2> ຍັງບໍ່ໄດ້ເປີດກະ</h2><p style="font-size:13px;color:var(--muted);text-align:center">ຕ້ອງເປີດກະ (ໃສ່ເງິນຕັ້ງລີ້ນຊັກ) ກ່ອນຮັບເງິນ</p><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">ປິດ</button><button class="btn-ok grad" onclick="closeModal();setView(\'shift\')">ໄປເປີດກະ</button></div>');return;}
  const t=state.tables[state.activeTable];if(!t.items.length){toast('ໂຕະນີ້ຍັງບໍ່ມີລາຍການ');return;}
  recalcPromos(t.items);
@@ -8947,6 +8959,7 @@ function setSecOrder(){
  return sCard('ການສັ່ງອາຫານ','','',
   sRow('ສຽງເຕືອນ ອໍເດີໃໝ່','',sSw('soundOn',!!state.soundOn))+
   sRow('ພິມສະລິບເຂົ້າຄົວ / ບາ ອັດຕະໂນມັດ','ເມື່ອກົດ "ຢືນຢັນອໍເດີ"',sSw('printKitchen',!!state.printKitchen))+
+  sRow('ແບ່ງຄອດອາຫານ (1 ເລີ່ມ · 2 ຈານຫຼັກ · 3 ຫວານ)','ເປີດ: ຄອດ 2-3 ຖືກຖືໄວ້ ຈົນກວ່າກົດ "ສົ່ງຄອດ" ຈຶ່ງເຂົ້າຈໍຄົວ · ປິດ (ຄ່າເລີ່ມຕົ້ນ): ທຸກລາຍການເຂົ້າຄົວທັນທີ',sSw('useCourses',state.useCourses===true))+
   sRow('ອອກຈາກລະບົບອັດຕະໂນມັດ ເມື່ອປະເຄື່ອງ','ບໍ່ໃຊ້ງານເກີນເວລານີ້ ກັບໄປໜ້າເລືອກຜູ້ໃຊ້ (0 = ປິດ) · ບໍ່ນັບຈໍຄົວ / ບາ / ເສີບ ທີ່ເປີດຄ້າງໄວ້',sNum('idleMin',idleMinutes(),5,'ນາທີ',0,600))+
   sRow('ຕັດສະຕ໋ອກຕາມ Yield (% ສູນເສຍ)','⚠ ປິດໄວ້ເປັນຄ່າເລີ່ມຕົ້ນ. ເປີດ = ຂາຍແລ້ວຕັດ ສູດ ÷ Yield (ເຊັ່ນ ສູດ 200 g, ສູນເສຍ 10% → ຕັດ 222.22 g). ເປີດສະເພາະເມື່ອສູດເປັນນ້ຳໜັກສຸດທິ — ຖ້າສູດນຳເຂົ້າຈາກ Excel ມາດຕະຖານ ທີ່ລວມ Yield ແລ້ວ ຫ້າມເປີດ (ຈະຫັກຊ້ຳ) · '+yieldInfo(),sSw('yieldCut',yieldOn()))+
   sRow('ແຍກໜ້າທີ່: ອະນຸມັດເອກະສານຂອງຕົນເອງບໍ່ໄດ້','ຮວມເຈົ້າຂອງ/Admin ດ້ວຍ — PR, PO, ເບີກ, ແຈ້ງເສຍ, ນັບສາງ, ປັບສະຕ໋ອກ ຕ້ອງເປັນຄົນອື່ນອະນຸມັດ',sSwSod('self'))+
@@ -13488,7 +13501,7 @@ function buildKitchenTicketHTML(table,items,station){var w58=(+state.paperW===58
  return '<div class="rcpt'+(w58?' w58':'')+'"><div class="ctr"><div class="lgtxt">'+station+'</div></div>'+
   '<div class="ttl">ໂຕະ '+cesc(table)+'</div>'+
   '<div class="meta"><span>'+recDate(Date.now())+'</span><span>'+cesc(whoBy())+'</span></div><div class="dash"></div>'+
-  items.map(function(i){return '<div class="it"><div class="ln"><span class="nm" style="font-size:14px;font-weight:800">'+i.qty+' × '+cesc(i.name)+'</span></div>'+
+  items.map(function(i){return '<div class="it"><div class="ln"><span class="nm" style="font-size:14px;font-weight:800">'+i.qty+' × '+cesc(i.name)+(i.course>1?' [ຄອດ '+i.course+']':'')+'</span></div>'+
    (i.mods&&i.mods.length?'<div class="sm">• '+cesc(i.mods.join(' , '))+'</div>':'')+
    (i.note?'<div class="sm" style="font-weight:700">✎ '+cesc(i.note)+'</div>':'')+'</div>';}).join('')+
   '<div class="dash"></div><div class="foot">— '+cesc(state.shopName||'ST POS')+' —</div></div>';}
