@@ -12090,6 +12090,13 @@ Void ການຮັບເງິນ => Void payment
 ຄືນ ຄືເກົ່າ => nights, unchanged
 ຄືນເພີ່ມ => nights added
 ຄ່າຫ້ອງທີ່ເພີ່ມ => Extra room charge
+ຮັບເງິນພ້ອມ (ບໍ່ບັງຄັບ) => Take payment now (optional)
+ເຊັ່ນ 500000 => e.g. 500000
+ຍອດການພັກທັງໝົດ => Total stay amount
+ມັດຈຳແລ້ວ => Deposit paid
+ຍັງຄ້າງ => Balance due
+ໃສ່ຍອດຄ້າງທັງໝົດ => Fill full balance
+ຮັບຕອນເຊັກອິນ => Paid at check-in
 ຮູບບັດ / ພາສປອດ (ບໍ່ບັງຄັບ) => ID / passport photo (optional)
 ຮູບບັດ => ID photo
 ຍັງບໍ່ໄດ້ອະນາໄມ => not cleaned yet
@@ -12845,6 +12852,7 @@ function htCheckInOpen(id){if(!htDeskCan()){toast('ບໍ່ມີສິດ chec
  openModal('<h2>ຮັບແຂກເຂົ້າພັກ '+cesc(bk.no)+'</h2><p><b>'+cesc((bk.guest||{}).name||'')+'</b> · '+htBkFirst(bk)+' → '+htBkLast(bk)+(htBkTotals(bk).dep?' · ມັດຈຳ '+KIP(htBkTotals(bk).dep)+' ຈະເຂົ້າບິນຫ້ອງ':'')+'</p>'+
   bk.lines.map(function(l,i){var ty=htType(l.type);return '<div class="hd-ci" data-lid="'+aesc(l.id)+'"><div style="grid-column:1/-1"><label>ຫ້ອງສຳລັບແຖວທີ '+(i+1)+' ('+cesc(ty?ty.name:'')+' · '+l.from+' → '+l.to+')</label><select class="ci-room"><option value="">— ເລືອກຫ້ອງ —</option>'+htRoomsOf(l.type).slice().sort(htRoomSort).map(function(r){var bz=htRoomBusy(r.id,l.from,l.to,id);return '<option value="'+aesc(r.id)+'"'+(r.id===l.room?' selected':'')+(bz?' disabled':'')+'>'+cesc(r.no)+(bz?' ✕ ບໍ່ວ່າງ':r.hk==='dirty'?' (ຍັງບໍ່ໄດ້ອະນາໄມ)':'')+'</option>';}).join('')+'</select></div></div>';}).join('')+
   ((+cfg.earlyFee>0&&(can('htPost')||isOwner()))?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="ci_early" style="width:auto"> ເຂົ້າກ່ອນເວລາ '+cesc(cfg.ci||'')+' — ຄິດຄ່າ '+KIP(cfg.earlyFee)+' ກີບ</label>':'')+
+  ((can('htPost')||isOwner())?(function(){var bt=htBkTotals(bk);return '<h3>ຮັບເງິນພ້ອມ (ບໍ່ບັງຄັບ)</h3><div class="mp-2"><div><label>ຈຳນວນເງິນ (ກີບ)</label><input id="ci_pay" type="number" min="0" placeholder="ເຊັ່ນ 500000"></div><div><label>ວິທີ</label><select id="ci_pm"><option value="cash">ເງິນສົດ</option><option value="transfer">ໂອນ</option><option value="card">ບັດ</option></select></div></div><p class="sub">ຍອດການພັກທັງໝົດ '+KIP(bt.total)+(bt.dep?' · ມັດຈຳແລ້ວ '+KIP(bt.dep):'')+' · ຍັງຄ້າງ '+KIP(bt.balance)+' ກີບ <button type="button" class="btn-sm" data-v="'+Math.max(0,Math.round(bt.balance))+'" onclick="document.getElementById(\'ci_pay\').value=this.dataset.v">ໃສ່ຍອດຄ້າງທັງໝົດ</button></p>';})():'')+
   '<h3>ຂໍ້ມູນຜູ້ພັກ'+(cfg.reqId===false?'':' *')+'</h3><div class="hd-ci"><div><label>ປະເພດບັດ</label><select id="ci_idt">'+HT_IDT.map(function(t){return '<option value="'+t[0]+'"'+(g.idType===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select></div><div><label>ເລກບັດ / ພາສປອດ</label><input id="ci_idn" value="'+aesc(htCanId()?g.idNo||'':'')+'"></div><div><label>ສັນຊາດ</label><input id="ci_nat" value="'+aesc(g.nat||(bk.guest||{}).nat||'')+'"></div><div><label>ວັນເກີດ</label><input id="ci_dob" type="date" value="'+aesc(g.dob||'')+'"></div><div style="grid-column:1/-1"><label>ທີ່ຢູ່</label><input id="ci_addr" value="'+aesc(g.addr||'')+'"></div></div>'+
   (cfg.idPhoto&&htCanId()?'<label>ຮູບບັດ / ພາສປອດ (ບໍ່ບັງຄັບ)</label><input type="file" id="ci_img" accept="image/*" capture="environment">':'')+
   '<h3>ຜູ້ພັກເພີ່ມ</h3><div id="ci_comp">'+(bk.companions||[]).map(htCompRow).join('')+'</div><button type="button" class="btn-sm" onclick="document.getElementById(\'ci_comp\').insertAdjacentHTML(\'beforeend\',htCompRow())">＋ ເພີ່ມຜູ້ພັກ</button>'+
@@ -12853,7 +12861,7 @@ function htCanId(){return can('htGuestId')||isOwner();}
 function htCheckInGo(id){var rooms={};[].forEach.call(document.querySelectorAll('.hd-ci[data-lid]'),function(r){var v=r.querySelector('.ci-room').value;if(v)rooms[r.dataset.lid]=v;});
  var comps=[].map.call(document.querySelectorAll('.hd-comp'),function(r){return {name:r.querySelector('.cp-n').value,nat:r.querySelector('.cp-nat').value,idType:r.querySelector('.cp-t').value,idNo:r.querySelector('.cp-i').value};});
  var gi={idType:htGv('ci_idt'),dob:htGv('ci_dob'),addr:htGv('ci_addr'),nat:htGv('ci_nat')};if(htCanId())gi.idNo=htGv('ci_idn');
- var r=htCheckIn(id,{rooms:rooms,guest:gi,companions:comps});if(r.err){var e=document.getElementById('ci_err');if(e)e.textContent=r.err;return;}var bk=r.bk,gid=bk.guestId;if((document.getElementById('ci_early')||{}).checked){var ef=htPostCharge(bk.id,{dept:'fee',desc:HT_EL.early.d,qty:1,amt:state.htCfg.earlyFee});if(ef.err)toast(ef.err);}var fin=function(){closeModal();render();toast('✓ ຮັບແຂກເຂົ້າພັກແລ້ວ '+bk.no);};
+ var r=htCheckIn(id,{rooms:rooms,guest:gi,companions:comps});if(r.err){var e=document.getElementById('ci_err');if(e)e.textContent=r.err;return;}var bk=r.bk,gid=bk.guestId;if((document.getElementById('ci_early')||{}).checked){var ef=htPostCharge(bk.id,{dept:'fee',desc:HT_EL.early.d,qty:1,amt:state.htCfg.earlyFee});if(ef.err)toast(ef.err);}var pa=Math.round(+htGv('ci_pay')||0);if(pa>0){var py=htPay(bk.id,{amt:pa,method:htGv('ci_pm')||'cash',payer:'A',ref:'ຮັບຕອນເຊັກອິນ'});if(py.err)toast(py.err);}var fin=function(){closeModal();render();toast('✓ ຮັບແຂກເຂົ້າພັກແລ້ວ '+bk.no);};
  if(document.getElementById('ci_img')&&document.getElementById('ci_img').files.length){htImgPick('ci_img',function(d){if(d){var x=htImgSave(gid,d);if(x.err)toast(x.err);}fin();});}else fin();}
 function htImgPick(inputId,cb){var f=(document.getElementById(inputId)||{}).files;f=f&&f[0];if(!f)return cb(null);var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',0.7));};im.onerror=function(){cb(null);};im.src=fr.result;};fr.onerror=function(){cb(null);};fr.readAsDataURL(f);}
 /* ---- ແຂກ ---- */
