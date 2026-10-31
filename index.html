@@ -175,7 +175,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13px}table.tbl th{backgr
 .bootscreen{position:fixed;inset:0;background:var(--grad);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:500;gap:14px}.bootscreen .lg{font-size:46px;font-weight:800;letter-spacing:1px}
 .spin{width:40px;height:40px;border:4px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 /* ===== LOGIN / ROLES ===== */
-#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#edf9f8,#f7fdfc);display:flex;align-items:center;justify-content:center;z-index:400}
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#edf9f8,#f7fdfc);display:flex;align-items:flex-start;justify-content:center;z-index:400;overflow:auto;padding:12px;box-sizing:border-box;-webkit-overflow-scrolling:touch}
+#loginScreen .loginbox,#srvLogin .loginbox{margin:auto;max-width:100%;flex:0 1 auto}
 .loginbox{background:#fff;border-radius:20px;padding:26px;width:400px;max-width:94vw;box-shadow:0 20px 60px rgba(7,46,44,.18);text-align:center}
 .loginbox h2{font-size:22px;margin-bottom:4px;background:var(--grad-deep);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .loginbox .lsub{font-size:13px;color:var(--muted);margin-bottom:14px}
@@ -3388,7 +3389,7 @@ let __tokErr=false;
 function tokenErr_(){if(__tokErr)return;__tokErr=true;if(HAS_API&&!/[?&]table=/.test(location.search)){srvLogin();return;}tokenErrOld_();}
 /* ເຂົ້າລະບົບດ້ວຍ PIN ທີ່ server (ເຄື່ອງທີ່ຍັງບໍ່ມີລະຫັດ ຫຼື ລະຫັດໝົດອາຍຸ): ເລືອກຜູ້ໃຊ້ + PIN → server ອອກລະຫັດປະຈຳເຄື່ອງ. server ບໍ່ຮອງຮັບ → ຂໍ token ແບບເກົ່າ */
 var _sl={u:null,pin:'',users:[],shop:'',msg:'',busy:false};
-function srvLogin(){if(document.getElementById('srvLogin'))return;var el=document.createElement('div');el.id='srvLogin';el.style.cssText='position:fixed;inset:0;z-index:99999;background:#eaf4f3;display:flex;align-items:center;justify-content:center;overflow:auto;padding:16px';document.body.appendChild(el);
+function srvLogin(){if(document.getElementById('srvLogin'))return;var el=document.createElement('div');el.id='srvLogin';el.style.cssText='position:fixed;inset:0;z-index:99999;background:#eaf4f3;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:12px;box-sizing:border-box';document.body.appendChild(el);
  el.innerHTML='<div class="loginbox"><h2>ST POS</h2><div class="lsub">ກຳລັງເຊື່ອມ server…</div></div>';
  jsonpUrl_(API_URL,'login=info',function(r){if(!(r&&r.ok&&r.login)){el.remove();tokenErrOld_();return;}_sl.users=r.users||[];_sl.shop=r.shop||'ST POS';srvLoginDraw();},20000);}
 function srvLoginDraw(){var el=document.getElementById('srvLogin');if(!el)return;
