@@ -3206,6 +3206,60 @@ body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px +
 .au-negs{display:flex;gap:8px;flex-wrap:wrap}
 .au-verok{margin-top:10px;background:#e6f5f3;color:#0a5e5b;border-radius:12px;padding:10px 12px;font-weight:700}.au-verbad{margin-top:10px;background:#fde8e8;color:#b42323;border-radius:12px;padding:10px 12px;font-weight:700}
 .neg-bar{background:#fff!important;border:1px solid #f6c9cb!important}
+/* ===== ໜ້າລູກຄ້າສະແກນ QR — ສະໄຕລ໌ແບບ Cavosh: ຫົວເຂັ້ມມຸມມົນ (ມີຄຳທັກທາຍ + ຄົ້ນຫາໃນຫົວ), ແຜ່ນເລືອກຕົວເລືອກຈາກລຸ່ມ, ຕົວຕິດຕາມອໍເດີ — ໃຊ້ສີທີມເກົ່າ (ຂຽວເຂັ້ມ #062f2d / ຂຽວ #0a7e7a / ຟ້າຂຽວ #0ABAB5). ບໍ່ກະທົບແອັບພະນັກງານ ===== */
+:root:not([data-theme=glass]) #app.cust #viewRoot{background:#f7fbfa!important}
+:root:not([data-theme=glass]) #app.cust .custtop{background:#062f2d;border-radius:0 0 30px 30px;box-shadow:0 10px 26px rgba(6,47,45,.22);padding:max(16px,env(safe-area-inset-top)) 18px 18px}
+:root:not([data-theme=glass]) #app.cust:has(.cs-tools) .custtop{border-radius:0;box-shadow:none;padding-bottom:4px}
+#app.cust .custtop .cs-hl{min-width:0;flex:1}
+#app.cust .custtop .cs-hi{display:block;font-size:12.5px;font-weight:600;color:#9fd8d4;margin-bottom:1px}
+:root:not([data-theme=glass]) #app.cust .custtop .cs-name{font-size:21px;color:#fff}
+:root:not([data-theme=glass]) #app.cust .custtop .cs-tb{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+:root:not([data-theme=glass]) #app.cust .custtop .cs-tot{background:#0ABAB5;color:#062f2d;box-shadow:none}
+:root:not([data-theme=glass]) #app.cust .cs-tools{background:#062f2d;padding:10px 16px 20px;border-radius:0 0 30px 30px;box-shadow:0 12px 26px rgba(6,47,45,.22);margin-bottom:6px}
+:root:not([data-theme=glass]) #app.cust .cs-srch{border:0;height:50px;border-radius:16px;box-shadow:none}
+:root:not([data-theme=glass]) #app.cust .cs-cats{height:50px;background:#0ABAB5;color:#062f2d;box-shadow:none}
+:root:not([data-theme=glass]) #app.cust .custmenu .cats{padding:12px 16px 4px}
+:root:not([data-theme=glass]) #app.cust .custmenu .product .ptop::after{border-radius:11px}
+/* ຕົວຕິດຕາມອໍເດີ */
+#app.cust .trk{margin:16px 14px 8px;background:#fff;border-radius:22px;padding:18px 18px 16px;box-shadow:0 6px 18px rgba(6,47,45,.07)}
+#app.cust .trk-s{position:relative;display:flex;gap:14px;align-items:flex-start;padding-bottom:20px}
+#app.cust .trk-s:last-child{padding-bottom:0}
+#app.cust .trk-s::before{content:'';position:absolute;left:12.5px;top:30px;bottom:-2px;width:3px;border-radius:2px;background:#dbe9e7}
+#app.cust .trk-s:last-child::before{display:none}
+#app.cust .trk-s.done::before{background:#0a7e7a}
+#app.cust .trk-s i{flex:none;width:28px;height:28px;border-radius:50%;background:#e6efee;color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;position:relative;z-index:1}
+#app.cust .trk-s.done i{background:#0a7e7a}
+#app.cust .trk-s.now i{background:#fff;border:3px solid #0ABAB5;box-shadow:0 0 0 4px rgba(10,186,181,.18)}
+#app.cust .trk-s.now i::after{content:'';width:8px;height:8px;border-radius:50%;background:#0ABAB5}
+#app.cust .trk-s b{display:block;font-size:15px;color:#9bb3b1}
+#app.cust .trk-s small{display:block;font-size:12.5px;color:#9bb3b1;margin-top:1px}
+#app.cust .trk-s.done b,#app.cust .trk-s.now b{color:#062f2d}
+#app.cust .trk-s.done small,#app.cust .trk-s.now small{color:#4d7471}
+/* ຕະກ້າ: ຮູບ + ປຸ່ມ +/− ສີຂຽວ + ປຸ່ມຢືນຢັນເຂັ້ມ */
+#app.cust .rvitem{align-items:center;gap:12px}
+#app.cust .rvitem .ci-img{flex:none;width:68px;height:68px;border-radius:18px;object-fit:cover;background:#e3f1ef;display:block}
+#app.cust .rvitem .rv-qty{background:#fff;border:1.5px solid #d6e9e7;gap:2px;padding:2px}
+#app.cust .rvitem .rv-qty button{width:34px;height:34px;box-shadow:none;background:#e9f4f3}
+#app.cust .rvitem .rv-qty button:last-child{background:#0a7e7a;color:#fff}
+:root:not([data-theme=glass]) #app.cust .rvconfirm{background:#062f2d;box-shadow:0 12px 26px rgba(6,47,45,.3)}
+@keyframes csUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:700px){
+ /* ໜ້າຕ່າງຂອງລູກຄ້າ → ແຜ່ນຂຶ້ນຈາກລຸ່ມ (ມີຂີດຈັບ) */
+ :root:not([data-theme=glass]):has(#app.cust) .overlay{align-items:flex-end}
+ :root:not([data-theme=glass]):has(#app.cust) .overlay .modal{width:100%!important;max-width:560px!important;border-radius:30px 30px 0 0!important;max-height:92vh;max-height:92dvh;padding:22px 18px calc(18px + env(safe-area-inset-bottom))!important;animation:csUp .28s cubic-bezier(.22,1,.36,1)!important}
+ :root:not([data-theme=glass]):has(#app.cust) .overlay .modal::before{content:'';display:block;width:42px;height:5px;border-radius:3px;background:#d3e3e1;margin:-8px auto 14px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-head{flex-direction:column;align-items:stretch;gap:12px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-img{width:100%;height:190px;border-radius:22px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-head h2{font-size:22px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-size{display:flex;gap:4px;background:#eef5f4;padding:4px;border-radius:999px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-sz{flex:1;min-width:0;border:0;background:transparent;border-radius:999px;padding:9px 4px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-sz.on{background:#0a7e7a;box-shadow:0 4px 10px rgba(10,126,122,.28)}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-sz.on b,:root:not([data-theme=glass]):has(#app.cust) .modal.md .md-sz.on span{color:#fff}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-chip.on{background:#0a7e7a;border-color:#0a7e7a}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-qty{border-radius:999px}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-add{background:#062f2d;border-radius:999px;box-shadow:0 8px 20px rgba(6,47,45,.3)}
+ :root:not([data-theme=glass]):has(#app.cust) .modal.md .md-foot{bottom:-18px}
+}
 </style>
 <style>
 /* ຄລີນິກ: ໝວດຢາ ເລື່ອນເປັນແຖວດຽວ (ບໍ່ຊ້ອນຫຼາຍແຖວ ດັນສິນຄ້າລົງ) */
@@ -4738,7 +4792,7 @@ function modCalc(){var p=modState.p,mods=[state.dineType],extra=0,bm=1,xb=[];
   ix.forEach(function(oi){var o=g.opts[oi];if(!o)return;mods.push(o.n);extra+=dlAdj(optP(g,o,p));if(t==='size'&&+o.bm>0)bm*=+o.bm;if(o.ing&&+o.iq>0)xb.push([o.ing,+o.iq]);});});
  return {mods:mods,extra:extra,bm:Math.round(bm*1000)/1000,xb:xb,unit:(+p.p||0)+extra};}
 function modalSet(h,cls){var m=document.querySelector('#modalRoot .modal.'+cls);if(m){var st=m.scrollTop;m.innerHTML=h;m.scrollTop=st;return;}openModal(h);m=document.querySelector('#modalRoot .modal');if(m)m.classList.add(cls);}
-function renderModifier(){var p=modState.p,G=modState.groups,c=modCalc(),img=(state.menuImg||{})[p.c]||'';
+function renderModifier(){var p=modState.p,G=modState.groups,c=modCalc(),img=(state.menuImg||{})[p.c]||(isCust()?(function(){try{return menuImgFor(p.c);}catch(e){return '';}})():'');
  var h='<div class="md-head">'+(img?'<img class="md-img" src="'+img+'" alt="">':'')+'<div><h2>'+cesc(p.n)+'</h2><div class="md-sub">'+KIP(p.p)+' ₭'+(isCust()?'':' · '+cesc(state.dineType))+'</div></div></div>'+(modState.U?umRows():'');
  G.forEach(function(g,gi){var t=mgType(g),sv=modState.sel[gi],req=t==='size'||!!g.req,mx=t==='topping'&&+g.max>0?+g.max:0;
   h+='<div class="md-g"><div class="md-gt"><b>'+cesc(g.title)+'</b>'+(req?'<span class="md-req">ຕ້ອງເລືອກ</span>':'<span class="md-opt">'+(t==='topping'?(mx?'ເລືອກໄດ້ສູງສຸດ '+mx:'ເລືອກໄດ້ຫຼາຍອັນ'):'ບໍ່ບັງຄັບ')+'</span>')+'</div>';
@@ -12105,6 +12159,13 @@ Void ການຮັບເງິນ => Void payment
 ຊື່ຜູ້ພັກເພີ່ມ => Additional guest name
 ＋ ເພີ່ມຜູ້ພັກ => ＋ Add guest
 ຢືນຢັນຮັບແຂກເຂົ້າພັກ => Confirm Check-in
+ຍິນດີຕ້ອນຮັບ => Welcome
+ສະຖານະອໍເດີ => Order status
+ຮັບອໍເດີແລ້ວ => Order received
+ຮ້ານໄດ້ຮັບອໍເດີຂອງທ່ານ => We have received your order
+ຄົວ/ບາ ກຳລັງກຽມໃຫ້ => Being prepared
+ອໍເດີພ້ອມແລ້ວ => Order is ready
+ພ້ອມເສີບທີ່ໂຕະ => Ready to be served at your table
 ＋ ເຂົ້າກ່ອນ => ＋ Early check-in
 ＋ ອອກຊ້າ => ＋ Late check-out
 ເຂົ້າກ່ອນເວລາ => Early check-in
@@ -14212,7 +14273,7 @@ function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var
  var I={menu:'<path d="M4 3v7a3 3 0 0 0 3 3v8M7 3v7M10 3v7a3 3 0 0 1-3 3M18 3c-2 1.5-3 4-3 7s1 4 3 4v7"/>',orders:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/>'};
  var ic=function(k){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+I[k]+'</svg>';};
  var n=(t.items||[]).length;
- return '<div class="custtop"><div class="cs-hd"><div class="cs-name">'+cesc(nm)+'</div>'+'<div class="cs-rt">'+((t.items||[]).length?'<button type="button" class="cs-tot" onclick="custGo(\'orders\')" aria-label="ຍອດບິນ"><small>ຍອດບິນ</small><b>'+KIP(grandTotal(t))+'</b></button>':'')+(t.name?'<span class="cs-tb">ໂຕະ '+cesc(t.name)+'</span>':'')+'</div></div></div>'+
+ return '<div class="custtop"><div class="cs-hd"><div class="cs-hl"><small class="cs-hi">ຍິນດີຕ້ອນຮັບ</small><div class="cs-name">'+cesc(nm)+'</div></div>'+'<div class="cs-rt">'+((t.items||[]).length?'<button type="button" class="cs-tot" onclick="custGo(\'orders\')" aria-label="ຍອດບິນ"><small>ຍອດບິນ</small><b>'+KIP(grandTotal(t))+'</b></button>':'')+(t.name?'<span class="cs-tb">ໂຕະ '+cesc(t.name)+'</span>':'')+'</div></div></div>'+
   '<nav class="cs-bnav" aria-label="ເມນູຫຼັກ">'+
   '<button type="button" class="'+(active==='menu'?'on':'')+'"'+(active==='menu'?' aria-current="page"':'')+' onclick="custGo(\'menu\')">'+ic('menu')+'<span>ເມນູອາຫານ</span></button>'+
   '<button type="button" class="'+(active==='orders'?'on':'')+'"'+(active==='orders'?' aria-current="page"':'')+' onclick="custGo(\'orders\')">'+ic('orders')+(n?'<i class="cs-bd">'+n+'</i>':'')+'<span>ອໍເດີຂອງຂ້ອຍ</span></button>'+
@@ -14220,14 +14281,21 @@ function custHeader(active){var t=state.tables[state.activeTable]||{name:''};var
 function renderCust(R){setTimeout(function(){try{ccInit();}catch(e){}},0);var v=custView||'menu';if(v==='review')return renderCustReview(R);if(v==='orders')return renderCustOrders(R);return renderCustMenu(R);}
 function renderCustMenu(R){var M=MSRC();if(!M[state.activeCat])state.activeCat=Object.keys(M)[0];
  R.innerHTML=custHeader('menu')+(custLocked()?'<div class="custlock">ເຊັກບິນແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້<br><small>ຖ້າຕ້ອງການສັ່ງເພີ່ມ ກະລຸນາບອກພະນັກງານ</small></div>':'')+'<div class="custmenu"><div class="cs-tools" id="custTools"></div><div class="cats">'+Object.keys(M).map(function(cat){return '<button class="cat '+(cat===state.activeCat?'active':'')+'" data-cat="'+cat.replace(/"/g,'&quot;')+'" onclick="setCat(this.getAttribute(\'data-cat\'))">'+cat+'</button>';}).join('')+'</div><div class="subcats" id="subcats"></div><div class="products" id="products"></div></div><button class="custbar" id="custbar" onclick="custGo(\'review\')"></button>';
- renderSubcats();renderProducts();custBar();}
+ renderSubcats();renderProducts();custBar();custTopH();}
+/* ຄວາມສູງຫົວ (ຕິດເທິງ) → ແຖບຄົ້ນຫາຕິດຢູ່ລຸ່ມຫົວພໍດີ */
+function custTopH(){var f=function(){try{var h=document.querySelector('#app.cust .custtop');if(h&&h.offsetHeight)document.documentElement.style.setProperty('--cth',(h.offsetHeight-1)+'px');}catch(e){}};f();setTimeout(f,350);}
 function custBar(){var b=document.getElementById('custbar');if(!b)return;var d=state.draft||[];var n=d.reduce(function(s,i){return s+i.qty;},0);var sub=d.reduce(function(s,i){return s+lineTotal(i);},0);var _f=document.getElementById('ccFab');if(_f)_f.classList.toggle('up',n>0);if(!n){b.style.display='none';return;}b.style.display='flex';b.innerHTML='<span class="cb-l"><i class="cb-n">'+n+'</i>ເບິ່ງລາຍການ</span><span class="cb-r">'+KIP(sub)+' ກີບ</span>';}
 function renderCustReview(R){var d=state.draft||[];var sub=d.reduce(function(s,i){return s+lineTotal(i);},0);
- var list=d.length?d.map(function(it,idx){return '<div class="rvitem"><div class="rv-l"><div class="rv-nm">'+cesc(it.name)+'</div>'+(it.mods&&it.mods.filter(Boolean).length?'<div class="rv-md">'+cesc(it.mods.filter(Boolean).join(' , '))+'</div>':'')+(it.note?'<div class="rv-md">'+cesc(it.note)+'</div>':'')+'<div class="rv-qty"><button onclick="chgQty('+idx+',-1)">−</button><b>'+it.qty+'</b><button onclick="chgQty('+idx+',1)">+</button></div></div><div><div class="rv-r">'+KIP(lineTotal(it))+'</div><button class="rv-tr" onclick="delItem('+idx+')">'+ICO_DEL+'</button></div></div>';}).join(''):'<div class="empty2">ຍັງບໍ່ມີລາຍການ<br>ກົດປຸ່ມລຸ່ມເພື່ອກັບໄປເລືອກອາຫານ</div>';
+ var list=d.length?d.map(function(it,idx){return '<div class="rvitem">'+ciImg(it)+'<div class="rv-l"><div class="rv-nm">'+cesc(it.name)+'</div>'+(it.mods&&it.mods.filter(Boolean).length?'<div class="rv-md">'+cesc(it.mods.filter(Boolean).join(' , '))+'</div>':'')+(it.note?'<div class="rv-md">'+cesc(it.note)+'</div>':'')+'<div class="rv-qty"><button onclick="chgQty('+idx+',-1)">−</button><b>'+it.qty+'</b><button onclick="chgQty('+idx+',1)">+</button></div></div><div><div class="rv-r">'+KIP(lineTotal(it))+'</div><button class="rv-tr" onclick="delItem('+idx+')">'+ICO_DEL+'</button></div></div>';}).join(''):'<div class="empty2">ຍັງບໍ່ມີລາຍການ<br>ກົດປຸ່ມລຸ່ມເພື່ອກັບໄປເລືອກອາຫານ</div>';
  R.innerHTML=custHeader('menu')+'<div class="custrev"><div class="rvlist">'+list+'</div><div class="rvfoot">'+(d.length?'<div class="rvtot"><span>ລວມ</span><span>'+KIP(sub)+' ກີບ</span></div><div class="custnote">ລາຄານີ້ຍັງບໍ່ຫັກສ່ວນລົດ/ໂປຣໂມຊັນ — ຮ້ານຈະຄິດໃຫ້ຕອນເຊັກບິນ</div><button class="rvconfirm" onclick="confirmOrder()">ຍືນຍັນອໍເດີ</button>':'')+'<button class="rvback" onclick="custGo(\'menu\')">'+(d.length?'‹ ກັບໄປແກ້ໄຂ / ເພີ່ມລາຍການ':'‹ ກັບໄປເລືອກອາຫານ')+'</button></div></div>';}
 function custOrderStatus(id){var o=(state.orders||[]).find(function(x){return x.id===id;});var s=o?o.status:'served';
  var map={wait:['ລໍຖ້າ','#fef3c7','#92400e'],cook:['ກຳລັງເຮັດ','#dbeafe','#1e40af'],cooking:['ກຳລັງເຮັດ','#dbeafe','#1e40af'],ready:['ພ້ອມເສີບ','#dcfce7','#166534'],done:['ເສີບແລ້ວ','#e2e8f0','#475569'],served:['ເສີບແລ້ວ','#e2e8f0','#475569']};
  return map[s]||map.served;}
+/* ຂັ້ນຕອນອໍເດີ (ຮັບແລ້ວ → ກຳລັງເຮັດ → ພ້ອມ): ຄິດຈາກສະຖານະຂອງທຸກລາຍການ — ຂັ້ນຕ່ຳສຸດຂອງທຸກລາຍການ */
+function custTrack(its){if(!its||!its.length)return '';var rank={wait:0,cook:1,cooking:1,ready:2,done:2,served:2},st=2;
+ var any1=false;its.forEach(function(it){var o=(state.orders||[]).find(function(x){return x.id===it.id;});var r=o&&rank[o.status]!=null?rank[o.status]:2;if(r<st)st=r;if(r>=1)any1=true;});if(st===0&&any1)st=1; /* ມີລາຍການເລີ່ມເຮັດແລ້ວ = ກຳລັງເຮັດ */
+ var S=[['ຮັບອໍເດີແລ້ວ','ຮ້ານໄດ້ຮັບອໍເດີຂອງທ່ານ'],['ກຳລັງເຮັດ','ຄົວ/ບາ ກຳລັງກຽມໃຫ້'],['ອໍເດີພ້ອມແລ້ວ','ພ້ອມເສີບທີ່ໂຕະ']];
+ return '<div class="trk" role="list" aria-label="ສະຖານະອໍເດີ">'+S.map(function(s,i){var c=(i<st||st===2)?'done':(i===st?'now':'');return '<div class="trk-s '+c+'" role="listitem"><i>'+(c==='done'?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':'')+'</i><div><b>'+s[0]+'</b><small>'+s[1]+'</small></div></div>';}).join('')+'</div>';}
 function renderCustOrders(R){var t=state.tables[state.activeTable]||{items:[],name:''};var its=t.items||[];
  var list=its.length?its.map(function(it){var st=custOrderStatus(it.id);return '<div class="ordcard"><div><div class="oc-nm">'+it.qty+'× '+cesc(it.name)+'</div>'+(it.mods&&it.mods.filter(Boolean).length?'<div class="oc-md">'+cesc(it.mods.filter(Boolean).join(' , '))+'</div>':'')+'<span class="stbadge" style="background:'+st[1]+';color:'+st[2]+'">'+st[0]+'</span></div><div class="rv-r">'+KIP(lineTotal(it))+'</div></div>';}).join(''):'<div class="empty2">ຍັງບໍ່ມີອໍເດີ<br>ກົດ "ເມນູອາຫານ" ເພື່ອເລີ່ມສັ່ງ</div>';
  var billed=(t.status==='callbill'||t.status==='bill'),tot=its.length?grandTotal(t):0,xi=window.__xi||null,pay=t.callPay||'',panel='';
@@ -14236,7 +14304,7 @@ function renderCustOrders(R){var t=state.tables[state.activeTable]||{items:[],na
  else if(billed)panel='<div class="custbilled">ເອີ້ນພະນັກງານແລ້ວ — ກຳລັງເອົາບິນໄປໃຫ້ທີ່ໂຕະ '+cesc(t.name)+'</div>';
  var xamt=(xi&&xi.xfer&&t.status==='bill')?xi.xfer.amt:0;
  var go=!its.length?'':(billed?'<button type="button" class="pb-go done" disabled>ແຈ້ງແລ້ວ ✓</button>':'<button type="button" class="pb-go" onclick="custPayAsk()">ເຊັກບິນ</button>');
- R.innerHTML=custHeader('orders')+'<div class="custord">'+list+panel+'<div style="padding:12px">'+(billed?'<div class="custnote" style="margin:0 0 10px">ເຊັກບິນແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ (ຖ້າຕ້ອງການ ບອກພະນັກງານ)</div>':'<button class="rvback" style="margin-top:0" onclick="custGo(\'menu\')">+ ສັ່ງເພີ່ມ</button>')+(its.length?'<button type="button" class="rvback bill-dl" onclick="custBillImg()">⬇ ບັນທຶກບິນ / ລາຍການ ເປັນຮູບ</button>':'')+'</div></div>'+
+ R.innerHTML=custHeader('orders')+'<div class="custord">'+custTrack(its)+list+panel+'<div style="padding:12px">'+(billed?'<div class="custnote" style="margin:0 0 10px">ເຊັກບິນແລ້ວ — ສັ່ງເພີ່ມບໍ່ໄດ້ (ຖ້າຕ້ອງການ ບອກພະນັກງານ)</div>':'<button class="rvback" style="margin-top:0" onclick="custGo(\'menu\')">+ ສັ່ງເພີ່ມ</button>')+(its.length?'<button type="button" class="rvback bill-dl" onclick="custBillImg()">⬇ ບັນທຶກບິນ / ລາຍການ ເປັນຮູບ</button>':'')+'</div></div>'+
   (its.length?'<div class="cs-paybar"><div class="pb-t"><small>'+(xamt?'ຍອດທີ່ຕ້ອງໂອນ':'ຍອດລວມທັງໝົດ (ກ່ອນຫັກໂປຣ)')+'</small><b>'+KIP(xamt||tot)+' ກີບ</b></div>'+go+'</div>':'');
  custPayPoll();setTimeout(custDrawXferQR,0);}
 /* ເລືອກວິທີຈ່າຍກ່ອນເຊັກບິນ: ເງິນສົດ / ເງິນໂອນ */
