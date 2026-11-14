@@ -4323,6 +4323,7 @@ function rvRgKey(k){var base=rvDate||ymd(Date.now());if(k==='week'){var m=rvMond
 function rvSetRange(k){var base=rvDate||ymd(Date.now());if(k==='day'){rvTo=null;}else if(k==='custom'){rvTo=ymd(new Date(base+'T00:00:00').getTime()+6*86400000);}else{var v=rvRgKey(k).split('|');rvDate=v[0];rvTo=v[1];}render();}
 /* ===== ຄລີນິກ: ປະຕິທິນນັດໝາຍ (ເດືອນ) — ກົດມື້ → ລາຍການນັດຂອງມື້ນັ້ນສະແດງທາງລຸ່ມ (ບັດນັດເດີມ) ===== */
 var rvCal=null;
+var RVC_COL={booked:['#0a6b67','#e0f5f3'],request:['#b45309','#fef3c7'],seated:['#065f46','#d1fae5'],noshow:['#64748b','#f1f5f9']};
 var RV_MON=['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
 function rvCalMove(n){var b=(rvCal||rvDate||ymd(Date.now())).slice(0,7).split('-'),y=+b[0],m=+b[1]-1+n;y+=Math.floor(m/12);m=((m%12)+12)%12;rvCal=y+'-'+String(m+1).padStart(2,'0');render();}
 function rvCalPick(d){rvDate=d;rvTo=null;rvCal=d.slice(0,7);render();setTimeout(function(){var e=document.querySelector('.rvc-list');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:'smooth',block:'start'});},60);}
@@ -4336,7 +4337,7 @@ function rvCalHTML(){var mon=(rvCal||rvDate).slice(0,7),y=+mon.slice(0,4),m=+mon
  for(var d=1;d<=nd;d++){var ds=mon+'-'+String(d).padStart(2,'0'),L=(by[ds]||[]).sort(function(a,b){return (rvMin(a.time)||0)-(rvMin(b.time)||0);}),wk=(lead+d-1)%7;
   var cls='rvc-day'+(ds===td?' today':'')+(ds===rvDate?' sel':'')+(ds<td?' past':'')+(wk>4?' we':'')+(rvIsClosed(ds)?' closed':'')+(L.length?' has':'');
   h+='<button type="button" class="'+cls+'" onclick="rvCalPick(\''+ds+'\')" aria-label="'+d+' '+RV_MON[m-1]+(L.length?' · '+L.length+' ນັດ':'')+'"><span class="rvc-n">'+d+'</span>'+(L.length?'<span class="rvc-cnt">'+L.length+'</span>':'')+
-   (rvIsClosed(ds)?'<span class="rvc-closed">ປິດ</span>':'')+'<span class="rvc-items">'+L.slice(0,2).map(function(r){var st=RV_ST[r.status]||RV_ST.booked;return '<span class="rvc-it" style="--c:'+(r.status==='seated'?'#0a7e7a':st[1])+';--b:'+st[2]+'">'+cesc(r.time||'')+' '+cesc(r.name||'')+'</span>';}).join('')+(L.length>2?'<span class="rvc-more">+'+(L.length-2)+'</span>':'')+'</span>'+
+   (rvIsClosed(ds)?'<span class="rvc-closed">ປິດ</span>':'')+'<span class="rvc-items">'+L.slice(0,2).map(function(r){var st=RVC_COL[r.status]||RVC_COL.booked;return '<span class="rvc-it" style="--c:'+st[0]+';--b:'+st[1]+'">'+cesc(r.time||'')+' '+cesc(r.name||'')+'</span>';}).join('')+(L.length>2?'<span class="rvc-more">+'+(L.length-2)+'</span>':'')+'</span>'+
    '<span class="rvc-dots">'+L.slice(0,4).map(function(r){return '<i style="background:'+(r.status==='request'?'#f59e0b':r.status==='seated'?'#0a7e7a':r.status==='noshow'?'#94a3b8':'#14b8a6')+'"></i>';}).join('')+'</span></button>';}
  var tail=(7-(lead+nd)%7)%7;for(var j=0;j<tail;j++)h+='<div class="rvc-day out"></div>';
  return h+'</div><div class="rvc-leg"><span><i style="background:#14b8a6"></i>ນັດແລ້ວ</span><span><i style="background:#f59e0b"></i>ລໍຢືນຢັນ</span><span><i style="background:#0a7e7a"></i>ມາແລ້ວ</span><span><i style="background:#94a3b8"></i>ບໍ່ມາ</span></div></div><div class="rvc-list"></div>';}
