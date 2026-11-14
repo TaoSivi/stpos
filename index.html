@@ -3211,6 +3211,37 @@ body:has(.cs-paybar) .cc-fab,body:has(.cs-paybar) .cc-fab.up{bottom:calc(150px +
 html[data-biz="medical"] body #app:not(.cust) .ordbar .cats{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin}
 html[data-biz="medical"] body #app:not(.cust) .ordbar .cats>.cat{flex:0 0 auto}
 </style>
+<style>
+/* ຄລີນິກ: ປະຕິທິນນັດໝາຍ */
+.rvc{background:#fff;border-radius:20px;padding:16px;margin:8px 0 14px;box-shadow:var(--sh-1);border:1px solid var(--line)}
+.rvc-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rvc-ttl{flex:1;text-align:center;display:flex;flex-direction:column;line-height:1.25}.rvc-ttl b{font-size:19px;color:var(--ink)}.rvc-ttl span{font-size:12.5px;color:var(--muted)}
+.rvc-nav{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:22px;line-height:1;color:var(--ink);cursor:pointer}
+.rvc-nav:hover{border-color:#0a7e7a;color:#0a7e7a}
+.rvc-today{padding:8px 14px;border-radius:999px;border:0;background:#e0f5f3;color:#0a6b67;font:inherit;font-weight:700;cursor:pointer}
+.rvc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.rvc-wd{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:2px 0 4px}.rvc-wd.we{color:#b45309}
+.rvc-day{position:relative;min-height:88px;border-radius:14px;border:1.5px solid #eef2f1;background:#fbfdfd;padding:7px 7px 6px;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px;overflow:hidden;transition:transform .12s,box-shadow .12s,border-color .12s}
+.rvc-day:not(.out):hover{border-color:#0a7e7a;box-shadow:0 6px 16px rgba(10,126,122,.14);transform:translateY(-1px)}
+.rvc-day.out{background:transparent;border-color:transparent;cursor:default}
+.rvc-day.we{background:#fffcf5}.rvc-day.past .rvc-n{color:#94a3b8}
+.rvc-day.has{background:#f0fbf9;border-color:#cdeee9}
+.rvc-day.today{border-color:#0a7e7a;box-shadow:inset 0 0 0 1px #0a7e7a}
+.rvc-day.sel{background:linear-gradient(160deg,#0a7e7a,#0a6b67);border-color:#0a6b67;box-shadow:0 8px 20px rgba(10,107,103,.3)}
+.rvc-day.sel .rvc-n,.rvc-day.sel .rvc-more{color:#fff}.rvc-day.sel .rvc-cnt{background:#fff;color:#0a6b67}
+.rvc-day.closed{background:repeating-linear-gradient(-45deg,#f8fafc,#f8fafc 6px,#eef2f6 6px,#eef2f6 12px)}
+.rvc-n{font-weight:800;font-size:14px;color:var(--ink)}
+.rvc-cnt{position:absolute;top:6px;right:6px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#0a7e7a;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.rvc-closed{font-size:11px;color:#64748b;font-weight:700}
+.rvc-items{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rvc-it{display:block;font-size:11.5px;line-height:1.35;padding:2px 6px;border-radius:7px;background:var(--b);color:var(--c);border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rvc-day.sel .rvc-it{background:rgba(255,255,255,.18);color:#fff;border-left-color:#fff}
+.rvc-more{font-size:11px;font-weight:700;color:#0a6b67}
+.rvc-dots{display:none;gap:3px;justify-content:center;margin-top:auto}.rvc-dots i{width:6px;height:6px;border-radius:50%}
+.rvc-leg{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12.5px;color:var(--muted)}.rvc-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.rvc-list{scroll-margin-top:80px}
+@media(max-width:700px){.rvc{padding:12px;border-radius:16px}.rvc-grid{gap:4px}.rvc-day{min-height:54px;padding:6px 4px;align-items:center;border-radius:11px}.rvc-items,.rvc-cnt{display:none}.rvc-dots{display:flex}.rvc-day.sel .rvc-dots i{box-shadow:0 0 0 1.5px #fff}.rvc-wd{font-size:10.5px}.rvc-ttl b{font-size:17px}}
+</style>
 </head>
 <body>
 <div id="boot" class="bootscreen"><div class="lg">ST POS</div><div class="spin"></div><div style="font-size:13px;opacity:.9">ກຳລັງໂຫຼດ...</div><div style="position:fixed;bottom:8px;right:10px;font-size:10px;opacity:.55">v6 · 2026-08</div></div>
@@ -4281,7 +4312,7 @@ function renderResv(R){rvInit();if(!rvDate)rvDate=ymd(Date.now());var td=ymd(Dat
   '<div class="rv-rg">'+[['day','1 ມື້'],['week','ອາທິດນີ້'],['7','7 ມື້'],['month','ເດືອນນີ້'],['custom','ກຳນົດເອງ']].map(function(x){var on=(x[0]==='day'&&!RG)||(RG&&x[0]==='custom'&&!['week','7','month'].some(function(k){return rvRgKey(k)===RG[0]+'|'+RG[1];}))||(RG&&rvRgKey(x[0])===RG[0]+'|'+RG[1]);return '<button type="button" class="rv-rgb'+(on?' on':'')+'" onclick="rvSetRange(\''+x[0]+'\')">'+x[1]+'</button>';}).join('')+'</div>'+
   '<input class="rv-q" placeholder="'+(bizCur()==='medical'?'ຄົ້ນຫາ ຊື່ / ເບີໂທ':'ຄົ້ນຫາ ຊື່ / ເບີໂທ / ໂຕະ')+'" value="'+aesc(rvQ)+'" oninput="rvQ=this.value;clearTimeout(window.__rvq);window.__rvq=setTimeout(function(){render();var e=document.querySelector(\'.rv-q\');if(e){e.focus();try{e.setSelectionRange(e.value.length,e.value.length);}catch(x){}}},250)"></div>'+
   
-  (q?'<div class="rv-sh">ຜົນຄົ້ນຫາ <i>'+list.length+'</i></div>'+(list.length?list.map(function(r){return rvCard(r,true,mng);}).join(''):'<div class="rv-empty"><b>ບໍ່ພົບ</b></div>'):
+  (bizCur()==='medical'&&!q?rvCalHTML():'')+(q?'<div class="rv-sh">ຜົນຄົ້ນຫາ <i>'+list.length+'</i></div>'+(list.length?list.map(function(r){return rvCard(r,true,mng);}).join(''):'<div class="rv-empty"><b>ບໍ່ພົບ</b></div>'):
    (RG&&dayList.length?rvRangeHTML(dayList,mng,cnt,active):dayList.length?'<div class="rv-sum"><span><b>'+cnt('booked')+'</b> ລໍມາ</span><span><b>'+active.reduce(function(s,r){return s+(r.status!=='noshow'?(+r.guests||0):0);},0)+'</b> ຄົນ</span><span class="ok"><b>'+cnt('seated')+'</b> ມາແລ້ວ</span>'+(cnt('noshow')?'<span class="warn"><b>'+cnt('noshow')+'</b> ບໍ່ມາ</span>':'')+'</div>'+
     sec('ຄຳຂໍນັດອອນລາຍ — ລໍຢືນຢັນ','now',reqA)+sec(nowA.some(function(r){return rvMin(r.time)<now-c.grace;})?'⚠ ຕ້ອງຈັດການດຽວນີ້':'ໃກ້ຮອດເວລາ','now',nowA)+sec(rvDate===td?'ລໍລູກຄ້າມາ':'ການຈອງ','next',nextA)+sec('ສຳເລັດ / ຍົກເລີກ','done',doneA)
    :'<div class="rv-empty"><b>ບໍ່ມີການຈອງ '+(RG?'ໃນຊ່ວງນີ້':rvDayLbl(rvDate))+'</b>'+(mng?'<p>ລູກຄ້າໂທມາຈອງ? ກົດປຸ່ມນີ້</p><button class="rv-add" onclick="rvModal(null)">＋ ຈອງໂຕະໃໝ່</button>':'')+'</div>'))+'</div>';}
@@ -4290,7 +4321,26 @@ function rvShift(d){var x=new Date((rvDate||ymd(Date.now()))+'T00:00:00'),n=rvDa
 function rvMonday(ds){var d=new Date(ds+'T00:00:00'),k=(d.getDay()+6)%7;return ymd(d.getTime()-k*86400000);}
 function rvRgKey(k){var base=rvDate||ymd(Date.now());if(k==='week'){var m=rvMonday(base);return m+'|'+ymd(new Date(m+'T00:00:00').getTime()+6*86400000);}if(k==='7')return base+'|'+ymd(new Date(base+'T00:00:00').getTime()+6*86400000);if(k==='month'){var d=new Date(base+'T00:00:00'),a=new Date(d.getFullYear(),d.getMonth(),1),z=new Date(d.getFullYear(),d.getMonth()+1,0);return ymd(a.getTime())+'|'+ymd(z.getTime());}return '';}
 function rvSetRange(k){var base=rvDate||ymd(Date.now());if(k==='day'){rvTo=null;}else if(k==='custom'){rvTo=ymd(new Date(base+'T00:00:00').getTime()+6*86400000);}else{var v=rvRgKey(k).split('|');rvDate=v[0];rvTo=v[1];}render();}
-function rvSetFrom(v){rvDate=v||ymd(Date.now());if(rvTo&&rvTo<rvDate)rvTo=rvDate;render();}
+/* ===== ຄລີນິກ: ປະຕິທິນນັດໝາຍ (ເດືອນ) — ກົດມື້ → ລາຍການນັດຂອງມື້ນັ້ນສະແດງທາງລຸ່ມ (ບັດນັດເດີມ) ===== */
+var rvCal=null;
+var RV_MON=['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
+function rvCalMove(n){var b=(rvCal||rvDate||ymd(Date.now())).slice(0,7).split('-'),y=+b[0],m=+b[1]-1+n;y+=Math.floor(m/12);m=((m%12)+12)%12;rvCal=y+'-'+String(m+1).padStart(2,'0');render();}
+function rvCalPick(d){rvDate=d;rvTo=null;rvCal=d.slice(0,7);render();setTimeout(function(){var e=document.querySelector('.rvc-list');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:'smooth',block:'start'});},60);}
+function rvCalHTML(){var mon=(rvCal||rvDate).slice(0,7),y=+mon.slice(0,4),m=+mon.slice(5,7),td=ymd(Date.now());
+ var first=new Date(y,m-1,1),lead=(first.getDay()+6)%7,nd=new Date(y,m,0).getDate(),by={},tot=0;
+ (state.resv||[]).forEach(function(r){if(!r.date||r.date.slice(0,7)!==mon||r.status==='cancelled')return;(by[r.date]=by[r.date]||[]).push(r);tot++;});
+ var h='<div class="rvc"><div class="rvc-head"><button class="rvc-nav" onclick="rvCalMove(-1)" aria-label="ເດືອນກ່ອນ">‹</button><div class="rvc-ttl"><b>'+RV_MON[m-1]+' '+y+'</b><span>'+tot+' ນັດໃນເດືອນນີ້</span></div><button class="rvc-nav" onclick="rvCalMove(1)" aria-label="ເດືອນຖັດໄປ">›</button>'+
+  (mon!==td.slice(0,7)?'<button class="rvc-today" onclick="rvCalPick(\''+td+'\')">ມື້ນີ້</button>':'')+'</div><div class="rvc-grid">'+
+  ['ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ','ອາທິດ'].map(function(w,i){return '<div class="rvc-wd'+(i>4?' we':'')+'">'+w+'</div>';}).join('');
+ for(var i=0;i<lead;i++)h+='<div class="rvc-day out"></div>';
+ for(var d=1;d<=nd;d++){var ds=mon+'-'+String(d).padStart(2,'0'),L=(by[ds]||[]).sort(function(a,b){return (rvMin(a.time)||0)-(rvMin(b.time)||0);}),wk=(lead+d-1)%7;
+  var cls='rvc-day'+(ds===td?' today':'')+(ds===rvDate?' sel':'')+(ds<td?' past':'')+(wk>4?' we':'')+(rvIsClosed(ds)?' closed':'')+(L.length?' has':'');
+  h+='<button type="button" class="'+cls+'" onclick="rvCalPick(\''+ds+'\')" aria-label="'+d+' '+RV_MON[m-1]+(L.length?' · '+L.length+' ນັດ':'')+'"><span class="rvc-n">'+d+'</span>'+(L.length?'<span class="rvc-cnt">'+L.length+'</span>':'')+
+   (rvIsClosed(ds)?'<span class="rvc-closed">ປິດ</span>':'')+'<span class="rvc-items">'+L.slice(0,2).map(function(r){var st=RV_ST[r.status]||RV_ST.booked;return '<span class="rvc-it" style="--c:'+(r.status==='seated'?'#0a7e7a':st[1])+';--b:'+st[2]+'">'+cesc(r.time||'')+' '+cesc(r.name||'')+'</span>';}).join('')+(L.length>2?'<span class="rvc-more">+'+(L.length-2)+'</span>':'')+'</span>'+
+   '<span class="rvc-dots">'+L.slice(0,4).map(function(r){return '<i style="background:'+(r.status==='request'?'#f59e0b':r.status==='seated'?'#0a7e7a':r.status==='noshow'?'#94a3b8':'#14b8a6')+'"></i>';}).join('')+'</span></button>';}
+ var tail=(7-(lead+nd)%7)%7;for(var j=0;j<tail;j++)h+='<div class="rvc-day out"></div>';
+ return h+'</div><div class="rvc-leg"><span><i style="background:#14b8a6"></i>ນັດແລ້ວ</span><span><i style="background:#f59e0b"></i>ລໍຢືນຢັນ</span><span><i style="background:#0a7e7a"></i>ມາແລ້ວ</span><span><i style="background:#94a3b8"></i>ບໍ່ມາ</span></div></div><div class="rvc-list"></div>';}
+function rvSetFrom(v){rvCal=null;rvDate=v||ymd(Date.now());if(rvTo&&rvTo<rvDate)rvTo=rvDate;render();}
 function rvSetTo(v){if(!v||v<=rvDate){rvTo=null;}else rvTo=v;render();}
 function rvRangeHTML(list,mng,cnt,active){var by={};list.forEach(function(r){(by[r.date]=by[r.date]||[]).push(r);});var ds=Object.keys(by).sort();
  return '<div class="rv-sum"><span><b>'+cnt('booked')+'</b> ລໍມາ</span><span><b>'+active.reduce(function(s,r){return s+(r.status!=='noshow'?(+r.guests||0):0);},0)+'</b> ຄົນ</span><span class="ok"><b>'+cnt('seated')+'</b> ມາແລ້ວ</span>'+(cnt('noshow')?'<span class="warn"><b>'+cnt('noshow')+'</b> ບໍ່ມາ</span>':'')+'<span><b>'+ds.length+'</b> ມື້ທີ່ມີນັດ</span></div>'+
