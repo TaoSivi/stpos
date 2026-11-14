@@ -13851,7 +13851,6 @@ function renderClinicBoard(R){rxInit();var L=state.rx.filter(rxVisible),td=ymd(D
  var h='<div class="pad rxp"><div class="tv-head"><div><div class="ttl">ໜ້າງານຄລີນິກ</div><div class="sub">'+cesc((curUser()||{}).name||'')+' · ວັນນີ້ '+today.length+' ຄົນ'+(function(){var n=(state.resv||[]).filter(function(r){return r.date===td&&r.status==='booked';}).length;return n&&canView('resv')?' · <a href="#" onclick="setView(\'resv\');return false" style="color:#7c3aed;font-weight:800">📅 ນັດມື້ນີ້ '+n+' ຄົນ</a>':'';})()+'</div></div>'+(canI&&list.length?'<button type="button" class="btn-ok grad cb-newtop" onclick="rxSetTab(\'intake\')">+ ຮັບຄົນເຈັບໃໝ່</button>':(canW&&!C.intake.length?'<button type="button" class="btn-ok grad cb-newtop" onclick="rxSetTab(\'new\')">✎ ກວດ / ສັ່ງຢາ</button>':''))+'</div>'+
   alertBanner()+'<div class="cb-tb">'+cbLinks(canP,canI)+patBoardHTML()+'</div><div class="cb-flow">'+chips+'</div><div class="cb-hint">'+hint+'</div>'+
   (list.length?'<div class="cb-list">'+list.map(function(r){return (_cbF==='done'?rxDoneRow(r):rxCard(r));}).join('')+'</div>':empty)+
-  (all?'<div class="cb-kpi"><div><b>'+today.length+'</b><small>ຄົນເຈັບມື້ນີ້</small></div><div><b>'+pend+'</b><small>ກຳລັງລໍ</small></div><div><b>'+C.done.length+'</b><small>ສຳເລັດແລ້ວ</small></div><div><b>'+KIP(rev)+'</b><small>ລາຍຮັບຈາກໃບສັ່ງ (ກີບ)</small></div></div>':'')+
   '</div>';
  R.innerHTML=h;}
 var RX_SVC=/ຄ່າກວດ|ບໍລິການ|ແລັບ|lab/i;
