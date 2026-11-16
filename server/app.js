@@ -132,6 +132,26 @@ function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set
     if (name) t.name = name; if (o.apps !== undefined) t.apps = cleanApps(o.apps);
     atomicWrite0(TEN_FILE, JSON.stringify(L, null, 1)); return J({ ok: true, code: t.code, name: t.name, apps: t.apps });
   }
+  if (a === 'tenant_users' || a === 'tenant_pin') { /* ລາຍຊື່ຜູ້ໃຊ້ / ຣີເຊັດ PIN ຂອງບໍລິສັດ (ທຸກສາຂາຂອງບໍລິສັດນັ້ນ) — session ເກົ່າຂອງຜູ້ນັ້ນໝົດອາຍຸເອງ ເພາະ session ຜູກກັບ PIN */
+    const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    const uid = String(o.uid || ''), pin = String(o.pin || '');
+    if (a === 'tenant_pin' && (!uid || !/^\d{4,8}$/.test(pin))) return J({ ok: false, err: 'uid/pin' });
+    let out;
+    try {
+      useTenant(t); useBranch({ id: 'b1', dir: '.' });
+      if (a === 'tenant_users') { shim.beginRequest(); try { const st = JSON.parse(G.getState_() || '{}'); out = { ok: true, users: (st.users || []).map(function (u) { return { id: u.id, name: u.name || '', role: u.role || '', active: u.active !== false }; }) }; } finally { shim.endRequest(); } }
+      else {
+        let n = 0; shim.beginRequest();
+        try { branches().forEach(function (b) { n += withBranch(b, function () {
+          const s = G.getState_(); if (!s) return 0; const st = JSON.parse(s), u = (st.users || []).filter(function (x) { return x && x.id === uid; })[0]; if (!u) return 0;
+          u.pinH = pinHash(pin); delete u.pin; st.usersV = (+st.usersV || 0) + 1; st._v = Math.max(Date.now(), (+st._v || 0) + 1); /* _v = ເລກສະບັບ: ຂຶ້ນໃໝ່ ເພື່ອໃຫ້ session ເກົ່າ ແລະເຄື່ອງອື່ນເຫັນການປ່ຽນທັນທີ */
+          const lock = LockService.getScriptLock(); lock.waitLock(30000); try { G.saveStateRaw_(JSON.stringify(st), true); } finally { lock.releaseLock(); }
+          CacheService.getScriptCache().remove('lfu_' + uid); return 1; }); }); } finally { shim.endRequest(); }
+        out = n ? { ok: true, updated: n } : { ok: false, err: 'user' };
+      }
+    } finally { useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]); }
+    return J(out);
+  }
   if (a === 'tenant_add') {
     const owner = String(o.ownerName || '').replace(/[<>]/g, '').trim().slice(0, 60), pin = String(o.ownerPin || '');
     if (!/^[a-z0-9][a-z0-9_-]{1,31}$/.test(code) || TEN_RESERVED.indexOf(code) >= 0) return J({ ok: false, err: 'code' });

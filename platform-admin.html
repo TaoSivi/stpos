@@ -38,6 +38,10 @@ button.g{background:var(--tile);color:var(--tiff-deep);border:1px solid var(--li
 .apps label{display:flex;gap:10px;align-items:center;min-height:44px;margin:0;padding:6px 12px;border:1.5px solid var(--line);border-radius:14px;background:var(--field);font-weight:600;cursor:pointer}
 .apps input{width:20px;height:20px;accent-color:#0A7E7A}.apps label:has(input:checked){border-color:var(--tiff);background:var(--tile)}
 table{width:100%;border-collapse:collapse;margin-top:12px}td,th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:14px}th{color:var(--muted);font-weight:700}
+select{width:100%;min-height:48px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font-size:17px}
+select:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,186,181,.2)}
+hr{border:0;border-top:1px solid var(--line);margin:22px 0 4px}
+button.sm{min-height:40px;margin:0;padding:6px 14px;font-size:14px}
 </style>
 </head>
 <body>
@@ -63,6 +67,19 @@ table{width:100%;border-collapse:collapse;margin-top:12px}td,th{text-align:left;
   </form>
   <div class="msg" id="msg" role="status"></div>
  </section>
+ <section class="card hide" id="ed">
+  <h2>3. ແກ້ໄຂບໍລິສັດ: <span id="edc"></span></h2>
+  <label for="en">ຊື່ບໍລິສັດ</label><input id="en" type="text" maxlength="60">
+  <label>ແອັບທີ່ເປີດໃຫ້ <small>(ປິດແອັບ = ຜູ້ໃຊ້ຈະບັນທຶກຂໍ້ມູນຂອງແອັບນັ້ນບໍ່ໄດ້ ແຕ່ຂໍ້ມູນເກົ່າບໍ່ຖືກລຶບ)</small></label>
+  <div class="apps" id="eapps"></div>
+  <button class="p" id="esave" type="button">ບັນທຶກຊື່ ແລະແອັບ</button>
+  <hr>
+  <h2>ຣີເຊັດ PIN ຜູ້ໃຊ້</h2>
+  <label for="eu">ຜູ້ໃຊ້</label><select id="eu"></select>
+  <label for="ep">PIN ໃໝ່ <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="ep" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+  <button class="p" id="epin" type="button">ຣີເຊັດ PIN</button>
+  <div class="msg" id="emsg" role="status"></div>
+ </section>
 </main>
 <script>
 var APPS = [['stpos-fnb','ຮ້ານອາຫານ / ຄາເຟ'],['stpos-medical','ຄລີນິກ'],['stpos-mart','ຮ້ານຂາຍຍ່ອຍ / ມາດ'],['stpos-hotel','ໂຮງແຮມ / ທີ່ພັກ'],['stpos-jewelry','ຮ້ານເຄື່ອງປະດັບ'],['laobooks','LaoBooks ບັນຊີ']];
@@ -74,10 +91,29 @@ function call(action, body) {
  return fetch('/api/?admin=' + action + '&key=' + encodeURIComponent($('key').value.trim()), { method: 'POST', body: JSON.stringify(body || {}) })
   .then(function (r) { if (r.status === 403) throw new Error('ADMIN_KEY ບໍ່ຖືກ'); return r.json(); });
 }
-$('list').onclick = function () {
- call('tenant_list').then(function (r) {
-  $('tbl').innerHTML = r.tenants && r.tenants.length ? '<table><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ແອັບ</th></tr>' + r.tenants.map(function (t) { return '<tr><td>' + esc(t.code) + '</td><td>' + esc(t.name) + '</td><td>' + esc((t.apps || []).join(', ')) + '</td></tr>'; }).join('') + '</table>' : '<p><small>ຍັງບໍ່ມີບໍລິສັດ</small></p>';
+var TEN = {};
+function boxes(id, sel) { $(id).innerHTML = APPS.map(function (a) { return '<label><input type="checkbox" value="' + a[0] + '"' + (sel.indexOf(a[0]) >= 0 ? ' checked' : '') + '> ' + a[1] + '</label>'; }).join(''); }
+function sayE(t, ok) { $('emsg').className = 'msg ' + (ok ? 'ok' : 'er'); $('emsg').textContent = t; }
+function loadList() {
+ return call('tenant_list').then(function (r) {
+  TEN = {}; (r.tenants || []).forEach(function (t) { TEN[t.code] = t; });
+  $('tbl').innerHTML = r.tenants && r.tenants.length ? '<table><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ແອັບ</th><th></th></tr>' + r.tenants.map(function (t) { return '<tr><td>' + esc(t.code) + '</td><td>' + esc(t.name) + '</td><td>' + esc((t.apps || []).join(', ')) + '</td><td><button class="g sm" type="button" data-c="' + esc(t.code) + '">ແກ້ໄຂ</button></td></tr>'; }).join('') + '</table>' : '<p><small>ຍັງບໍ່ມີບໍລິສັດ</small></p>';
  }).catch(function (e) { $('tbl').innerHTML = '<p class="er">' + esc(e.message) + '</p>'; });
+}
+$('list').onclick = loadList;
+$('tbl').onclick = function (e) { var b = e.target.closest('button[data-c]'); if (b) openEdit(b.dataset.c); };
+function openEdit(c) {
+ var t = TEN[c]; if (!t) return; $('ed').classList.remove('hide'); $('edc').textContent = c; $('en').value = t.name || ''; boxes('eapps', t.apps || []); sayE('', true); $('ep').value = '';
+ $('eu').innerHTML = '<option>ກຳລັງໂຫຼດ…</option>';
+ call('tenant_users', { code: c }).then(function (r) { $('eu').innerHTML = (r.users || []).map(function (u) { return '<option value="' + esc(u.id) + '">' + esc(u.name || u.id) + ' (' + esc(u.role) + (u.active ? '' : ', ປິດ') + ')</option>'; }).join('') || '<option value="">ບໍ່ມີຜູ້ໃຊ້</option>'; }).catch(function (e2) { sayE(e2.message, false); });
+ $('ed').scrollIntoView({ behavior: 'smooth' });
+}
+$('esave').onclick = function () {
+ var apps = Array.prototype.map.call(document.querySelectorAll('#eapps input:checked'), function (c) { return c.value; });
+ call('tenant_set', { code: $('edc').textContent, name: $('en').value.trim(), apps: apps }).then(function (r) { if (r.ok) { sayE('ບັນທຶກແລ້ວ ✓', true); loadList(); } else sayE('ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false); }).catch(function (e) { sayE(e.message, false); });
+};
+$('epin').onclick = function () {
+ call('tenant_pin', { code: $('edc').textContent, uid: $('eu').value, pin: $('ep').value }).then(function (r) { if (r.ok) { sayE('ຣີເຊັດ PIN ແລ້ວ ✓ (ເຄື່ອງຂອງຜູ້ນັ້ນຕ້ອງເຂົ້າລະບົບໃໝ່)', true); $('ep').value = ''; } else sayE(r.err === 'uid/pin' ? 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ' : 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false); }).catch(function (e) { sayE(e.message, false); });
 };
 $('f').onsubmit = function (e) {
  e.preventDefault(); var apps = Array.prototype.map.call(document.querySelectorAll('#apps input:checked'), function (c) { return c.value; });

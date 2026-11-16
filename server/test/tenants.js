@@ -102,6 +102,21 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
     await test('cron runs every company (and still the original shop)', async function () {
       const r = await (await fetch(HOST + '/api/?cron=tenant-cron-key-1')).json(); assert.ok(r.ok);
     });
+    await test('admin: list users, reset a PIN in every branch; old PIN and old sessions stop working; rename + apps change', async function () {
+      const us = await adm('tenant_users', { code: 'clinic1' }); assert.deepStrictEqual(us.users.map(function (u) { return u.id; }), ['u1']);
+      assert.strictEqual((await adm('tenant_pin', { code: 'clinic1', uid: 'u1', pin: '12' })).ok, false, 'short PIN refused');
+      assert.strictEqual((await adm('tenant_pin', { code: 'clinic1', uid: 'nobody', pin: '5555' })).ok, false, 'unknown user');
+      assert.strictEqual((await adm('tenant_pin', { code: 'nope', uid: 'u1', pin: '5555' })).err, 'company');
+      const r = await adm('tenant_pin', { code: 'clinic1', uid: 'u1', pin: '5555' }); assert.ok(r.ok && r.updated === 2, JSON.stringify(r));
+      assert.strictEqual((await jp('/t/clinic1', 'login=pin&uid=u1&pin=4321')).ok, false, 'old PIN refused');
+      assert.ok((await jp('/t/clinic1', 'login=pin&uid=u1&pin=5555')).ok, 'new PIN works');
+      assert.strictEqual((await jp('/t/clinic1', 'gz=1&token=' + encodeURIComponent(tk1))).err, 'token', 'old session expired');
+      assert.ok((await jp('/api/t/clinic1/b2', 'login=pin&uid=u1&pin=5555')).ok, 'new PIN works in branch b2 too');
+      assert.strictEqual((await fetch(base('/t/resto2') + '/?callback=c&login=pin&uid=u1&pin=5555')).status, 503, 'other company untouched (resto2 is closed in this test)');
+      const set = await adm('tenant_set', { code: 'clinic1', name: 'ຄລີນິກ A ໃໝ່', apps: ['stpos-medical'] }); assert.ok(set.ok);
+      assert.deepStrictEqual((await jp('/t/clinic1', 'login=company')).company, { code: 'clinic1', name: 'ຄລີນິກ A ໃໝ່', apps: ['stpos-medical'] });
+      assert.strictEqual((await erp('/t/clinic1', (await jp('/t/clinic1', 'login=pin&uid=u1&pin=5555')).tk, 'loadAll')).error, 'ບໍລິສັດນີ້ບໍ່ມີສິດໃຊ້ LaoBooks', 'licence removal takes effect at once');
+    });
     console.log('tenants: ' + passed + ' passed');
   } catch (e) { console.error('FAIL', e && e.stack || e); process.exitCode = 1; }
   finally { try { proc.kill(); } catch (e) {} try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) {} }
