@@ -47,7 +47,7 @@ SZIP = os.path.join(ROOT, 'stpos-server.zip')
 if os.path.exists(SZIP):
     os.remove(SZIP)
 with zipfile.ZipFile(SZIP, 'w', zipfile.ZIP_DEFLATED) as z:
-    for f in ('app.js', 'gas-shim.js', 'delta.js', 'package.json'):
+    for f in ('app.js', 'gas-shim.js', 'delta.js', 'audit.js', 'package.json'):
         z.write(os.path.join(ROOT, 'server', f), f)
     z.write(os.path.join(ROOT, 'Code.gs'), 'Code.gs')
     sec = os.path.join(ROOT, 'server', 'secrets.json')  # ລະຫັດ (git-ignored) — ຖ້າບໍ່ມີ ຕ້ອງຕັ້ງໃນ env ຂອງ cPanel
