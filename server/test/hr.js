@@ -13,8 +13,8 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
 (async function () {
   try {
     await start();
-    assert.ok((await adm('tenant_add', { code: 'hrco', name: 'ບໍລິສັດ HR', apps: ['sthr'], ownerName: 'ເຈົ້າຂອງ', ownerPin: '4321' })).ok);
-    assert.ok((await adm('tenant_add', { code: 'hr2', name: 'ບໍລິສັດ HR 2', apps: ['sthr', 'stpos-fnb'], ownerName: 'ເຈົ້າຂອງ 2', ownerPin: '8765' })).ok);
+    assert.ok((await adm('tenant_add', { code: 'hrco', name: 'ບໍລິສັດ HR', apps: [], ownerName: 'ເຈົ້າຂອງ', ownerPin: '4321' })).ok); assert.ok((await adm('tenant_set', { code: 'hrco', apps: ['sthr'] })).ok);
+    assert.ok((await adm('tenant_add', { code: 'hr2', name: 'ບໍລິສັດ HR 2', apps: [], ownerName: 'ເຈົ້າຂອງ 2', ownerPin: '8765' })).ok); assert.ok((await adm('tenant_set', { code: 'hr2', apps: ['sthr', 'stpos-fnb'] })).ok);
     assert.ok((await adm('tenant_add', { code: 'clinic1', name: 'ຄລີນິກ', apps: ['stpos-medical'], ownerName: 'ໝໍ', ownerPin: '1111' })).ok);
     const A = '/api/t/hrco/hr', B = '/api/t/hr2/hr';
     let su, tokA;
@@ -78,13 +78,24 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
     await test('platform admin seeds a sample HR company (random PINs shown once, 3 staff); a second seed is refused', async function () {
       assert.strictEqual((await fetch(HOST + '/api/?admin=tenant_hr_seed&key=wrong', { method: 'POST', body: JSON.stringify({ code: 'hr2' }) })).status, 403);
       assert.strictEqual((await adm('tenant_hr_seed', { code: 'clinic1' })).ok, false, 'no HR app');
-      assert.ok((await adm('tenant_add', { code: 'hr3', name: 'ບໍລິສັດ HR 3', apps: ['sthr'], ownerName: 'x', ownerPin: '5555' })).ok); const B3 = '/api/t/hr3/hr'; const r = await adm('tenant_hr_seed', { code: 'hr3', hrName: 'LTGTEST' }); assert.ok(r.ok, JSON.stringify(r));
+      assert.ok((await adm('tenant_add', { code: 'hr3', name: 'ບໍລິສັດ HR 3', apps: [], ownerName: 'x', ownerPin: '5555' })).ok); assert.ok((await adm('tenant_set', { code: 'hr3', apps: ['sthr'] })).ok); const B3 = '/api/t/hr3/hr'; const r = await adm('tenant_hr_seed', { code: 'hr3', hrName: 'LTGTEST' }); assert.ok(r.ok, JSON.stringify(r));
       assert.ok(/^\d{4}$/.test(r.superAdmin.pin) && /^\d{4}$/.test(r.admin.pin) && r.superAdmin.pin !== r.admin.pin);
       const l = await hr(B3, { action: 'login', code: 'ST-000', pin: r.superAdmin.pin }); assert.ok(l.ok, JSON.stringify(l));
       const emps = (await hr(B3, { action: 'list', token: l.data.token, collection: 'employees' })).data;
       assert.deepStrictEqual(emps.map(function (e) { return e.data.code; }).sort(), ['ST-000', 'ST-001', 'ST-101', 'ST-102', 'ST-103']);
       assert.strictEqual((await hr(B3, { action: 'info' })).data.name, 'LTGTEST');
       assert.strictEqual((await adm('tenant_hr_seed', { code: 'hr3' })).ok, false, 'already created');
+    });
+    await test('a company created WITH the HR app gets its HR ready: the owner signs in with ST-001 + the same 4-digit PIN', async function () {
+      const r = await adm('tenant_add', { code: 'auto1', name: 'LTG Auto', apps: ['sthr'], ownerName: 'ທ້າວ ເຈົ້າຂອງ', ownerPin: '2580' }); assert.ok(r.ok && r.hr === 'ready', JSON.stringify(r));
+      const U = '/api/t/auto1/hr', i = (await hr(U, { action: 'info' })).data; assert.strictEqual(i.name, 'LTG Auto'); assert.deepStrictEqual(i.users.map(function (u) { return u.code; }), ['ST-001']);
+      assert.strictEqual((await hr(U, { action: 'login', code: 'ST-001', pin: '0000' })).ok, false);
+      const l = await hr(U, { action: 'login', code: 'ST-001', pin: '2580' }); assert.ok(l.ok, JSON.stringify(l));
+      const emps = (await hr(U, { action: 'list', token: l.data.token, collection: 'employees' })).data; assert.strictEqual(emps.length, 1); assert.strictEqual(emps[0].data.name, 'ທ້າວ ເຈົ້າຂອງ'); assert.ok(!emps[0].data.pinMustChange);
+      assert.strictEqual((await hr(U, { action: 'list', token: l.data.token, collection: 'shifts' })).data.length, 3);
+      const r6 = await adm('tenant_add', { code: 'auto2', name: 'PIN6', apps: ['sthr'], ownerName: 'x', ownerPin: '258000' }); assert.ok(r6.ok && r6.hr === 'pin4', JSON.stringify(r6));
+      assert.strictEqual((await hr('/api/t/auto2/hr', { action: 'info' })).data.companyId, null);
+      assert.strictEqual((await adm('tenant_add', { code: 'nohr', name: 'no', apps: ['stpos-fnb'], ownerName: 'x', ownerPin: '2580' })).hr, undefined);
     });
     console.log('hr: ' + passed + ' passed');
   } catch (e) { console.error('FAIL', e && e.stack || e); process.exitCode = 1; }

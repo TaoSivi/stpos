@@ -192,7 +192,9 @@ function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set
       G.setupBackup();
     } finally { shim.endRequest(); useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]); }
     L.push(t); atomicWrite0(TEN_FILE, JSON.stringify(L, null, 1));
-    return J({ ok: true, code: code, name: name, apps: t.apps, path: '/t/' + code + '/api' });
+    /* ເປີດແອັບ HR ມາພ້ອມ → ສ້າງ HR ໃຫ້ເລີຍ ດ້ວຍຊື່ + PIN ດຽວກັບເຈົ້າຂອງ (HR ຮັບ PIN 4 ຕົວເທົ່ານັ້ນ) — ເຈົ້າຂອງກົດແອັບ ໃສ່ PIN ແລ້ວເຂົ້າໄດ້ເລີຍ */
+    let hrOut; if (hrLicensed(t)) { try { hrOut = /^\d{4}$/.test(pin) ? hrx().seed(code, name, { name: owner, pin: pin }) : { ok: false, err: 'pin4' }; } catch (e) { hrOut = { ok: false, err: String(e.message || e) }; } }
+    return J({ ok: true, code: code, name: name, apps: t.apps, path: '/t/' + code + '/api', hr: hrOut ? (hrOut.ok ? 'ready' : hrOut.err) : undefined });
   }
   return send(res, 400, 'unknown admin');
 }

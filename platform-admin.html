@@ -143,7 +143,7 @@ $('epin').onclick = function () {
 $('f').onsubmit = function (e) {
  e.preventDefault(); var apps = Array.prototype.map.call(document.querySelectorAll('#apps input:checked'), function (c) { return c.value; });
  call('tenant_add', { code: $('code').value.trim().toLowerCase(), name: $('name').value.trim(), apps: apps, ownerName: $('on').value.trim(), ownerPin: $('op').value }).then(function (r) {
-  if (r.ok) { say('ສ້າງແລ້ວ ✓  ລູກຄ້າເຂົ້າທີ່ launcher.html ແລ້ວໃສ່ລະຫັດ: ' + r.code, true); $('op').value = ''; } else say('ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false);
+  if (r.ok) { say('ສ້າງແລ້ວ ✓  ລະຫັດບໍລິສັດ: ' + r.code + (r.hr === 'ready' ? '\nST HR ພ້ອມໃຊ້: ເຂົ້າດ້ວຍ ST-001 ແລະ PIN ດຽວກັນ' : r.hr === 'pin4' ? '\nST HR ຍັງບໍ່ໄດ້ສ້າງ: HR ຮັບ PIN 4 ຕົວເທົ່ານັ້ນ (ໃຊ້ປຸ່ມ HR ໃນ ແກ້ໄຂ)' : r.hr ? '\nST HR ຍັງບໍ່ໄດ້ສ້າງ: ' + r.hr : ''), true); $('op').value = ''; loadList(); } else say('ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false);
  }).catch(function (e2) { say(e2.message, false); });
 };
 </script>
