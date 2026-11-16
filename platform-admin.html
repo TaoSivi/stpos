@@ -5,23 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
 <title>ST Platform — ຜູ້ດູແລລະບົບ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f4f6fb;--card:#fff;--ink:#16202e;--mut:#64748b;--line:#e2e8f0;--pri:#1d4ed8;--priI:#fff;--ok:#15803d;--err:#b91c1c}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1623;--card:#182233;--ink:#e8eefb;--mut:#93a3bd;--line:#26334a;--pri:#60a5fa;--priI:#0b1220;--ok:#4ade80;--err:#f87171}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans Lao","Phetsarath OT",sans-serif;padding:20px 16px;display:flex;justify-content:center}
-main{width:100%;max-width:620px;display:grid;gap:16px}h1{font-size:22px;margin:4px 0}h2{font-size:17px;margin:0 0 10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-label{display:block;font-weight:600;margin:10px 0 4px}input[type=text],input[type=password]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
-input:focus-visible,button:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 12px}.apps label{font-weight:400;margin:0;display:flex;gap:8px;align-items:center}
-button{margin-top:14px;padding:12px 16px;border:0;border-radius:10px;background:var(--pri);color:var(--priI);font:inherit;font-weight:700;cursor:pointer}button.g{background:none;color:var(--pri);border:1px solid var(--line)}
-.msg{margin-top:10px;min-height:1.4em;white-space:pre-wrap}.ok{color:var(--ok)}.er{color:var(--err)}small{color:var(--mut)}
-table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);font-size:14px}
+:root{--tiff:#0ABAB5;--tiff-deep:#0A7E7A;--bg:#eaf4f3;--card:#fff;--line:#e1efed;--ink:#062f2d;--muted:#4d7471;--ok:#15803d;--err:#c2410c;--r-lg:24px;
+ --sh-1:0 1px 2px rgba(6,47,45,.04),0 8px 24px rgba(6,47,45,.05);--sh-2:0 16px 36px rgba(6,47,45,.12);--sh-pri:0 6px 16px rgba(10,126,122,.26);--grad:linear-gradient(135deg,#0A7E7A,#0ABAB5);--field:#f4faf9;--tile:#e3f6f4}
+@media (prefers-color-scheme:dark){:root{--bg:#041d1b;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.14);--ink:#EAF7F5;--muted:#9FC7C2;--ok:#7fe0a0;--err:#fb9a6a;--sh-1:0 8px 24px rgba(0,0,0,.28);--sh-2:0 12px 32px rgba(0,0,0,.4);--field:rgba(255,255,255,.06);--tile:rgba(10,186,181,.16);--tiff-deep:#BDF3EE}}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 'Noto Sans Lao','Plus Jakarta Sans',system-ui,sans-serif;min-height:100vh;padding:24px 16px 40px;display:flex;justify-content:center}
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:220px;background:linear-gradient(160deg,#063b39,#0a5a56);z-index:-1;border-radius:0 0 32px 32px}
+@media (prefers-color-scheme:dark){body::before{background:linear-gradient(160deg,#031d1b,#07504b)}}
+main{width:100%;max-width:600px;display:grid;gap:16px;align-content:start}
+.brand{display:flex;align-items:center;gap:12px;color:#EAF7F5;padding:4px 2px 10px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font:800 17px 'Plus Jakarta Sans',sans-serif;color:#fff;box-shadow:var(--sh-pri)}
+.brand b{display:block;font:800 21px/1.2 'Plus Jakarta Sans','Noto Sans Lao',sans-serif}.brand span{font-size:13.5px;color:#BDF3EE}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-1)}
+h2{font-size:17px;font-weight:800;margin-bottom:6px}
+label{display:block;font-weight:700;margin:12px 0 6px;font-size:15px}small{color:var(--muted);font-size:13px;font-weight:400}
+input[type=text],input[type=password]{width:100%;min-height:48px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font:inherit;font-size:17px}
+input::placeholder{color:var(--muted);opacity:.8}
+input:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,186,181,.2)}
+button:focus-visible,a:focus-visible,input[type=checkbox]:focus-visible{outline:3px solid var(--tiff);outline-offset:2px}
+button.p,button.g{min-height:48px;margin-top:16px;padding:12px 20px;border-radius:14px;font:inherit;font-weight:800;font-size:16px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s}
+button.p{width:100%;background:var(--grad);color:#fff;box-shadow:var(--sh-pri)}button.p:hover{transform:translateY(-1px)}button.p:active{transform:none}
+button.g{background:var(--tile);color:var(--tiff-deep);border:1px solid var(--line)}button:disabled{opacity:.6;cursor:wait}
+.err,.er{color:var(--err)}.ok{color:var(--ok)}.msg,.err{margin-top:12px;min-height:1.4em;white-space:pre-wrap;font-weight:600}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 12px}
+.apps label{display:flex;gap:10px;align-items:center;min-height:44px;margin:0;padding:6px 12px;border:1.5px solid var(--line);border-radius:14px;background:var(--field);font-weight:600;cursor:pointer}
+.apps input{width:20px;height:20px;accent-color:#0A7E7A}.apps label:has(input:checked){border-color:var(--tiff);background:var(--tile)}
+table{width:100%;border-collapse:collapse;margin-top:12px}td,th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:14px}th{color:var(--muted);font-weight:700}
 </style>
 </head>
 <body>
 <main>
- <h1>ST Platform — ຜູ້ດູແລລະບົບ</h1>
+ <div class="brand"><div class="logo" aria-hidden="true">ST</div><div><b>ST Platform</b><span>ຜູ້ດູແລລະບົບ — ສ້າງ ແລະຈັດການບໍລິສັດລູກຄ້າ</span></div></div>
  <section class="card">
   <h2>1. ລະຫັດຜູ້ດູແລ (ADMIN_KEY)</h2>
   <input id="key" type="password" autocomplete="off" placeholder="ວາງ ADMIN_KEY ຈາກ secrets.json">
@@ -38,7 +59,7 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:6px 4px;
    <div class="apps" id="apps"></div>
    <label for="on">ຊື່ເຈົ້າຂອງ (ຜູ້ໃຊ້ຄົນທຳອິດ)</label><input id="on" type="text" maxlength="60" required>
    <label for="op">PIN ເຈົ້າຂອງ <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="op" type="password" inputmode="numeric" pattern="\d{4,8}" maxlength="8" required>
-   <button type="submit">ສ້າງບໍລິສັດ</button>
+   <button class="p" type="submit">ສ້າງບໍລິສັດ</button>
   </form>
   <div class="msg" id="msg" role="status"></div>
  </section>
