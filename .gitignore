@@ -26,3 +26,7 @@ server/secrets.json
 menu-images-ready/
 
 server/AUTOSECRETS
+server/stderr.log
+server/tmp/
+server/public/
+server/.htaccess
