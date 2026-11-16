@@ -6,7 +6,7 @@ import os, shutil, zipfile, hashlib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'deploy-output')
 ZIP = os.path.join(ROOT, 'deploy.zip')
-FILES = [('index.html', 'index.html'), ('launcher.html', 'launcher.html'), ('deploy/.htaccess', '.htaccess')]
+FILES = [('index.html', 'index.html'), ('launcher.html', 'launcher.html'), ('platform-admin.html', 'platform-admin.html'), ('deploy/.htaccess', '.htaccess')]
 DIRS = ['demo-img']
 IMG = ('.jpg', '.jpeg', '.png', '.webp', '.svg')
 

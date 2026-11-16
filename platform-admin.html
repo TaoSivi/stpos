@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ST Platform — ຜູ້ດູແລລະບົບ</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#16202e;--mut:#64748b;--line:#e2e8f0;--pri:#1d4ed8;--priI:#fff;--ok:#15803d;--err:#b91c1c}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1623;--card:#182233;--ink:#e8eefb;--mut:#93a3bd;--line:#26334a;--pri:#60a5fa;--priI:#0b1220;--ok:#4ade80;--err:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans Lao","Phetsarath OT",sans-serif;padding:20px 16px;display:flex;justify-content:center}
+main{width:100%;max-width:620px;display:grid;gap:16px}h1{font-size:22px;margin:4px 0}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+label{display:block;font-weight:600;margin:10px 0 4px}input[type=text],input[type=password]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input:focus-visible,button:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 12px}.apps label{font-weight:400;margin:0;display:flex;gap:8px;align-items:center}
+button{margin-top:14px;padding:12px 16px;border:0;border-radius:10px;background:var(--pri);color:var(--priI);font:inherit;font-weight:700;cursor:pointer}button.g{background:none;color:var(--pri);border:1px solid var(--line)}
+.msg{margin-top:10px;min-height:1.4em;white-space:pre-wrap}.ok{color:var(--ok)}.er{color:var(--err)}small{color:var(--mut)}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+ <h1>ST Platform — ຜູ້ດູແລລະບົບ</h1>
+ <section class="card">
+  <h2>1. ລະຫັດຜູ້ດູແລ (ADMIN_KEY)</h2>
+  <input id="key" type="password" autocomplete="off" placeholder="ວາງ ADMIN_KEY ຈາກ secrets.json">
+  <small>ລະຫັດຢູ່ໃນ File Manager: stpos-src/server/secrets.json — ບໍ່ຖືກເກັບໃນໜ້ານີ້, ຕ້ອງໃສ່ໃໝ່ທຸກເທື່ອ</small>
+  <div><button class="g" id="list" type="button">ເບິ່ງລາຍຊື່ບໍລິສັດ</button></div>
+  <div id="tbl"></div>
+ </section>
+ <section class="card">
+  <h2>2. ສ້າງບໍລິສັດໃໝ່</h2>
+  <form id="f" autocomplete="off">
+   <label for="code">ລະຫັດບໍລິສັດ <small>(a-z 0-9 - _ , 2-32 ຕົວ — ລູກຄ້າໃຊ້ໃສ່ໃນ Launcher)</small></label><input id="code" type="text" maxlength="32" autocapitalize="none" required>
+   <label for="name">ຊື່ບໍລິສັດ</label><input id="name" type="text" maxlength="60" required>
+   <label>ແອັບທີ່ເປີດໃຫ້</label>
+   <div class="apps" id="apps"></div>
+   <label for="on">ຊື່ເຈົ້າຂອງ (ຜູ້ໃຊ້ຄົນທຳອິດ)</label><input id="on" type="text" maxlength="60" required>
+   <label for="op">PIN ເຈົ້າຂອງ <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="op" type="password" inputmode="numeric" pattern="\d{4,8}" maxlength="8" required>
+   <button type="submit">ສ້າງບໍລິສັດ</button>
+  </form>
+  <div class="msg" id="msg" role="status"></div>
+ </section>
+</main>
+<script>
+var APPS = [['stpos-fnb','ຮ້ານອາຫານ / ຄາເຟ'],['stpos-medical','ຄລີນິກ'],['stpos-mart','ຮ້ານຂາຍຍ່ອຍ / ມາດ'],['stpos-hotel','ໂຮງແຮມ / ທີ່ພັກ'],['stpos-jewelry','ຮ້ານເຄື່ອງປະດັບ'],['laobooks','LaoBooks ບັນຊີ']];
+var $ = function (i) { return document.getElementById(i); };
+$('apps').innerHTML = APPS.map(function (a) { return '<label><input type="checkbox" value="' + a[0] + '"> ' + a[1] + '</label>'; }).join('');
+function say(t, ok) { $('msg').className = 'msg ' + (ok ? 'ok' : 'er'); $('msg').textContent = t; }
+function esc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function call(action, body) {
+ return fetch('/api/?admin=' + action + '&key=' + encodeURIComponent($('key').value.trim()), { method: 'POST', body: JSON.stringify(body || {}) })
+  .then(function (r) { if (r.status === 403) throw new Error('ADMIN_KEY ບໍ່ຖືກ'); return r.json(); });
+}
+$('list').onclick = function () {
+ call('tenant_list').then(function (r) {
+  $('tbl').innerHTML = r.tenants && r.tenants.length ? '<table><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ແອັບ</th></tr>' + r.tenants.map(function (t) { return '<tr><td>' + esc(t.code) + '</td><td>' + esc(t.name) + '</td><td>' + esc((t.apps || []).join(', ')) + '</td></tr>'; }).join('') + '</table>' : '<p><small>ຍັງບໍ່ມີບໍລິສັດ</small></p>';
+ }).catch(function (e) { $('tbl').innerHTML = '<p class="er">' + esc(e.message) + '</p>'; });
+};
+$('f').onsubmit = function (e) {
+ e.preventDefault(); var apps = Array.prototype.map.call(document.querySelectorAll('#apps input:checked'), function (c) { return c.value; });
+ call('tenant_add', { code: $('code').value.trim().toLowerCase(), name: $('name').value.trim(), apps: apps, ownerName: $('on').value.trim(), ownerPin: $('op').value }).then(function (r) {
+  if (r.ok) { say('ສ້າງແລ້ວ ✓  ລູກຄ້າເຂົ້າທີ່ launcher.html ແລ້ວໃສ່ລະຫັດ: ' + r.code, true); $('op').value = ''; } else say('ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false);
+ }).catch(function (e2) { say(e2.message, false); });
+};
+</script>
+</body>
+</html>
