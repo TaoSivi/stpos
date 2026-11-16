@@ -1,4 +1,5 @@
 # ST POS — stpos.store (Namecheap shared hosting)
+DirectoryIndex launcher.html index.html
 
 # 1) ບັງຄັບ https (ຂ້າມໄວ້ສຳລັບ .well-known ທີ່ SSL ໃຊ້ຢືນຢັນໂດເມນ)
 RewriteEngine On
