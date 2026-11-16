@@ -46,7 +46,7 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
     });
     await test('branches, HQ list and links stay inside the company', async function () {
       const r = await jp('/t/clinic1', 'hq=add&name=' + encodeURIComponent('ສາຂາ 2') + '&token=' + encodeURIComponent(tk1)); assert.ok(r.ok, JSON.stringify(r));
-      assert.ok(/\/t\/clinic1\/api\/b2$/.test(r.url), r.url);
+      assert.ok(/\/api\/t\/clinic1\/b2$/.test(r.url), r.url);
       assert.strictEqual((await jp('/t/clinic1', 'hq=list&token=' + encodeURIComponent(tk1))).branches.length, 2);
       assert.strictEqual((await jp('', 'hq=list&token=' + T)).branches.length, 1, 'original shop has still 1 branch');
       const nb = JSON.parse((await (await fetch(HOST + '/t/resto2/api/b2/?callback=c&gz=1&token=x')).text()).slice(2, -1)); assert.strictEqual(nb.err, 'branch', 'resto2 has no b2');
@@ -89,6 +89,15 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       assert.strictEqual((await fetch(HOST + '/erp', { method: 'POST', body: '{}' })).status, 404, 'no ERP on the original shop path');
       const pre = await fetch(HOST + '/t/clinic1/erp', { method: 'OPTIONS', headers: { Origin: 'https://example.github.io' } }); assert.strictEqual(pre.status, 204);
       assert.strictEqual(pre.headers.get('access-control-allow-origin'), 'https://example.github.io');
+    });
+    await test('cPanel-style addresses /api/t/<company>[/<branch>|/erp] reach the same company', async function () {
+      const j = async function (p) { return JSON.parse((await (await fetch(HOST + p)).text()).slice(2, -1)); };
+      assert.strictEqual((await j('/api/t/clinic1/?callback=c&login=company')).company.code, 'clinic1');
+      assert.strictEqual((await j('/api/t/clinic1/b2/?callback=c&login=company')).company.code, 'clinic1');
+      assert.strictEqual((await j('/api/t/clinic1/b2/?callback=c&gz=1&token=x')).err, 'token', 'branch of a company is protected by the company token (not open, not 503)');
+      assert.strictEqual((await j('/api/t/clinic1/b2/?callback=c&gz=1&token=' + encodeURIComponent(tk1))).ok, true, 'owner session works in the company branch b2');
+      assert.strictEqual((await j('/api/t/nope/?callback=c&login=company')).err, 'company');
+      assert.strictEqual((await erp('/api/t/clinic1', tk1, 'loadAll')).ok, true);
     });
     await test('cron runs every company (and still the original shop)', async function () {
       const r = await (await fetch(HOST + '/api/?cron=tenant-cron-key-1')).json(); assert.ok(r.ok);

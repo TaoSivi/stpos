@@ -3490,7 +3490,7 @@ function jsonp_(params,cb){jsonpUrl_(API_URL,params,cb);}
 /* ===== ສາຂາ (ເກັບໃນເຄື່ອງນີ້) ===== */
 /* ຫຼາຍສາຂາໃນ server ຂອງຮ້ານ: ລາຍຊື່ສາຂາຈາກ server (HQ) ແທນລາຍຊື່ທີ່ພິມເອງ. ສາຂາອື່ນ (ບໍ່ລວມສາຂາຂອງເຄື່ອງນີ້) ໃຊ້ token ຂອງເຄື່ອງນີ້ */
 var HQ={list:null,cur:null,loading:false,err:''};
-function hqMode(){return !!(HAS_API&&!/script\.google/.test(API_URL)&&/(\/t\/[a-z0-9_-]+)?\/api(\/[a-z0-9_-]+)?\/?$/i.test(API_URL));}
+function hqMode(){return !!(HAS_API&&!/script\.google/.test(API_URL)&&/\/api(\/t\/[a-z0-9_-]+)?(\/[a-z0-9_-]+)?\/?$/i.test(API_URL));}
 function hqLoad(cb){if(!hqMode()||HQ.loading){if(cb)cb();return;}HQ.loading=true;jsonpUrl_(API_URL,'hq=list&token='+encodeURIComponent(TOKEN),function(r){
  if(r&&r.err==='token'&&/^s1\./.test(TOKEN)){jsonpUrl_(API_URL,'login=mybr&token='+encodeURIComponent(TOKEN),function(m){HQ.loading=false;if(m&&m.ok&&m.branches&&m.branches.length>1){HQ.list=m.branches;HQ.cur=m.cur;HQ.mine=1;HQ.err='';}else HQ.err='token';if(cb)cb();},20000);return;} /* ຜູ້ຈັດການເຂດ: ສາຂາທີ່ຕົນມີສິດ */
  HQ.loading=false;if(r&&r.ok&&r.hq){HQ.list=r.branches||[];HQ.cur=r.cur;HQ.err='';}else HQ.err=(r&&r.err)||'net';if(cb)cb();},20000);}
@@ -3861,7 +3861,7 @@ function apiSetupScreen(){var b=document.getElementById('boot');if(!b)return;b.c
    '<div style="font-size:11px;opacity:.7;max-width:340px;text-align:center">ລິ້ງນີ້ຈະເກັບໄວ້ໃນເຄື່ອງນີ້ເທົ່ານັ້ນ (localStorage)</div>'+
    '<div onclick="localStorage.setItem(\'stpos_local\',\'1\');location.reload()" style="font-size:12px;color:#0A7E7A;text-decoration:underline;cursor:pointer">ໃຊ້ແບບເຄື່ອງດຽວ (ບໍ່ເຊື່ອມ server)</div></div>';}
 /* ລິ້ງ / QR ເຂົ້າລະບົບສຳລັບພະນັກງານ: ເປີດແລ້ວຈື່ server + API token ໃນເຄື່ອງ ແລະ ໄປໜ້າເຂົ້າລະບົບເລີຍ (PIN ບໍ່ຢູ່ໃນລິ້ງ) */
-function staffLink(){return API_URL?QR_BASE+'?api='+encodeURIComponent(API_URL)+((TOKEN&&!/^s1\./.test(TOKEN)&&!/^https:\/\/[^\/?#]+(\/t\/[a-z0-9_-]+)?\/api(\/[a-z0-9_-]+)?\/?$/i.test(API_URL))?'&tok='+encodeURIComponent(TOKEN):''):'';} /* server ຂອງຮ້ານ (/api): ບໍ່ໃສ່ token ໃນລິ້ງ — ເຄື່ອງໃໝ່ເຂົ້າລະບົບດ້ວຍ PIN ທີ່ server */
+function staffLink(){return API_URL?QR_BASE+'?api='+encodeURIComponent(API_URL)+((TOKEN&&!/^s1\./.test(TOKEN)&&!/^https:\/\/[^\/?#]+\/api(\/t\/[a-z0-9_-]+)?(\/[a-z0-9_-]+)?\/?$/i.test(API_URL))?'&tok='+encodeURIComponent(TOKEN):''):'';} /* server ຂອງຮ້ານ (/api): ບໍ່ໃສ່ token ໃນລິ້ງ — ເຄື່ອງໃໝ່ເຂົ້າລະບົບດ້ວຍ PIN ທີ່ server */
 function staffLinkModal(bu,bn){var u=bu?QR_BASE+'?api='+encodeURIComponent(bu):staffLink();if(!u){toast('ຍັງບໍ່ໄດ້ເຊື່ອມ server');return;}window.__slU=u; /* bu = ລິ້ງ server ຂອງສາຂາອື່ນ (ໜ້າສາຂາ) */
  openModal('<div style="text-align:center"><h2>ລິ້ງເຂົ້າລະບົບ ສຳລັບພະນັກງານ'+(bn?' — '+cesc(bn):'')+'</h2><p class="ie-sub">ສົ່ງລິ້ງ ຫຼື ໃຫ້ສະແກນ QR → ເປີດແລ້ວໄປໜ້າເຂົ້າລະບົບ (ໃສ່ PIN ຂອງຕົນເອງ)</p><div id="slqr" style="display:inline-block;padding:14px;background:#fff;border:2px solid var(--line);border-radius:14px;margin:6px"></div>'+
   '<div class="sl-url">'+cesc(u)+'</div><div class="sl-acts"><button type="button" class="btn-sm" onclick="staffLinkCopy()">ສຳເນົາລິ້ງ</button>'+(navigator.share?'<button type="button" class="btn-sm" onclick="navigator.share({title:\'ST POS\',text:\'ລິ້ງເຂົ້າລະບົບ ST POS ('+aesc(bn||state.shopName||'')+')\',url:window.__slU}).catch(function(){})">ແຊຣ໌</button>':'')+'</div>'+
@@ -3871,7 +3871,7 @@ function staffLinkModal(bu,bn){var u=bu?QR_BASE+'?api='+encodeURIComponent(bu):s
 function staffLinkCopy(){var u=window.__slU||staffLink();var done=function(){toast('ສຳເນົາລິ້ງແລ້ວ');};try{navigator.clipboard.writeText(u).then(done,function(){pmt('ສຳເນົາລິ້ງນີ້',u,function(){});});}catch(e){pmt('ສຳເນົາລິ້ງນີ້',u,function(){});}}
 function apiTokPrompt(){var t=pmt('ໃສ່ API Token:','',apiTokPrompt);if(t){localStorage.setItem('stpos_token',t.trim());location.reload();}}
 function apiSetupSave(){var u=((document.getElementById('apiIn')||{}).value||'').trim();var t=((document.getElementById('tokIn')||{}).value||'').trim();
- if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)&&!/^https:\/\/[^\/?#]+(\/t\/[a-z0-9_-]+)?\/api(\/[a-z0-9_-]+)?\/?$/i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/t\/[a-z0-9_-]+)?\/api(\/[a-z0-9_-]+)?\/?$/i.test(u)){toast('ລິ້ງບໍ່ຖືກຮູບແບບ — Google: ລົງທ້າຍດ້ວຍ /exec · server ຂອງຮ້ານ: https://ໂດເມນ/api','err');return;}
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)&&!/^https:\/\/[^\/?#]+\/api(\/t\/[a-z0-9_-]+)?(\/[a-z0-9_-]+)?\/?$/i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/api(\/t\/[a-z0-9_-]+)?(\/[a-z0-9_-]+)?\/?$/i.test(u)){toast('ລິ້ງບໍ່ຖືກຮູບແບບ — Google: ລົງທ້າຍດ້ວຍ /exec · server ຂອງຮ້ານ: https://ໂດເມນ/api','err');return;}
  try{localStorage.setItem('stpos_api',u);if(t)localStorage.setItem('stpos_token',t);}catch(e){}
  location.reload();}
 /* ເຄື່ອງໃໝ່ເປີດ stpos.store ທຳມະດາ: ຊອກ server ຂອງເວັບນີ້ເອງ (/api) → ສາຂາດຽວ = ໄປໜ້າ PIN ເລີຍ · ຫຼາຍສາຂາ = ເລືອກສາຂາກ່ອນ · ບໍ່ພົບ = ໜ້າຕັ້ງ server ຄືເກົ່າ */

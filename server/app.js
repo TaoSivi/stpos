@@ -78,7 +78,7 @@ function tenants() { return [DEFAULT_TEN].concat(tenantList()); }
 function tenFind(code) { return tenants().filter(function (t) { return t.code === code; })[0] || null; }
 function useTenant(t) { /* ຕ້ອງເອີ້ນ useBranch ຕໍ່ (ຕັ້ງໂຟນເດີຂອງ shim) */
   CURTEN = t; DATA_DIR = t.code === 'default' ? ROOT_DIR : path.join(ROOT_DIR, 't', t.code);
-  BR_FILE = path.join(DATA_DIR, 'branches.json'); HQ_FILE = path.join(DATA_DIR, 'hq.json'); XF_FILE = path.join(DATA_DIR, 'xfers.json'); shim.noEnv(t.code !== 'default');
+  BR_FILE = path.join(DATA_DIR, 'branches.json'); HQ_FILE = path.join(DATA_DIR, 'hq.json'); XF_FILE = path.join(DATA_DIR, 'xfers.json'); shim.noEnv(t.code !== 'default'); shim.inherit(t.code === 'default' ? null : path.join(DATA_DIR, 'props.json'));
 }
 /* ແອັບທີ່ບໍລິສັດມີສິດ: apps = ['stpos-fnb','stpos-medical','stpos-mart','stpos-hotel','stpos-jewelry','laobooks', ...] · '*' = ທຸກແອັບ (ຮ້ານເດີມ) */
 function stposLicensed(st) {
@@ -283,7 +283,7 @@ function notifyApi(q) {
   return st();
 }
 function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === t) return true; const u = sessUser(q.token); return !!(u && u.role === 'superadmin'); }
-function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + (CURTEN.code === 'default' ? '' : '/t/' + CURTEN.code) + '/api/' + id; }
+function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + (CURTEN.code === 'default' ? '/api/' : '/api/t/' + CURTEN.code + '/') + id; }
 function brList(req) { return branches().map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch', url: brUrl(req, b.id) }; }); }
 function hqApi(q, req) {
   if (String(q.hq) === 'acct') return acctAuth(q) ? hqAcct(q) : { ok: false, err: 'token' };
@@ -828,7 +828,9 @@ function handle(req, res, body) {
     return send(res, 200, JSON.stringify({ ok: true, ran: ran, branches: ran.length >= 0 ? branches().length : 0, at: new Date().toISOString() }), 'application/json');
   }
   if (q.admin !== undefined && /^tenant_/.test(String(q.admin))) return tenantAdmin(q, body, res);
-  let pn = u.pathname; const tm = /^\/t\/([^\/]+)(\/.*)?$/.exec(pn);
+  let pn = u.pathname; const am = /^\/api\/t\/([^\/]+)(\/.*)?$/.exec(pn); /* /api/t/<ບໍລິສັດ>[/<ສາຂາ>|/erp] = ຮູບແບບທີ່ cPanel (ຕໍ່ Node ໄດ້ສະເພາະ /api) ເຂົ້າເຖິງ → ປ່ຽນເປັນ /t/<ບໍລິສັດ>/api… */
+  if (am) pn = /^\/erp\/?$/.test(am[2] || '') ? '/t/' + am[1] + '/erp' : '/t/' + am[1] + '/api' + (am[2] || '');
+  const tm = /^\/t\/([^\/]+)(\/.*)?$/.exec(pn);
   if (tm) { const T = tenFind(tm[1].toLowerCase()); if (!T || T.code === 'default') return q.callback ? jsonpOut(res, q.callback, { ok: false, err: 'company' }) : send(res, 404, 'no such company'); useTenant(T); pn = tm[2] || '/api'; } else useTenant(DEFAULT_TEN);
   if (tm && /^\/erp\/?$/.test(pn)) return erpHandle(req, res, body);
   const br = brFromPath(pn);

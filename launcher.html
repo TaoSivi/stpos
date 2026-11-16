@@ -77,12 +77,12 @@ function show(co, api, erp) {
 }
 function lookup(code, auto) {
  $('err').textContent = ''; $('go').disabled = true;
- var b = serverBase(), api = b + '/t/' + code + '/api';
+ var b = serverBase(), api = b + '/api/t/' + code;
  jsonp(api + '/?login=company', function (r) {
   $('go').disabled = false;
   if (!r || !r.ok || !r.company) { if (!auto) $('err').textContent = r ? 'ບໍ່ພົບລະຫັດບໍລິສັດນີ້' : 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່'; try { if (auto) localStorage.removeItem('st_company'); } catch (e) {} return; }
   try { localStorage.setItem('st_company', code); } catch (e) {}
-  show(r.company, api, b + '/t/' + code + '/erp');
+  show(r.company, api, api + '/erp');
  });
 }
 $('f').onsubmit = function (e) { e.preventDefault(); var c = $('code').value.trim().toLowerCase(); if (!/^[a-z0-9][a-z0-9_-]{1,31}$/.test(c)) { $('err').textContent = 'ລະຫັດບໍລິສັດມີສະເພາະ a-z, 0-9, - _'; return; } lookup(c, false); };
