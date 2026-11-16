@@ -16,8 +16,9 @@ const crypto = require('crypto');
 
 /* secrets.json ຂ້າງ app.js (ສ້າງໃນຄອມ, ບໍ່ຂຶ້ນ GitHub) ມີສິດກ່ອນ env — ບໍ່ຕ້ອງພິມລະຫັດໃນ cPanel */
 if (!process.env.STPOS_NO_SECRETS) try { const sec = JSON.parse(fs.readFileSync(path.join(__dirname, 'secrets.json'), 'utf8')); ['API_TOKEN', 'ADMIN_KEY', 'CRON_KEY', 'ACCT_TOKEN'].forEach(function (k) { if (typeof sec[k] === 'string' && sec[k].length >= 16) process.env[k] = sec[k]; }); } catch (e) {}
-const DATA_DIR = process.env.DATA_DIR || path.join(os.homedir(), 'stpos-data');
-const shim = require('./gas-shim').create(DATA_DIR);
+const ROOT_DIR = process.env.DATA_DIR || path.join(os.homedir(), 'stpos-data');
+let DATA_DIR = ROOT_DIR; /* ໂຟນເດີຂອງບໍລິສັດ (tenant) ປັດຈຸບັນ — ປ່ຽນຕໍ່ request ດ້ວຍ useTenant */
+const shim = require('./gas-shim').create(ROOT_DIR);
 Object.assign(global, shim.globals);
 const codePath = [path.join(__dirname, 'Code.gs'), path.join(__dirname, '..', 'Code.gs')].filter(fs.existsSync)[0];
 if (!codePath) throw new Error('Code.gs not found next to app.js');
@@ -56,7 +57,7 @@ function auditAlert(next, lines, ctx) {
 /* ===== ຫຼາຍສາຂາ ໃນ server ດຽວ: ຂໍ້ມູນແຍກຫ້ອງຕາມສາຂາ =====
  * branches.json = [{id, name, type, dir, ts}] · ສາຂາ b1 = ໂຟນເດີເດີມ (DATA_DIR) — ຂໍ້ມູນເກົ່າບໍ່ຍ້າຍ · ສາຂາໃໝ່ = DATA_DIR/b/<id>
  * ເສັ້ນທາງ: /api ຫຼື /api/b1 = ສາຂາ b1 · /api/<id> = ສາຂານັ້ນ (ແອັບແຕ່ລະເຄື່ອງຜູກກັບສາຂາດ້ວຍລິ້ງ server ຂອງມັນ) */
-const BR_FILE = path.join(DATA_DIR, 'branches.json');
+let BR_FILE = path.join(DATA_DIR, 'branches.json');
 let CURBR = { id: 'b1', dir: '.' };
 function atomicWrite0(f, data) { shim.writeAtomic(f, data); }
 function branches() { try { const l = JSON.parse(fs.readFileSync(BR_FILE, 'utf8')); if (Array.isArray(l) && l.length) return l; } catch (e) {} return [{ id: 'b1', name: '', type: 'branch', dir: '.', ts: 0 }]; }
@@ -65,6 +66,90 @@ function brFind(id) { return branches().filter(function (b) { return b.id === id
 /* ສາຂາຈາກ path: ສ່ວນສຸດທ້າຍ (ບໍ່ແມ່ນ 'api') = id ສາຂາ */
 function brFromPath(pathname) { const seg = String(pathname || '').split('/').filter(Boolean), last = (seg[seg.length - 1] || '').toLowerCase(); if (!last || last === 'api') return brFind('b1') || branches()[0]; return /^[a-z0-9_-]{1,32}$/.test(last) ? brFind(last) : null; }
 function useBranch(b) { CURBR = b; shim.use(brDir(b)); }
+
+/* ===== ບໍລິສັດລູກຄ້າ (tenant): ແຕ່ລະບໍລິສັດ = ໂຟນເດີ + ສາຂາ + HQ + ໂອນ + token + session ແຍກກັນໝົດ =====
+ * tenants.json (ຢູ່ ROOT_DIR) = [{code, name, apps:[], ts}] · 'default' = ຮ້ານເດີມ (ROOT_DIR, ເສັ້ນທາງ /api) — ບໍ່ຢູ່ໃນໄຟລ໌, ບໍ່ປ່ຽນຫຍັງ
+ * ບໍລິສັດໃໝ່ = ROOT_DIR/t/<code> · ເສັ້ນທາງ /t/<code>/api[/<ສາຂາ>] · ບໍ່ມີທາງເຫັນຂໍ້ມູນຂ້າມບໍລິສັດ (ສາຂາ/HQ/ໂອນ/token/session ຜູກກັບບໍລິສັດ) */
+const TEN_FILE = path.join(ROOT_DIR, 'tenants.json'), TEN_RESERVED = ['default', 'api', 'admin', 't', 'hq'];
+const DEFAULT_TEN = { code: 'default', name: '', apps: ['*'] };
+let CURTEN = DEFAULT_TEN;
+function tenantList() { try { const l = JSON.parse(fs.readFileSync(TEN_FILE, 'utf8')); if (Array.isArray(l)) return l.filter(function (t) { return t && /^[a-z0-9][a-z0-9_-]{1,31}$/.test(t.code) && TEN_RESERVED.indexOf(t.code) < 0; }); } catch (e) {} return []; }
+function tenants() { return [DEFAULT_TEN].concat(tenantList()); }
+function tenFind(code) { return tenants().filter(function (t) { return t.code === code; })[0] || null; }
+function useTenant(t) { /* ຕ້ອງເອີ້ນ useBranch ຕໍ່ (ຕັ້ງໂຟນເດີຂອງ shim) */
+  CURTEN = t; DATA_DIR = t.code === 'default' ? ROOT_DIR : path.join(ROOT_DIR, 't', t.code);
+  BR_FILE = path.join(DATA_DIR, 'branches.json'); HQ_FILE = path.join(DATA_DIR, 'hq.json'); XF_FILE = path.join(DATA_DIR, 'xfers.json'); shim.noEnv(t.code !== 'default');
+}
+/* ແອັບທີ່ບໍລິສັດມີສິດ: apps = ['stpos-fnb','stpos-medical','stpos-mart','stpos-hotel','stpos-jewelry','laobooks', ...] · '*' = ທຸກແອັບ (ຮ້ານເດີມ) */
+function stposLicensed(st) {
+  const a = CURTEN.apps; if (CURTEN.code === 'default' || !Array.isArray(a) || a.indexOf('*') >= 0) return true;
+  const mine = a.filter(function (x) { return /^stpos-/.test(x); }); if (!st.bizType) return mine.length > 0;
+  return mine.indexOf('stpos-' + (st.bizType === 'mart' && st.martKind === 'jewelry' ? 'jewelry' : st.bizType)) >= 0;
+}
+/* ===== LaoBooks ERP ຕໍ່ບໍລິສັດ: POST /t/<code>/erp — ໂປຣໂຕຄໍຄືກັບ Apps Script ({action, payload} → {ok, data|error}) ແຕ່ຕ້ອງມີ session ຜູ້ໃຊ້ (token) ຂອງບໍລິສັດ ແລະ ບົດບາດບັນຊີ/ເຈົ້າຂອງ =====
+ * ຂໍ້ມູນ: <ໂຟນເດີບໍລິສັດ>/erp/<collection>.json (ແຖວ = ວັດຖຸ, id ບໍ່ຊ້ຳ) */
+const ERP_ROLES = ['superadmin', 'owner', 'admin', 'accountant'];
+function erpFile(c) { return path.join(shim.dir(), 'erp', c + '.json'); }
+function erpRead(c) { try { const a = JSON.parse(fs.readFileSync(erpFile(c), 'utf8')); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function erpWrite(c, a) { fs.mkdirSync(path.join(shim.dir(), 'erp'), { recursive: true }); atomicWrite0(erpFile(c), JSON.stringify(a)); }
+function erpHandle(req, res, body) {
+  const origin = String(req.headers.origin || ''), hdr = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  if (origin) { hdr['Access-Control-Allow-Origin'] = origin; hdr['Vary'] = 'Origin'; hdr['Access-Control-Allow-Headers'] = 'Content-Type'; }
+  if (req.method === 'OPTIONS') { res.writeHead(204, hdr); return res.end(); }
+  const done = function (o) { res.writeHead(200, hdr); res.end(JSON.stringify(o)); };
+  if (req.method !== 'POST') return done({ ok: false, error: 'post' });
+  useBranch({ id: 'b1', dir: '.' }); shim.beginRequest();
+  if (!apiToken()) return done({ ok: false, error: 'company not ready' });
+  if (!(CURTEN.apps || []).some(function (x) { return x === 'laobooks' || x === '*'; })) return done({ ok: false, error: 'ບໍລິສັດນີ້ບໍ່ມີສິດໃຊ້ LaoBooks' });
+  let o; try { o = JSON.parse(body || '{}'); } catch (e) { return done({ ok: false, error: 'json' }); }
+  const u = sessUser(o.token); if (!u || ERP_ROLES.indexOf(u.role) < 0) return done({ ok: false, error: 'auth' });
+  const p = o.payload || {}, a = String(o.action || ''), okColl = function (c) { return /^[a-z0-9_]{1,40}$/.test(String(c || '')); };
+  if (a === 'loadAll') { const out = {}; try { fs.readdirSync(path.join(shim.dir(), 'erp')).forEach(function (f) { const m = /^([a-z0-9_]{1,40})\.json$/.exec(f); if (m) out[m[1]] = erpRead(m[1]); }); } catch (e) {} return done({ ok: true, data: out }); }
+  if (!okColl(p.sheet)) return done({ ok: false, error: a === 'uploadFile' ? 'ຍັງບໍ່ຮອງຮັບອັບໂຫຼດໄຟລ໌ຜ່ານ server ນີ້' : 'sheet' });
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    const L = erpRead(p.sheet), i = L.findIndex(function (r) { return r && r.id === (a === 'append' ? (p.row || {}).id : p.id); });
+    if (a === 'append') { if (!p.row || typeof p.row !== 'object' || !p.row.id) return done({ ok: false, error: 'row' }); if (i >= 0) L[i] = p.row; else L.push(p.row); }
+    else if (a === 'update') { if (i < 0) return done({ ok: false, error: 'not found' }); L[i] = Object.assign({}, L[i], p.row || {}); }
+    else if (a === 'remove') { if (i >= 0) L.splice(i, 1); }
+    else return done({ ok: false, error: 'action' });
+    erpWrite(p.sheet, L);
+  } finally { lock.releaseLock(); }
+  return done({ ok: true, data: 1 });
+}
+function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set — ສະເພາະ ADMIN_KEY ຂອງເຈົ້າຂອງລະບົບ; ຂໍ້ມູນລະອຽດ (ລະຫັດ PIN) ຜ່ານ body ບໍ່ແມ່ນ URL */
+  const J = function (o) { return send(res, 200, JSON.stringify(o), 'application/json'); }, a = String(q.admin);
+  if (!keyOk(q.key, 'ADMIN_KEY')) return send(res, 403, 'denied');
+  useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]);
+  if (a === 'tenant_list') return J({ ok: true, tenants: tenantList().map(function (t) { return { code: t.code, name: t.name, apps: t.apps || [], ts: t.ts }; }) });
+  let o; try { o = JSON.parse(body || '{}'); } catch (e) { return J({ ok: false, err: 'json' }); }
+  const cleanApps = function (x) { return Array.isArray(x) ? x.map(String).filter(function (v) { return /^[a-z0-9_-]{1,32}$/.test(v); }).slice(0, 30) : []; };
+  const code = String(o.code || '').toLowerCase(), name = String(o.name || '').replace(/[<>]/g, '').trim().slice(0, 60), L = tenantList();
+  if (a === 'tenant_set') {
+    const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    if (name) t.name = name; if (o.apps !== undefined) t.apps = cleanApps(o.apps);
+    atomicWrite0(TEN_FILE, JSON.stringify(L, null, 1)); return J({ ok: true, code: t.code, name: t.name, apps: t.apps });
+  }
+  if (a === 'tenant_add') {
+    const owner = String(o.ownerName || '').replace(/[<>]/g, '').trim().slice(0, 60), pin = String(o.ownerPin || '');
+    if (!/^[a-z0-9][a-z0-9_-]{1,31}$/.test(code) || TEN_RESERVED.indexOf(code) >= 0) return J({ ok: false, err: 'code' });
+    if (L.some(function (x) { return x.code === code; })) return J({ ok: false, err: 'ມີລະຫັດບໍລິສັດນີ້ແລ້ວ' });
+    if (!name || !owner || !/^\d{4,8}$/.test(pin)) return J({ ok: false, err: 'name/owner/pin' });
+    const t = { code: code, name: name, apps: cleanApps(o.apps), ts: Date.now() };
+    useTenant(t); useBranch({ id: 'b1', dir: '.' }); shim.beginRequest();
+    try {
+      shim.props.setProperty('API_TOKEN', crypto.randomBytes(24).toString('hex')); /* token ຂອງບໍລິສັດ — ເກັບໃນ server ເທົ່ານັ້ນ ບໍ່ສົ່ງອອກ */
+      atomicWrite0(BR_FILE, JSON.stringify([{ id: 'b1', name: name, type: 'branch', dir: '.', ts: Date.now() }], null, 1));
+      const st = { shopName: name, users: [{ id: 'u1', name: owner, role: 'superadmin', pinH: pinHash(pin), active: true }], usersV: 1, _v: Date.now() };
+      const first = t.apps.filter(function (x) { return /^stpos-/.test(x); })[0]; if (first) { const k = first.slice(6); if (k === 'jewelry') { st.bizType = 'mart'; st.martKind = 'jewelry'; } else st.bizType = k; }
+      const lock = LockService.getScriptLock(); lock.waitLock(30000); try { G.saveStateRaw_(JSON.stringify(st), true); } finally { lock.releaseLock(); }
+      G.setupBackup();
+    } finally { shim.endRequest(); useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]); }
+    L.push(t); atomicWrite0(TEN_FILE, JSON.stringify(L, null, 1));
+    return J({ ok: true, code: code, name: name, apps: t.apps, path: '/t/' + code + '/api' });
+  }
+  return send(res, 400, 'unknown admin');
+}
 /* ສາຂາໃໝ່ ສຳເນົາ "ການຕັ້ງຄ່າ" ຈາກສາຂາແມ່ແບບ (ເມນູ ສູດ ວັດຖຸດິບ ຜັງໂຕະ ການຊຳລະ workflow ຜູ້ໃຊ້) · "ການເຄື່ອນໄຫວ" ເລີ່ມວ່າງ */
 const BR_RESET = { orders: [], bills: [], expenses: [], menuLog: [], orderLog: [], shiftLog: [], stockLog: [], cancelLog: [], kpacks: [], prods: [], apl: [], vrets: [], giftCards: [], gcTx: [], consents: [], bookOn: false, holds: [], htTypes: [], htRooms: [], htRates: [], htPlans: [], htBookings: [], htGuests: [], htPromos: [], htChg: [], htPay: [], htAcc: [], htImg: [], htTask: [], htMt: [], htLf: [], htSvc: [], htSvcOrd: [], prs: [], pos: [], grns: [], transfers: [], reqs: [], chkSubs: [], stockCounts: [], resv: [], stockAdj: [], wastes: [], dlSettles: [], costAlerts: [], kdsLog: [], customers: [], _custDel: [], draft: [], qr: {}, soldOut: {}, chkSets: {}, ingDel: {} };
 const BR_DROP = ['curShift', 'activeShift', 'activeStaff', 'activeTable', 'activeCat', 'activeSub', '_srcLoc', '_v', 'servedToday', '_reset'];
@@ -126,7 +211,7 @@ function pinHash(p) { p = 'stpos:' + String(p == null ? '' : p); let h = 5381; f
 function userPinH(u) { return u ? (u.pinH || (u.pin != null ? pinHash(u.pin) : '')) : ''; }
 function sessKey() { return crypto.createHmac('sha256', apiToken() || String(process.env.ADMIN_KEY || 'stpos')).update('stpos-session-v1').digest(); }
 function sessSign(v) { return crypto.createHmac('sha256', sessKey()).update(v).digest('base64url'); }
-function sessMake(u) { const v = Buffer.from(JSON.stringify({ u: u.id, b: CURBR.id, e: Date.now() + 180 * 86400000, p: userPinH(u).slice(-6) })).toString('base64url'); return 's1.' + v + '.' + sessSign(v); }
+function sessMake(u) { const v = Buffer.from(JSON.stringify({ u: u.id, t: CURTEN.code, b: CURBR.id, e: Date.now() + 180 * 86400000, p: userPinH(u).slice(-6) })).toString('base64url'); return 's1.' + v + '.' + sessSign(v); }
 function stateUsers() { try { const s = G.getState_(); return s ? (JSON.parse(s).users || []) : []; } catch (e) { return []; } }
 /* session ຂອງສາຂາໃດກໍ່ໄດ້ ໃຊ້ໄດ້ໃນສາຂາທີ່ຜູ້ໃຊ້ນັ້ນມີບັນຊີ (id ດຽວກັນ) ທີ່ເປີດຢູ່ ແລະ PIN ດຽວກັນ (ໄລຍະ 4: ພະນັກງານກາງ — 1 ບັນຊີ ຫຼາຍສາຂາ)
  * ສາຂາທີ່ບໍ່ມີບັນຊີຂອງຜູ້ນັ້ນ / ບັນຊີຖືກປິດ / ປ່ຽນ PIN = ໃຊ້ບໍ່ໄດ້ · ຄືນ {id, role} ຫຼື null */
@@ -135,7 +220,7 @@ function sessDecode(tk) {
   const parts = tk.split('.'); if (parts.length !== 3) return null;
   const a = Buffer.from(sessSign(parts[1])), b = Buffer.from(parts[2]); if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   let o; try { o = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')); } catch (e) { return null; }
-  return (o && o.e > Date.now()) ? o : null;
+  return (o && o.e > Date.now() && (o.t || 'default') === CURTEN.code) ? o : null; /* session ຂອງບໍລິສັດໃດ ໃຊ້ໄດ້ສະເພາະບໍລິສັດນັ້ນ (token ເກົ່າບໍ່ມີ t = default) */
 }
 function sessUser(tk) {
   const o = sessDecode(tk); if (!o) return null;
@@ -153,6 +238,7 @@ function liftToken(q) {
 }
 function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
 function loginApi(q, req) {
+  if (q.login === 'company') return { ok: true, login: 1, company: { code: CURTEN.code, name: CURTEN.name || '', apps: CURTEN.apps || ['*'] } }; /* ຊື່ + ແອັບທີ່ມີສິດ ເທົ່ານັ້ນ (ບໍ່ມີຂໍ້ມູນລັບ) */
   if (q.login === 'info') {
     const s = G.getState_(); let st = {}; try { st = s ? JSON.parse(s) : {}; } catch (e) {}
     return { ok: true, login: 1, shop: st.shopName || '', users: (st.users || []).filter(function (u) { return u && u.active !== false; }).map(function (u) { return { id: u.id, name: u.name || '' }; }) };
@@ -197,7 +283,7 @@ function notifyApi(q) {
   return st();
 }
 function hqAuth(q) { const t = apiToken(); if (!t) return true; if (q.token === t) return true; const u = sessUser(q.token); return !!(u && u.role === 'superadmin'); }
-function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + '/api/' + id; }
+function brUrl(req, id) { const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'stpos.store').split(',')[0].trim(); const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0].trim(); return proto + '://' + host + (CURTEN.code === 'default' ? '' : '/t/' + CURTEN.code) + '/api/' + id; }
 function brList(req) { return branches().map(function (b) { return { id: b.id, name: b.name || b.id, type: b.type || 'branch', url: brUrl(req, b.id) }; }); }
 function hqApi(q, req) {
   if (String(q.hq) === 'acct') return acctAuth(q) ? hqAcct(q) : { ok: false, err: 'token' };
@@ -313,7 +399,7 @@ function prepIncoming(inc, p, cur) {
 /* ===== ໄລຍະ 2: ເມນູ ແລະ ລາຄາກາງ =====
  * hq.json = { menuSrc: id ສາຂາແມ່, rules: {id: {mode: 'hq'|'except'|'own', off: {code:1}, price: {code: ລາຄາ}}}, push: {ts, by, h, res} }
  * ສົ່ງເມນູ: ເມນູ (catalog) + ຮູບ + ຂະໜາດ/Topping ຂອງສາຂາແມ່ → ສາຂາອື່ນຕາມກົດ · ເມນູທີ່ສາຂາເພີ່ມເອງບໍ່ຖືກລຶບ · ວັດຖຸດິບໃນສູດທີ່ສາຂາບໍ່ມີ ເພີ່ມໃຫ້ (ສະຕ໋ອກ 0) */
-const HQ_FILE = path.join(DATA_DIR, 'hq.json');
+let HQ_FILE = path.join(DATA_DIR, 'hq.json');
 function hqRead() { try { return JSON.parse(fs.readFileSync(HQ_FILE, 'utf8')) || {}; } catch (e) { return {}; } }
 function hqWrite(o) { atomicWrite0(HQ_FILE, JSON.stringify(o, null, 1)); }
 function withBranch(b, fn) { const prev = CURBR; shim.endRequest(); useBranch(b); shim.beginRequest(); try { return fn(); } finally { shim.endRequest(); useBranch(prev); shim.beginRequest(); } }
@@ -445,7 +531,7 @@ function myBranches(tk, req) {
  * ສາຂາຂໍເບີກ (req) → ຕົ້ນທາງກວດ ແລະ ສົ່ງ (ຕັດສະຕ໋ອກຕົ້ນທາງ) → ປາຍທາງນັບຮັບ (ເພີ່ມສະຕ໋ອກປາຍທາງ) · ຕົ້ນທາງສົ່ງໃຫ້ໂດຍບໍ່ມີໃບຂໍກໍ່ໄດ້
  * ສະຕ໋ອກປັບຢູ່ server (ingredients.locs + stockLog ຄືແອັບ) — ເຄື່ອງທີ່ຖືຂໍ້ມູນເກົ່າ ບັນທຶກແລ້ວບໍ່ລົບລ້າງ (mergeStock_ ລວມຕາມ stockLog)
  * ໃບໂອນລະຫວ່າງບ່ອນເກັບໃນສາຂາດຽວກັນ (state.transfers) ຄືເກົ່າ ບໍ່ກ່ຽວກັບສ່ວນນີ້ */
-const XF_FILE = path.join(DATA_DIR, 'xfers.json'), XF_ROLES = ['superadmin', 'owner', 'admin', 'manager', 'storekeeper', 'purchasing'];
+let XF_FILE = path.join(DATA_DIR, 'xfers.json'); const XF_ROLES = ['superadmin', 'owner', 'admin', 'manager', 'storekeeper', 'purchasing'];
 const _xfSab = new Int32Array(new SharedArrayBuffer(4));
 function xfLock(fn) {
   const d = path.join(DATA_DIR, 'xfers.lock'), end = Date.now() + 30000;
@@ -732,16 +818,23 @@ function handle(req, res, body) {
   if (q.cron !== undefined) {                       /* cron: ແລ່ນວຽກຕາມເວລາ ທຸກສາຂາ */
     if (!keyOk(q.cron, 'CRON_KEY')) return send(res, 403, 'denied');
     const ran = [];
-    const hq0 = hqRead(), adays = hq0.archDays === undefined ? ARCH_DAYS_DEFAULT : hq0.archDays, today = dayKey(Date.now());
-    branches().forEach(function (b) { try { useBranch(b); shim.beginRequest(); shim.runDue(G).forEach(function (x) { x.b = b.id; ran.push(x); }); shim.sweepCache();
+    const today = dayKey(Date.now());
+    tenants().forEach(function (T) { useTenant(T); const hq0 = hqRead(), adays = hq0.archDays === undefined ? ARCH_DAYS_DEFAULT : hq0.archDays;
+    branches().forEach(function (b) { try { useBranch(b); shim.beginRequest(); shim.runDue(G).forEach(function (x) { x.b = b.id; if (T.code !== 'default') x.t = T.code; ran.push(x); }); shim.sweepCache();
         if (adays && shim.props.getProperty('ARCH_DAY') !== today && +shim.formatDate(new Date(), 'GMT+7', 'HH') >= 3) { /* ຍ້າຍບິນເກົ່າເຂົ້າຄັງ ມື້ລະເທື່ອ (ຫຼັງ 03:00) */
           shim.props.setProperty('ARCH_DAY', today); const r = archiveBills(adays); shim.endRequest(); shim.beginRequest(); try { refreshCur(); } catch (e) {} if (r.archived) ran.push({ b: b.id, fn: 'archive', res: r.archived + ' bills' }); }
-      } catch (e) { ran.push({ b: b.id, err: String(e && e.message || e) }); } finally { shim.endRequest(); } });
+      } catch (e) { ran.push({ b: b.id, t: T.code, err: String(e && e.message || e) }); } finally { shim.endRequest(); } }); });
+    useTenant(DEFAULT_TEN);
     return send(res, 200, JSON.stringify({ ok: true, ran: ran, branches: ran.length >= 0 ? branches().length : 0, at: new Date().toISOString() }), 'application/json');
   }
-  const br = brFromPath(u.pathname);
+  if (q.admin !== undefined && /^tenant_/.test(String(q.admin))) return tenantAdmin(q, body, res);
+  let pn = u.pathname; const tm = /^\/t\/([^\/]+)(\/.*)?$/.exec(pn);
+  if (tm) { const T = tenFind(tm[1].toLowerCase()); if (!T || T.code === 'default') return q.callback ? jsonpOut(res, q.callback, { ok: false, err: 'company' }) : send(res, 404, 'no such company'); useTenant(T); pn = tm[2] || '/api'; } else useTenant(DEFAULT_TEN);
+  if (tm && /^\/erp\/?$/.test(pn)) return erpHandle(req, res, body);
+  const br = brFromPath(pn);
   if (!br) return q.callback ? jsonpOut(res, q.callback, { ok: false, err: 'branch' }) : send(res, 404, 'no such branch');
   useBranch(br); shim.beginRequest();
+  if (CURTEN.code !== 'default' && !apiToken()) return send(res, 503, 'company not ready'); /* ບໍລິສັດບໍ່ມີ token = ຫ້າມເປີດ (ກັນເຂົ້າໄດ້ໂດຍບໍ່ມີລະຫັດ) */
   if (q.admin !== undefined) {
     if (!keyOk(q.key, 'ADMIN_KEY')) return send(res, 403, 'denied');
     const a = String(q.admin); AU.ctx = { u: 'admin', ip: clientIp(req), admin: a };
@@ -795,6 +888,7 @@ function handle(req, res, body) {
     } else if (G.tokenOk_(q.token)) {
       try { inc = JSON.parse(body.indexOf('GZ:') === 0 ? zlib.gunzipSync(Buffer.from(body.substring(3), 'base64')).toString('utf8') : body); } catch (e) { inc = null; }
     }
+    if (inc && typeof inc === 'object' && !inc.action && !inc.cust && !stposLicensed(inc)) return send(res, 200, 'denied'); /* ປະເພດ POS ທີ່ບໍລິສັດບໍ່ມີສິດ ບັນທຶກບໍ່ໄດ້ */
     if (inc && typeof inc === 'object' && !inc.action && !inc.cust) {
       let cur = null; try { const cs = G.getState_(); cur = cs ? JSON.parse(cs) : null; } catch (e) {}
       prepIncoming(inc, dz && dz.p, cur); body = JSON.stringify(inc);

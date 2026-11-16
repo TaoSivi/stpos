@@ -14,7 +14,7 @@ const { spawnSync } = require('child_process');
 
 function create(dataDir) {
   /* ໂຟນເດີຂໍ້ມູນປັດຈຸບັນ — ສະຫຼັບໄດ້ຕໍ່ request ດ້ວຍ use(dir) (ຫຼາຍສາຂາ: 1 ໂຟນເດີ/ສາຂາ) */
-  let D, SHEETS, CACHE, LOCKS, PROPS;
+  let D, SHEETS, CACHE, LOCKS, PROPS, NOENV = false; /* NOENV: ບໍລິສັດລູກຄ້າ (tenant) ບໍ່ໃຊ້ຄ່າ env ຂອງ server ຫຼັກເປັນຄ່າເລີ່ມຕົ້ນ — ກັນ token/Telegram ຂອງຮ້ານຫຼັກຮົ່ວ */
   function use(dir) {
     D = path.resolve(dir); SHEETS = path.join(D, 'sheets'); CACHE = path.join(D, 'cache'); LOCKS = path.join(D, 'locks'); PROPS = path.join(D, 'props.json');
     [D, SHEETS, CACHE, LOCKS].forEach(function (d) { fs.mkdirSync(d, { recursive: true }); });
@@ -31,7 +31,7 @@ function create(dataDir) {
 
   /* ---------- PropertiesService ---------- */
   const props = {
-    getProperty: function (k) { const p = readJson(PROPS, {}); if (Object.prototype.hasOwnProperty.call(p, k)) return p[k]; const e = process.env[k]; return e === undefined || e === '' ? null : String(e); },
+    getProperty: function (k) { const p = readJson(PROPS, {}); if (Object.prototype.hasOwnProperty.call(p, k)) return p[k]; const e = NOENV ? undefined : process.env[k]; return e === undefined || e === '' ? null : String(e); },
     setProperty: function (k, v) { withFileLock('props', function () { const p = readJson(PROPS, {}); p[k] = String(v); writeAtomic(PROPS, JSON.stringify(p)); }); return props; },
     deleteProperty: function (k) { withFileLock('props', function () { const p = readJson(PROPS, {}); delete p[k]; writeAtomic(PROPS, JSON.stringify(p)); }); return props; },
     getProperties: function () { return Object.assign({}, readJson(PROPS, {})); }
@@ -220,7 +220,7 @@ function create(dataDir) {
 
   use(dataDir);
   return {
-    use: use, dir: function () { return D; },
+    use: use, dir: function () { return D; }, noEnv: function (v) { NOENV = !!v; },
     writeAtomic: writeAtomic,
     globals: { PropertiesService: PropertiesService, LockService: LockService, CacheService: CacheService, SpreadsheetApp: SpreadsheetApp, Utilities: Utilities, UrlFetchApp: UrlFetchApp, ScriptApp: ScriptApp, ContentService: ContentService, HtmlService: HtmlService, Logger: Logger },
     beginRequest: function () { book = null; },

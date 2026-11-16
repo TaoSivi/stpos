@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ST Platform — ເຂົ້າແອັບຂອງບໍລິສັດ</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#16202e;--mut:#64748b;--line:#e2e8f0;--pri:#1d4ed8;--priI:#fff;--err:#b91c1c}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1623;--card:#182233;--ink:#e8eefb;--mut:#93a3bd;--line:#26334a;--pri:#60a5fa;--priI:#0b1220;--err:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans Lao","Phetsarath OT",sans-serif;min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+main{width:100%;max-width:560px}h1{font-size:22px;margin:8px 0 4px}p.s{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+label{display:block;font-weight:600;margin-bottom:6px}
+input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:18px;letter-spacing:.04em}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+button.p{margin-top:14px;width:100%;padding:14px;border:0;border-radius:12px;background:var(--pri);color:var(--priI);font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+button.p:disabled{opacity:.6;cursor:wait}
+.err{color:var(--err);min-height:1.4em;margin-top:10px}
+.co{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.co b{font-size:19px}
+.co button{background:none;border:0;color:var(--pri);font:inherit;cursor:pointer;padding:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+a.app{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-height:128px}
+a.app:hover{border-color:var(--pri);transform:translateY(-1px)}a.app .i{font-size:34px;line-height:1}a.app b{font-size:17px}a.app span{color:var(--mut);font-size:13.5px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+ <h1>ST Platform</h1>
+ <p class="s">ໃສ່ລະຫັດບໍລິສັດ ເພື່ອເຂົ້າແອັບຂອງບໍລິສັດທ່ານ</p>
+ <section class="card" id="s1">
+  <form id="f" autocomplete="off">
+   <label for="code">ລະຫັດບໍລິສັດ</label>
+   <input id="code" inputmode="latin" autocapitalize="none" spellcheck="false" maxlength="32" placeholder="ຕົວຢ່າງ: clinic1" required>
+   <button class="p" id="go" type="submit">ຕໍ່ໄປ</button>
+   <div class="err" id="err" role="alert"></div>
+  </form>
+ </section>
+ <section id="s2" class="hide">
+  <div class="co"><b id="cn"></b><button type="button" id="chg">ປ່ຽນບໍລິສັດ</button></div>
+  <div class="grid" id="apps"></div>
+ </section>
+</main>
+<script>
+/* ແຄັດຕາລັອກແອັບ — ເພີ່ມແອັບໃໝ່ = ເພີ່ມ 1 ແຖວຢູ່ນີ້ ແລ້ວໃສ່ id ໃນລາຍຊື່ແອັບຂອງບໍລິສັດ (tenant_set)
+   kind 'pos' = ເປີດ ST POS (index.html ຢູ່ຖັດກັນ) ເຊື່ອມ server ຂອງບໍລິສັດ · 'erp' = LaoBooks (ໃຊ້ endpoint /erp ຂອງບໍລິສັດ) */
+var ERP_URL = 'https://taosivi.github.io/ERP-12-/';
+(function () { var m = /[?&]erpurl=([^&#]+)/.exec(location.search), u = m && decodeURIComponent(m[1]); if (u && /^https:\/\/[^\/?#]+\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(u)) ERP_URL = u; })(); /* ໃຊ້ທົດສອບ */
+var CATALOG = {
+ 'stpos-fnb':     {name:'ຮ້ານອາຫານ / ຄາເຟ',  icon:'🍽️', desc:'POS ຮ້ານອາຫານ ແລະ ຄາເຟ', kind:'pos'},
+ 'stpos-medical': {name:'ຄລີນິກ',             icon:'🩺', desc:'ຄິວ ນັດໝາຍ ໃບສັ່ງຢາ', kind:'pos'},
+ 'stpos-mart':    {name:'ຮ້ານຂາຍຍ່ອຍ / ມາດ',  icon:'🛒', desc:'ສິນຄ້າ ບາໂຄດ ສະຕ໋ອກ', kind:'pos'},
+ 'stpos-hotel':   {name:'ໂຮງແຮມ / ທີ່ພັກ',    icon:'🏨', desc:'ຫ້ອງພັກ ການຈອງ', kind:'pos'},
+ 'stpos-jewelry': {name:'ຮ້ານເຄື່ອງປະດັບ',    icon:'💍', desc:'ທອງ ເງິນ ເພັດ ໃບຢັ້ງຢືນ', kind:'pos'},
+ 'laobooks':      {name:'LaoBooks ບັນຊີ',      icon:'📒', desc:'ບັນຊີ ອະນຸມັດ ຈັດຊື້', kind:'erp'}
+};
+var $ = function (i) { return document.getElementById(i); };
+/* ເຊີບເວີ: ໂດເມນດຽວກັບໜ້ານີ້ (ທົດສອບໃນຄອມ: ?server=http://localhost:3000) */
+function serverBase() {
+ var m = /[?&]server=([^&#]+)/.exec(location.search), s = m ? decodeURIComponent(m[1]) : location.origin;
+ return /^https:\/\/[^\/?#]+$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(s) ? s : location.origin;
+}
+function jsonp(url, cb) {
+ var n = '_cb' + Date.now() + Math.floor(Math.random() * 1e4), sc = document.createElement('script'), done = false;
+ var fin = function (r) { if (done) return; done = true; clearTimeout(t); delete window[n]; sc.remove(); cb(r); };
+ var t = setTimeout(function () { fin(null); }, 12000); window[n] = fin; sc.onerror = function () { fin(null); };
+ sc.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'callback=' + n; document.head.appendChild(sc);
+}
+function esc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function show(co, api, erp) {
+ $('s1').classList.add('hide'); $('s2').classList.remove('hide'); $('cn').textContent = co.name || co.code;
+ var tiles = (co.apps || []).filter(function (a) { return CATALOG[a]; }).map(function (a) {
+  var c = CATALOG[a], href = c.kind === 'erp' ? ERP_URL + '?erp=' + encodeURIComponent(erp) : 'index.html?api=' + encodeURIComponent(api);
+  return '<a class="app" href="' + esc(href) + '"><span class="i" aria-hidden="true">' + c.icon + '</span><b>' + esc(c.name) + '</b><span>' + esc(c.desc) + '</span></a>';
+ });
+ $('apps').innerHTML = tiles.length ? tiles.join('') : '<div class="card">ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດໃຊ້ແອັບ — ຕິດຕໍ່ຜູ້ດູແລລະບົບ</div>';
+}
+function lookup(code, auto) {
+ $('err').textContent = ''; $('go').disabled = true;
+ var b = serverBase(), api = b + '/t/' + code + '/api';
+ jsonp(api + '/?login=company', function (r) {
+  $('go').disabled = false;
+  if (!r || !r.ok || !r.company) { if (!auto) $('err').textContent = r ? 'ບໍ່ພົບລະຫັດບໍລິສັດນີ້' : 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່'; try { if (auto) localStorage.removeItem('st_company'); } catch (e) {} return; }
+  try { localStorage.setItem('st_company', code); } catch (e) {}
+  show(r.company, api, b + '/t/' + code + '/erp');
+ });
+}
+$('f').onsubmit = function (e) { e.preventDefault(); var c = $('code').value.trim().toLowerCase(); if (!/^[a-z0-9][a-z0-9_-]{1,31}$/.test(c)) { $('err').textContent = 'ລະຫັດບໍລິສັດມີສະເພາະ a-z, 0-9, - _'; return; } lookup(c, false); };
+$('chg').onclick = function () { try { localStorage.removeItem('st_company'); } catch (e) {} $('s2').classList.add('hide'); $('s1').classList.remove('hide'); $('code').focus(); };
+(function () { var q = /[?&]code=([a-z0-9_-]+)/i.exec(location.search), c = q && q[1].toLowerCase(); if (!c) try { c = localStorage.getItem('st_company'); } catch (e) {} if (c) { $('code').value = c; lookup(c, true); } })();
+</script>
+</body>
+</html>
