@@ -61,15 +61,18 @@ a.app b{font-size:17px;font-weight:700}a.app span.d{color:var(--muted);font-size
 </main>
 <script>
 /* ແຄັດຕາລັອກແອັບ — ເພີ່ມແອັບໃໝ່ = ເພີ່ມ 1 ແຖວຢູ່ນີ້ ແລ້ວໃສ່ id ໃນລາຍຊື່ແອັບຂອງບໍລິສັດ (tenant_set)
-   kind 'pos' = ເປີດ ST POS (index.html ຢູ່ຖັດກັນ) ເຊື່ອມ server ຂອງບໍລິສັດ · 'erp' = LaoBooks (ໃຊ້ endpoint /erp ຂອງບໍລິສັດ) */
+   kind 'pos' = ເປີດ ST POS (index.html ຢູ່ຖັດກັນ) ເຊື່ອມ server ຂອງບໍລິສັດ · 'erp' = LaoBooks (ໃຊ້ endpoint /erp ຂອງບໍລິສັດ) · 'hr' = ST HR (ໃຊ້ endpoint /hr ຂອງບໍລິສັດ) */
 var ERP_URL = 'https://taosivi.github.io/ERP-12-/';
+var HR_URL = 'https://taosivi.github.io/st-hr/'; /* ST HR (ແອັບແຍກ) — ເປີດດ້ວຍ ?server=<api>/hr ໃຫ້ເຊື່ອມ server ຂອງບໍລິສັດ */
 (function () { var m = /[?&]erpurl=([^&#]+)/.exec(location.search), u = m && decodeURIComponent(m[1]); if (u && /^https:\/\/[^\/?#]+\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(u)) ERP_URL = u; })(); /* ໃຊ້ທົດສອບ */
+(function () { var m = /[?&]hrurl=([^&#]+)/.exec(location.search), u = m && decodeURIComponent(m[1]); if (u && /^https:\/\/[^\/?#]+\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(u)) HR_URL = u; })(); /* ໃຊ້ທົດສອບ */
 var CATALOG = {
  'stpos-fnb':     {name:'ຮ້ານອາຫານ / ຄາເຟ',  icon:'<path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/>', desc:'POS ຮ້ານອາຫານ ແລະ ຄາເຟ', kind:'pos'},
  'stpos-medical': {name:'ຄລີນິກ',             icon:'<path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/>', desc:'ຄິວ ນັດໝາຍ ໃບສັ່ງຢາ', kind:'pos'},
  'stpos-mart':    {name:'ຮ້ານຂາຍຍ່ອຍ / ມາດ',  icon:'<path d="M3 4h2l2.4 11h10.2l2-8H6"/><circle cx="9" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/>', desc:'ສິນຄ້າ ບາໂຄດ ສະຕ໋ອກ', kind:'pos'},
  'stpos-hotel':   {name:'ໂຮງແຮມ / ທີ່ພັກ',    icon:'<path d="M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11" r="1.6"/>', desc:'ຫ້ອງພັກ ການຈອງ', kind:'pos'},
  'stpos-jewelry': {name:'ຮ້ານເຄື່ອງປະດັບ',    icon:'<path d="M6 3h12l3 5-9 13L3 8z"/><path d="M3 8h18M9 3l-2 5 5 13M15 3l2 5-5 13"/>', desc:'ທອງ ເງິນ ເພັດ ໃບຢັ້ງຢືນ', kind:'pos'},
+ 'sthr':          {name:'ST HR ພະນັກງານ',   icon:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.9.1 5 2.3 5 5.3"/>', desc:'ລົງເວລາ ລາ ເງິນເດືອນ', kind:'hr'},
  'laobooks':      {name:'LaoBooks ບັນຊີ',      icon:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/>', desc:'ບັນຊີ ອະນຸມັດ ຈັດຊື້', kind:'erp'}
 };
 var $ = function (i) { return document.getElementById(i); };
@@ -88,7 +91,7 @@ function esc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {'&
 function show(co, api, erp) {
  $('s1').classList.add('hide'); $('s2').classList.remove('hide'); $('cn').textContent = co.name || co.code;
  var tiles = (co.apps || []).filter(function (a) { return CATALOG[a]; }).map(function (a) {
-  var c = CATALOG[a], href = c.kind === 'erp' ? ERP_URL + '?erp=' + encodeURIComponent(erp) : 'index.html?api=' + encodeURIComponent(api);
+  var c = CATALOG[a], href = c.kind === 'erp' ? ERP_URL + '?erp=' + encodeURIComponent(erp) : c.kind === 'hr' ? HR_URL + '?server=' + encodeURIComponent(api + '/hr') : 'index.html?api=' + encodeURIComponent(api);
   return '<a class="app" href="' + esc(href) + '"><span class="i" aria-hidden="true"><svg viewBox="0 0 24 24">' + c.icon + '</svg></span><b>' + esc(c.name) + '</b><span class="d">' + esc(c.desc) + '</span></a>';
  });
  $('apps').innerHTML = tiles.length ? tiles.join('') : '<div class="card">ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດໃຊ້ແອັບ — ຕິດຕໍ່ຜູ້ດູແລລະບົບ</div>';

@@ -74,6 +74,11 @@ button.sm{min-height:40px;margin:0;padding:6px 14px;font-size:14px}
   <div class="apps" id="eapps"></div>
   <button class="p" id="esave" type="button">ບັນທຶກຊື່ ແລະແອັບ</button>
   <hr>
+  <h2>ST HR — ລະຫັດສ້າງບໍລິສັດ HR</h2>
+  <small>ເປີດແອັບ ST HR ໃຫ້ບໍລິສັດກ່ອນ (ຕິກ + ບັນທຶກ). ເຈົ້າຂອງບໍລິສັດເປີດ HR ຈາກ Launcher ແລ້ວໃສ່ລະຫັດນີ້ຄັ້ງທຳອິດ ເພື່ອສ້າງບໍລິສັດ HR ແລະ ຕັ້ງ PIN ເອງ.</small>
+  <div><button class="g sm" id="hrcode" type="button" style="margin-top:12px">ເບິ່ງລະຫັດສ້າງ HR</button> <button class="g sm" id="hrreset" type="button" style="margin-top:12px">ສ້າງລະຫັດໃໝ່</button></div>
+  <div class="msg" id="hrmsg" role="status"></div>
+  <hr>
   <h2>ຣີເຊັດ PIN ຜູ້ໃຊ້</h2>
   <label for="eu">ຜູ້ໃຊ້</label><select id="eu"></select>
   <label for="ep">PIN ໃໝ່ <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="ep" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
@@ -82,7 +87,7 @@ button.sm{min-height:40px;margin:0;padding:6px 14px;font-size:14px}
  </section>
 </main>
 <script>
-var APPS = [['stpos-fnb','ຮ້ານອາຫານ / ຄາເຟ'],['stpos-medical','ຄລີນິກ'],['stpos-mart','ຮ້ານຂາຍຍ່ອຍ / ມາດ'],['stpos-hotel','ໂຮງແຮມ / ທີ່ພັກ'],['stpos-jewelry','ຮ້ານເຄື່ອງປະດັບ'],['laobooks','LaoBooks ບັນຊີ']];
+var APPS = [['stpos-fnb','ຮ້ານອາຫານ / ຄາເຟ'],['stpos-medical','ຄລີນິກ'],['stpos-mart','ຮ້ານຂາຍຍ່ອຍ / ມາດ'],['stpos-hotel','ໂຮງແຮມ / ທີ່ພັກ'],['stpos-jewelry','ຮ້ານເຄື່ອງປະດັບ'],['sthr','ST HR ພະນັກງານ'],['laobooks','LaoBooks ບັນຊີ']];
 var $ = function (i) { return document.getElementById(i); };
 $('apps').innerHTML = APPS.map(function (a) { return '<label><input type="checkbox" value="' + a[0] + '"> ' + a[1] + '</label>'; }).join('');
 function say(t, ok) { $('msg').className = 'msg ' + (ok ? 'ok' : 'er'); $('msg').textContent = t; }
@@ -103,7 +108,7 @@ function loadList() {
 $('list').onclick = loadList;
 $('tbl').onclick = function (e) { var b = e.target.closest('button[data-c]'); if (b) openEdit(b.dataset.c); };
 function openEdit(c) {
- var t = TEN[c]; if (!t) return; $('ed').classList.remove('hide'); $('edc').textContent = c; $('en').value = t.name || ''; boxes('eapps', t.apps || []); sayE('', true); $('ep').value = '';
+ var t = TEN[c]; if (!t) return; $('ed').classList.remove('hide'); $('edc').textContent = c; $('en').value = t.name || ''; boxes('eapps', t.apps || []); sayE('', true); $('ep').value = ''; $('hrmsg').textContent = '';
  $('eu').innerHTML = '<option>ກຳລັງໂຫຼດ…</option>';
  call('tenant_users', { code: c }).then(function (r) { $('eu').innerHTML = (r.users || []).map(function (u) { return '<option value="' + esc(u.id) + '">' + esc(u.name || u.id) + ' (' + esc(u.role) + (u.active ? '' : ', ປິດ') + ')</option>'; }).join('') || '<option value="">ບໍ່ມີຜູ້ໃຊ້</option>'; }).catch(function (e2) { sayE(e2.message, false); });
  $('ed').scrollIntoView({ behavior: 'smooth' });
@@ -112,6 +117,15 @@ $('esave').onclick = function () {
  var apps = Array.prototype.map.call(document.querySelectorAll('#eapps input:checked'), function (c) { return c.value; });
  call('tenant_set', { code: $('edc').textContent, name: $('en').value.trim(), apps: apps }).then(function (r) { if (r.ok) { sayE('ບັນທຶກແລ້ວ ✓', true); loadList(); } else sayE('ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false); }).catch(function (e) { sayE(e.message, false); });
 };
+function hrCode(reset) {
+ var m = $('hrmsg'); m.className = 'msg'; m.textContent = '…';
+ call('tenant_hr', { code: $('edc').textContent, reset: !!reset }).then(function (r) {
+  if (r.ok) { m.className = 'msg ok'; m.textContent = 'ລະຫັດສ້າງ HR: ' + r.signupCode + (r.created ? '  (ບໍລິສັດ HR ຖືກສ້າງແລ້ວ — ລະຫັດນີ້ໃຊ້ສ້າງຊ້ຳບໍ່ໄດ້)' : '  (ຍັງບໍ່ໄດ້ສ້າງບໍລິສັດ HR)'); }
+  else { m.className = 'msg er'; m.textContent = 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'); }
+ }).catch(function (e) { m.className = 'msg er'; m.textContent = e.message; });
+}
+$('hrcode').onclick = function () { hrCode(false); };
+$('hrreset').onclick = function () { hrCode(true); };
 $('epin').onclick = function () {
  call('tenant_pin', { code: $('edc').textContent, uid: $('eu').value, pin: $('ep').value }).then(function (r) { if (r.ok) { sayE('ຣີເຊັດ PIN ແລ້ວ ✓ (ເຄື່ອງຂອງຜູ້ນັ້ນຕ້ອງເຂົ້າລະບົບໃໝ່)', true); $('ep').value = ''; } else sayE(r.err === 'uid/pin' ? 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ' : 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false); }).catch(function (e) { sayE(e.message, false); });
 };

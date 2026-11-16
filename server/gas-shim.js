@@ -90,12 +90,19 @@ function create(dataDir) {
   Sheet.prototype.showSheet = function () { this._hidden = false; this._dirty = true; return this; };
   Sheet.prototype.isSheetHidden = function () { return this._hidden; };
   Sheet.prototype.setFrozenRows = function () { return this; };
+  /* ເພີ່ມສຳລັບ ST HR (Code.gs ຂອງ HR ໃຊ້): ຂະໜາດແຜ່ນ, ແທກແຖວ/ຖັນ, ລຶບແຖວ — ແຜ່ນຈຳລອງບໍ່ຈຳກັດຂະໜາດ ຈຶ່ງ insert* ບໍ່ຕ້ອງເຮັດຫຍັງ */
+  Sheet.prototype.getMaxRows = function () { return Math.max(this._rows.length, 1000); };
+  Sheet.prototype.getMaxColumns = function () { return Math.max(this.getLastColumn(), 26); };
+  Sheet.prototype.insertRowsAfter = function () { return this; };
+  Sheet.prototype.insertColumnsAfter = function () { return this; };
+  Sheet.prototype.deleteRow = function (n) { if (n >= 1 && n <= this._rows.length) { this._rows.splice(n - 1, 1); this._dirty = true; } return this; };
   Sheet.prototype.setName = function (n) { const old = this._n; this._n = String(n); delete book[old]; book[this._n] = this; this._dirty = true; this._renamedFrom = old; return this; };
   function cellVal(v) { if (Object.prototype.toString.call(v) === '[object Date]') return v.toISOString(); return v == null ? '' : v; }
   function Range(sh, r, c, nr, nc) { this.sh = sh; this.r = r; this.c = c; this.nr = nr; this.nc = nc; }
   Range.prototype.getValues = function () { const out = []; for (let i = 0; i < this.nr; i++) { const src = this.sh._rows[this.r - 1 + i] || [], row = []; for (let j = 0; j < this.nc; j++) { const v = src[this.c - 1 + j]; row.push(v == null ? '' : v); } out.push(row); } return out; };
   Range.prototype.getValue = function () { return this.getValues()[0][0]; };
   Range.prototype.setValues = function (vals) { for (let i = 0; i < vals.length; i++) { const ri = this.r - 1 + i; while (this.sh._rows.length <= ri) this.sh._rows.push([]); const row = this.sh._rows[ri]; for (let j = 0; j < vals[i].length; j++) { while (row.length < this.c - 1 + j) row.push(''); row[this.c - 1 + j] = cellVal(vals[i][j]); } } this.sh._dirty = true; return this; };
+  Range.prototype.setNumberFormat = function () { return this; }; /* ຮູບແບບເຊວ: ແຜ່ນຈຳລອງເກັບຄ່າດິບ ຈຶ່ງບໍ່ຕ້ອງເຮັດຫຍັງ */
   Range.prototype.setValue = function (v) { return this.setValues([[v]]); };
   Range.prototype.clearContent = function () { const blank = []; for (let i = 0; i < this.nr; i++) { const row = []; for (let j = 0; j < this.nc; j++) row.push(''); blank.push(row); } return this.setValues(blank); };
   function loadBook() { if (book) return book; book = {}; return book; }

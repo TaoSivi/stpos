@@ -119,6 +119,20 @@ function erpHandle(req, res, body) {
   } finally { lock.releaseLock(); }
   return done({ ok: true, data: 1 });
 }
+/* ===== ST HR ຕໍ່ບໍລິສັດ: POST /t/<code>/hr — ໂປຣໂຕຄໍຂອງ Apps Script ຂອງ HR (ເບິ່ງ hr.js) · ຕ້ອງມີແອັບ 'sthr' ===== */
+let HRX = null;
+function hrx() { return HRX || (HRX = require('./hr').create(ROOT_DIR, path.join(__dirname, 'hr', 'Code.gs'))); }
+function hrLicensed(t) { return (t.apps || []).some(function (x) { return x === 'sthr' || x === '*'; }); }
+function hrHandle(req, res, body, code) {
+  const origin = String(req.headers.origin || ''), hdr = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  if (origin) { hdr['Access-Control-Allow-Origin'] = origin; hdr['Vary'] = 'Origin'; hdr['Access-Control-Allow-Headers'] = 'Content-Type'; }
+  if (req.method === 'OPTIONS') { res.writeHead(204, hdr); return res.end(); }
+  const done = function (o) { res.writeHead(200, hdr); res.end(typeof o === 'string' ? o : JSON.stringify(o)); };
+  if (!hrLicensed(CURTEN)) return done({ ok: false, error: 'ບໍລິສັດນີ້ບໍ່ມີສິດໃຊ້ ST HR' });
+  if (req.method === 'GET') return done({ ok: true, data: hrx().ping(code) });
+  if (req.method !== 'POST') return done({ ok: false, error: 'post' });
+  return done(hrx().post(code, body));
+}
 function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set — ສະເພາະ ADMIN_KEY ຂອງເຈົ້າຂອງລະບົບ; ຂໍ້ມູນລະອຽດ (ລະຫັດ PIN) ຜ່ານ body ບໍ່ແມ່ນ URL */
   const J = function (o) { return send(res, 200, JSON.stringify(o), 'application/json'); }, a = String(q.admin);
   if (!keyOk(q.key, 'ADMIN_KEY')) return send(res, 403, 'denied');
@@ -131,6 +145,11 @@ function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set
     const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
     if (name) t.name = name; if (o.apps !== undefined) t.apps = cleanApps(o.apps);
     atomicWrite0(TEN_FILE, JSON.stringify(L, null, 1)); return J({ ok: true, code: t.code, name: t.name, apps: t.apps });
+  }
+  if (a === 'tenant_hr') { /* ລະຫັດສ້າງບໍລິສັດ HR ຂອງບໍລິສັດນີ້ (ໃຫ້ເຈົ້າຂອງບໍລິສັດໃສ່ໃນໜ້າຕັ້ງຄ່າ HR ຄັ້ງທຳອິດ) — reset:true = ສ້າງລະຫັດໃໝ່ */
+    const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    if (!hrLicensed(t)) return J({ ok: false, err: 'ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດແອັບ HR' });
+    const r = hrx().signup(code, !!o.reset); return J({ ok: true, code: code, signupCode: r.signupCode, created: r.created });
   }
   if (a === 'tenant_users' || a === 'tenant_pin') { /* ລາຍຊື່ຜູ້ໃຊ້ / ຣີເຊັດ PIN ຂອງບໍລິສັດ (ທຸກສາຂາຂອງບໍລິສັດນັ້ນ) — session ເກົ່າຂອງຜູ້ນັ້ນໝົດອາຍຸເອງ ເພາະ session ຜູກກັບ PIN */
     const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
@@ -851,10 +870,11 @@ function handle(req, res, body) {
   }
   if (q.admin !== undefined && /^tenant_/.test(String(q.admin))) return tenantAdmin(q, body, res);
   let pn = u.pathname; const am = /^\/api\/t\/([^\/]+)(\/.*)?$/.exec(pn); /* /api/t/<ບໍລິສັດ>[/<ສາຂາ>|/erp] = ຮູບແບບທີ່ cPanel (ຕໍ່ Node ໄດ້ສະເພາະ /api) ເຂົ້າເຖິງ → ປ່ຽນເປັນ /t/<ບໍລິສັດ>/api… */
-  if (am) pn = /^\/erp\/?$/.test(am[2] || '') ? '/t/' + am[1] + '/erp' : '/t/' + am[1] + '/api' + (am[2] || '');
+  if (am) pn = /^\/(erp|hr)\/?$/.test(am[2] || '') ? '/t/' + am[1] + am[2].replace(/\/$/, '') : '/t/' + am[1] + '/api' + (am[2] || '');
   const tm = /^\/t\/([^\/]+)(\/.*)?$/.exec(pn);
   if (tm) { const T = tenFind(tm[1].toLowerCase()); if (!T || T.code === 'default') return q.callback ? jsonpOut(res, q.callback, { ok: false, err: 'company' }) : send(res, 404, 'no such company'); useTenant(T); pn = tm[2] || '/api'; } else useTenant(DEFAULT_TEN);
   if (tm && /^\/erp\/?$/.test(pn)) return erpHandle(req, res, body);
+  if (tm && /^\/hr\/?$/.test(pn)) return hrHandle(req, res, body, CURTEN.code);
   const br = brFromPath(pn);
   if (!br) return q.callback ? jsonpOut(res, q.callback, { ok: false, err: 'branch' }) : send(res, 404, 'no such branch');
   useBranch(br); shim.beginRequest();
