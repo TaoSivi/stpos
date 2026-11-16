@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/
+    - /bin/cp index.html launcher.html $DEPLOYPATH
+    - /bin/cp deploy/.htaccess $DEPLOYPATH.htaccess
+    - /bin/cp -R demo-img $DEPLOYPATH
