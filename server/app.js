@@ -15,6 +15,8 @@ const vm = require('vm');
 const crypto = require('crypto');
 
 /* secrets.json ຂ້າງ app.js (ສ້າງໃນຄອມ, ບໍ່ຂຶ້ນ GitHub) ມີສິດກ່ອນ env — ບໍ່ຕ້ອງພິມລະຫັດໃນ cPanel */
+/* ເຄື່ອງໃໝ່ທີ່ບໍ່ມີ shell: ມີໄຟລ໌ AUTOSECRETS (ເປົ່າ) ຂ້າງ app.js ແລະ ຍັງບໍ່ມີ secrets.json → server ສ້າງລະຫັດສຸ່ມເອງຄັ້ງທຳອິດ (ເຈົ້າຂອງອ່ານໄດ້ຈາກ File Manager) — ບໍ່ຕ້ອງພິມລະຫັດໃສ່ບ່ອນໃດ */
+if (!process.env.STPOS_NO_SECRETS) try { const sf = path.join(__dirname, 'secrets.json'); if (fs.existsSync(path.join(__dirname, 'AUTOSECRETS')) && !fs.existsSync(sf)) { const r = function () { return crypto.randomBytes(24).toString('hex'); }; fs.writeFileSync(sf, JSON.stringify({ API_TOKEN: r(), ADMIN_KEY: r(), CRON_KEY: r() }, null, 1), { mode: 0o600 }); } } catch (e) { console.error('autosecrets', e && e.message); }
 if (!process.env.STPOS_NO_SECRETS) try { const sec = JSON.parse(fs.readFileSync(path.join(__dirname, 'secrets.json'), 'utf8')); ['API_TOKEN', 'ADMIN_KEY', 'CRON_KEY', 'ACCT_TOKEN'].forEach(function (k) { if (typeof sec[k] === 'string' && sec[k].length >= 16) process.env[k] = sec[k]; }); } catch (e) {}
 const ROOT_DIR = process.env.DATA_DIR || path.join(os.homedir(), 'stpos-data');
 let DATA_DIR = ROOT_DIR; /* ໂຟນເດີຂອງບໍລິສັດ (tenant) ປັດຈຸບັນ — ປ່ຽນຕໍ່ request ດ້ວຍ useTenant */
