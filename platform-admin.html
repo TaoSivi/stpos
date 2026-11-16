@@ -42,6 +42,7 @@ select{width:100%;min-height:48px;padding:12px 16px;border-radius:14px;border:1.
 select:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,186,181,.2)}
 hr{border:0;border-top:1px solid var(--line);margin:22px 0 4px}
 button.sm{min-height:40px;margin:0;padding:6px 14px;font-size:14px}
+a.g.sm{min-height:40px;padding:6px 14px;font-size:14px;font-weight:700;background:var(--tile);color:var(--tiff-deep);border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -104,7 +105,7 @@ function sayE(t, ok) { $('emsg').className = 'msg ' + (ok ? 'ok' : 'er'); $('ems
 function loadList() {
  return call('tenant_list').then(function (r) {
   TEN = {}; (r.tenants || []).forEach(function (t) { TEN[t.code] = t; });
-  $('tbl').innerHTML = r.tenants && r.tenants.length ? '<table><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ແອັບ</th><th></th></tr>' + r.tenants.map(function (t) { return '<tr><td>' + esc(t.code) + '</td><td>' + esc(t.name) + '</td><td>' + esc((t.apps || []).join(', ')) + '</td><td><button class="g sm" type="button" data-c="' + esc(t.code) + '">ແກ້ໄຂ</button></td></tr>'; }).join('') + '</table>' : '<p><small>ຍັງບໍ່ມີບໍລິສັດ</small></p>';
+  $('tbl').innerHTML = r.tenants && r.tenants.length ? '<table><tr><th>ລະຫັດ</th><th>ຊື່</th><th>ແອັບ</th><th></th></tr>' + r.tenants.map(function (t) { return '<tr><td>' + esc(t.code) + '</td><td>' + esc(t.name) + '</td><td>' + esc((t.apps || []).join(', ')) + '</td><td style="white-space:nowrap"><a class="g sm" style="display:inline-flex;align-items:center;text-decoration:none;border-radius:14px;margin-right:6px" href="/?code=' + encodeURIComponent(t.code) + '" target="_blank" rel="noopener">ເປີດ</a><button class="g sm" type="button" data-c="' + esc(t.code) + '">ແກ້ໄຂ</button></td></tr>'; }).join('') + '</table>' : '<p><small>ຍັງບໍ່ມີບໍລິສັດ</small></p>';
  }).catch(function (e) { $('tbl').innerHTML = '<p class="er">' + esc(e.message) + '</p>'; });
 }
 $('list').onclick = loadList;
