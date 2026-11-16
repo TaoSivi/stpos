@@ -50,7 +50,8 @@ button.sm{min-height:40px;margin:0;padding:6px 14px;font-size:14px}
  <section class="card">
   <h2>1. ລະຫັດຜູ້ດູແລ (ADMIN_KEY)</h2>
   <input id="key" type="password" autocomplete="off" placeholder="ວາງ ADMIN_KEY ຈາກ secrets.json">
-  <small>ລະຫັດຢູ່ໃນ File Manager: stpos-src/server/secrets.json — ບໍ່ຖືກເກັບໃນໜ້ານີ້, ຕ້ອງໃສ່ໃໝ່ທຸກເທື່ອ</small>
+  <small>ລະຫັດຢູ່ໃນ File Manager: stpos-src/server/secrets.json</small>
+  <label style="display:flex;gap:8px;align-items:center;font-weight:500;margin-top:10px"><input id="rem" type="checkbox"> ຈື່ໄວ້ໃນເຄື່ອງນີ້ <small>(ໃຊ້ສະເພາະເຄື່ອງສ່ວນຕົວຂອງເຈົ້າ)</small></label>
   <div><button class="g" id="list" type="button">ເບິ່ງລາຍຊື່ບໍລິສັດ</button></div>
   <div id="tbl"></div>
  </section>
@@ -94,7 +95,8 @@ function say(t, ok) { $('msg').className = 'msg ' + (ok ? 'ok' : 'er'); $('msg')
 function esc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function call(action, body) {
  return fetch('/api/?admin=' + action + '&key=' + encodeURIComponent($('key').value.trim()), { method: 'POST', body: JSON.stringify(body || {}) })
-  .then(function (r) { if (r.status === 403) throw new Error('ADMIN_KEY ບໍ່ຖືກ'); return r.json(); });
+  .then(function (r) { if (r.status === 403) { try { localStorage.removeItem('stadm'); } catch (e) {} throw new Error('ADMIN_KEY ບໍ່ຖືກ'); } return r.json(); })
+  .then(function (j) { try { if ($('rem').checked) localStorage.setItem('stadm', $('key').value.trim()); else localStorage.removeItem('stadm'); } catch (e) {} return j; });
 }
 var TEN = {};
 function boxes(id, sel) { $(id).innerHTML = APPS.map(function (a) { return '<label><input type="checkbox" value="' + a[0] + '"' + (sel.indexOf(a[0]) >= 0 ? ' checked' : '') + '> ' + a[1] + '</label>'; }).join(''); }
@@ -106,6 +108,7 @@ function loadList() {
  }).catch(function (e) { $('tbl').innerHTML = '<p class="er">' + esc(e.message) + '</p>'; });
 }
 $('list').onclick = loadList;
+try { var sk = localStorage.getItem('stadm'); if (sk) { $('key').value = sk; $('rem').checked = true; loadList(); } } catch (e) {}
 $('tbl').onclick = function (e) { var b = e.target.closest('button[data-c]'); if (b) openEdit(b.dataset.c); };
 function openEdit(c) {
  var t = TEN[c]; if (!t) return; $('ed').classList.remove('hide'); $('edc').textContent = c; $('en').value = t.name || ''; boxes('eapps', t.apps || []); sayE('', true); $('ep').value = ''; $('hrmsg').textContent = '';
