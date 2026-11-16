@@ -78,7 +78,7 @@ a.g.sm{min-height:40px;padding:6px 14px;font-size:14px;font-weight:700;backgroun
   <hr>
   <h2>ST HR — ລະຫັດສ້າງບໍລິສັດ HR</h2>
   <small>ເປີດແອັບ ST HR ໃຫ້ບໍລິສັດກ່ອນ (ຕິກ + ບັນທຶກ). ເຈົ້າຂອງບໍລິສັດເປີດ HR ຈາກ Launcher ແລ້ວໃສ່ລະຫັດນີ້ຄັ້ງທຳອິດ ເພື່ອສ້າງບໍລິສັດ HR ແລະ ຕັ້ງ PIN ເອງ.</small>
-  <div><button class="g sm" id="hrcode" type="button" style="margin-top:12px">ເບິ່ງລະຫັດສ້າງ HR</button> <button class="g sm" id="hrreset" type="button" style="margin-top:12px">ສ້າງລະຫັດໃໝ່</button></div>
+  <div><button class="g sm" id="hrcode" type="button" style="margin-top:12px">ເບິ່ງລະຫັດສ້າງ HR</button> <button class="g sm" id="hrreset" type="button" style="margin-top:12px">ສ້າງລະຫັດໃໝ່</button> <button class="g sm" id="hrseed" type="button" style="margin-top:12px">ສ້າງ HR ຕົວຢ່າງ (ພະນັກງານ 3 ຄົນ)</button></div>
   <div class="msg" id="hrmsg" role="status"></div>
   <hr>
   <h2>ຣີເຊັດ PIN ຜູ້ໃຊ້</h2>
@@ -130,6 +130,13 @@ function hrCode(reset) {
 }
 $('hrcode').onclick = function () { hrCode(false); };
 $('hrreset').onclick = function () { hrCode(true); };
+$('hrseed').onclick = function () {
+ var m = $('hrmsg'); m.className = 'msg'; m.textContent = '…';
+ call('tenant_hr_seed', { code: $('edc').textContent, hrName: $('en').value.trim() }).then(function (r) {
+  if (r.ok) { m.className = 'msg ok'; m.textContent = 'ສ້າງແລ້ວ ✓ ' + r.company + '\nSuper admin: ' + r.superAdmin.code + ' PIN ' + r.superAdmin.pin + '\nAdmin: ' + r.admin.code + ' PIN ' + r.admin.pin + ' (ປ່ຽນ PIN ຕອນເຂົ້າຄັ້ງທຳອິດ)\nພະນັກງານ: ' + r.staff.join(', ') + ' (ບໍ່ມີ PIN)\nຈົດ PIN ໄວ້ດຽວນີ້ — ຈະບໍ່ສະແດງອີກ'; }
+  else { m.className = 'msg er'; m.textContent = 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'); }
+ }).catch(function (e) { m.className = 'msg er'; m.textContent = e.message; });
+};
 $('epin').onclick = function () {
  call('tenant_pin', { code: $('edc').textContent, uid: $('eu').value, pin: $('ep').value }).then(function (r) { if (r.ok) { sayE('ຣີເຊັດ PIN ແລ້ວ ✓ (ເຄື່ອງຂອງຜູ້ນັ້ນຕ້ອງເຂົ້າລະບົບໃໝ່)', true); $('ep').value = ''; } else sayE(r.err === 'uid/pin' ? 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ' : 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'), false); }).catch(function (e) { sayE(e.message, false); });
 };

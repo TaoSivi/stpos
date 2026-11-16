@@ -151,6 +151,11 @@ function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set
     if (!hrLicensed(t)) return J({ ok: false, err: 'ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດແອັບ HR' });
     const r = hrx().signup(code, !!o.reset); return J({ ok: true, code: code, signupCode: r.signupCode, created: r.created });
   }
+  if (a === 'tenant_hr_seed') { /* ສ້າງບໍລິສັດ HR ຕົວຢ່າງ + ພະນັກງານ 3 ຄົນ (PIN ສຸ່ມ ສົ່ງຄືນຄັ້ງດຽວ) */
+    const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    if (!hrLicensed(t)) return J({ ok: false, err: 'ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດແອັບ HR' });
+    return J(hrx().seed(code, String(o.hrName || t.name)));
+  }
   if (a === 'tenant_users' || a === 'tenant_pin') { /* ລາຍຊື່ຜູ້ໃຊ້ / ຣີເຊັດ PIN ຂອງບໍລິສັດ (ທຸກສາຂາຂອງບໍລິສັດນັ້ນ) — session ເກົ່າຂອງຜູ້ນັ້ນໝົດອາຍຸເອງ ເພາະ session ຜູກກັບ PIN */
     const t = L.filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
     const uid = String(o.uid || ''), pin = String(o.pin || '');

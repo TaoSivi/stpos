@@ -75,6 +75,17 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       assert.ok((await adm('tenant_set', { code: 'hrco', apps: ['sthr'] })).ok);
       assert.strictEqual((await hr(A, { action: 'list', token: tokA, collection: 'shifts' })).data.length, 1);
     });
+    await test('platform admin seeds a sample HR company (random PINs shown once, 3 staff); a second seed is refused', async function () {
+      assert.strictEqual((await fetch(HOST + '/api/?admin=tenant_hr_seed&key=wrong', { method: 'POST', body: JSON.stringify({ code: 'hr2' }) })).status, 403);
+      assert.strictEqual((await adm('tenant_hr_seed', { code: 'clinic1' })).ok, false, 'no HR app');
+      assert.ok((await adm('tenant_add', { code: 'hr3', name: 'ບໍລິສັດ HR 3', apps: ['sthr'], ownerName: 'x', ownerPin: '5555' })).ok); const B3 = '/api/t/hr3/hr'; const r = await adm('tenant_hr_seed', { code: 'hr3', hrName: 'LTGTEST' }); assert.ok(r.ok, JSON.stringify(r));
+      assert.ok(/^\d{4}$/.test(r.superAdmin.pin) && /^\d{4}$/.test(r.admin.pin) && r.superAdmin.pin !== r.admin.pin);
+      const l = await hr(B3, { action: 'login', code: 'ST-000', pin: r.superAdmin.pin }); assert.ok(l.ok, JSON.stringify(l));
+      const emps = (await hr(B3, { action: 'list', token: l.data.token, collection: 'employees' })).data;
+      assert.deepStrictEqual(emps.map(function (e) { return e.data.code; }).sort(), ['ST-000', 'ST-001', 'ST-101', 'ST-102', 'ST-103']);
+      assert.strictEqual((await hr(B3, { action: 'info' })).data.name, 'LTGTEST');
+      assert.strictEqual((await adm('tenant_hr_seed', { code: 'hr3' })).ok, false, 'already created');
+    });
     console.log('hr: ' + passed + ' passed');
   } catch (e) { console.error('FAIL', e && e.stack || e); process.exitCode = 1; }
   finally { try { proc.kill(); } catch (e) {} try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) {} }
