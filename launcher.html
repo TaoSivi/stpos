@@ -63,8 +63,8 @@ a.app b{font-size:17px;font-weight:700}a.app span.d{color:var(--muted);font-size
 <script>
 /* ແຄັດຕາລັອກແອັບ — ເພີ່ມແອັບໃໝ່ = ເພີ່ມ 1 ແຖວຢູ່ນີ້ ແລ້ວໃສ່ id ໃນລາຍຊື່ແອັບຂອງບໍລິສັດ (tenant_set)
    kind 'pos' = ເປີດ ST POS (index.html ຢູ່ຖັດກັນ) ເຊື່ອມ server ຂອງບໍລິສັດ · 'erp' = LaoBooks (ໃຊ້ endpoint /erp ຂອງບໍລິສັດ) · 'hr' = ST HR (ໃຊ້ endpoint /hr ຂອງບໍລິສັດ) */
-var ERP_URL = 'https://taosivi.github.io/ERP-12-/';
-var HR_URL = 'https://taosivi.github.io/st-hr/'; /* ST HR (ແອັບແຍກ) — ເປີດດ້ວຍ ?server=<api>/hr ໃຫ້ເຊື່ອມ server ຂອງບໍລິສັດ */
+var ERP_URL = location.origin + '/erp/'; /* ສຳເນົາໃນ apps/erp (deploy ຂຶ້ນ stdev.store/erp/) */
+var HR_URL = location.origin + '/hr/'; /* build ໃນ apps/hr (deploy ຂຶ້ນ stdev.store/hr/) */ /* ST HR (ແອັບແຍກ) — ເປີດດ້ວຍ ?server=<api>/hr ໃຫ້ເຊື່ອມ server ຂອງບໍລິສັດ */
 (function () { var m = /[?&]erpurl=([^&#]+)/.exec(location.search), u = m && decodeURIComponent(m[1]); if (u && /^https:\/\/[^\/?#]+\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(u)) ERP_URL = u; })(); /* ໃຊ້ທົດສອບ */
 (function () { var m = /[?&]hrurl=([^&#]+)/.exec(location.search), u = m && decodeURIComponent(m[1]); if (u && /^https:\/\/[^\/?#]+\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(u)) HR_URL = u; })(); /* ໃຊ້ທົດສອບ */
 var CATALOG = {

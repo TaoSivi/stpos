@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <!-- bump ?v= on every release so browsers load the new js/css -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ST ERP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=20261072" />
+  <link rel="stylesheet" href="css/stpos-theme.css?v=20261072" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/tailwind-config.js?v=20261072"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+  <div id="app" class="flex min-h-screen">
+    <aside id="sidebar" class="w-64 shrink-0 bg-slate-900 text-slate-300 flex flex-col fixed inset-y-0 left-0 z-30 -translate-x-full lg:translate-x-0 transition-transform">
+      <div class="h-16 flex items-center gap-2 px-5 border-b border-white/10">
+        <div class="w-9 h-9 rounded-lg bg-brand-500 grid place-items-center text-white font-bold text-base">ST</div>
+        <div>
+          <div class="text-white font-semibold leading-tight">ST ERP</div>
+          <div class="text-[11px] text-slate-400">ERP ສຳລັບ SME ລາວ</div>
+        </div>
+      </div>
+      <nav id="nav" class="flex-1 overflow-y-auto py-3 text-sm"></nav>
+      <div class="p-3 border-t border-white/10 text-[11px] text-slate-400">
+        <div id="conn-badge" class="mb-1"></div>
+        <div class="flex items-center justify-between"><span>v1.7 · 21 ໂມດູນ</span><button id="helpBtn" class="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-slate-200" title="ຄູ່ມືການໃຊ້ (F1)">📘 ຄູ່ມື</button></div>
+      </div>
+    </aside>
+
+    <div class="flex-1 lg:ml-64 flex flex-col min-w-0">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center gap-3 px-4 sticky top-0 z-20">
+        <button id="menuBtn" class="lg:hidden p-2 rounded hover:bg-slate-100">☰</button>
+        <div class="flex-1 max-w-md relative">
+          <input id="globalSearch" placeholder="ຄົ້ນຫາ Invoice, Bill, ລູກຄ້າ... (Ctrl+K)" class="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-100 focus:bg-white border border-transparent focus:border-brand-300 outline-none text-sm" />
+          <span class="absolute left-3 top-2.5 text-slate-400">🔍</span>
+          <div id="searchResults" class="hidden absolute mt-1 w-full bg-white rounded-lg shadow-xl border border-slate-200 max-h-80 overflow-y-auto z-40"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <button id="notifBtn" class="relative w-9 h-9 rounded-full hover:bg-slate-100 grid place-items-center text-lg" title="ແຈ້ງເຕືອນ">🔔<span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] grid place-items-center font-bold"></span></button>
+            <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden"></div>
+          </div>
+          <span id="companyName" class="hidden sm:block text-sm font-medium text-slate-600"></span>
+          <button id="userBtn" class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 grid place-items-center font-semibold" title="ເຂົ້າໃຊ້ເປັນ">T</button>
+        </div>
+      </header>
+
+      <main id="view" class="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto"></main>
+    </div>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+  <script src="js/config.js?v=20261072"></script>
+  <script src="js/erpremote.js?v=20261072"></script>
+  <script src="js/store.js?v=20261072"></script>
+  <script src="js/accounting.js?v=20261072"></script>
+  <script src="js/guard.js?v=20261072"></script>
+  <script src="js/autopost.js?v=20261072"></script>
+  <script src="js/flows.js?v=20261072"></script>
+  <script src="js/checks.js?v=20261072"></script>
+  <script src="js/procure.js?v=20261072"></script>
+  <script src="js/coa-lt.js?v=20261072"></script>
+  <script src="js/coa-jewelry.js?v=20261072"></script>
+  <script src="js/posin.js?v=20261072"></script>
+  <script src="js/perms.js?v=20261072"></script>
+  <script src="js/icons.js?v=20261072"></script>
+  <script src="js/ui.js?v=20261072"></script>
+  <script src="js/procure-ui.js?v=20261072"></script>
+  <script src="js/reqdoc.js?v=20261072"></script>
+  <script src="js/jvimport.js?v=20261072"></script>
+  <script src="js/postmon.js?v=20261072"></script>
+  <script src="js/gate.js?v=20261072"></script>
+  <script src="js/review.js?v=20261072"></script>
+  <script src="js/filing.js?v=20261072"></script>
+  <script src="js/docbox.js?v=20261072"></script>
+  <script src="js/stockdoc.js?v=20261072"></script>
+  <script src="js/extin.js?v=20261072"></script>
+  <script src="js/extin-ui.js?v=20261072"></script>
+  <script src="js/fs.js?v=20261072"></script>
+  <script src="js/fs-ui.js?v=20261072"></script>
+  <script src="js/docview.js?v=20261072"></script>
+  <script src="js/gate-types.js?v=20261072"></script>
+  <script src="js/gate-ui.js?v=20261072"></script>
+  <script src="js/entry.js?v=20261072"></script>
+  <script src="js/dochub.js?v=20261072"></script>
+  <script src="js/review-ui.js?v=20261072"></script>
+  <script src="js/stockdoc-ui.js?v=20261072"></script>
+  <script src="js/posin-ui.js?v=20261072"></script>
+  <script src="js/flows-ui.js?v=20261072"></script>
+  <script src="js/app.js?v=20261072"></script>
+</body>
+</html>

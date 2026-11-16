@@ -1,0 +1,401 @@
+/* ============================================================
+   LaoBooks ERP – Requests & approvals screens (action-first UI)
+   One page for: ເບີກເງິນສຳຮອງ · ເຄລຍເງິນສຳຮອງ · ຂໍເບີກຈ່າຍ / ເບີກຄືນ
+   + the approval-matrix editor used by Settings.
+   Uses Flows / Approval (logic), UI, Store, Acc, window.AppCtx (currentRole, canApprove).
+   ============================================================ */
+(function () {
+  const E = s => UI.esc(s == null ? "" : String(s)), M = v => UI.money(v);
+  const view = () => document.getElementById("view");
+  const role = () => window.AppCtx.currentRole();
+  const params = () => new URLSearchParams(location.hash.split("?")[1] || "");
+  const open = id => { location.hash = id ? "#/requests?id=" + id : "#/requests"; };
+  const ROLES = ["Manager", "Accountant", "Admin", "Purchasing", "HR", "Cashier"];
+  const DID = { docs: "ແນບເອກະສານ", create: "ສ້າງ", submit: "ສົ່ງຂໍອະນຸມັດ", approve: "ອະນຸມັດ", reject: "ປະຕິເສດ", cancel: "ຍົກເລີກ", post: "ລົງບັນຊີອັດຕະໂນມັດ", pay: "ຈ່າຍເງິນ", refund: "ຮັບເງິນຄືນ" };
+  const STEPS = {
+    ADV: [["draft", "ຂໍ"], ["approval", "ອະນຸມັດ"], ["payout", "ຈ່າຍເງິນ"], ["open", "ລໍເຄລຍ"], ["closed", "ເຄລຍແລ້ວ"]],
+    CLR: [["draft", "ຍື່ນໃບບິນ"], ["approval", "ອະນຸມັດ"], ["settle", "ຄືນ / ຈ່າຍເພີ່ມ"], ["closed", "ສຳເລັດ"]],
+    PAY: [["draft", "ຂໍ"], ["approval", "ອະນຸມັດ"], ["payout", "ຈ່າຍເງິນ"], ["closed", "ສຳເລັດ"]]
+  };
+  const BOOK = {
+    ADV: ["ອະນຸມັດ: ບໍ່ລົງບັນຊີ", "ຈ່າຍເງິນ: Dr ເງິນສຳຮອງພະນັກງານ · Cr ເງິນສົດ/ທະນາຄານ"],
+    CLR: ["ອະນຸມັດ: Dr ຄ່າໃຊ້ຈ່າຍ + VAT · Cr ເງິນສຳຮອງພະນັກງານ", "ໃຊ້ບໍ່ໝົດ: Dr ເງິນສົດ · Cr ເງິນສຳຮອງ", "ໃຊ້ເກີນ: Dr ຄ້າງຈ່າຍພະນັກງານ · Cr ເງິນສົດ"],
+    PAY: ["ອະນຸມັດ (ຜູ້ສະໜອງ): ສ້າງ Bill — Dr ຄ່າໃຊ້ຈ່າຍ + VAT · Cr ເຈົ້າໜີ້", "ອະນຸມັດ (ພະນັກງານ): Dr ຄ່າໃຊ້ຈ່າຍ + VAT · Cr ຄ້າງຈ່າຍພະນັກງານ", "ຈ່າຍເງິນ: Dr ເຈົ້າໜີ້/ຄ້າງຈ່າຍ · Cr ທະນາຄານ"]
+  };
+  // generic (voucher) types share one simple 3-step path
+  Object.keys(Flows.VDEFS).forEach(k => { STEPS[k] = [["draft", "ຂໍ"], ["approval", "ອະນຸມັດ & ລົງບັນຊີ"], ["closed", "ສຳເລັດ"]]; BOOK[k] = [Flows.VDEFS[k].book]; });
+  let filter = "mine";
+
+  function act(fn, ok) { try { fn(); if (ok) UI.toast(ok, "ok"); render(); } catch (e) { UI.toast(e.message, "err"); } }
+  function render() { const id = params().get("id"); if (id && Store.get("requests", id)) detail(id); else list(); }
+  const expAccounts = () => Store.where("accounts", a => !a.is_header && a.type === "Expense" && a.code !== "5100");
+  const banks = () => Store.all("bank_accounts");
+  const chipCls = st => st === "draft" ? "s-draft" : st === "approval" ? "s-wait" : st === "closed" ? "s-done" : Flows.ENDED[st] ? "s-bad" : "s-run";
+  const chip = r => `<span class="chip ${chipCls(r.stage)}">${E(Flows.STAGE_LABEL[r.stage] || r.stage)}</span>`;
+  const typeTag = r => `${Flows.TYPES[r.type].icon} ${E(Flows.TYPES[r.type].label)}`;
+
+  function stepper(r) {
+    const steps = STEPS[r.type];
+    const map = { refund: "settle", payout: r.type === "CLR" ? "settle" : "payout" };
+    const cur = r.stage === "closed" ? steps.length - 1 : steps.findIndex(s => s[0] === (map[r.stage] || r.stage));
+    const bad = r.stage === "rejected" || r.stage === "cancelled";
+    return `<div class="stepper">${steps.map((s, i) => {
+      const cls = bad ? (i === Math.max(cur, 1) ? "bad" : i < 1 ? "done" : "") : (i < cur || r.stage === "closed") ? "done" : i === cur ? "cur" : "";
+      return `<div class="step ${cls}"><div class="dot">${cls === "done" ? "✓" : cls === "bad" ? "✕" : i + 1}</div>${E(s[1])}</div>`;
+    }).join("")}</div>`;
+  }
+  function chainView(r) {
+    const st = Approval.chainState(r, r.type, Flows.amountOf(r));
+    return `<div class="flex flex-wrap gap-2 mt-2">${st.steps.map((s, i) => {
+      const sig = st.done.filter(d => d.step === i), ok = sig.length >= s.need;
+      return `<span class="chip ${ok ? "s-done" : i === st.step ? "s-wait" : "s-draft"}">${i + 1}. ${E(Approval.stepLabel(st.chain[i]))}${sig.length ? " ✓ " + sig.map(d => E(d.name || d.role)).join(", ") : ""}${s.need > 1 && !ok ? " (" + sig.length + "/" + s.need + ")" : ""}</span>`;
+    }).join('<span class="hint">→</span>')}</div>`;
+  }
+
+  /* =================== LIST =================== */
+  function list() {
+    const r = role(), all = Store.all("requests").sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+    const queue = Flows.queue(r), drafts = all.filter(x => x.stage === "draft" && x.requester_role === r);
+    const mine = queue.concat(drafts);
+    const overdue = Flows.overdueAdvances();
+    const sets = { mine, open: all.filter(x => !Flows.ENDED[x.stage]), ADV: all.filter(x => x.type === "ADV"), CLR: all.filter(x => x.type === "CLR"), PAY: all.filter(x => x.type === "PAY"), all };
+    const rows = sets[filter] || all;
+    view().innerHTML = UI.pageHead("ຄຳຂໍ & ອະນຸມັດ", "ເບີກເງິນສຳຮອງ · ເຄລຍເງິນສຳຮອງ · ຂໍເບີກຈ່າຍ — ອະນຸມັດຄົບແລ້ວ ລະບົບລົງບັນຊີໃຫ້ເອງ",
+      `<span class="role-pill">👤 ບົດບາດ: ${E(r)}</span><button class="btn btn-primary btn-lg" id="rq-new">＋ ຄຳຂໍໃໝ່</button>`) +
+      `<div class="card p-4 mb-5 rq-start"><div class="rq-pick-h">ເລີ່ມຄຳຂໍ — ກົດປະເພດທີ່ຕ້ອງການ</div>${pickerHtml("", false, "data-new")}</div>` +
+      (overdue.length ? `<div class="ac-card danger mb-4"><div class="ac-ic">⏰</div><div class="ac-body"><div class="ac-title">ເງິນສຳຮອງເກີນກຳນົດເຄລຍ ${overdue.length} ໃບ</div><div class="ac-meta">${E(overdue.map(x => x.number + " " + x.payee + " (" + x.due_clear + ")").join(" · "))}</div></div><button class="btn btn-primary" data-new="CLR">ເຄລຍດຽວນີ້ →</button></div>` : "") +
+      `<div class="section-title">ລໍຖ້າທ່ານ <span class="count ${mine.length ? "" : "zero"}">${mine.length}</span></div>` +
+      (mine.length ? `<div class="ac-list cols mb-6">${mine.slice(0, 6).map(card).join("")}</div>` : `<div class="ac-empty mb-6">✓ ບໍ່ມີຄຳຂໍລໍທ່ານ</div>`) +
+      `<div class="seg mb-3">${[["mine", "ລໍຂ້ອຍ"], ["open", "ກຳລັງດຳເນີນ"], ["ADV", "ເງິນສຳຮອງ"], ["CLR", "ເຄລຍ"], ["PAY", "ເບີກຈ່າຍ"], ["all", "ທັງໝົດ"]].map(([k, t]) => `<button data-f="${k}" class="${filter === k ? "on" : ""}">${t} (${sets[k].length})</button>`).join("")}</div>` +
+      (rows.length ? UI.table([
+        { h: "ເລກທີ", render: x => `<a class="font-semibold text-brand-700" href="#/requests?id=${x.id}">${E(x.number)}</a><div class="hint">${typeTag(x)}</div>` },
+        { h: "ລາຍລະອຽດ", render: x => `${E(x.purpose)}<div class="hint">${E(x.payee || "")}</div>` },
+        { h: "ຍອດ", cls: "num", render: x => M(Flows.amountOf(x)) },
+        { h: "ສະຖານະ", render: x => chip(x) + (x.type === "ADV" && x.stage === "open" ? `<div class="hint">ກຳນົດເຄລຍ ${E(x.due_clear)}</div>` : "") },
+        { h: "ຂັ້ນຕໍ່ໄປ", render: x => { const n = Flows.nextAction(x, r); return Flows.ENDED[x.stage] ? '<span class="hint">—</span>' : n.allowed ? `<button class="btn btn-primary btn-sm" data-open="${x.id}">${E(n.label)} →</button>` : `<span class="hint">${E(n.why)}</span>`; } }
+      ], rows) : `<div class="card p-8 text-center text-slate-500">ຍັງບໍ່ມີ — ກົດ <b>＋ ຄຳຂໍໃໝ່</b></div>`);
+    view().querySelector("#rq-new").onclick = () => newRequest();
+    view().querySelectorAll("[data-new]").forEach(b => b.onclick = () => newRequest(b.dataset.new));
+    view().querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; list(); });
+    view().querySelectorAll("[data-open]").forEach(b => b.onclick = () => open(b.dataset.open));
+  }
+  function card(x) {
+    const n = Flows.nextAction(x, role());
+    return `<div class="ac-card ${x.stage === "approval" ? "warn" : ""}"><div class="ac-ic">${Flows.TYPES[x.type].icon}</div>
+      <div class="ac-body"><div class="ac-title">${E(x.number)} · ${E(x.purpose)}</div><div class="ac-meta">${E(x.payee || "")} · ${M(Flows.amountOf(x))}</div></div>
+      <button class="btn btn-primary" data-open="${x.id}">${E(n.label)} →</button></div>`;
+  }
+
+  /* =================== NEW REQUEST =================== */
+  // type picker: grouped by "what do you want to do", each with a one-line "use when"
+  const PICK = [
+    ["💵 ເງິນສຳຮອງພະນັກງານ", [["ADV", "ພະນັກງານເບີກເງິນໄປໃຊ້ກ່ອນ (ເຊັ່ນ ເດີນທາງ)"], ["CLR", "ສົ່ງໃບບິນຄືນ ຫຼັງໃຊ້ເງິນສຳຮອງແລ້ວ"]]],
+    ["💸 ຈ່າຍເງິນອອກ", [["PAY", "ຂໍຈ່າຍຜູ້ສະໜອງທີ່ມີໃບບິນ ຫຼື ເບີກຄືນພະນັກງານ"], ["EXP", "ຄ່າໃຊ້ຈ່າຍທົ່ວໄປ ເຊັ່ນ ຄ່າໄຟ, ນ້ຳ, ເນັດ"], ["PRJ", "ຈ່າຍຕົ້ນທຶນໂຄງການກໍ່ສ້າງ / ຊັບສິນ"], ["LSE", "ຈ່າຍງວດສິນເຊື່ອ ຫຼື ຄ່າເຊົ່າ"], ["FEE", "ຄ່າທຳນຽມ / ດອກເບ້ຍ ຂອງທະນາຄານ"]]],
+    ["📥 ເງິນເຂົ້າ", [["RCV", "ບໍລິສັດໄດ້ຮັບເງິນ (ບໍ່ແມ່ນຈາກ Invoice)"]]],
+    ["🔁 ແລກປ່ຽນ & ໂອນ", [["FXX", "ແລກປ່ຽນເງິນຕາ (ຊື້/ຂາຍ ດອນລາ, ບາດ)"], ["TRF", "ໂອນເງິນລະຫວ່າງເງິນສົດ ↔ ທະນາຄານ"]]]
+  ];
+  function pickerHtml(type, picked, attr) {
+    attr = attr || "data-t";
+    const T = Flows.TYPES;
+    if (picked && T[type]) return `<div class="rq-cur"><span class="rq-cur-ic">${T[type].icon}</span><div><div class="rq-cur-k">ປະເພດຄຳຂໍ</div><b>${E(T[type].label)}</b></div><button type="button" class="btn btn-ghost btn-sm" data-change>ປ່ຽນປະເພດ</button></div>`;
+    const known = {}; PICK.forEach(g => g[1].forEach(o => known[o[0]] = 1));
+    const extra = Object.keys(T).filter(k => !known[k]).map(k => [k, ""]);
+    const groups = PICK.concat(extra.length ? [["ອື່ນໆ", extra]] : []);
+    return (attr === "data-t" ? `<div class="rq-pick-h">ເລືອກປະເພດຄຳຂໍ — ຢາກເຮັດຫຍັງ?</div>` : "") + groups.map(g => `<div class="rq-grp"><div class="rq-grp-t">${E(g[0])}</div><div class="rq-opts">${g[1].filter(o => T[o[0]]).map(o => `<button type="button" class="rq-opt${o[0] === type ? " on" : ""}" ${attr}="${o[0]}"><span class="rq-opt-ic">${T[o[0]].icon}</span><span><b>${E(T[o[0]].label)}</b>${o[1] ? `<small>${E(o[1])}</small>` : ""}</span></button>`).join("")}</div></div>`).join("");
+  }
+  function newRequest(preset, advId) {
+    let type = preset || "PAY", picked = !!preset, vl = [{ account: "", memo: "", orig: 0 }], lines = [{ account: "5200", description: "", amount: 0, vat: false, receipt_no: "" }];
+    const emps = Store.all("employees").map(e => e.name);
+    const vends = Store.all("vendors");
+    UI.modal("ຄຳຂໍໃໝ່", `
+      <div class="mb-4" id="rq-types"></div>
+      <div id="rq-form"></div>
+      <div class="booking mt-3" id="rq-chain"></div>
+      <div class="flex flex-wrap justify-end gap-2 mt-4" id="rq-foot"><button class="btn btn-ghost" id="rq-draft">ບັນທຶກຮ່າງ</button><button class="btn btn-primary btn-lg" id="rq-submit">ສົ່ງຂໍອະນຸມັດ →</button></div>
+      <datalist id="rq-emps">${emps.map(n => `<option value="${E(n)}">`).join("")}</datalist>`, { wide: true, onMount: (bd, close) => {
+        const q = s => bd.querySelector(s);
+        const linesTable = () => `<div class="overflow-x-auto mt-3"><table class="data"><thead><tr><th>ໝວດຄ່າໃຊ້ຈ່າຍ</th><th>ລາຍລະອຽດ</th><th>ເລກທີ່ບິນ *</th><th class="num">ຍອດຕາມບິນ</th><th>VAT</th><th></th></tr></thead><tbody>
+          ${lines.map((l, i) => `<tr><td style="min-width:170px"><select class="input" data-i="${i}" data-k="account">${Cat.accounts(expAccounts(), "expense", l.account).map(a => `<option value="${a.code}" ${a.code === l.account ? "selected" : ""}>${E(Cat.label(a, "expense"))}</option>`).join("")}</select></td>
+            <td><input class="input" data-i="${i}" data-k="description" value="${E(l.description)}"></td>
+            <td style="width:120px"><input class="input" data-i="${i}" data-k="receipt_no" value="${E(l.receipt_no)}"></td>
+            <td style="width:130px"><input class="input num" type="number" data-i="${i}" data-k="amount" value="${l.amount || ""}"></td>
+            <td><input type="checkbox" data-i="${i}" data-k="vat" ${l.vat ? "checked" : ""} title="ຍອດລວມ VAT 10% ແລ້ວ"></td>
+            <td>${lines.length > 1 ? `<button class="text-red-500" data-del="${i}">✕</button>` : ""}</td></tr>`).join("")}
+          </tbody></table></div><div class="flex justify-between items-center mt-2"><button class="btn btn-ghost btn-sm" id="rq-add">＋ ເພີ່ມລາຍການ</button><div>ລວມ: <b id="rq-total"></b></div></div>
+          <p class="hint mt-1">ໃສ່ຍອດເງິນຕາມໃບບິນ. ໝາຍ VAT ຖ້າໃບບິນມີ VAT 10% ລວມຢູ່ — ລະບົບແຍກ VAT ຊື້ໃຫ້ເອງ.</p>`;
+        const gRate = () => q("#rq-ccy") && q("#rq-ccy").value !== "LAK" ? Number(q("#rq-rate").value) || 0 : 1;
+        const total = () => {
+          const def = Flows.VDEFS[type];
+          if (def) return def.lines ? Acc.round(vl.reduce((s, l) => s + (Number(l.orig) || 0), 0) * gRate()) : Number((q("#rq-amt") || {}).value) || 0;
+          return type === "ADV" ? Number((q("#rq-amt") || {}).value) || 0 : lines.reduce((s, l) => s + (Number(l.amount) || 0), 0);
+        };
+        function refreshChain() {
+          const t = total();
+          if (q("#rq-total")) q("#rq-total").textContent = M(t);
+          let extra = "";
+          if (type === "CLR" && q("#rq-adv") && q("#rq-adv").value) {
+            const adv = Store.get("requests", q("#rq-adv").value), d = Acc.round(Number(adv.amount) - t);
+            extra = " · ເງິນສຳຮອງ " + M(adv.amount) + (d > 0 ? " → ພະນັກງານຕ້ອງຄືນ <b>" + M(d) + "</b>" : d < 0 ? " → ບໍລິສັດຈ່າຍເພີ່ມ <b>" + M(-d) + "</b>" : " → ພໍດີ");
+          }
+          q("#rq-chain").innerHTML = "✍️ <span>ຕ້ອງຜ່ານ: <b>" + Approval.chainLabels(Approval.chainFor(type, t)).map(E).join(" → ") + "</b>" + extra + "</span>";
+        }
+        function draw() {
+          q("#rq-types").innerHTML = pickerHtml(type, picked);
+          bd.querySelectorAll("#rq-types [data-t]").forEach(b => b.onclick = () => { type = b.dataset.t; picked = true; draw(); });
+          const chg = q("#rq-types [data-change]"); if (chg) chg.onclick = () => { picked = false; draw(); };
+          q("#rq-foot").style.display = q("#rq-chain").style.display = picked ? "" : "none";
+          if (!picked) { q("#rq-form").innerHTML = ""; return; }
+          const openAdv = Flows.openAdvances().filter(a => !Store.where("requests", x => x.type === "CLR" && x.advance_id === a.id && !Flows.ENDED[x.stage]).length);
+          let f = `<div class="grid sm:grid-cols-2 gap-3"><div class="sm:col-span-2"><label class="field">ຈຸດປະສົງ *</label><input class="input" id="rq-purpose" placeholder="${type === "ADV" ? "ເຊັ່ນ: ເດີນທາງໄປປາກເຊ ກວດສາຂາ" : type === "CLR" ? "ເຊັ່ນ: ເຄລຍຄ່າເດີນທາງປາກເຊ" : "ເຊັ່ນ: ຄ່າໄຟເດືອນ 9"}"></div>`;
+          if (type === "ADV") f += `<div><label class="field">ຜູ້ເບີກ *</label><input class="input" id="rq-payee" list="rq-emps" value="${E(role())}"></div><div><label class="field">ຈຳນວນເງິນ *</label><input class="input num" type="number" id="rq-amt"></div></div>
+            <p class="hint mt-2">ຕ້ອງເຄລຍພາຍໃນ ${Flows.settings().clear_days} ວັນຫຼັງຮັບເງິນ. ຖ້າມີເງິນສຳຮອງຄ້າງເກີນກຳນົດ ຈະເບີກໃໝ່ບໍ່ໄດ້.</p>`;
+          if (type === "CLR") f += `<div class="sm:col-span-2"><label class="field">ເງິນສຳຮອງທີ່ຈະເຄລຍ *</label><select class="input" id="rq-adv">${openAdv.length ? openAdv.map(a => `<option value="${a.id}">${E(a.number)} · ${E(a.payee)} · ${M(a.amount)} · ກຳນົດ ${E(a.due_clear)}</option>`).join("") : '<option value="">— ບໍ່ມີເງິນສຳຮອງຄ້າງເຄລຍ —</option>'}</select></div></div>` + linesTable();
+          if (type === "PAY") f += `<div><label class="field">ຈ່າຍໃຫ້</label><select class="input" id="rq-ptype"><option value="vendor">ຜູ້ສະໜອງ (ມີບິນ)</option><option value="employee">ພະນັກງານ (ເບີກຄືນ)</option></select></div>
+            <div id="rq-pwrap"><label class="field">ຜູ້ສະໜອງ *</label><select class="input" id="rq-vendor">${vends.map(v => `<option value="${v.id}">${E(v.name)}</option>`).join("")}</select></div></div>` + linesTable();
+          if (Flows.VDEFS[type]) f += genericFields(type);
+          q("#rq-form").innerHTML = f;
+          if (type === "CLR" && advId && q("#rq-adv")) q("#rq-adv").value = advId;
+          bindForm(); bindGeneric(); refreshChain();
+        }
+        // fields, currency + rate, project, lines and document checklist of a generic type.
+        // Continues the grid opened with the purpose field in draw().
+        function genericFields(t) {
+          const def = Flows.VDEFS[t], cb = Flows.cashBankAccounts(), ex = expAccounts();
+          const opt = list => list.map(a => `<option value="${E(a.code)}">${E(a.code + " " + a.name)}</option>`).join("");
+          const field = x => `<div><label class="field">${E(x.label)}</label>${
+            x.type === "number" ? `<input class="input num" type="number" min="0" ${x.k === "amount" ? 'id="rq-amt"' : `data-gn="${x.k}"`}>`
+              : x.type === "select" ? `<select class="input" data-gf="${x.k}">${x.options.map(o => `<option value="${o[0]}">${E(o[1])}</option>`).join("")}</select>`
+                : `<select class="input" data-gf="${x.k}">${opt(x.type === "expense" ? ex : cb)}</select>`}</div>`;
+          const fx = def.fx ? `<div><label class="field">ສະກຸນເງິນ</label><select class="input" id="rq-ccy">${Flows.CCYS.map(c => `<option>${c}</option>`).join("")}</select></div>
+            <div><label class="field">ອັດຕາແລກປ່ຽນ (ເປັນກີບ)</label><input class="input num" type="number" min="0" id="rq-rate" value="1" disabled></div>` : "";
+          const proj = def.project ? `<div><label class="field">ໂຄງການ (ທາງເລືອກ)</label><select class="input" id="rq-proj"><option value="">— ບໍ່ລະບຸ —</option>${Store.all("projects").map(p => `<option value="${E(p.id)}">${E(p.name)}</option>`).join("")}</select></div>` : "";
+          const ls = def.lines ? `<div class="sm:col-span-2"><datalist id="rq-vacc">${def.lines.accounts().map(a => `<option value="${E(a.code + " " + a.name)}">`).join("")}</datalist>
+            <div class="section-title">${E(def.lines.label)}</div><div id="rq-vl"></div>
+            <div class="flex justify-between items-center mt-2"><button class="btn btn-ghost btn-sm" type="button" id="rq-vadd">＋ ເພີ່ມລາຍການ</button><div>ລວມ: <b id="rq-total"></b></div></div></div>` : "";
+          return def.fields.map(field).join("") + fx + proj + ls +
+            `<div class="sm:col-span-2">${docsPanel(def.docs.map(d => ({ key: d.key, label: d.label, ok: false, ref: "" })), true)}</div></div>`;
+        }
+        function drawVL() {
+          const box = q("#rq-vl"); if (!box) return;
+          box.innerHTML = vl.map((l, i) => `<div class="grid gap-2 mb-2" style="grid-template-columns:minmax(0,2fr) minmax(0,2fr) minmax(0,1fr) auto">
+            <input class="input" list="rq-vacc" placeholder="ພິມເລກ ຫຼື ຊື່ບັນຊີ" data-vi="${i}" data-vk="account" value="${E(l.account)}">
+            <input class="input" placeholder="ລາຍລະອຽດ" data-vi="${i}" data-vk="memo" value="${E(l.memo)}">
+            <input class="input num" type="number" min="0" placeholder="ຍອດ" data-vi="${i}" data-vk="orig" value="${l.orig || ""}">
+            ${vl.length > 1 ? `<button type="button" class="text-red-500" data-vdel="${i}">✕</button>` : "<span></span>"}</div>`).join("");
+          box.querySelectorAll("[data-vi]").forEach(el => el.oninput = () => { vl[+el.dataset.vi][el.dataset.vk] = el.dataset.vk === "orig" ? Number(el.value) || 0 : el.value; refreshChain(); });
+          box.querySelectorAll("[data-vdel]").forEach(b => b.onclick = () => { vl.splice(+b.dataset.vdel, 1); drawVL(); refreshChain(); });
+        }
+        function bindGeneric() {
+          const def = Flows.VDEFS[type]; if (!def) return;
+          const ccy = q("#rq-ccy"), rate = q("#rq-rate");
+          if (ccy) ccy.onchange = () => { rate.value = ccy.value === "LAK" ? 1 : (Flows.lastRate(ccy.value) || ""); rate.disabled = ccy.value === "LAK"; refreshChain(); };
+          if (rate) rate.oninput = refreshChain;
+          bd.querySelectorAll("#rq-form [data-gn]").forEach(el => el.oninput = refreshChain);
+          if (q("#rq-amt")) q("#rq-amt").oninput = refreshChain;
+          if (def.lines) { drawVL(); q("#rq-vadd").onclick = () => { vl.push({ account: "", memo: "", orig: 0 }); drawVL(); }; }
+        }
+        function bindForm() {
+          bd.querySelectorAll("#rq-form [data-k]").forEach(el => el.onchange = el.oninput = () => {
+            const l = lines[+el.dataset.i], k = el.dataset.k;
+            l[k] = k === "vat" ? el.checked : k === "amount" ? Number(el.value) || 0 : el.value;
+            refreshChain();
+          });
+          bd.querySelectorAll("#rq-form [data-del]").forEach(b => b.onclick = () => { lines.splice(+b.dataset.del, 1); draw(); });
+          if (q("#rq-add")) q("#rq-add").onclick = () => { lines.push({ account: "5200", description: "", amount: 0, vat: false, receipt_no: "" }); draw(); };
+          if (q("#rq-amt")) q("#rq-amt").oninput = refreshChain;
+          if (q("#rq-adv")) q("#rq-adv").onchange = refreshChain;
+          if (q("#rq-ptype")) q("#rq-ptype").onchange = () => {
+            q("#rq-pwrap").innerHTML = q("#rq-ptype").value === "vendor"
+              ? `<label class="field">ຜູ້ສະໜອງ *</label><select class="input" id="rq-vendor">${vends.map(v => `<option value="${v.id}">${E(v.name)}</option>`).join("")}</select>`
+              : `<label class="field">ພະນັກງານ *</label><input class="input" id="rq-payee" list="rq-emps" value="${E(role())}">`;
+          };
+        }
+        const save = submitToo => {
+          try {
+            const purpose = q("#rq-purpose").value;
+            let data;
+            if (type === "ADV") data = { purpose, payee: q("#rq-payee").value, amount: Number(q("#rq-amt").value) };
+            if (type === "CLR") data = { purpose, advance_id: q("#rq-adv").value, lines };
+            if (Flows.VDEFS[type]) {
+              data = { purpose, docs: readDocs(bd), ccy: (q("#rq-ccy") || {}).value, rate: (q("#rq-rate") || {}).value, project_id: (q("#rq-proj") || {}).value,
+                amount: Number((q("#rq-amt") || {}).value) || 0, lines: vl.map(l => ({ account: String(l.account || "").trim().split(/\s+/)[0], memo: l.memo, orig: l.orig })) };
+              bd.querySelectorAll("[data-gf]").forEach(el => { data[el.dataset.gf] = el.value; });
+              bd.querySelectorAll("[data-gn]").forEach(el => { data[el.dataset.gn] = Number(el.value) || 0; });
+            }
+            if (type === "PAY") data = q("#rq-ptype").value === "vendor" ? { purpose, payee_type: "vendor", vendor_id: (q("#rq-vendor") || {}).value, lines } : { purpose, payee_type: "employee", payee: (q("#rq-payee") || {}).value, lines };
+            const r = Flows.create(type, data, role());
+            close();
+            // the draft exists now; if submitting fails (e.g. documents missing) keep it and open it so the checklist is right there
+            let sent = false;
+            if (submitToo) { try { Flows.submit(r.id, role()); sent = true; } catch (e) { UI.toast("ບັນທຶກຮ່າງ " + r.number + " ແລ້ວ — " + e.message, "warn"); } }
+            if (sent || !submitToo) UI.toast((sent ? "ສົ່ງ " : "ບັນທຶກຮ່າງ ") + r.number, "ok");
+            open(r.id);
+          } catch (e) { UI.toast(e.message, "err"); }
+        };
+        q("#rq-draft").onclick = () => save(false);
+        q("#rq-submit").onclick = () => save(true);
+        draw();
+      } });
+  }
+
+  /* =================== required documents =================== */
+  // checklist: tick the evidence you hold and write where it is (voucher no., file name, link)
+  function docsPanel(docs, editable) {
+    if (!docs.length) return "";
+    return `<div class="mt-4" data-docs><div class="section-title">ເອກະສານແນບ <span class="count ${docs.every(d => d.ok && d.ref) ? "" : "zero"}">${docs.filter(d => d.ok && d.ref).length}/${docs.length}</span></div>
+      <div class="space-y-2">${docs.map(d => `<div class="flex flex-wrap items-center gap-2"><label class="flex items-center gap-2 text-sm" style="min-width:260px"><input type="checkbox" data-dk="${E(d.key)}" ${d.ok ? "checked" : ""} ${editable ? "" : "disabled"}> ${E(d.label)}</label>
+        <input class="input flex-1" style="min-width:160px" data-dr="${E(d.key)}" placeholder="ເລກທີ / ຊື່ໄຟລ໌ / ລິ້ງ" value="${E(d.ref)}" ${editable ? "" : "disabled"}></div>`).join("")}</div>
+      <p class="hint mt-1">ຕ້ອງຕິກ ແລະ ໃສ່ຂໍ້ມູນອ້າງອີງ ຈຶ່ງຈະສົ່ງຂໍອະນຸມັດໄດ້</p></div>`;
+  }
+  function readDocs(root) {
+    const out = {};
+    root.querySelectorAll("[data-dk]").forEach(c => { out[c.dataset.dk] = { ok: c.checked, ref: (root.querySelector(`[data-dr="${c.dataset.dk}"]`) || {}).value || "" }; });
+    return out;
+  }
+
+  /* =================== DETAIL =================== */
+  const ATT_HINT = { ADV: "ໃບຂໍເບີກ / ຫຼັກຖານເຫດຜົນ", CLR: "ໃບບິນຕົວຈິງທັງໝົດທີ່ໃຊ້", PAY: "ໃບເກັບເງິນຜູ້ສະໜອງ", EXP: "ໃບບິນ / ໃບຮັບເງິນ", PRJ: "ໃບບິນ + ຮູບງານ" };
+  function detail(id) {
+    const r = Store.get("requests", id), n = Flows.nextAction(r, role()), lines = Flows.linesOf(id);
+    const adv = r.advance_id ? Store.get("requests", r.advance_id) : null;
+    view().innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div><a class="hint" href="#/requests">← ກັບໄປລາຍການຄຳຂໍ</a>
+          <h1 class="page-title mt-1">${E(r.number)} · ${E(r.purpose)}</h1>
+          <p class="page-sub">${typeTag(r)} · ${E(r.payee || "")} · <b>${M(Flows.amountOf(r))}</b> · ${E(UI.fmtDate(r.date))}${adv ? ` · ເຄລຍ <a class="text-brand-700" href="#/requests?id=${adv.id}">${E(adv.number)}</a>` : ""}</p></div>
+        <div class="flex gap-2 items-center"><button class="btn btn-ghost" id="doc-print">🖨 ພິມເອກະສານ</button><span class="role-pill">👤 ${E(role())}</span>${chip(r)}</div>
+      </div>
+      <div class="card p-4 mb-4">${stepper(r)}</div>
+      <div class="grid lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 space-y-4 min-w-0">
+          <div>${nextBox(r, n, adv)}</div>
+          <div class="card p-5 overflow-x-auto" id="req-doc">${ReqDoc.html(r)}</div>
+          ${Flows.docsOf(r).length ? `<div class="card p-5" id="docs-card">${docsPanel(Flows.docsOf(r), r.stage === "draft" || r.stage === "approval")}${r.stage === "draft" || r.stage === "approval" ? `<button class="btn btn-ghost btn-sm mt-3" id="docs-save">ບັນທຶກເອກະສານແນບ</button>` : ""}</div>` : ""}
+        </div>
+        <div class="space-y-4 min-w-0">
+          <div class="card p-5"><div class="section-title">ເອກະສານແນບ (ຮູບ / ໄຟລ໌)</div><div class="hint mb-2">📎 ${E(ATT_HINT[r.type] || "ໃບບິນ / ໃບຮັບເງິນ / ຮູບຫຼັກຖານ")}</div><button class="btn btn-ghost btn-block" id="rq-attach">📎 ແນບ / ເບິ່ງ (${AppCtx.docsCount("requests", r.id)})</button></div>
+          <div class="card p-5"><div class="section-title">ປະຫວັດ</div><ul class="timeline">${Flows.history(id).map(h => `<li><b>${E(DID[h.action] || h.action)}</b> · ${E(h.role)}${h.note ? `<div class="text-slate-600">${E(h.note)}</div>` : ""}<div class="t-when">${E(h.ts.slice(0, 16).replace("T", " "))}</div></li>`).join("")}</ul></div>
+          <div class="card p-5 acct-only"><div class="section-title">ການລົງບັນຊີ</div><div class="space-y-2">${BOOK[r.type].map(b => `<div class="booking">📒 <span>${E(b)}</span></div>`).join("")}</div></div>
+        </div>
+      </div>`;
+    bindDetail(r);
+  }
+  function nextBox(r, n, adv) {
+    const head = (t, sub) => `<div class="nb-kicker">ທ່ານຕ້ອງເຮັດ</div><div class="nb-title">${E(t)}</div>${sub ? `<p class="text-sm text-slate-600">${sub}</p>` : ""}`;
+    if (r.stage === "closed") return `<div class="next-box done"><div class="nb-kicker">ສຳເລັດ</div><div class="nb-title">✓ ຄົບຂັ້ນຕອນ ແລະ ລົງບັນຊີແລ້ວ</div></div>`;
+    if (Flows.ENDED[r.stage]) return `<div class="next-box stop"><div class="nb-kicker">ສິ້ນສຸດ</div><div class="nb-title">${E(Flows.STAGE_LABEL[r.stage])}</div></div>`;
+    const warn = Flows.warnings(r).map(w => `<div class="booking mt-2" style="background:#fffbeb;border-color:#fcd34d">${E(w)}</div>`).join("");
+    if (!n.allowed) return `<div class="next-box wait"><div class="nb-kicker">ຂັ້ນຕໍ່ໄປ</div><div class="nb-title">${E(n.label)}</div><p class="text-sm text-slate-600">⏳ ${E(n.why)}</p>${r.stage === "approval" ? chainView(r) : ""}</div>`;
+    const bankSel = `<div class="grid sm:grid-cols-2 gap-2 mt-3"><div><label class="field">ບັນຊີເງິນ</label><select class="input" id="nx-bank">${banks().map(b => `<option value="${b.id}">${E(b.name)}</option>`).join("")}</select></div><div><label class="field">ວັນທີ</label><input class="input" type="date" id="nx-date" value="${UI.today()}"></div></div>`;
+    if (r.stage === "draft") return `<div class="next-box">${head("ສົ່ງຂໍອະນຸມັດ")}<div class="flex gap-2 mt-3"><button class="btn btn-primary btn-lg" id="nx-go">ສົ່ງຂໍອະນຸມັດ →</button><button class="btn btn-ghost" id="nx-cancel">ຍົກເລີກ</button></div></div>`;
+    if (r.stage === "approval") {
+      const st = Approval.chainState(r, r.type, Flows.amountOf(r)), last = st.step === st.chain.length - 1 && st.count[st.step] + 1 >= st.need;
+      return `<div class="next-box">${head("ອະນຸມັດ " + Flows.TYPES[r.type].label + "?", "<b>" + M(Flows.amountOf(r)) + "</b> · " + E(r.payee || "") + " · ຂັ້ນ " + (st.step + 1) + "/" + st.chain.length)}
+        ${chainView(r)}${warn}
+        <textarea class="input mt-3" id="nx-note" rows="2" placeholder="ໝາຍເຫດ (ຈຳເປັນ ຖ້າປະຕິເສດ)"></textarea>
+        <div class="flex flex-wrap gap-2 mt-3"><button class="btn btn-ok btn-lg" id="nx-go">✓ ${last && r.type !== "ADV" ? "ອະນຸມັດ & ລົງບັນຊີ" : "ອະນຸມັດ"}</button><button class="btn btn-danger" id="nx-reject">✕ ປະຕິເສດ</button></div></div>`;
+    }
+    if (r.stage === "payout") {
+      const amt = r.type === "ADV" ? r.amount : r.type === "CLR" ? r.extra : r.posted_total;
+      return `<div class="next-box">${head(r.type === "CLR" ? "ຈ່າຍສ່ວນທີ່ໃຊ້ເກີນຄືນໃຫ້ " + E(r.payee) : "ຈ່າຍເງິນໃຫ້ " + E(r.payee), "ຈຳນວນ <b>" + M(amt) + "</b>")}${bankSel}
+        <div class="flex gap-2 mt-3"><button class="btn btn-primary btn-lg" id="nx-pay">💸 ຈ່າຍ & ລົງບັນຊີ</button></div></div>`;
+    }
+    if (r.stage === "refund") return `<div class="next-box">${head("ຮັບເງິນສຳຮອງທີ່ເຫຼືອຄືນຈາກ " + E(r.payee), "ຈຳນວນ <b>" + M(r.refund) + "</b>")}${bankSel}
+        <div class="flex gap-2 mt-3"><button class="btn btn-primary btn-lg" id="nx-refund">💵 ຮັບເງິນຄືນ & ລົງບັນຊີ</button></div></div>`;
+    if (r.stage === "open") return `<div class="next-box wait"><div class="nb-kicker">ລໍເຄລຍ</div><div class="nb-title">ລໍ ${E(r.payee)} ຍື່ນໃບບິນເຄລຍ</div><p class="text-sm text-slate-600">ກຳນົດ ${E(r.due_clear)}</p><button class="btn btn-primary mt-3" id="nx-clr">🧾 ສ້າງໃບເຄລຍ</button></div>`;
+    return "";
+  }
+  function bindDetail(r) {
+    const q = s => view().querySelector(s), on = (s, f) => { const el = q(s); if (el) el.onclick = f; }, me = role();
+    if (r.stage === "draft") on("#nx-go", () => act(() => Flows.submit(r.id, me), "ສົ່ງຂໍອະນຸມັດແລ້ວ"));
+    on("#nx-cancel", () => UI.confirmDialog("ຍົກເລີກ " + r.number + "?", () => act(() => Flows.cancel(r.id, me), "ຍົກເລີກແລ້ວ")));
+    if (r.stage === "approval") {
+      on("#nx-go", () => act(() => { const x = Flows.approve(r.id, me, q("#nx-note").value); UI.toast(x.stage === "approval" ? "ອະນຸມັດແລ້ວ — ສົ່ງຕໍ່ຂັ້ນຕໍ່ໄປ" : "ອະນຸມັດຄົບ" + (x.stage === "payout" && r.type !== "ADV" ? " & ລົງບັນຊີແລ້ວ" : ""), "ok"); }));
+      on("#nx-reject", () => act(() => Flows.reject(r.id, me, q("#nx-note").value), "ປະຕິເສດແລ້ວ"));
+    }
+    on("#nx-pay", () => act(() => Flows.pay(r.id, me, { bank_id: q("#nx-bank").value, date: q("#nx-date").value }), "ຈ່າຍເງິນ & ລົງບັນຊີແລ້ວ"));
+    on("#nx-refund", () => act(() => Flows.receiveRefund(r.id, me, { bank_id: q("#nx-bank").value, date: q("#nx-date").value }), "ຮັບເງິນຄືນ & ລົງບັນຊີແລ້ວ"));
+    on("#nx-clr", () => newRequest("CLR"));
+    on("#doc-print", () => ReqDoc.print(r));
+    on("#rq-attach", () => AppCtx.attachDocs("requests", r.id, r.number));
+    on("#docs-save", () => act(() => Flows.setDocs(r.id, readDocs(view().querySelector("#docs-card")), me), "ບັນທຶກເອກະສານແນບແລ້ວ"));
+  }
+
+  /* =================== Approval matrix editor (Settings) =================== */
+  // Per request type: amount tiers → ordered steps. Each step = a role and/or named people + how many must sign.
+  function matrixModal(scope) {
+    scope = scope || "*";
+    const m = Approval.matrix(), can = window.AppCtx.currentRole() === "Admin";
+    const own = scope !== "*" && !!m.by_type[scope];                       // does this type have its own chain?
+    let inherit = scope !== "*" && !own;
+    let tiers = JSON.parse(JSON.stringify((scope === "*" ? m.tiers : (m.by_type[scope] || m.tiers))));
+    const users = Store.where("users", u => (u.status || "active") === "active");
+    const scopes = [["*", "ທຸກປະເພດ (ຄ່າເລີ່ມຕົ້ນ)"]].concat(Object.keys(Flows.TYPES).map(k => [k, Flows.TYPES[k].label])).concat([["PURCHASE", "ຂໍຊື້ (PR)"], ["STOCK", "ເອກະສານສາງ (ຈ່າຍສິນຄ້າ / ປັບປຸງ / ກວດນັບ)"]]).concat(Gate.types().map(x => [x.type, x.label]));
+    const gateType = scope !== "*" && Gate.types().some(x => x.type === scope);
+    const fs = Flows.settings();
+    const stepOf = e => Approval.normStep(e);
+    UI.modal("✍️ ຂັ້ນອະນຸມັດ", `<p class="hint mb-3">ແຕ່ລະຂັ້ນ: ເລືອກບົດບາດ ແລະ/ຫຼື ຜູ້ໃຊ້ທີ່ລະບຸຊື່ (ຄົນໃດຄົນໜຶ່ງໃນລາຍຊື່ເຊັນໄດ້) ແລະ ກຳນົດວ່າຕ້ອງເຊັນກີ່ຄົນ. ຜູ້ຂໍເຊັນເອງບໍ່ໄດ້ ແລະ ຄົນດຽວເຊັນສອງຂັ້ນບໍ່ໄດ້. ການລະບຸຊື່ຄົນໃຊ້ໄດ້ເມື່ອຜູ້ໃຊ້ເຂົ້າລະບົບເປັນຜູ້ໃຊ້ (ປຸ່ມຊື່ມຸມຂວາເທິງ).</p>
+      <div class="flex flex-wrap items-center gap-2 mb-3"><label class="field" style="margin:0">ປະເພດຄຳຂໍ</label>
+        <select class="input" id="mx-scope" style="width:auto">${scopes.map(([k, l]) => `<option value="${k}" ${k === scope ? "selected" : ""}>${E(l)}${k !== "*" && m.by_type[k] ? " *" : ""}</option>`).join("")}</select>
+        ${scope !== "*" ? `<label class="flex items-center gap-2 text-sm"><input type="checkbox" id="mx-inherit" ${inherit ? "checked" : ""} ${can ? "" : "disabled"}> ໃຊ້ຂັ້ນຄ່າເລີ່ມຕົ້ນ</label>` : ""}<span class="hint">* = ມີຂັ້ນຂອງຕົນເອງ</span></div>
+      ${gateType ? `<label class="flex items-center gap-2 text-sm mb-3 p-3 rounded-lg" style="background:#f2f9f8"><input type="checkbox" id="mx-gate" ${Gate.isOn(scope) ? "checked" : ""} ${can ? "" : "disabled"}> <b>ຕ້ອງອະນຸມັດກ່ອນລົງບັນຊີ</b> <span class="hint">ປິດ = ກົດແລ້ວລົງບັນຊີທັນທີ (ຂັ້ນຂ້າງລຸ່ມໃຊ້ຕອນເປີດ)</span></label>` : ""}
+      <div id="mx-rows"></div>
+      ${can ? `<button class="btn btn-ghost btn-sm mt-2" id="mx-add">＋ ເພີ່ມຂັ້ນວົງເງິນ</button>` : ""}
+      ${scope === "*" ? `<label class="flex items-center gap-2 text-sm mt-4"><input type="checkbox" id="mx-docs" ${fs.require_docs ? "checked" : ""} ${can ? "" : "disabled"}> ບັງຄັບເອກະສານແນບກ່ອນສົ່ງ (ເງິນສຳຮອງ / ເຄລຍ / ຂໍເບີກຈ່າຍ) — ປະເພດໃໝ່ ບັງຄັບສະເໝີ</label>
+      <div class="grid sm:grid-cols-2 gap-3 mt-4"><div><label class="field">ເງິນສຳຮອງຕ້ອງເຄລຍພາຍໃນ (ວັນ)</label><input class="input num" type="number" id="mx-clear" value="${fs.clear_days}" ${can ? "" : "disabled"}></div></div>` : ""}
+      <div class="flex justify-end gap-2 mt-4">${can ? `<button class="btn btn-primary" id="mx-save">ບັນທຶກ</button>` : '<span class="hint">ສະເພາະ Admin ແກ້ໄຂໄດ້</span>'}</div>`, { wide: true, onMount: (bd, close) => {
+        const q = s => bd.querySelector(s);
+        q("#mx-scope").onchange = e => matrixModal(e.target.value);
+        const dis = can ? "" : "disabled";
+        function stepHtml(t, i, j) {
+          const s = stepOf(t.chain[j] === undefined ? { roles: [], users: [], need: 1 } : t.chain[j]);
+          return `<div class="card p-2"><div class="field">ຂັ້ນ ${j + 1}</div>
+            <select class="input mb-1" data-role="${i}.${j}" ${dis}><option value="">— ບົດບາດ —</option>${ROLES.map(rl => `<option ${s.roles[0] === rl ? "selected" : ""}>${rl}</option>`).join("")}</select>
+            <details><summary class="hint cursor-pointer">ຜູ້ໃຊ້ທີ່ລະບຸຊື່ (${s.users.length})</summary>
+              <div style="max-height:130px;overflow:auto" class="mt-1">${users.length ? users.map(u => `<label class="flex items-center gap-2 text-sm"><input type="checkbox" data-user="${i}.${j}" value="${E(u.id)}" ${s.users.indexOf(u.id) !== -1 ? "checked" : ""} ${dis}> ${E(u.name)} <span class="hint">${E(u.role)}</span></label>`).join("") : '<span class="hint">ຍັງບໍ່ມີຜູ້ໃຊ້ — ເພີ່ມທີ່ ຜູ້ໃຊ້ & ສິດ</span>'}</div></details>
+            <label class="field mt-1">ຕ້ອງເຊັນ (ຄົນ)</label><input class="input num" type="number" min="1" data-need="${i}.${j}" value="${s.need}" ${dis}></div>`;
+        }
+        function read() {      // DOM → tiers (a step stays a plain role string when it is just one role, one signer)
+          tiers.forEach((t, i) => {
+            const chain = [];
+            for (let j = 0; j < 4; j++) {
+              const role = (q(`[data-role="${i}.${j}"]`) || {}).value || "";
+              const us = [...bd.querySelectorAll(`[data-user="${i}.${j}"]:checked`)].map(c => c.value);
+              const need = Math.max(1, Number((q(`[data-need="${i}.${j}"]`) || {}).value) || 1);
+              if (!role && !us.length) continue;
+              chain.push(!us.length && need === 1 ? role : { roles: role ? [role] : [], users: us, need });
+            }
+            t.chain = chain;
+          });
+        }
+        function draw() {
+          q("#mx-rows").innerHTML = tiers.map((t, i) => `<div class="card p-3 mb-2"><div class="flex items-end justify-between gap-2 mb-2">
+            <div><label class="field">ບໍ່ເກີນ (₭) — ວ່າງ = ບໍ່ຈຳກັດ</label><input class="input num" style="max-width:220px" type="number" data-max="${i}" value="${t.max === null ? "" : t.max}" ${dis}></div>
+            ${can && tiers.length > 1 ? `<button class="text-red-500" data-rm="${i}" title="ລຶບວົງເງິນນີ້">✕</button>` : ""}</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">${[0, 1, 2, 3].map(j => stepHtml(t, i, j)).join("")}</div></div>`).join("");
+          bd.querySelectorAll("[data-max]").forEach(el => el.onchange = () => { tiers[+el.dataset.max].max = el.value === "" ? null : Number(el.value); });
+          bd.querySelectorAll("[data-rm]").forEach(b2 => b2.onclick = () => { read(); tiers.splice(+b2.dataset.rm, 1); draw(); });
+          if (q("#mx-inherit")) { const dim = () => { q("#mx-rows").style.opacity = q("#mx-inherit").checked ? ".45" : "1"; q("#mx-rows").style.pointerEvents = q("#mx-inherit").checked ? "none" : ""; }; q("#mx-inherit").onchange = dim; dim(); }
+        }
+        draw();
+        if (!can) return;
+        q("#mx-add").onclick = () => { read(); tiers.push({ max: null, chain: ["Manager"] }); draw(); };
+        q("#mx-save").onclick = () => {
+          try {
+            if (gateType) Gate.setOn(scope, q("#mx-gate").checked);
+            if (scope !== "*" && q("#mx-inherit").checked) { Approval.setTypeTiers(scope, null); close(); UI.toast("ໃຊ້ຂັ້ນຄ່າເລີ່ມຕົ້ນ", "ok"); return; }
+            read();
+            tiers.forEach(t => { if (!t.chain.length) throw new Error("ທຸກວົງເງິນຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂັ້ນ"); });
+            if (scope === "*") {
+              Approval.setMatrix(tiers);
+              const cd = Number(q("#mx-clear").value) || 15, rd = q("#mx-docs").checked;
+              if (Store.get("settings", "flows")) Store.update("settings", "flows", { clear_days: cd, require_docs: rd }); else Store.insert("settings", { id: "flows", clear_days: cd, require_docs: rd });
+            } else Approval.setTypeTiers(scope, tiers);
+            close(); UI.toast("ບັນທຶກຂັ້ນອະນຸມັດແລ້ວ (ໃຊ້ກັບຄຳຂໍໃໝ່)", "ok");
+          } catch (e) { UI.toast(e.message, "err"); }
+        };
+      } });
+  }
+
+  window.FlowsUI = { page: render, newRequest, matrixModal };
+})();

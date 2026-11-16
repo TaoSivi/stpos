@@ -5,3 +5,6 @@ deployment:
     - /bin/cp index.html launcher.html platform-admin.html $DEPLOYPATH
     - /bin/cp deploy/.htaccess $DEPLOYPATH.htaccess
     - /bin/cp -R demo-img $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/hr $DEPLOYPATH/erp
+    - /bin/cp -R apps/hr/. $DEPLOYPATH/hr/
+    - /bin/cp -R apps/erp/. $DEPLOYPATH/erp/
