@@ -16,7 +16,7 @@ const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel'
 const has = function (u, id) { return u.apps.indexOf('*') >= 0 || u.apps.indexOf(id) >= 0; };
 const APPS = [
   { id: 'fuel', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
-  { id: 'people', name: 'ພະນັກງານ & ສິດ', desc: function () { return 'ເພີ່ມຄົນ ກຳນົດສິດທຸກແອັບ ຄັ້ງດຽວ'; }, icon: 'key', href: function () { return 'people.html'; }, access: function (u) { return u.level !== 'user'; } },
+  { id: 'people', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
   { id: 'hr', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } }
   /* ຕົວຢ່າງ SOP: { id: 'sop', name: 'SOP', desc: function () { return 'ຂັ້ນຕອນການເຮັດວຽກ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } } */
 ];

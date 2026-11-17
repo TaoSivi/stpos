@@ -30,8 +30,8 @@ var MODS = [
  { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { reportView(); } },
  { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites() && hasOps(); }, run: function () { ledgerLoad(); } },
  { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRight('assign'); }, run: function () { assignView(); } },
- { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { location.href = 'people.html'; } },
- { id: 'cfg', t: 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.boss; }, run: function () { cfgView(); } },
+ { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { location.href = 'admin.html#people'; } },
+ { id: 'cfg', t: 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.boss; }, run: function () { location.href = 'admin.html#setup'; } },
  { id: 'me', t: 'ຂ້ອຍ', ic: 'user', g: 'ບັນຊີ', pick: 'none', show: function () { return true; }, run: function () { meView(); } }
 ];
 function vis() { return MODS.filter(function (m) { return m.show(); }); }

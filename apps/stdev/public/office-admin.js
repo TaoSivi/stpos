@@ -1,4 +1,4 @@
-/* ໂມດູນຈັດການ: ມອບລົດໃຫ້ຄົນຂັບ · ຕັ້ງຄ່າ ສະໜາມ & ລົດ · ຂ້ອຍ   (ພະນັກງານ & ສິດ ຢູ່ໜ້າແພລດຟອມ people.html — people.js; ຕົວຊ່ວຍສິດ perm.js) */
+/* ໂມດູນຈັດການໃນແອັບນ້ຳມັນ: ມອບລົດໃຫ້ຄົນຂັບ · ຂ້ອຍ   (ຄົນ & ສິດ · ສະໜາມ & ລົດ ຢູ່ສູນຈັດການ admin.html — admin.js) */
 'use strict';
 /* ===== ມອບລົດໃຫ້ຄົນຂັບ ===== */
 function assignView() {
@@ -16,45 +16,6 @@ $('v').addEventListener('change', function (e) {
   r.data.forEach(function (x) { I.cfg.vehicles.forEach(function (v) { if (v.id === x.id) v.driver = x.driver; }); });
   assignView(); toast('ມອບລົດແລ້ວ', 'ok');
  });
-});
-
-/* ===== ຕັ້ງຄ່າ ສະໜາມ & ລົດ (ເຈົ້າຂອງ) ===== */
-function tankIn(t) { t = t || { t: 'lpc' }; return '<div class="tk"><select data-c="tt" aria-label="ຮູບຊົງຖັງ">' + opts([['lpc', 'ລິດ ຕໍ່ 1 cm'], ['box', 'ຖັງສີ່ຫຼ່ຽມ'], ['hcyl', 'ຖັງກົມນອນ']], t.t) + '</select><input type="number" min="0" step="0.01" data-c="ta" value="' + (t.k || t.l || t.d || '') + '"><input type="number" min="0" step="0.01" data-c="tb" value="' + (t.w || t.len || '') + '"></div>'; }
-function tankHint(row) { var t = row.querySelector('[data-c=tt]').value, a = row.querySelector('[data-c=ta]'), b = row.querySelector('[data-c=tb]'); a.placeholder = a.title = t === 'lpc' ? 'ລິດ/cm' : t === 'box' ? 'ຍາວ cm' : 'ເສັ້ນຜ່າກາງ cm'; b.placeholder = b.title = t === 'box' ? 'ກວ້າງ cm' : 'ຍາວ cm'; b.classList.toggle('hide', t === 'lpc'); }
-function tankOut(row) { var t = row.querySelector('[data-c=tt]').value, a = row.querySelector('[data-c=ta]').value, b = row.querySelector('[data-c=tb]').value; return t === 'box' ? { t: t, l: a, w: b } : t === 'hcyl' ? { t: t, d: a, len: b } : { t: t, k: a }; }
-var DELB = '<button type="button" class="btn bad" data-del="1">' + ic('trash') + 'ລຶບ</button>';
-function cfgRow(kind, x) {
- var sites = I.cfg.sites.map(function (s) { return [s.id, s.name]; }), drv = [['', '— ເລືອກຄົນຂັບ —']].concat(DRV.map(function (u) { return [u.phone, u.name]; }));
- if (kind === 'site') return '<div class="cr" data-kind="site" data-id="' + esc(x.id) + '"><label class="f">ຊື່ສະໜາມ / ໂຄງການ<input type="text" data-c="name" placeholder="ຊື່ສະໜາມ" value="' + esc(x.name) + '"></label><small class="muted">ຂະໜາດແທ່ງນ້ຳມັນ</small>' + tankIn(x.tank) + DELB + '</div>';
- return '<div class="cr" data-kind="car" data-id="' + esc(x.id) + '"><label class="f">ຊື່ລົດ / ທະບຽນ<input type="text" data-c="name" placeholder="ຊື່ລົດ / ທະບຽນ" value="' + esc(x.name) + '"></label><div class="g2"><select data-c="site" aria-label="ສະໜາມ">' + opts(sites, x.site) + '</select><select data-c="driver" aria-label="ຄົນຂັບ">' + opts(drv, x.driver) + '</select></div><small class="muted">ຂະໜາດຖັງລົດ</small>' + tankIn(x.tank) + DELB + '</div>';
-}
-function cfgView() {
- api('drivers').then(function (d) {
-  if (MOD !== 'cfg') return; if (d.ok) DRV = d.data; var c = I.cfg;
-  var sec = function (id, icn, title, hint, rows, add) { return '<section class="card"><h2>' + ic(icn) + title + '</h2><small class="muted">' + hint + '</small><div id="' + id + '">' + rows + '</div><button type="button" class="btn line" data-add="' + add + '" style="margin-top:8px">' + ic('plus') + 'ເພີ່ມ</button></section>'; };
-  $('v').innerHTML = '<section class="card"><label class="f">ຊື່ບໍລິສັດ (ສະແດງຫົວລາຍງານ)<input type="text" id="co" maxlength="100" value="' + esc(c.company) + '"></label></section>' +
-   sec('cS', 'drop', 'ສະໜາມ', 'ເພີ່ມສະໜາມ ແລ້ວກົດ "ບັນທຶກ" ກ່ອນ ຈຶ່ງເພີ່ມລົດ', c.sites.map(function (s) { return cfgRow('site', s); }).join(''), 'site') +
-   sec('cV', 'truck', 'ລົດ / ເຄື່ອງຈັກ', 'ຄົນຂັບ = ຜູ້ທີ່ຈະກົດຮັບຮູ້ໃນມືຖືຂອງຕົນ (ເພີ່ມພະນັກງານ "ຄົນຂັບ" ກ່ອນໃນ ພະນັກງານ & ສິດ)', c.vehicles.map(function (v) { return cfgRow('car', v); }).join(''), 'car') +
-   '<button id="csave" class="btn blk">' + ic('check') + 'ບັນທຶກ ສະໜາມ ແລະ ລົດ</button>';
-  document.querySelectorAll('#v .tk').forEach(function (t) { tankHint(t.parentNode); });
- });
-}
-function cfgRead() {
- var q = function (r, c) { return r.querySelector('[data-c=' + c + ']').value; }, all = function (id) { return Array.prototype.slice.call($(id).children).filter(function (x) { return x.dataset.kind; }); };
- return { company: $('co').value, sites: all('cS').map(function (r) { return { id: r.dataset.id, name: q(r, 'name'), tank: tankOut(r) }; }), vehicles: all('cV').map(function (r) { return { id: r.dataset.id, name: q(r, 'name'), site: q(r, 'site'), driver: q(r, 'driver'), tank: tankOut(r) }; }) };
-}
-$('v').addEventListener('change', function (e) { if (MOD === 'cfg' && e.target.dataset.c === 'tt') tankHint(e.target.closest('.cr')); });
-$('v').addEventListener('click', function (e) {
- if (MOD !== 'cfg') return; var b = e.target.closest('button'); if (!b) return;
- if (b.dataset.del) { b.closest('.cr').remove(); return; }
- if (b.dataset.add) { var k = b.dataset.add, box = b.previousElementSibling; box.insertAdjacentHTML('beforeend', cfgRow(k, { id: (k === 'site' ? 's' : 'v') + Math.random().toString(36).slice(2, 9) })); tankHint(box.lastElementChild); return; }
- if (b.id === 'csave') {
-  var sent = cfgRead(); b.disabled = true;
-  api('cfgSave', { cfg: sent }).then(function (r) {
-   b.disabled = false; if (!r.ok) return; var lost = sent.sites.length + sent.vehicles.length - r.data.sites.length - r.data.vehicles.length; I.company = r.data.company;
-   api('init').then(function (i) { if (!i.ok) return; I = i.data; fillSites(); buildNav(); cfgView(); toast(lost ? 'ບັນທຶກແລ້ວ ແຕ່ ' + lost + ' ແຖວຖືກຂ້າມ (ຂາດຊື່ ຫຼື ຂະໜາດຖັງ)' : 'ບັນທຶກແລ້ວ', lost ? 'bad' : 'ok'); });
-  });
- }
 });
 
 /* ===== ຂ້ອຍ ===== */

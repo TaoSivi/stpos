@@ -1,0 +1,44 @@
+/* ສູນຈັດການ (Admin Hub): ປຸ່ມໃຫຍ່, ຄຳສັ່ງສັ້ນ, ເຮັດທີລະບາດ — ໃຫ້ຄົນທົ່ວໄປໃຊ້ໄດ້ */
+.hub{display:grid;gap:12px}
+.hubtile{display:flex;align-items:center;gap:16px;width:100%;min-height:92px;padding:16px 18px;border:0;border-radius:var(--r);background:var(--card);box-shadow:var(--sh-1);text-align:left;animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both;transition:transform .15s,box-shadow .2s}
+.hubtile:hover{box-shadow:var(--sh-2)}.hubtile:active{transform:scale(.98)}
+.hubtile .logo{width:58px;height:58px;border-radius:20px;flex:0 0 58px}.hubtile .logo svg{width:30px;height:30px;stroke:#fff}
+.hubtile b{display:block;font-size:19px}.hubtile span.sub{color:var(--muted);font-size:14px;display:block}
+.hubtile .chip{margin-top:4px}
+.todoList{list-style:none;margin:6px 0 0;padding:0}
+.todoList li{display:flex;align-items:center;gap:12px;padding:10px 4px;font-size:16px;border-top:1px solid var(--line)}
+.todoList li:first-child{border-top:0}
+.dot{width:30px;height:30px;border-radius:50%;flex:0 0 30px;display:grid;place-items:center;background:#e8eeee;color:var(--muted);font-weight:800;font-size:14px}
+.dot.ok{background:var(--primary);color:#fff;animation:popIn .35s both}.dot svg{width:18px;height:18px;stroke-width:3}
+.back{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px 6px 8px;margin:0 0 8px;border:0;background:none;color:var(--primary);font-weight:700;font-size:16px;border-radius:14px}
+.back:hover{background:var(--ok-bg)}
+.bigbtn{min-height:56px;font-size:17px;border-radius:18px;width:100%}
+.steps{display:flex;gap:6px;margin:4px 0 14px}
+.steps button{flex:1;min-height:44px;border:0;border-radius:14px;background:#eaf0f0;color:var(--muted);font-weight:700;font-size:13px;padding:4px}
+.steps button[aria-current=true]{background:var(--primary);color:#fff}.steps button.done{background:var(--ok-bg);color:var(--primary)}
+.q{font-size:22px;font-weight:800;margin:4px 0 4px}.qs{color:var(--muted);margin:0 0 12px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.rgrid{grid-template-columns:1fr}}
+.rcard{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;min-height:72px;padding:12px 14px;border:2px solid var(--line-2);border-radius:20px;background:#fff;transition:border-color .15s,background .15s,transform .12s}
+.rcard:active{transform:scale(.98)}
+.rcard[aria-checked=true]{border-color:var(--primary);background:var(--ok-bg)}
+.rcard .ri{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#eef4f4;color:var(--primary);flex:0 0 40px}
+.rcard[aria-checked=true] .ri{background:var(--primary);color:#fff}
+.rcard b{display:block;font-size:16px}.rcard small{color:var(--muted);font-size:13px;line-height:1.35;display:block}
+.sect{font-weight:800;margin:16px 0 6px;display:flex;align-items:center;gap:8px}
+.sect svg{color:var(--primary)}
+.field{display:block;font-weight:700;margin:10px 0}.field small{display:block;font-weight:400;color:var(--muted)}
+.field input,.field select{min-height:54px;font-size:18px;margin-top:6px}
+.bar2{display:flex;gap:10px;margin-top:16px}.bar2 .btn{min-height:54px;font-size:17px;border-radius:18px}
+.err2{min-height:24px;color:var(--bad);font-weight:700;margin:6px 0}
+.sitecard{display:flex;align-items:center;gap:12px;width:100%;min-height:68px;padding:12px 14px;margin:8px 0 0;border:2px solid var(--line-2);border-radius:20px;background:#fff;text-align:left}
+.sitecard[aria-checked=true]{border-color:var(--primary);background:var(--ok-bg)}
+.sitecard .cb{width:28px;height:28px;border-radius:9px;border:2px solid var(--line-2);display:grid;place-items:center;flex:0 0 28px;color:#fff}
+.sitecard[aria-checked=true] .cb{background:var(--primary);border-color:var(--primary)}
+.test{margin:10px 0;padding:12px 14px;border-radius:18px;background:#f0f7f7;font-size:16px}.test input{width:90px;min-height:44px;font-size:18px;display:inline-block;margin:0 6px}
+.test b{font-size:22px;color:var(--primary)}
+.itemrow{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-top:8px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.itemrow .grow b{display:block;font-size:16px}.itemrow small{color:var(--muted)}
+.itemrow .btn{min-height:44px;padding:6px 14px}
+.adv{margin-top:14px;border:1px dashed var(--line-2);border-radius:18px;padding:4px 12px}
+.adv summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--muted)}
+.hello{font-size:15px;color:var(--muted);margin:0 0 10px}
