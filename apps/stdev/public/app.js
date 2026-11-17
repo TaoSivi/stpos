@@ -32,7 +32,7 @@ function today() { return new Date(Date.now() + 7 * 36e5).toISOString().slice(0,
 function dmy(d) { return d.split('-').reverse().join('/'); }
 function shift(d, n) { return new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
 
-var ERR = { auth: 'ເຈົ້າບໍ່ມີສິດເຮັດລາຍການນີ້', locked: 'ໃບນີ້ອະນຸມັດແລ້ວ ແກ້ບໍ່ໄດ້', acked: 'ຄົນຂັບຮັບຮູ້ແລ້ວ — ຕ້ອງໃຫ້ຫົວໜ້າສະໜາມແກ້', unacked: 'ຍັງມີລົດທີ່ຄົນຂັບບໍ່ທັນຮັບຮູ້', empty: 'ຍັງບໍ່ໄດ້ກອກ cm ກ່ອນ ແລະ ຫຼັງເຕີມ', image: 'ຮູບໃຫຍ່ເກີນໄປ', net: 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ', phone: 'ເບີໂທຕ້ອງເປັນຕົວເລກ 8-15 ຫຼັກ', name: 'ໃສ່ຊື່', pin: 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ', oldpin: 'PIN ເກົ່າບໍ່ຖືກ', lastowner: 'ຕ້ອງມີເຈົ້າຂອງຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', role: 'ເລືອກໜ້າທີ່', level: 'ລະດັບບັນຊີບໍ່ຖືກ', noapp: 'ບັນຊີນີ້ບໍ່ມີສິດໃຊ້ແອັບນີ້', nohr: 'ຍັງບໍ່ໄດ້ສ້າງລະບົບ HR ໃນ server', lastsuper: 'ຕ້ອງມີ Super admin ຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', nomodule: 'ເລືອກຢ່າງໜ້ອຍ 1 ແອັບ (ນ້ຳມັນ ຫຼື HR)' };
+var ERR = { auth: 'ເຈົ້າບໍ່ມີສິດເຮັດລາຍການນີ້', locked: 'ໃບນີ້ອະນຸມັດແລ້ວ ແກ້ບໍ່ໄດ້', acked: 'ຄົນຂັບຮັບຮູ້ແລ້ວ — ຕ້ອງໃຫ້ຫົວໜ້າສະໜາມແກ້', unacked: 'ຍັງມີລົດທີ່ຄົນຂັບບໍ່ທັນຮັບຮູ້', empty: 'ຍັງບໍ່ໄດ້ກອກ cm ກ່ອນ ແລະ ຫຼັງເຕີມ', image: 'ຮູບໃຫຍ່ເກີນໄປ', run: 'ບໍ່ພົບໃບເຊັກນີ້', tpl: 'ບໍ່ພົບເຊັກລິດນີ້', label: 'ໃສ່ຊື່ກຳກັບກ່ອນ', open: 'ຍັງຕອບບໍ່ຄົບທຸກຂໍ້', note: 'ຂໍ້ທີ່ບໍ່ຜ່ານ ຕ້ອງຂຽນເຫດຜົນ', item: 'ລາຍການບໍ່ຖືກຕ້ອງ', people: 'ບໍ່ພົບພະນັກງານ ຫຼື ບັນຊີຖືກປິດ', empty: 'ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂໍ້', cmrange: 'ຄ່າ cm ເກີນຄວາມສູງຖັງ — ກວດຕົວເລກອີກຄັ້ງ', cmorder: 'cm ຫຼັງເຕີມຕ້ອງບໍ່ຕ່ຳກວ່າ cm ກ່ອນເຕີມ', future: 'ກອກລ່ວງໜ້າວັນທີບໍ່ໄດ້', old: 'ວັນທີນີ້ເກົ່າເກີນໄປ — ແກ້ຍ້ອນຫຼັງໄດ້ສະເພາະຫົວໜ້າ/ເຈົ້າຂອງ', net: 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ', phone: 'ເບີໂທຕ້ອງເປັນຕົວເລກ 8-15 ຫຼັກ', name: 'ໃສ່ຊື່', pin: 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ', oldpin: 'PIN ເກົ່າບໍ່ຖືກ', lastowner: 'ຕ້ອງມີເຈົ້າຂອງຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', role: 'ເລືອກໜ້າທີ່', level: 'ລະດັບບັນຊີບໍ່ຖືກ', noapp: 'ບັນຊີນີ້ບໍ່ມີສິດໃຊ້ແອັບນີ້', nohr: 'ຍັງບໍ່ໄດ້ສ້າງລະບົບ HR ໃນ server', lastsuper: 'ຕ້ອງມີ Super admin ຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', nomodule: 'ເລືອກຢ່າງໜ້ອຍ 1 ແອັບ (ນ້ຳມັນ ຫຼື HR)' };
 /* api() ແລະ logout() ຢູ່ offline.js (ຮອງຮັບຕອນບໍ່ມີເນັດ) */
 
 var _t;
@@ -50,6 +50,21 @@ document.addEventListener('pointerdown', function (e) { var b = e.target.closest
 
 /* ຮູບ: ຫຍໍ້ໃນເຄື່ອງກ່ອນສົ່ງ (ຂ້າງຍາວ 900px, JPEG) — ອິນເຕີເນັດສະໜາມຊ້າ */
 function shrink(file) { return new Promise(function (res, rej) { var img = new Image(); img.onload = function () { var s = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src); res(c.toDataURL('image/jpeg', 0.6)); }; img.onerror = rej; img.src = URL.createObjectURL(file); }); }
+/* ກ້ອງສົດ: ບໍ່ມີປຸ່ມເລືອກຮູບຈາກຄັງ → ຖ່າຍໄວ້ກ່ອນແລ້ວອັບທີຫຼັງບໍ່ໄດ້. ຮູບປະທັບ ວັນເວລາ + ຊື່ + ປ້າຍ. cb(dataURL, 'cam') ຫຼື cb(null) ຖ້າເປີດກ້ອງບໍ່ໄດ້ */
+function liveCam(label, cb) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return cb(null);
+  var m = modal('<video playsinline muted autoplay style="width:100%;border-radius:16px;background:#000;max-height:60vh"></video><div class="row" style="gap:10px;margin-top:12px"><button class="btn grow" id="camok">' + ic('cam') + 'ຖ່າຍ</button><button class="btn line" id="camno">ຍົກເລີກ</button></div>'), v = m.querySelector('video'), st = null;
+  var stop = function () { if (st) st.getTracks().forEach(function (t) { t.stop(); }); m.remove(); };
+  m.querySelector('#camno').onclick = function () { stop(); cb(undefined); };
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }, audio: false }).then(function (s) { st = s; v.srcObject = s; return v.play(); }).catch(function () { stop(); cb(null); });
+  m.querySelector('#camok').onclick = function () {
+    if (!v.videoWidth) return; var s = Math.min(1, 900 / Math.max(v.videoWidth, v.videoHeight)), c = document.createElement('canvas'); c.width = Math.round(v.videoWidth * s); c.height = Math.round(v.videoHeight * s);
+    var g = c.getContext('2d'); g.drawImage(v, 0, 0, c.width, c.height); var h = Math.max(22, Math.round(c.height / 16)); g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, c.height - h, c.width, h);
+    g.fillStyle = '#fff'; g.font = 'bold ' + Math.round(h * 0.55) + 'px sans-serif'; g.textBaseline = 'middle';
+    var d = new Date(), p = function (n) { return ('0' + n).slice(-2); }; g.fillText(p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ' · ' + label, 8, c.height - h / 2, c.width - 16);
+    var url = c.toDataURL('image/jpeg', 0.6); stop(); cb(url);
+  };
+}
 function viewPhoto(src) { var m = modal('<img alt="" src="' + src + '" style="width:100%;border-radius:16px"><button class="btn line blk" style="margin-top:12px">ປິດ</button>'); m.querySelector('button').onclick = function () { m.remove(); }; }
 
 /* ສົ່ງອອກ: PDF = ໜ້າພິມຂອງບຣາວເຊີ (ເລືອກ "Save as PDF" — ຕົວອັກສອນລາວຖືກຕ້ອງ) · Excel = SheetJS ຈາກ cdnjs */

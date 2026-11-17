@@ -5,13 +5,17 @@ function chip(r) {
  if (r.rej) return '<span class="chip bad">' + ic('x') + esc(r.rej.name) + ' ບໍ່ຍອມຮັບ: ' + esc(r.rej.why || '-') + '</span>';
  return r.add != null ? '<span class="chip warn">ລໍຖ້າຄົນຂັບຮັບຮູ້</span>' : '<span class="chip">ຍັງບໍ່ໄດ້ເຕີມ</span>';
 }
+function gapHtml(r) { /* ສ່ວນຕ່າງຂ້າມຄືນ: ກ່ອນເຕີມມື້ນີ້ ທຽບ ຫຼັງເລີກວຽກມື້ກ່ອນ (ຍັງຕ້ອງແທກກ່ອນເຕີມທຸກຄັ້ງ) */
+ if (!r.prev) return ''; var big = r.gap != null && Math.abs(r.gap) > Tank.GAP;
+ return '<div class="gap">ມື້ວານ (' + dmy(r.prev.date) + ') ຫຼັງເລີກວຽກ ' + r.prev.cm2 + ' cm = ' + L(r.prev.L2) + (r.gap != null ? ' · ຕ່າງ <span class="chip ' + (big ? 'bad' : 'ok') + '">' + (r.gap > 0 ? '+' : '') + Math.round(r.gap) + ' L</span>' + (big ? ' <b style="color:#b4361f">ກວດຄືນ: ນ້ຳມັນເພີ່ມ/ຫາຍໃນຄືນ</b>' : '') : ' · <span class="muted">ແທກ ກ່ອນເຕີມ ເພື່ອເບິ່ງສ່ວນຕ່າງ</span>') + '</div>';
+}
 function calcHtml(r) {
  var w = (r.add != null && r.add < 0 ? '<span class="chip bad">ຫຼັງເຕີມ ໜ້ອຍກວ່າ ກ່ອນເຕີມ — ກວດຄືນ</span> ' : '') + (r.used != null && r.used < 0 ? '<span class="chip bad">ຕອນແລງ ຫຼາຍກວ່າ ຫຼັງເຕີມ — ກວດຄືນ</span> ' : '');
- return 'ກ່ອນເຕີມ ' + L(r.L0) + ' → ຫຼັງເຕີມ ' + L(r.L1) + '<br>ເຕີມຄັ້ງນີ້ <b>' + L(r.add) + '</b> · ຄ້າງຖັງຕອນແລງ ' + L(r.L2) + ' · ໃຊ້ຕົວຈິງ <b>' + L(r.used) + '</b><br>' + w + chip(r);
+ return gapHtml(r) + 'ກ່ອນເຕີມ ' + L(r.L0) + ' → ຫຼັງເຕີມ ' + L(r.L1) + '<br>ເຕີມຄັ້ງນີ້ <b>' + L(r.add) + '</b> · ຄ້າງຖັງຕອນແລງ ' + L(r.L2) + ' · ໃຊ້ຕົວຈິງ <b>' + L(r.used) + '</b><br>' + w + chip(r);
 }
-function tankHtml(t) { var d = t.measured != null ? t.measured - t.bal : null; return 'ຈ່າຍອອກມື້ນີ້ <b>' + L(t.out) + '</b> · ຍອດເຫຼືອຕາມບັນຊີ <b>' + L(t.bal) + '</b><br>ແທກແທ່ງໄດ້ ' + L(t.measured) + (d != null ? ' · ຕ່າງຈາກບັນຊີ <span class="chip ' + (Math.abs(d) > 20 ? 'bad' : 'ok') + '">' + (d > 0 ? '+' : '') + Math.round(d) + ' L</span>' : ''); }
+function tankHtml(t) { var d = t.diff != null ? t.diff : null; return 'ຈ່າຍອອກມື້ນີ້ <b>' + L(t.out) + '</b> · ຍອດເຫຼືອຕາມບັນຊີ <b>' + L(t.bal) + '</b><br>ແທກແທ່ງໄດ້ ' + L(t.measured) + (d != null ? ' · ຕ່າງຈາກບັນຊີ <span class="chip ' + (Math.abs(d) > 20 ? 'bad' : 'ok') + '">' + (d > 0 ? '+' : '') + Math.round(d) + ' L</span>' : ''); }
 function phBtns(keys) { return '<div class="ph">' + keys.map(function (k) { return '<button type="button" data-ph="' + k[0] + '" data-t="' + k[1] + '"></button>'; }).join('') + '</div>'; }
-function paintPhotos() { document.querySelectorAll('[data-ph]').forEach(function (b) { var d = P[b.dataset.ph]; b.className = d ? 'has' : ''; b.innerHTML = (d ? '<img alt="" src="' + d + '">' : ic('cam')) + esc(b.dataset.t); }); }
+function paintPhotos() { document.querySelectorAll('[data-ph]').forEach(function (b) { var d = P[b.dataset.ph]; b.className = d ? 'has' : ''; var m = PM[b.dataset.ph], late = m && m.taken && m.at - m.taken > 18e5, bad = m && (m.how === 'file' || late); b.innerHTML = (d ? '<img alt="" src="' + d + '">' : ic('cam')) + esc(b.dataset.t) + (d && m ? '<small class="pm' + (bad ? ' bad' : '') + '">' + when(m.at) + ' ' + esc(m.name || '') + (m.how === 'file' ? ' · ຈາກຄັງ' : '') + (late ? ' · ອັບຊ້າ' : '') + '</small>' : ''); }); }
 function numIn(k, val, dis) { return '<input type="number" inputmode="decimal" min="0" step="0.1" data-k="' + k + '" value="' + (val == null ? '' : val) + '"' + (dis ? ' disabled' : '') + '>'; }
 function totals() { var a = 0, u = 0; S.rows.forEach(function (r) { a += r.add > 0 ? r.add : 0; u += r.used > 0 ? r.used : 0; }); return [a, u]; }
 function approvedBanner() { return S.approved ? '<div class="card dark row">' + ic('shield') + '<div>ອະນຸມັດແລ້ວ ໂດຍ <b>' + esc(S.approved.name) + '</b> · ' + when(S.approved.at) + '<br><small style="opacity:.75">ໃບນີ້ຖືກລັອກ — ແກ້ບໍ່ໄດ້ຈົນກວ່າຈະຍົກເລີກການອະນຸມັດ</small></div></div>' : ''; }
@@ -28,12 +32,13 @@ function dashView() {
    var todo = [], add = function (tone, icn, title, sub, go) { todo.push('<button class="todo ' + tone + '" data-go="' + go + '"><span class="ti">' + ic(icn) + '</span><span><b>' + title + '</b><small>' + sub + '</small></span><span class="go">' + ic('next') + '</span></button>'); };
    if (S.approved) add('ok', 'shield', 'ໃບມື້ນີ້ອະນຸມັດແລ້ວ', 'ໂດຍ ' + esc(S.approved.name) + ' · ' + when(S.approved.at), 'report');
    S.rows.forEach(function (x) {
+    if (x.gap != null && Math.abs(x.gap) > Tank.GAP) add('warn', 'drop', esc(x.name) + ': ກ່ອນເຕີມຕ່າງຈາກມື້ວານ ' + (x.gap > 0 ? '+' : '') + Math.round(x.gap) + ' L', 'ກວດນ້ຳມັນເພີ່ມ/ຫາຍໃນຄືນ', hasRight('issue') ? 'issue' : 'appr');
     if (x.rej) add('bad', 'alert', esc(x.name) + ': ຄົນຂັບບໍ່ຍອມຮັບ', esc(x.rej.name) + ' — ' + esc(x.rej.why || '-'), hasRight('issue') ? 'issue' : 'appr');
     else if (x.add == null) add('warn', 'edit', esc(x.name) + ' — ຍັງບໍ່ໄດ້ບັນທຶກ cm', 'ກອກ cm ກ່ອນ / ຫຼັງເຕີມ', hasRight('issue') ? 'issue' : 'appr');
     else if (!x.ack) add('warn', 'user', 'ລໍຖ້າ ' + esc(drvName(x.driver) || 'ຄົນຂັບ') + ' ຮັບຮູ້', esc(x.name) + ' · ເຕີມ ' + L(x.add), 'appr');
    });
    if (!S.approved && n && canApprove() && filled.length && acked === filled.length) add('ok', 'check', 'ພ້ອມອະນຸມັດໃບປະຈຳວັນ', 'ຄົນຂັບຮັບຮູ້ຄົບ ' + acked + ' ຄັນ', 'appr');
-   if (tk && tk.measured != null && Math.abs(tk.measured - tk.bal) > 20) add('warn', 'drop', 'ແທ່ງແທກໄດ້ຕ່າງຈາກບັນຊີ ' + (tk.measured - tk.bal > 0 ? '+' : '') + Math.round(tk.measured - tk.bal) + ' L', 'ກວດການຮັບເຂົ້າ / ການຈ່າຍ', 'tank');
+   if (tk && tk.diff != null && Math.abs(tk.diff) > 20) add('warn', 'drop', 'ແທ່ງແທກໄດ້ຕ່າງຈາກບັນຊີ ' + (tk.diff > 0 ? '+' : '') + Math.round(tk.diff) + ' L', 'ກວດການຮັບເຂົ້າ / ການຈ່າຍ', 'tank');
    var qa = [['issue', 'pump', 'ເບີກນ້ຳມັນ'], ['tank', 'inbox', 'ຮັບເຂົ້າແທ່ງ'], ['report', 'report', 'ເບິ່ງລາຍງານ']].filter(function (q) { return modOf(q[0]).show(); }).map(function (q, i) { return '<button class="btn ' + (i ? 'line' : '') + '" data-go="' + q[0] + '">' + ic(q[1]) + q[2] + '</button>'; }).join('');
    $('v').innerHTML = '<div class="stats"><div class="stat-card dark"><div><small>ຄົນຂັບຮັບຮູ້ແລ້ວ</small><b>' + acked + '<span>/' + filled.length + ' ຄັນ</span></b></div><div class="ring" style="--p:' + pct + '"><span>' + pct + '%</span></div></div>' +
     '<div class="stat-card" style="animation-delay:60ms"><small>ເບີກລວມ</small><b>' + L(t[0]) + '</b></div><div class="stat-card" style="animation-delay:120ms"><small>ໃຊ້ຕົວຈິງ</small><b>' + L(t[1]) + '</b></div><div class="stat-card" style="animation-delay:180ms"><small>ແທ່ງເຫຼືອ (ບັນຊີ)</small><b>' + (tk ? L(tk.bal) : '–') + '</b></div></div>' +
@@ -106,10 +111,11 @@ $('v').addEventListener('change', function (e) {
 $('v').addEventListener('click', function (e) {
  var g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
  var b = e.target.closest('button'); if (!b) return;
- if (b.dataset.ph) { if ((MOD === 'issue' && canEdit()) || (MOD === 'tank' && canTank())) { PHK = b.dataset.ph; $('file').value = ''; $('file').click(); } else if (P[b.dataset.ph]) viewPhoto(P[b.dataset.ph]); return; }
+ if (b.dataset.ph) { if ((MOD === 'issue' && canEdit()) || (MOD === 'tank' && canTank())) { PHK = b.dataset.ph; $('file').value = ''; var key0 = PHK; liveCam(((I && I.me && I.me.name) || '') + ' · ' + (($('site').selectedOptions[0] || {}).text || '') + ' · ' + b.dataset.t, function (d) { if (d === undefined) return; if (d === null) { toast('ເປີດກ້ອງບໍ່ໄດ້ — ອະນຸຍາດກ້ອງໃນ browser; ຖ້າເລືອກຈາກຄັງ ລະບົບຈະຕິດປ້າຍ "ຈາກຄັງ"', 'bad'); $('file').click(); return; } sendPhoto(key0, d, 'cam'); }); } else if (P[b.dataset.ph]) viewPhoto(P[b.dataset.ph]); return; }
  if (b.id === 'appr') { var a = here(); a.yes = S.approved ? 0 : 1; b.disabled = true; api('approve', a).then(function (r) { b.disabled = false; if (r.ok) { S = r.data; setBadge(pendingOf(S)); drawAppr(); toast(a.yes ? 'ອະນຸມັດແລ້ວ' : 'ຍົກເລີກການອະນຸມັດແລ້ວ', 'ok'); } }); }
 });
-$('file').onchange = function () {
+function sendPhoto(key, d, how) { var b = here(); b.key = key; b.data = d; b.takenAt = Date.now(); b.how = how; api('photo', b).then(function (r) { if (r.ok) { P[key] = d; PM[key] = { at: Date.now(), name: (I && I.me && I.me.name) || '', taken: b.takenAt, how: how }; paintPhotos(); } }); }
+$('file').onchange = function () { /* ທາງສຳຮອງ ເມື່ອກ້ອງສົດໃຊ້ບໍ່ໄດ້ — ຖືກຕິດປ້າຍ "ຈາກຄັງ" */
  var f = this.files[0], key = PHK; if (!f || !key) return;
- shrink(f).then(function (d) { var b = here(); b.key = key; b.data = d; api('photo', b).then(function (r) { if (r.ok) { P[key] = d; paintPhotos(); } }); }, function () { toast('ເປີດຮູບບໍ່ໄດ້', 'bad'); });
+ shrink(f).then(function (d) { sendPhoto(key, d, 'file'); }, function () { toast('ເປີດຮູບບໍ່ໄດ້', 'bad'); });
 };

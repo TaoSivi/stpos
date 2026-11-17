@@ -37,3 +37,7 @@ MODS.sop = require('./mod-sop').create(DATA, accounts);
 ## 4. ທົດສອບ + ຂຶ້ນ server
 - ເພີ່ມ `test/sop.test.js` (ຮູບແບບ `core.test.js`) ແລະ ໃສ່ໃນ `npm test`; ເພີ່ມແຖວທົດສອບສິດໃນ `test/server.test.js`.
 - ຂຶ້ນ: ອັບ `server.js`, `mod-sop.js` ໄປ `stdev-release/app/apps/stdev/` ແລະ ໜ້າເວັບໄປ `public_html/` ແລ້ວ restart ແອັບ Node (cPanel → Setup Node.js App → Restart).
+
+
+## ໝວດໃນໜ້າຫຼັກ
+ແຕ່ລະແອັບໃນ `APPS` (server.js) ມີ `cat`: `work` (ວຽກປະຈຳວັນ) · `docs` (ເອກະສານ & ຂັ້ນຕອນ — ໃຊ້ກັບ SOP) · `admin` (ຈັດການ & ຕັ້ງຄ່າ). ໝວດຢູ່ໃນ `CATS`; ໜ້າຫຼັກຈັດຕາມໝວດເອງ (ໝວດທີ່ບໍ່ມີແອັບຈະບໍ່ສະແດງ; ມີ >6 ແອັບຈະມີຊ່ອງຄົ້ນຫາ).

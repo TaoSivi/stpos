@@ -16,7 +16,7 @@ var kv = (function () {
 })();
 function clearCache() { return kv.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k !== 'q' && k !== 'failed'; }).map(function (k) { return kv.del(k); })); }); }
 
-var READS = { me: 1, init: 1, sheet: 1, photos: 1, ledger: 1, drivers: 1 }, WRITES = { row: 1, tank: 1, photo: 1, ack: 1, approve: 1, assign: 1 };
+var READS = { me: 1, init: 1, sheet: 1, photos: 1, photometa: 1, ledger: 1, drivers: 1 }, WRITES = { row: 1, tank: 1, photo: 1, ack: 1, approve: 1, assign: 1 };
 var OFF = false, SYNCING = false, DONE = false;
 var rkey = function (a, b) { return a === 'init' || a === 'drivers' || a === 'me' ? a : a + '|' + (b.site || '') + '|' + (b.date || ''); };
 function post(action, body, token) {
@@ -26,7 +26,7 @@ function getQ() { return kv.get('q').then(function (q) { return q || []; }); }
 
 /* ===== ຄິດໄລ່ໃນເຄື່ອງ (ໃຫ້ຜົນຄືກັບ server ເພາະໃຊ້ Tank.liters ໄຟລ໌ດຽວກັນ) ===== */
 var num = function (x) { var n = Number(x); return x === '' || x == null || !isFinite(n) || n < 0 || n > 1e6 ? null : n; };
-function calcRow(car, r) { var L0 = Tank.liters(car.tank, r.cm0), L1 = Tank.liters(car.tank, r.cm1), L2 = Tank.liters(car.tank, r.cm2); r.L0 = L0; r.L1 = L1; r.L2 = L2; r.add = L0 != null && L1 != null ? L1 - L0 : null; r.used = L1 != null && L2 != null ? L1 - L2 : null; }
+function calcRow(car, r) { var L0 = Tank.liters(car.tank, r.cm0), L1 = Tank.liters(car.tank, r.cm1), L2 = Tank.liters(car.tank, r.cm2); r.L0 = L0; r.L1 = L1; r.L2 = L2; r.gap = r.prev && L0 != null && r.prev.L2 != null ? L0 - r.prev.L2 : null; r.add = L0 != null && L1 != null ? L1 - L0 : null; r.used = L1 != null && L2 != null ? L1 - L2 : null; }
 function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,error} — ແລະ ບັນທຶກແຄັດ */
  return Promise.all([kv.get('init'), kv.get(rkey('sheet', b)), kv.get(rkey('photos', b))]).then(function (c) {
   var init = c[0], sh = c[1], ph = c[2] || {}, me = init && init.me, cfg = init && init.cfg;
@@ -38,6 +38,8 @@ function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,err
   if (action === 'row') {
    if (!car || !row) return { ok: false, error: 'vehicle' };
    var fill = ['cm0', 'cm1'].some(function (k) { return k in b && num(b[k]) !== (row[k] == null ? null : row[k]); }) || ('src' in b && (b.src === 'jug' ? 'jug' : 'tank') !== (row.src || 'tank'));
+   var nrow = Object.assign({}, row); ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in b) { var n0 = num(b[k]); if (n0 == null) delete nrow[k]; else nrow[k] = n0; } });
+   var bad = Tank.check(car.tank, nrow); if (bad) return { ok: false, error: bad };
    if (fill) { delete row.ack; delete row.rej; }
    ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete row[k]; else row[k] = n; } });
    if ('src' in b) row.src = b.src === 'jug' ? 'jug' : 'tank'; if ('note' in b) row.note = String(b.note || '').slice(0, 200); calcRow(car, row);

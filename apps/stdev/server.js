@@ -3,6 +3,7 @@
  *   ແລ່ນ:      PORT=3000 DATA_DIR=~/stdev-data node server.js
  *   ເພີ່ມຄົນ:  node server.js adduser <ເບີໂທ> "<ຊື່>" <PIN 4-8 ຫຼັກ> <superadmin|admin|user> [--fuel=driver|admin|head|office] [--hr] [--sites=s1,s2]
  *   ລາຍຊື່:    node server.js listusers
+ *   ສຳຮອງ:     node server.js backup        (ອັດຕະໂນມັດມື້ລະເທື່ອ → DATA_DIR/backups/ວັນທີ, ເກັບ 14 ມື້)
  *   ສ້າງ HR:   node server.js hr-setup "<ຊື່ບໍລິສັດ>" "<ຊື່ເຈົ້າຂອງ HR>" <PIN>      (ຄັ້ງດຽວ)
  * ຕົວປ່ຽນ: HR_COMPANY (ຕັ້ງຕົ້ນ main) · HR_LIB (ໂຟນເດີ server/ ທີ່ມີ hr.js) · HR_WEB (ໂຟນເດີໜ້າ HR) */
 'use strict';
@@ -14,14 +15,16 @@ const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel'
  *   access(u): ບັນຊີນີ້ໃຊ້ແອັບໄດ້ບໍ · href(u)/action: ກົດແລ້ວໄປໃສ · generic:true = ເຈົ້າຂອງຕິກເປີດໃຫ້ຕໍ່ຄົນໃນໜ້າ ພະນັກງານ & ສິດ (user.apps)
  *   api: ໂມດູນຮັບ action ທີ່ຂຶ້ນຕົ້ນດ້ວຍ "<id>." ເຊັ່ນ POST /api/sop.list → mods.sop.handle('list', body, user) */
 const has = function (u, id) { return u.apps.indexOf('*') >= 0 || u.apps.indexOf(id) >= 0; };
+/* ໝວດໃນໜ້າຫຼັກ (ລຳດັບ = ລຳດັບທີ່ສະແດງ). ແອັບໃໝ່ໃສ່ cat: 'work' | 'admin' | 'docs' ຢູ່ທະບຽນດ້ານລຸ່ມ */
+const CATS = [{ id: 'work', name: 'ວຽກປະຈຳວັນ', hint: 'ແອັບທີ່ໃຊ້ທຸກມື້' }, { id: 'docs', name: 'ເອກະສານ & ຂັ້ນຕອນ', hint: 'SOP ແລະ ຄູ່ມື' }, { id: 'admin', name: 'ຈັດການ & ຕັ້ງຄ່າ', hint: 'ສຳລັບຜູ້ດູແລລະບົບ' }];
 const APPS = [
-  { id: 'fuel', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
-  { id: 'people', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
-  { id: 'hr', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } }
-  /* ຕົວຢ່າງ SOP: { id: 'sop', name: 'SOP', desc: function () { return 'ຂັ້ນຕອນການເຮັດວຽກ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } } */
+  { id: 'fuel', cat: 'work', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
+  { id: 'people', cat: 'admin', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
+  { id: 'hr', cat: 'work', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } },
+  { id: 'sop', cat: 'docs', name: 'SOP ເຊັກລິດ', desc: function (u) { return u.level !== 'user' ? 'ມອບໝາຍເຊັກລິດ · ຕິດຕາມ · ແກ້ລາຍການ' : 'ເຊັກລິດວຽກທີ່ໄດ້ຮັບມອບໝາຍ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } }
 ];
-const MODS = {}; /* ໂມດູນແອັບອື່ນ: MODS.sop = require('./mod-sop').create(DATA, accounts) */
-function appsFor(u) { return APPS.filter(function (a) { return a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
+const MODS = { sop: require('./mod-sop').create(DATA, accounts, { vehicles: fuel.vehicles }) }; /* ໂມດູນແອັບອື່ນ: MODS.<id> = require('./mod-<id>').create(DATA, accounts) */
+function appsFor(u) { return APPS.filter(function (a) { return a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, cat: a.cat || 'work', href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
 const catalog = function () { return APPS.filter(function (a) { return a.generic; }).map(function (a) { return { id: a.id, name: a.name }; }); };
 
 /* ===== API: ກວດສິດຊັ້ນບັນຊີກາງກ່ອນ ແລ້ວສົ່ງຕໍ່ໂມດູນ ===== */
@@ -29,7 +32,7 @@ function api(action, o, ip) {
   if (action === 'login') { const r = accounts.login(o, ip); if (r.ok) { r.hr = r.hr && hr.ready(); r.napps = appsFor(r).length; } return r; }
   const u = accounts.userOf(o.token); if (!u) return { ok: false, error: 'auth' };
   switch (action) {
-    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), catalog: u.level === 'user' ? [] : catalog() } };
+    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), cats: CATS, catalog: u.level === 'user' ? [] : catalog() } };
     case 'pin': return accounts.changePin(u.id, o.old, o.pin);
     case 'userList': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: accounts.list(u) };
     case 'userSave': { const r = accounts.save(o.user || {}, u); if (!r.ok) return r; const v = accounts.get(r.phone); return { ok: true, data: { hr: v && v.hr ? hr.provision(v) : 'skip' } }; } /* ບັນທຶກຄັ້ງດຽວ → ສ້າງ/ອັບເດດພະນັກງານໃນ HR ໃຫ້ເອງ */
@@ -76,10 +79,22 @@ function handler(req, res) {
   fs.readFile(f, function (e, d) { if (e) return send(res, 404, 'not found'); const ty = TYPES[path.extname(f)] || 'application/octet-stream'; res.writeHead(200, Object.assign({ 'Content-Type': /^(text|application\/(manifest))|svg|javascript/.test(ty) ? ty + '; charset=utf-8' : ty, 'Cache-Control': 'no-store' }, HEAD)); res.end(req.method === 'HEAD' ? undefined : d); });
 }
 
-/* ຕອນບໍ່ມີ Shell (cPanel ບາງແຜນ): ວາງ DATA_DIR/bootstrap.json = {"phone":"…","name":"…","pin":"…"} ແລ້ວ restart → ສ້າງ Super admin ຄົນທຳອິດ (ສະເພາະເມື່ອຍັງບໍ່ມີຜູ້ໃຊ້) ແລະ ລຶບໄຟລ໌ນັ້ນທັນທີ */
+/* ຕອນບໍ່ມີ Shell (cPanel ບາງແຜນ): ວາງ DATA_DIR/bootstrap.json ແລ້ວ restart:
+ *   ສ້າງ Super admin ຄົນທຳອິດ (ຍັງບໍ່ມີຜູ້ໃຊ້):  {"phone":"…","name":"…","pin":"…"}
+ *   ກູ້ PIN Super admin ທີ່ລືມ:                  {"phone":"<ເບີ Super admin ທີ່ມີຢູ່>","pin":"<PIN ໃໝ່>","reset":true}  (ເປີດບັນຊີຄືນດ້ວຍຖ້າຖືກປິດ; session ເກົ່າຕາຍ)
+ * ໄຟລ໌ຖືກລຶບທັນທີຫຼັງອ່ານ (ມີ PIN ເປັນຕົວໜັງສື). ຕ້ອງເຂົ້າໄຟລ໌ເຊີເວີໄດ້ ຈຶ່ງເຮັດໄດ້ສະເພາະເຈົ້າຂອງ hosting */
 function bootstrap() {
-  const f = path.join(DATA, 'bootstrap.json'); if (!fs.existsSync(f) || Object.keys(accounts.users()).length) return;
-  try { const b = JSON.parse(fs.readFileSync(f, 'utf8')), r = accounts.save({ phone: b.phone, name: b.name, pin: b.pin, level: 'superadmin' }, null); console.log(r.ok ? 'bootstrap: superadmin ' + r.phone : 'bootstrap ERROR ' + r.error); if (r.ok) fs.unlinkSync(f); } catch (e) { console.log('bootstrap ERROR', e.message); }
+  const f = path.join(DATA, 'bootstrap.json'); if (!fs.existsSync(f)) return;
+  let b; try { b = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { console.log('bootstrap ERROR bad json'); return; }
+  try { fs.unlinkSync(f); } catch (e) { console.log('bootstrap ERROR cannot delete file — ລຶບ bootstrap.json ເອງ'); }
+  const all = accounts.users(), anyone = Object.keys(all).length, ph = accounts.phoneOf(b.phone), cur = all[ph];
+  if (anyone && b.reset !== true) { console.log('bootstrap skipped: ມີຜູ້ໃຊ້ແລ້ວ (ໃຊ້ "reset":true ເພື່ອກູ້ PIN)'); return; }
+  let r;
+  if (!anyone) r = accounts.save({ phone: b.phone, name: b.name, pin: b.pin, level: 'superadmin' }, null);
+  else if (cur && cur.level === 'superadmin') r = accounts.save({ phone: b.phone, pin: b.pin, active: true }, null);
+  else if (!Object.keys(all).some(function (k) { return all[k].level === 'superadmin' && all[k].active; })) r = accounts.save({ phone: b.phone, name: b.name || (cur && cur.name) || 'Super admin', pin: b.pin, level: 'superadmin', active: true }, null); /* ບໍ່ມີ Super admin ທີ່ໃຊ້ໄດ້ເລີຍ */
+  else r = { ok: false, error: 'ເບີນີ້ບໍ່ແມ່ນ Super admin' };
+  console.log(r.ok ? (anyone ? 'bootstrap: reset PIN ' : 'bootstrap: superadmin ') + r.phone : 'bootstrap ERROR ' + r.error);
 }
 /* ===== ຄຳສັ່ງ CLI ===== */
 function cli(a) {
@@ -88,6 +103,7 @@ function cli(a) {
     const r = accounts.save({ phone: a[3], name: a[4], pin: a[5], level: a[6], fuel: flag('fuel') || '', hr: flag('hr') === true, approver: flag('approver') === true, sites: flag('sites') ? String(flag('sites')).split(',') : [] }, null);
     console.log(r.ok ? 'ok ' + r.phone : 'ERROR ' + r.error + ' (ເບີ 8-15 ຕົວເລກ · PIN 4-8 ຫຼັກ · level ' + accounts.LEVELS.join('|') + ' · user ຕ້ອງມີ --fuel=… ຫຼື --hr)'); return r.ok ? 0 : 1;
   }
+  if (a[2] === 'backup') { console.log(require('./backup').run(DATA, true).dest); return 0; }
   if (a[2] === 'listusers') { const all = accounts.users(); Object.keys(all).forEach(function (k) { const u = all[k]; console.log(k, u.level, u.fuel ? 'fuel=' + u.fuel : '', u.hr ? 'hr' : '', u.active ? '' : '(ປິດ)', u.name); }); return 0; }
   if (a[2] === 'hr-setup') {
     if (!hr.avail()) { console.log('ERROR ຫາໂຄ້ດ HR ບໍ່ເຫັນ (ຕັ້ງ HR_LIB / HR_WEB)'); return 1; }
@@ -99,6 +115,7 @@ function cli(a) {
 { /* ຕ້ອງເປີດ port ເອງເສມີ: cPanel (Passenger) ໂຫຼດໄຟລ໌ນີ້ດ້ວຍ require → require.main ບໍ່ແມ່ນໄຟລ໌ນີ້ */
   const c = cli(process.argv); if (c >= 0) process.exit(c);
   bootstrap();
+  if (!process.env.STDEV_NO_BACKUP) require('./backup').schedule(DATA, function (m) { console.log(m); });
   const port = +process.env.PORT || 3000, n = Object.keys(accounts.users()).length;
   http.createServer(handler).listen(port, function () { console.log('stdev on ' + port + ' · data ' + DATA + ' · HR ' + (hr.avail() ? (hr.ready() ? 'ready' : 'ຍັງບໍ່ໄດ້ສ້າງ (hr-setup)') : 'ບໍ່ພົບໂຄ້ດ') + (n ? '' : ' · ຍັງບໍ່ມີຜູ້ໃຊ້ — ເພີ່ມ superadmin: node server.js adduser ...')); });
 }

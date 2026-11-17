@@ -3,6 +3,7 @@
 const assert = require('assert'), F = require('../fuel-core');
 const mem = {}, store = { read: function (n) { return mem[n] ? JSON.parse(mem[n]) : null; }, write: function (n, v) { mem[n] = JSON.stringify(v); }, list: function (p) { return Object.keys(mem).filter(function (k) { return k.indexOf(p) === 0; }); } };
 const U = { boss: { id: 'u1', role: 'owner', name: 'Boss' }, adm: { id: 'u2', role: 'admin', sites: ['s1'], name: 'Admin' }, head: { id: 'u3', role: 'head', sites: ['s1', 'nope'], name: 'Head' }, drv: { id: 'u4', role: 'driver', name: 'ລົມ' }, drv2: { id: 'u5', role: 'driver', name: 'ສອນ' }, off: { id: 'u6', role: 'office', name: 'Office' }, other: { id: 'u7', role: 'admin', sites: [], name: 'X' } };
+store.now = function () { return Date.parse('2026-11-20T12:00:00+07:00'); }; /* ໂມງທົດສອບ: ວັນທີໃນເທສຢູ່ໃນຂອບເຂດ 7 ມື້ */
 const call = function (u, o) { return F.handle(store, U[u], o); };
 const D = '2026-11-16', S = { site: 's1', date: D };
 
@@ -84,6 +85,38 @@ const t = call('adm', { action: 'tank', site: 's1', date: '2026-11-17', cm: 60 }
 assert.deepStrictEqual([t.out, t.bal, t.measured], [100, 750, F.liters({ t: 'hcyl', d: 120, len: 250 }, 60)]);
 assert.deepStrictEqual(call('off', { action: 'ledger', site: 's1' }).data.map(function (x) { return [x.date, x.recv, x.out, x.bal]; }), [[D, 1000, 150, 850], ['2026-11-17', 0, 100, 750]]);
 assert.strictEqual(call('adm', { action: 'sheet', site: 's1', date: '2026-11-18' }).data.tank.bal, 750, 'a new day starts from the last balance');
+/* ຕ່າງຈາກບັນຊີ: ຖານ = ແທກຄັ້ງທຳອິດ (ບໍ່ມີຄ່າຕ່າງ) · ຄັ້ງຕໍ່ໄປ = ແທກຈິງ − (ແທກຄັ້ງກ່ອນ + ຮັບ − ຈ່າຍ) */
+const TK = { t: 'hcyl', d: 120, len: 250 }, LL = function (cm) { return F.liters(TK, cm); };
+const lg0 = call('off', { action: 'ledger', site: 's1' }).data; assert.deepStrictEqual([lg0[0].diff, lg0[1].diff], [null, null], 'first measurement is only a baseline');
+call('adm', { action: 'tank', site: 's1', date: '2026-11-19', cm: 65 });
+const lg1 = call('off', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-19'; })[0]; assert.deepStrictEqual([lg1.exp, lg1.diff], [LL(60), LL(65) - LL(60)], 'no fuel moved, level rose → positive difference');
+call('adm', { action: 'tank', site: 's1', date: '2026-11-20', recv: 500, cm: 65 });
+const lg2 = call('off', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-20'; })[0]; assert.deepStrictEqual([lg2.exp, lg2.diff], [LL(65) + 500, -500], 'received 500 but level did not move → -500');
+assert.strictEqual(call('adm', { action: 'sheet', site: 's1', date: '2026-11-20' }).data.tank.diff, -500, 'the day sheet carries the same difference');
+/* ກວດ cm / ປະຫວັດແກ້ / ຂອບເຂດວັນທີ / ຮູບມີເວລາ+ຜູ້ອັບ */
+const DW = '2026-11-20', rw = function (u, d, o) { return call(u, Object.assign({ action: 'row', site: 's1', date: d, v: 'v2' }, o)); };
+assert.strictEqual(rw('adm', DW, { cm0: 10, cm1: 5 }).error, 'cmorder', 'level after filling cannot be lower than before');
+assert.strictEqual(rw('adm', DW, { cm0: 10, cm1: 900 }).error, 'cmrange', 'cm above any tank height is refused');
+assert.strictEqual(require('../public/tank.js').check({ t: 'hcyl', d: 120, len: 250 }, { cm1: 130 }), 'cmrange', 'a round tank 120 cm wide cannot read 130'); assert.strictEqual(require('../public/tank.js').check({ t: 'lpc', k: 5 }, { cm0: 10, cm1: 40 }), null);
+assert.ok(rw('adm', DW, { cm0: 10, cm1: 40 }).ok); assert.ok(rw('adm', DW, { cm1: 50 }).ok);
+const hrow = call('adm', { action: 'sheet', site: 's1', date: DW }).data.rows.filter(function (x) { return x.v === 'v2'; })[0];
+assert.ok(hrow.at === store.now() && hrow.h.length === 1 && hrow.h[0].k === 'cm1' && hrow.h[0].from === 40 && hrow.h[0].to === 50 && hrow.h[0].by === 'u2', 'edit history keeps old value, new value, who and when');
+assert.strictEqual(rw('adm', '2026-11-21', { cm0: 1 }).error, 'future', 'no entries for tomorrow');
+assert.strictEqual(rw('adm', '2026-11-10', { cm0: 1 }).error, 'old', 'admin cannot back-date beyond 7 days');
+assert.ok(rw('head', '2026-11-10', { cm0: 1, cm1: 2 }).ok, 'head can correct older sheets (60 days)'); assert.strictEqual(rw('head', '2026-08-01', { cm0: 1 }).error, 'old');
+const jp = 'data:image/jpeg;base64,AAAA', tk0 = store.now() - 3600e3;
+assert.ok(call('adm', { action: 'photo', site: 's1', date: DW, key: 'v2_b', data: jp, takenAt: tk0, how: 'file' }).ok);
+const pmeta = call('adm', { action: 'photometa', site: 's1', date: DW }).data; assert.ok(pmeta.v2_b.at === store.now() && pmeta.v2_b.taken === tk0 && pmeta.v2_b.how === 'file' && pmeta.v2_b.by === 'u2' && !pmeta._log, 'photo carries server time, taken time, who and source');
+assert.ok(call('adm', { action: 'photo', site: 's1', date: DW, key: 'v2_b' }).ok); assert.strictEqual(call('adm', { action: 'photometa', site: 's1', date: DW }).data.v2_b, undefined, 'deleting a photo removes its meta');
+assert.strictEqual(call('drv', { action: 'photometa', site: 's1', date: DW }).data.v2_b, undefined);
+/* ສ່ວນຕ່າງຂ້າມຄືນ: cm ຫຼັງເລີກວຽກມື້ກ່ອນ ທຽບ ກ່ອນເຕີມມື້ນີ້ (ຍັງຕ້ອງແທກກ່ອນເຕີມທຸກຄັ້ງ) */
+const PG = function (d, o) { return call('adm', Object.assign({ action: 'row', site: 's1', date: d, v: 'v1' }, o)); }, rowOf = function (u, d) { return call(u, { action: 'sheet', site: 's1', date: d }).data.rows.filter(function (x) { return x.v === 'v1'; })[0]; };
+assert.ok(PG('2026-11-14', { cm0: 10, cm1: 40, cm2: 30 }).ok);
+let g0 = rowOf('adm', '2026-11-15'); assert.ok(g0.prev && g0.prev.cm2 === 30 && g0.prev.date === '2026-11-14' && g0.prev.L2 === 150 && g0.gap === null, 'yesterday evening is shown as a reference, no difference until "before" is measured');
+assert.ok(PG('2026-11-15', { cm0: 25 }).ok); g0 = rowOf('adm', '2026-11-15'); assert.strictEqual(g0.gap, 125 - 150, 'overnight difference = today before-fill − yesterday evening (litres)');
+assert.ok(PG('2026-11-15', { cm0: 30 }).ok); assert.strictEqual(rowOf('adm', '2026-11-15').gap, 0, 'same level = no difference');
+assert.ok(rowOf('drv', '2026-11-15').prev === null, 'drivers do not see the comparison');
+assert.strictEqual(rowOf('adm', '2026-11-14').prev, null, 'first day has nothing to compare with');
 console.log('fuel: all passed');
 
 /* ມອບລົດ: ຫົວໜ້າ/ເຈົ້າຂອງເທົ່ານັ້ນ · ຄົນຂັບໃໝ່ເຫັນລົດທັນທີ, ຄົນເກົ່າບໍ່ເຫັນ · ບໍລິຫານ/ຫ້ອງການເຫັນລາຍການລົດ+ຄົນຂັບ (ບໍ່ເຫັນຂະໜາດຖັງ) */
@@ -136,6 +169,7 @@ console.log('fuel: all passed');
 
 /* ສິດແບບຕິກ: ແມ່ແບບ + user.rights ແທນທີ່ໄດ້ · ຂອບເຂດສະໜາມຍັງຖືກບັງຄັບ · ຄົນຂັບຂອງລົດ (ບໍ່ມີສະໜາມ) ເຮັດໄດ້ແຕ່ຮັບຮູ້ */
 (function () {
+  store.now = function () { return Date.parse('2026-12-10T12:00:00+07:00'); };
   const D = '2026-12-10', row = { action: 'row', site: 's1', date: D, v: 'v1', cm0: 10, cm1: 40 };
   const mk = function (id, role, rights, sites) { U[id] = { id: id, role: role, rights: rights, sites: sites || ['s1'], name: id }; return id; };
   /* ບໍລິຫານ + ຕິກ "ມອບລົດ" = ມອບລົດໄດ້ (ແມ່ແບບປົກກະຕິບໍ່ໄດ້) */

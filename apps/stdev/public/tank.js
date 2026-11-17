@@ -9,5 +9,14 @@
     else v = cm * tank.k;
     return isFinite(v) ? Math.round(v) : null;
   }
-  return { liters: liters };
+  /* ກວດ cm ຂອງລົດ 1 ຄັນ: ເກີນຄວາມສູງຖັງ → 'cmrange' · cm ຫຼັງເຕີມຕ່ຳກວ່າກ່ອນເຕີມ → 'cmorder' · ບໍ່ມີບັນຫາ → null
+   * shortcut: ຖັງ lpc/box ບໍ່ມີຄວາມສູງ ໃຊ້ເພດານ 300 cm — ຖ້າມີຖັງສູງກວ່າ ໃຫ້ເກັບຄວາມສູງໃນຕັ້ງຄ່າ */
+  function check(tank, r) {
+    const max = tank && tank.t === 'hcyl' ? tank.d : 300;
+    for (const k of ['cm0', 'cm1', 'cm2']) if (r[k] != null && r[k] > max) return 'cmrange';
+    if (r.cm0 != null && r.cm1 != null && r.cm1 < r.cm0) return 'cmorder';
+    return null;
+  }
+  /* ສ່ວນຕ່າງຂ້າມຄືນ (ລິດ): cm ກ່ອນເຕີມມື້ນີ້ ທຽບ cm ຫຼັງເລີກວຽກມື້ກ່ອນ — ເກີນ GAP ລິດ = ຄວນກວດ (ຮົ່ວ / ລັກ / ກອກຜິດ) */
+  return { liters: liters, check: check, GAP: 10 };
 });

@@ -58,20 +58,24 @@ function people() {
 function summary(W) {
  if (W.level !== 'user') return ['ເຮັດໄດ້ທຸກຢ່າງ ໃນທຸກແອັບ', 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', W.level === 'superadmin' ? 'ຈັດການທຸກບັນຊີ ລວມ Admin' : 'ຈັດການບັນຊີຜູ້ໃຊ້ທົ່ວໄປ'];
  var out = [];
- if (W.fuel) { var on = fuelOn(W), lab = (SCH.fuel.rights || []).filter(function (r) { return on.indexOf(r.k) >= 0; }).map(function (r) { return r.label; }); out.push('ແອັບນ້ຳມັນ — ' + (RN[W.fuel] || W.fuel) + (lab.length ? ': ' + lab.join(' · ') : ' (ຍັງບໍ່ໄດ້ຕິກສິດໃດ)')); }
+ if (W.fuel) { var on = fuelOn(W), lab = (SCH.fuel.rights || []).filter(function (r) { return on.indexOf(r.k) >= 0; }).map(function (r) { return r.label; }); out.push('ແອັບນ້ຳມັນ — ' + W.fuels.map(function (r) { return RN[r] || r; }).join(' + ') + (lab.length ? ': ' + lab.join(' · ') : ' (ຍັງບໍ່ໄດ້ຕິກສິດໃດ)')); }
  if (W.hrRole) { var h = hrOn(W), base = hrPreset(W.hrRole), add = h.filter(function (k) { return base.indexOf(k) < 0; }).length, del = base.filter(function (k) { return h.indexOf(k) < 0; }).length; out.push('ແອັບ HR — ' + (HRN[W.hrRole] || W.hrRole) + ' (' + h.length + ' ສິດ' + (add || del ? ', ປັບ +' + add + ' / −' + del : '') + ')'); }
  W.apps.forEach(function (id) { out.push(catName(id) + ' — ເຂົ້າໃຊ້ໄດ້'); });
  return out;
 }
-function fuelOn(W) { if (Array.isArray(W.advF)) return W.advF; var b = fuelPreset(W.fuel); return W.approve && b.indexOf('approve') < 0 ? b.concat('approve') : b; }
+/* ໜ້າວຽກນ້ຳມັນເລືອກໄດ້ຫຼາຍ: ຄົນຂັບ + (ຄົນເບີກ ຫຼື ຫົວໜ້າ ຫຼື ຫ້ອງການ ອັນໃດອັນໜຶ່ງ). server ເກັບເປັນ role ຫຼັກ + ສິດລວມ */
+function fuelMain(a) { var m = ['head', 'admin', 'office'].filter(function (x) { return a.indexOf(x) >= 0; })[0]; return m || (a.indexOf('driver') >= 0 ? 'driver' : ''); }
+function fuelsOf(u) { var a = u.fuel ? [u.fuel] : []; if (u.fuel && u.fuel !== 'driver' && Array.isArray(u.fuelRights) && u.fuelRights.indexOf('ack') >= 0) a.push('driver'); return a; }
+function fuelBase(W) { var l = []; W.fuels.forEach(function (r) { fuelPreset(r).forEach(function (k) { if (l.indexOf(k) < 0) l.push(k); }); }); return l; }
+function fuelOn(W) { if (Array.isArray(W.advF)) return W.advF; var b = fuelBase(W); return W.approve && b.indexOf('approve') < 0 ? b.concat('approve') : b; }
 function hrOn(W) { return Array.isArray(W.advH) ? W.advH : hrPreset(W.hrRole); }
 function needSites(W) { return W.level === 'user' && W.fuel && W.fuel !== 'office'; }
-function rcards(list, cur, attr) { return '<div class="rgrid" role="radiogroup">' + list.map(function (c) { return '<button type="button" class="rcard" role="radio" aria-checked="' + (c[0] === cur) + '" data-' + attr + '="' + esc(c[0]) + '"><span class="ri">' + ic(c[3]) + '</span><span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></span></button>'; }).join('') + '</div>'; }
+function rcards(list, cur, attr, multi) { var is = function (v) { return Array.isArray(cur) ? cur.indexOf(v) >= 0 : v === cur; }; return '<div class="rgrid" role="' + (multi ? 'group' : 'radiogroup') + '">' + list.map(function (c) { return '<button type="button" class="rcard" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + is(c[0]) + '" data-' + attr + '="' + esc(c[0]) + '"><span class="ri">' + ic(c[3]) + '</span><span><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></span></button>'; }).join('') + '</div>'; }
 function tickBox(name, items, on) { return '<div class="ticks">' + items.map(function (i) { return '<label class="tick"><input type="checkbox" data-t="' + name + '" value="' + esc(i.k) + '"' + (on.indexOf(i.k) >= 0 ? ' checked' : '') + '><span>' + esc(i.label) + '</span></label>'; }).join('') + '</div>'; }
 
 function wizard(u) {
  var isNew = !u; u = u || { level: 'user', fuel: '', hr: false, hrRole: '', approver: false, active: true, sites: [], apps: [], fuelRights: null, hrRights: null };
- var W = { isNew: isNew, phone: u.phone || '', name: u.name || '', pin: '', level: u.level, fuel: u.fuel || '', approve: !!u.approver, advF: Array.isArray(u.fuelRights) ? u.fuelRights : null, hrRole: u.hr ? (u.hrRole || 'employee') : '', advH: Array.isArray(u.hrRights) ? u.hrRights : null, sites: (u.sites || []).slice(), apps: (u.apps || []).slice(), active: u.active !== false }, step = isNew ? 0 : 1, err = '';
+ var W = { isNew: isNew, phone: u.phone || '', name: u.name || '', pin: '', level: u.level, fuel: u.fuel || '', fuels: fuelsOf(u), approve: !!u.approver, advF: Array.isArray(u.fuelRights) ? u.fuelRights : null, hrRole: u.hr ? (u.hrRole || 'employee') : '', advH: Array.isArray(u.hrRights) ? u.hrRights : null, sites: (u.sites || []).slice(), apps: (u.apps || []).slice(), active: u.active !== false }, step = isNew ? 0 : 1, err = '';
  var m = modal('<div id="wz"></div>');
  var lv = ME.level;
  function stepList() { return ['ໃຜ', 'ວຽກ'].concat(needSites(W) ? ['ສະໜາມ'] : [], ['ກວດ']); }
@@ -91,7 +95,7 @@ function wizard(u) {
    var h = '<div class="q">ຄົນນີ້ເຮັດວຽກຫຍັງ?</div><p class="qs">ແຕະບັດທີ່ຖືກ. ເລືອກໄດ້ທັງ ນ້ຳມັນ ແລະ HR.</p>';
    var lvCards = rcards([['user', 'ຜູ້ໃຊ້ທົ່ວໄປ', 'ເລືອກວຽກ (ນ້ຳມັນ / HR) ຕາມປົກກະຕິ', 'user'], ['admin', 'ແອດມິນ', 'ເຮັດໄດ້ທຸກຢ່າງ ແລະ ຈັດການຄົນ', 'shield']].concat(lv === 'superadmin' ? [['superadmin', 'Super admin', 'ຄວບຄຸມທຸກຢ່າງ ລວມແອດມິນ', 'key']] : []), W.level, 'lv');
    if (W.level !== 'user') return h + '<p class="prev">ແອດມິນ ເຂົ້າໄດ້ທຸກແອັບ ແລະ ທຸກຟັງຊັນ — ບໍ່ຕ້ອງເລືອກວຽກ. ຢາກປ່ຽນກັບເປັນຜູ້ໃຊ້ທົ່ວໄປ ແຕະ "ຜູ້ໃຊ້ທົ່ວໄປ".</p>' + lvCards;
-   h += '<div class="sect">' + ic('pump') + 'ແອັບນ້ຳມັນ</div>' + rcards(FUELCARDS, W.fuel, 'fuel');
+   h += '<div class="sect">' + ic('pump') + 'ແອັບນ້ຳມັນ</div>' + rcards(FUELCARDS, W.fuels.length ? W.fuels : '', 'fuel', true) + '<p class="hint">ເລືອກໄດ້ຫຼາຍໜ້າວຽກ ເຊັ່ນ ຄົນຂັບ + ຄົນເບີກນ້ຳມັນ (ຄົນຄົນດຽວເຮັດສອງຢ່າງ).</p>';
    if ((W.fuel === 'admin' || W.fuel === 'office') && !Array.isArray(W.advF)) h += '<label class="sw"><input type="checkbox" id="w-appr"' + (W.approve ? ' checked' : '') + '><span class="sl"></span><span class="st">ໃຫ້ກົດ "ອະນຸມັດໃບປະຈຳວັນ" ໄດ້ດ້ວຍ<small>ສຳລັບຄົນທີ່ໄວ້ໃຈ</small></span></label>';
    h += '<div class="sect">' + ic('users') + 'ແອັບ HR</div>' + (SCH.hr ? rcards(HRCARDS, W.hrRole, 'hr') : '<p class="hint">ຍັງບໍ່ໄດ້ຕັ້ງລະບົບ HR ໃນ server — ຕິດຕໍ່ຜູ້ດູແລ</p>');
    CAT.forEach(function (a) { h += '<div class="sect">' + ic('sheet') + esc(a.name) + '</div><label class="sw"><input type="checkbox" data-app="' + esc(a.id) + '"' + (W.apps.indexOf(a.id) >= 0 ? ' checked' : '') + '><span class="sl"></span><span class="st">ເຂົ້າ ' + esc(a.name) + ' ໄດ້</span></label>'; });
@@ -132,7 +136,7 @@ function wizard(u) {
   if (b.id === 'w-back') { if (step === 0) m.remove(); else { err = ''; step--; paint(); } return; }
   if (b.id === 'w-next') { var keys = stepList(), er = check(step); if (er) { err = er; paint(); return; } err = ''; if (step === keys.length - 1) save(b); else { step++; paint(); } return; }
   if (b.dataset.lv) { W.level = b.dataset.lv; err = ''; paint(); return; }
-  if (b.dataset.fuel !== undefined) { W.fuel = b.dataset.fuel; W.advF = null; W.approve = false; err = ''; paint(); return; }
+  if (b.dataset.fuel !== undefined) { var fv = b.dataset.fuel, M = ['head', 'admin', 'office']; if (!fv) W.fuels = []; else if (W.fuels.indexOf(fv) >= 0) W.fuels = W.fuels.filter(function (x) { return x !== fv; }); else W.fuels = (M.indexOf(fv) >= 0 ? W.fuels.filter(function (x) { return M.indexOf(x) < 0; }) : W.fuels).concat(fv); W.fuel = fuelMain(W.fuels); W.advF = null; W.approve = false; err = ''; paint(); return; }
   if (b.dataset.hr !== undefined) { W.hrRole = b.dataset.hr; W.advH = null; err = ''; paint(); return; }
   if (b.dataset.site) { var i = W.sites.indexOf(b.dataset.site); if (i >= 0) W.sites.splice(i, 1); else W.sites.push(b.dataset.site); paint(); return; }
  });

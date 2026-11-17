@@ -513,6 +513,7 @@ function canWrite(c, coll, rid, d, op) {
   }
 }
 
+var PAY_KEYS = ['baseSalary', 'allowance', 'payMethod', 'bankName', 'bankAccount'];
 var SELF_KEYS = ['photo', 'deviceId', 'deviceBoundAt', 'faceCount', 'faceConsentAt', 'faceReenroll', 'pinMustChange'];
 var HEAD_KEYS = ['faceReenroll'];
 
@@ -536,6 +537,8 @@ function guardEmployee(c, id, old, next) {
   if (supers && !isSuper(c) && ((old.roles || []).indexOf('owner') >= 0) !== ((next.roles || []).indexOf('owner') >= 0)) throw fail('ສະເພາະ Super admin ກຳນົດ Admin ໄດ້');
   guardPerm(c, id, old, next);
   if (R(c, 'staff.edit')) return;
+  // The app keeps pay in its own record and leaves it out of the employee record it sends back; keep what is already stored instead of reading that as a change.
+  if (old) PAY_KEYS.forEach(function (k) { if (old[k] !== undefined && next[k] === undefined) next[k] = old[k]; });
   var keys = {}, k;
   for (k in old) keys[k] = 1;
   for (k in next) keys[k] = 1;
@@ -596,6 +599,7 @@ function upsert(c, coll, id, data) {
     old = JSON.parse(json || 'null');
   }
   var op = old ? 'update' : 'insert';
+  if (coll === 'employeePay' && id === c.me && !R(c, 'staff.edit') && selfPayNoop(id, old, data)) return true; // the app re-sends the person's own pay unchanged when saving their face: nothing to write
   if (!canWrite(c, coll, id, data, op) || (old && !canWrite(c, coll, id, old, op))) throw fail('ບໍ່ມີສິດບັນທຶກຂໍ້ມູນນີ້');
   if (coll === 'employees') guardEmployee(c, id, old, data);
   if (coll === 'settings') guardSettings(c, old, data);
@@ -605,6 +609,13 @@ function upsert(c, coll, id, data) {
   if (coll === 'employees') { syncRoles(id, data); REQ.emps = undefined; c.rights = undefined; }
   if (coll === 'settings') { REQ.settings = undefined; c.rights = undefined; }
   return true;
+}
+
+/** True when a person saves their own pay record with exactly the values they already have (or the defaults when none is stored). Changing it still needs the pay rights. */
+function selfPayNoop(id, old, data) {
+  if (old) return JSON.stringify(old) === JSON.stringify(data);
+  var hit = recordRows('employees').filter(function (r) { return r.id === id; })[0], e = (hit && hit.data) || {}, defs = { baseSalary: 0, allowance: 0, payMethod: 'cash' };
+  return Object.keys(data).every(function (k) { var v = e[k] !== undefined ? e[k] : defs[k]; return PAY_KEYS.indexOf(k) >= 0 && JSON.stringify(data[k]) === JSON.stringify(v); });
 }
 
 var SCAN_FIXED = ['kind', 'deviceTime', 'branchId', 'employeeId'];

@@ -120,3 +120,7 @@ body:not(:has(nav.tabs)) #syncbar{bottom:calc(16px + env(safe-area-inset-bottom)
 button,.btn,nav.tabs button{-webkit-user-select:none;user-select:none}
 .inst{margin:12px 0 0;padding:10px 12px;border-radius:16px;background:#f0f7f7;font-size:13px;color:var(--muted);text-align:center}.inst .btn{width:100%;margin-top:6px}
 @media print{.top,nav.tabs,.pick,.noprint,.toast{display:none!important}body{background:#fff}main{max-width:none;padding:0}.card{box-shadow:none;animation:none;padding:0}th{background:#0f3f3c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:10mm}}
+
+.tile{position:relative}.tbadge{position:absolute;top:10px;right:12px;min-width:26px;height:26px;padding:0 8px;border-radius:13px;background:#d64545;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+
+.pm{display:block;font-size:11px;font-weight:400;opacity:.85}.pm.bad{color:#d64545;font-weight:700;opacity:1}

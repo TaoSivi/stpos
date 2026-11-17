@@ -1,7 +1,7 @@
 /* ໜ້າບໍລິຫານ — ໂຄງຫຼັກ: ສະຖານະ, ສິດ, ເມນູໂມດູນ (ຂ້າງ / ແຖບລຸ່ມ / ເພີ່ມເຕີມ), ຕົວຈັດເສັ້ນທາງ
  * ໂມດູນຢູ່ 3 ໄຟລ໌: office-ops.js (ພາບລວມ, ເບີກ&ຈ່າຍ, ຮັບເຂົ້າແທ່ງ&ແທກ, ຮັບຮູ້&ອະນຸມັດ) · office-rep.js (ລາຍງານ, ຍອດແທ່ງ, PDF/Excel) · office-admin.js (ມອບລົດ, ພະນັກງານ&ສິດ, ຕັ້ງຄ່າ, ຂ້ອຍ) */
 'use strict';
-var I = null, S = null, P = {}, LEDGER = [], USERS = [], DRV = [], PHK = null, MOD = 'dash', LOADED = '';
+var I = null, S = null, P = {}, PM = {}, LEDGER = [], USERS = [], DRV = [], PHK = null, MOD = 'dash', LOADED = '';
 var WD = ['ວັນອາທິດ', 'ວັນຈັນ', 'ວັນອັງຄານ', 'ວັນພຸດ', 'ວັນພະຫັດ', 'ວັນສຸກ', 'ວັນເສົາ'], MO = ['ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'];
 function drvName(ph) { var d = DRV.filter(function (x) { return x.phone === ph; })[0]; return d ? d.name : ph ? ph + ' (ບໍ່ພົບ/ປິດ)' : ''; }
 function longDate(d) { var x = new Date(d + 'T00:00:00Z'); return WD[x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + MO[x.getUTCMonth()]; }
@@ -85,7 +85,7 @@ document.addEventListener('synced', function () { var a = document.activeElement
 function withSheet(photos, cb) {
  var key = $('site').value + '|' + $('date').value, mine = MOD;
  api('sheet', here()).then(function (r) {
-  if (!r.ok || MOD !== mine) return; S = r.data; P = {}; setBadge(pendingOf(S)); cb();
-  if (photos) api('photos', here()).then(function (p) { if (p.ok && MOD === mine) { P = p.data; cb(true); } });
+  if (!r.ok || MOD !== mine) return; S = r.data; P = {}; PM = {}; setBadge(pendingOf(S)); cb();
+  if (photos) Promise.all([api('photos', here()), api('photometa', here())]).then(function (a) { if (a[0].ok && MOD === mine) { P = a[0].data; PM = a[1].ok ? a[1].data : {}; cb(true); } });
  });
 }
