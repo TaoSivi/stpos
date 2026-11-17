@@ -1,0 +1,122 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Lao:wght@400;500;600;700;800&display=swap");
+/* ສີຕີມ + ຮູບແບບ ຄືກັບແອັບ HR (teal, ມຸມມົນ 24px, ເງົາບາງ, animation ເຂົ້າ-ອອກ) */
+:root{--ink:#0f2a29;--muted:#5b7473;--bg:#f3f7f7;--card:#fff;--line:#e6eeee;--line-2:#d9e5e5;--primary:#0a7e7a;--primary-600:#086b68;--accent:#0abab5;--mint:#5fd9d2;--dark:#0b2f2d;--dark-2:#0f3f3c;--warn-bg:#fff4d6;--warn:#8a5d00;--bad-bg:#fff0ec;--bad:#b4371f;--ok-bg:#e4f5f3;--ok:#0a7e7a;--r:24px;--sh-1:0 1px 2px rgba(15,42,41,.05),0 6px 20px rgba(15,42,41,.05);--sh-2:0 2px 6px rgba(15,42,41,.08),0 16px 40px rgba(15,42,41,.12);
+ font-family:"Plus Jakarta Sans","Noto Sans Lao","Phetsarath OT","Saysettha OT",system-ui,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation;overscroll-behavior-y:none}
+input,select,textarea{font-size:16px} /* 16px = iOS ບໍ່ຊູມເອງເມື່ອກົດຊ່ອງ */
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{margin:0;line-height:1.3}h1{font-size:22px;font-weight:800;letter-spacing:-.3px}h2{font-size:16px;font-weight:700}
+:focus-visible{outline:3px solid rgba(10,186,181,.45);outline-offset:2px}
+::selection{background:#0abab540}
+.hide{display:none!important}.muted{color:var(--muted)}.sm{font-size:13px}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+/* ໂຄງໜ້າ */
+.top{background:linear-gradient(135deg,var(--dark-2),var(--dark));color:#fff;padding:calc(14px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 18px calc(18px + env(safe-area-inset-left));border-radius:0 0 var(--r) var(--r);box-shadow:var(--sh-2);position:relative;z-index:2}
+.top .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--primary));display:grid;place-items:center;box-shadow:0 6px 16px rgba(10,186,181,.35)}
+.logo svg{width:24px;height:24px;stroke:#fff}
+.top h1{font-size:18px}.top small{opacity:.8;display:block;font-size:13px}
+.grow{flex:1 1 auto;min-width:0}
+.top .ic{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:14px;width:42px;height:42px;display:grid;place-items:center;transition:background .2s,transform .15s}
+.top .ic:hover{background:rgba(255,255,255,.22)}.top .ic:active{transform:scale(.94)}
+main{max-width:880px;margin:0 auto;padding:16px 16px calc(110px + env(safe-area-inset-bottom))}
+.card{background:var(--card);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh-1);margin:0 0 14px;animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both}
+.card h2{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.card h2 svg{color:var(--primary)}
+.card.dark{background:linear-gradient(135deg,#0f4744,#082a28);color:#fff;box-shadow:var(--sh-2)}
+.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}
+.pick{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}.pick>*{flex:1 1 150px}
+.daynav{display:flex;align-items:center;gap:10px;margin:0 0 14px}.daynav .btn{width:46px;padding:0;flex:0 0 46px}.daynav>div{flex:1;text-align:center}
+
+/* ຟອມ */
+label.f{display:block;font-size:13px;color:var(--muted);font-weight:600}
+input[type=text],input[type=number],input[type=date],input[type=tel],input[type=password],select,textarea{width:100%;min-height:46px;padding:9px 13px;margin-top:4px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(10,186,181,.15);outline:0}
+input:disabled,select:disabled,textarea:disabled{background:#eef4f4;color:var(--muted)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:9px 18px;border:0;border-radius:14px;background:var(--primary);color:#fff;font-weight:700;position:relative;overflow:hidden;transition:transform .15s,box-shadow .2s,background .2s;box-shadow:0 6px 16px rgba(10,126,122,.25)}
+.btn:hover{background:var(--primary-600)}.btn:active{transform:scale(.97)}
+.btn.line{background:#fff;color:var(--primary);border:1.5px solid var(--line-2);box-shadow:none}
+.btn.bad{background:#fff;color:var(--bad);border:1.5px solid #f3c6bb;box-shadow:none}
+.btn.ok{background:linear-gradient(135deg,var(--accent),var(--primary))}
+.btn.blk{width:100%}.btn:disabled{opacity:.5;pointer-events:none}
+.btn .rp{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:ripple .6s linear forwards;pointer-events:none}
+
+/* ແຖບເມນູ */
+nav.tabs{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;display:flex;gap:4px;padding:6px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-radius:22px;box-shadow:var(--sh-2);max-width:calc(100% - 24px);overflow-x:auto;animation:navIn .5s cubic-bezier(.2,.8,.2,1) both}
+nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 14px;border-radius:16px;color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap;transition:background .2s,color .2s}
+nav.tabs button[aria-current=true]{background:var(--ok-bg);color:var(--primary)}
+nav.tabs button[aria-current=true] svg{animation:navBounce .45s}
+
+/* ສະຖານະ */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:99px;font-size:13px;font-weight:600;background:#eaf0f0;color:var(--muted)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.bad{background:var(--bad-bg);color:var(--bad)}.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip svg{width:15px;height:15px}
+.calc{margin-top:12px;padding:12px 14px;border-radius:18px;background:#f0f7f7;line-height:1.9}
+.calc b{font-size:18px}
+.big{font-size:44px;font-weight:800;color:var(--primary);letter-spacing:-1px;line-height:1.1}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.stat>div{background:#f0f7f7;border-radius:18px;padding:10px 14px}.stat small{display:block;color:var(--muted);font-size:12px}.stat b{font-size:20px}
+
+/* ຮູບ */
+.ph{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.ph button{border:1.5px dashed var(--line-2);background:#fafcfc;border-radius:16px;padding:6px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;min-height:86px;justify-content:center;transition:border-color .2s,transform .15s}
+.ph button:active{transform:scale(.96)}
+.ph button.has{border-style:solid;border-color:var(--mint)}
+.ph img{width:100%;height:64px;object-fit:cover;border-radius:10px;animation:popIn .3s both}
+
+/* ຕາຕະລາງລາຍງານ */
+.tw{overflow-x:auto;border-radius:18px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:13px;background:#fff}
+th,td{border:1px solid var(--line-2);padding:6px 8px;text-align:center;vertical-align:middle}
+th{background:var(--dark-2);color:#fff;font-weight:600}
+td.l{text-align:left}td img{width:60px;height:46px;object-fit:cover;border-radius:6px;display:block;margin:auto}
+tfoot td{background:var(--warn-bg);font-weight:800}
+.rh{text-align:center;margin:6px 0 14px}.rh h2{justify-content:center;font-size:18px;margin:4px 0}
+.sign{display:flex;justify-content:space-around;margin-top:30px;text-align:center}
+
+/* ແຖວຕັ້ງຄ່າ */
+.cr{border-top:1px solid var(--line);padding:12px 0;display:grid;gap:8px;animation:fadeIn .3s both}
+.tk{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.cks label{display:inline-flex;align-items:center;gap:6px;margin:4px 14px 0 0;font-size:14px}
+.cks input{width:20px;height:20px;accent-color:var(--primary)}
+
+/* ໂມດອນ / toast / PIN */
+.mask{position:fixed;inset:0;background:rgba(8,42,40,.5);backdrop-filter:blur(3px);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s both}
+.sheet{background:#fff;width:min(520px,100%);border-radius:var(--r) var(--r) 0 0;padding:22px 20px calc(26px + env(safe-area-inset-bottom));animation:sheetUp .35s cubic-bezier(.2,.8,.2,1) both}
+@media(min-width:700px){.mask{align-items:center}.sheet{border-radius:var(--r);animation-name:modalIn}}
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%);z-index:30;background:var(--dark);color:#fff;padding:11px 18px;border-radius:16px;box-shadow:var(--sh-2);max-width:90%;animation:toastIn .35s both;font-weight:600}
+.toast.bad{background:var(--bad)}.toast.ok{background:var(--primary)}
+.dots{display:flex;gap:14px;justify-content:center;margin:14px 0}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line-2);transition:background .15s,transform .15s,border-color .15s}
+.dots i.on{background:var(--primary);border-color:var(--primary);transform:scale(1.15)}
+.dots.shake{animation:pinShake .45s}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto}
+.pad button{height:62px;border:0;border-radius:20px;background:#fff;box-shadow:var(--sh-1);font-size:24px;font-weight:700;transition:transform .12s,background .15s}
+.pad button:active{transform:scale(.92);background:var(--ok-bg)}
+.skel{height:120px;border-radius:var(--r);background:linear-gradient(90deg,#e8f0f0 25%,#f4f9f9 50%,#e8f0f0 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;margin-bottom:14px}
+.done{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--ok-bg);color:var(--primary);margin:0 auto 8px;animation:popIn .45s both}
+.done svg{width:34px;height:34px;stroke-width:2.6}
+
+#syncbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));z-index:6;border:0;box-shadow:var(--sh-2);padding:7px 16px;animation:popIn .3s both;max-width:92%;font-size:13px}
+body:not(:has(nav.tabs)) #syncbar{bottom:calc(16px + env(safe-area-inset-bottom))}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes navIn{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes navBounce{40%{transform:translateY(-4px) scale(1.15)}to{transform:none}}
+@keyframes pinShake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes shimmer{to{background-position:-200% 0}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes floaty{50%{transform:translateY(-6px)}}
+.float{animation:floaty 3s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+button,.btn,nav.tabs button{-webkit-user-select:none;user-select:none}
+.inst{margin:12px 0 0;padding:10px 12px;border-radius:16px;background:#f0f7f7;font-size:13px;color:var(--muted);text-align:center}.inst .btn{width:100%;margin-top:6px}
+@media print{.top,nav.tabs,.pick,.noprint,.toast{display:none!important}body{background:#fff}main{max-width:none;padding:0}.card{box-shadow:none;animation:none;padding:0}th{background:#0f3f3c!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:10mm}}

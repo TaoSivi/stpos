@@ -1,0 +1,9 @@
+{
+  "name": "stdev",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ST Fuel — field fuel issue / tank measurement / driver acknowledgement (standalone, no dependencies)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node test/core.test.js && node test/server.test.js" },
+  "engines": { "node": ">=18" }
+}

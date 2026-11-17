@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b2f2d">
+<title>ນ້ຳມັນສະໜາມ — ເຂົ້າລະບົບ</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ນ້ຳມັນ">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="fuel.css">
+<style>
+body{min-height:100vh;min-height:100dvh;display:grid;place-items:center;background:linear-gradient(160deg,var(--dark),var(--dark-2) 55%,#0a5c58);padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom))}
+.box{width:min(380px,100%);background:#fff;border-radius:32px;padding:26px 22px 22px;box-shadow:var(--sh-2);animation:popIn .5s cubic-bezier(.2,.8,.2,1) both}
+.box .logo{margin:-52px auto 12px;width:68px;height:68px;border-radius:22px;border:5px solid #fff}
+.box .logo svg{width:34px;height:34px}
+.box h1{text-align:center}.box p{text-align:center;margin:2px 0 14px}
+.err{min-height:22px;text-align:center;color:var(--bad);font-weight:600;font-size:14px}
+</style>
+</head>
+<body>
+<form class="box" id="f" autocomplete="off">
+ <div class="logo float" id="lg"></div>
+ <h1>ນ້ຳມັນສະໜາມ</h1>
+ <p class="muted sm">ເບີກຈ່າຍ · ແທກຖັງ · ຮັບຮູ້ການເຕີມ</p>
+ <label class="f">ເບີໂທ<input id="ph" type="tel" inputmode="tel" placeholder="020 xxxx xxxx" autocomplete="username" required></label>
+ <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+ <input id="pin" type="password" inputmode="numeric" maxlength="8" class="hide" autocomplete="current-password">
+ <div class="pad" id="pad"></div>
+ <div class="err" id="err" role="alert"></div>
+ <button class="btn ok blk" id="go" type="submit" disabled>ເຂົ້າລະບົບ</button>
+ <div id="inst"></div>
+</form>
+<script src="tank.js"></script>
+<script src="app.js"></script>
+<script src="offline.js"></script>
+<script src="login.js"></script>
+</body>
+</html>
