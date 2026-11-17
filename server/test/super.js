@@ -51,6 +51,22 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       const e2 = await sup('enter', { stk: stk, code: 'co2' }); assert.ok(e2.pos && !e2.hr, 'no HR app → no HR session');
       assert.strictEqual((await sup('enter', { stk: stk, code: 'nope' })).err, 'company');
     });
+    await test('one account for every app: a company user signs in once (POS PIN) and gets HR; staff get an HR account made for them', async function () {
+      const jp = async function (code, qs) { const t = await (await fetch(HOST + '/api/t/' + code + '/?callback=c&' + qs)).text(); return JSON.parse(t.slice(2, -1)); };
+      const info = await jp('co1', 'login=info'); const owner = info.users[0];
+      const lo = await jp('co1', 'login=pin&uid=' + owner.id + '&pin=4321'); assert.ok(lo.ok && lo.tk, JSON.stringify(lo));
+      const h0 = await jp('co1', 'login=hr&tk=' + encodeURIComponent(lo.tk)); assert.ok(h0.ok && h0.hr.member.roles.indexOf('owner') >= 0, JSON.stringify(h0));
+      const add = await (await fetch(HOST + '/api/t/co1/b1/?hq=staffSave&by=Owner&token=' + encodeURIComponent(lo.tk), { method: 'POST', body: JSON.stringify({ name: 'ນາງ ແກ້ວ', pin: '5566', roles: { b1: 'cashier' } }) })).json(); assert.ok(add.ok, JSON.stringify(add));
+      const kid = (await jp('co1', 'login=info')).users.filter(function (u) { return u.name === 'ນາງ ແກ້ວ'; })[0].id;
+      const lk = await jp('co1', 'login=pin&uid=' + kid + '&pin=5566'); assert.ok(lk.ok, JSON.stringify(lk));
+      const h1 = await jp('co1', 'login=hr&tk=' + encodeURIComponent(lk.tk)); assert.ok(h1.ok, JSON.stringify(h1)); assert.deepStrictEqual(h1.hr.member.roles, ['employee']);
+      const me = await hr('co1', { action: 'me', token: h1.hr.token }); assert.ok(me.ok, JSON.stringify(me));
+      const h2 = await jp('co1', 'login=hr&tk=' + encodeURIComponent(lk.tk)); assert.strictEqual(h2.hr.member.employeeId, h1.hr.member.employeeId, 'same HR person the second time');
+      const emps = (await hr('co1', { action: 'list', token: h0.hr.token, collection: 'employees' })).data.map(function (e) { return e.data; });
+      const k = emps.filter(function (e) { return e.posUid === kid; }); assert.strictEqual(k.length, 1); assert.strictEqual(k[0].name, 'ນາງ ແກ້ວ'); assert.ok(/^ST-\d+$/.test(k[0].code));
+      assert.strictEqual((await jp('co1', 'login=hr&tk=bad')).err, 'tk');
+      assert.strictEqual((await jp('co2', 'login=hr&tk=' + encodeURIComponent(lk.tk))).err, 'tk', 'a co1 session is no good in co2');
+    });
     await test('changing the platform PIN logs every device out', async function () {
       assert.ok((await adm('tenant_super_pin', { pin: '1357' })).ok);
       assert.strictEqual((await sup('list', { stk: stk })).err, 'stk');

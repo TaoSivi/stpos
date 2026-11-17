@@ -346,6 +346,13 @@ function loginApi(q, req) {
   }
   if (q.login === 'branches') /* ໜ້າເປີດແອັບຄັ້ງທຳອິດ (stpos.store ທຳມະດາ): ໃຫ້ເລືອກສາຂາ — ຊື່ ແລະ ລິ້ງເທົ່ານັ້ນ */
     return { ok: true, login: 1, branches: brList(req).map(function (b) { return { id: b.id, name: b.name, type: b.type, url: b.url }; }) };
+  if (q.login === 'hr') { /* ບັນຊີດຽວທຸກແອັບ: session ຂອງບໍລິສັດ (ຈາກ PIN ໜ້າຫຼັກ / POS) → session HR ຂອງຄົນດຽວກັນ */
+    const su = sessUser(q.tk); if (!su) return { ok: false, err: 'tk' };
+    if (!hrLicensed(CURTEN)) return { ok: false, err: 'app' };
+    const x = stateUsers().filter(function (z) { return z && z.id === su.id; })[0] || {};
+    let r; try { r = hrx().sessionFor(CURTEN.code, { id: su.id, role: su.role, name: x.name || su.id }); } catch (e) { return { ok: false, err: 'hr' }; }
+    return r ? { ok: true, hr: r } : { ok: false, err: 'nohr' };
+  }
   if (q.login === 'pin') {
     const cache = CacheService.getScriptCache(), uid = String(q.uid || '').slice(0, 80), ip = clientIp(req);
     const ku = 'lfu_' + uid, ki = 'lfi_' + ip, nu = +(cache.get(ku) || 0), ni = +(cache.get(ki) || 0);

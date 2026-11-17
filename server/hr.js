@@ -62,6 +62,38 @@ function create(rootDir, codeFile) {
         try { return ctx.openSession(u.employeeId, u.roles, ctx.companyRecord().id); } finally { lock.releaseLock(); }
       });
     },
+    /* ບັນຊີດຽວທຸກແອັບ: ຜູ້ໃຊ້ຂອງບໍລິສັດ (ລາຍຊື່ດຽວກັບ POS) ເຂົ້າ HR ໂດຍບໍ່ຕ້ອງມີ PIN HR ແຍກ.
+     * ເຈົ້າຂອງ / superadmin → ບັນຊີ Super admin ຫຼື ເຈົ້າຂອງ ຂອງ HR. ຜູ້ອື່ນ → ພະນັກງານ HR ທີ່ຜູກກັບ id ນັ້ນ (posUid); ບໍ່ມີ = ສ້າງໃຫ້ (ບົດບາດ employee)
+     * ສິດໃນ HR (ຫົວໜ້າ, HR, ບັນຊີ…) ກຳນົດໃນແອັບ HR ຕາມປົກກະຕິ. ຄືນ null ຖ້າ HR ຂອງບໍລິສັດຍັງບໍ່ຖືກສ້າງ */
+    sessionFor: function (code, pu) {
+      if (pu.role === 'superadmin' || pu.role === 'owner') return self.superSession(code);
+      return within(code, function () {
+        vm.runInContext('REQ = {}', ctx);
+        const co = ctx.readCompany(); if (!co) return null;
+        const cid = ctx.companyRecord().id, emps = ctx.employeesById(), uid = String(pu.id);
+        let empId = Object.keys(emps).filter(function (k) { return emps[k] && emps[k].posUid === uid; })[0];
+        const lock = ctx.LockService.getScriptLock(); lock.waitLock(25000);
+        try {
+          if (!empId) {
+            empId = 'e-p' + crypto.createHash('sha256').update(uid).digest('hex').slice(0, 10);
+            let n = 100; Object.keys(emps).forEach(function (k) { const m = /^ST-(\d+)$/i.exec(String(emps[k] && emps[k].code || '')); if (m) n = Math.max(n, +m[1]); });
+            const shifts = ctx.recordRows('shifts').map(function (r) { return r.data; }).filter(Boolean), br = ctx.recordRows('branches').map(function (r) { return r.data; }).filter(Boolean)[0];
+            const data = { id: empId, companyId: cid, code: 'ST-' + (n + 1), name: String(pu.name || uid).slice(0, 60), dept: '', position: '', roles: ['employee'], homeBranchId: br ? br.id : 'b-main', shiftId: shifts[0] ? shifts[0].id : 'morning', startDate: new Date().toISOString().slice(0, 10), baseSalary: 0, allowance: 0, payMethod: 'cash', posUid: uid };
+            const sh = ctx.tab(ctx.PREFIX + 'employees', ctx.RECORD_HEADER);
+            ctx.writeRow(sh, ctx.findRow(sh, empId), [empId, new Date().toISOString(), 'platform'].concat(ctx.chunks(JSON.stringify(data))));
+            ctx.collectionChanged('employees'); vm.runInContext('REQ = {}', ctx);
+          }
+          let u = ctx.userRows().filter(function (x) { return x.employeeId === empId; })[0];
+          if (!u) { /* ບັນຊີເຂົ້າ HR ທີ່ບໍ່ມີ PIN ທີ່ໃຜຮູ້ (ສຸ່ມ) — ເຂົ້າໄດ້ຜ່ານແພລດຟອມເທົ່ານັ້ນ ຈົນກວ່າ Admin ຈະຕັ້ງ PIN ໃຫ້ */
+            const e = ctx.employeesById()[empId] || {}, salt = crypto.randomUUID(), pin = String(crypto.randomInt(0, 1e8));
+            ctx.saveUser({ employeeId: empId, code: String(e.code || empId).toLowerCase(), salt: salt, hash: ctx.hashPin(salt, pin), sealed: '', roles: ['employee'].concat((e.roles || []).filter(function (r) { return r !== 'employee' && r !== 'superadmin'; })) });
+            vm.runInContext('REQ = {}', ctx);
+            u = ctx.userRows().filter(function (x) { return x.employeeId === empId; })[0];
+          }
+          return ctx.openSession(u.employeeId, u.roles, cid);
+        } finally { lock.releaseLock(); }
+      });
+    },
     dirOf: dirOf
   };
   return self;
