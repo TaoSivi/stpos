@@ -133,10 +133,63 @@ function hrHandle(req, res, body, code) {
   if (req.method !== 'POST') return done({ ok: false, error: 'post' });
   return done(hrx().post(code, body));
 }
+/* ===== ເຈົ້າຂອງແພລດຟອມ (Super admin): PIN ດຽວ → ເລືອກບໍລິສັດ → ເຂົ້າທຸກແອັບຂອງບໍລິສັດນັ້ນໂດຍບໍ່ໃສ່ PIN ອີກ =====
+ * PIN ເກັບເປັນ hash ໃນ platform.json (ຕັ້ງດ້ວຍ ADMIN_KEY). token ລົງລາຍເຊັນດ້ວຍ ADMIN_KEY · ປ່ຽນ PIN = token ເກົ່າໃຊ້ບໍ່ໄດ້ທັນທີ */
+const PLAT_FILE = path.join(ROOT_DIR, 'platform.json');
+function platRead() { try { return JSON.parse(fs.readFileSync(PLAT_FILE, 'utf8')) || {}; } catch (e) { return {}; } }
+function platKey() { return crypto.createHmac('sha256', String(process.env.ADMIN_KEY || shim.props.getProperty('ADMIN_KEY') || '')).update('st-platform-super-v1').digest(); }
+function platSign(v) { return crypto.createHmac('sha256', platKey()).update(v).digest('base64url'); }
+function platToken(p) { const v = Buffer.from(JSON.stringify({ e: Date.now() + 30 * 86400000, v: p.v || 0 })).toString('base64url'); return 'p1.' + v + '.' + platSign(v); }
+function platOk(tk) {
+  tk = String(tk || ''); const parts = tk.split('.'); if (parts.length !== 3 || parts[0] !== 'p1') return false;
+  const a = Buffer.from(platSign(parts[1])), b = Buffer.from(parts[2]); if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
+  let o; try { o = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')); } catch (e) { return false; }
+  const p = platRead(); return !!(p.pinH && o && o.e > Date.now() && (o.v || 0) === (p.v || 0));
+}
+function superApi(q, body, req, res) {
+  const J = function (o) { return send(res, 200, JSON.stringify(o), 'application/json'); };
+  if (String(process.env.ADMIN_KEY || shim.props.getProperty('ADMIN_KEY') || '').length < 8) return J({ ok: false, err: 'setup' });
+  let o; try { o = JSON.parse(body || '{}'); } catch (e) { return J({ ok: false, err: 'json' }); }
+  useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]);
+  const a = String(q.super), P = platRead();
+  if (a === 'status') return J({ ok: true, set: !!P.pinH });
+  if (a === 'login') {
+    if (!P.pinH) return J({ ok: false, err: 'notset' });
+    const cache = CacheService.getScriptCache(), ip = clientIp(req), ki = 'spi_' + ip, n = +(cache.get(ki) || 0), na = +(cache.get('spa') || 0);
+    if (n >= 5 || na >= 30) return J({ ok: false, err: 'locked' });
+    if (pinHash(String(o.pin || '')) === P.pinH) { cache.remove(ki); try { AUDIT.append([{ t: 'super_login', u: 'platform', ip: ip, d: {} }]); } catch (e) {} return J({ ok: true, stk: platToken(P) }); }
+    cache.put(ki, String(n + 1), 900); cache.put('spa', String(na + 1), 900);
+    try { AUDIT.append([{ t: 'super_login_fail', u: 'platform', ip: ip, d: { n: n + 1 } }]); } catch (e) {}
+    return J({ ok: false, err: 'pin', left: Math.max(0, 4 - n) });
+  }
+  if (!platOk(o.stk)) return J({ ok: false, err: 'stk' });
+  if (a === 'list') return J({ ok: true, companies: tenantList().map(function (t) { return { code: t.code, name: t.name || t.code, apps: t.apps || [] }; }) });
+  if (a === 'enter') {
+    const code = String(o.code || '').toLowerCase(), t = tenantList().filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    const out = { ok: true, company: { code: t.code, name: t.name || t.code, apps: t.apps || [] } };
+    try {
+      useTenant(t); useBranch(brFind('b1') || branches()[0]); shim.beginRequest();
+      try {
+        const us = stateUsers().filter(function (u) { return u && u.active !== false && userPinH(u); }), pick = function (r) { return us.filter(function (u) { return u.role === r; })[0]; };
+        const u = pick('superadmin') || pick('owner') || us[0];
+        if (u) out.pos = { tk: sessMake(u), uid: u.id, name: u.name || '' };
+      } finally { shim.endRequest(); }
+    } finally { useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]); }
+    if (hrLicensed(t)) { try { out.hr = hrx().superSession(code); } catch (e) { out.hr = null; } }
+    try { AUDIT.append([{ t: 'super_enter', u: 'platform', ip: clientIp(req), d: { company: code } }]); } catch (e) {}
+    return J(out);
+  }
+  return J({ ok: false, err: 'super' });
+}
 function tenantAdmin(q, body, res) { /* ?admin=tenant_list|tenant_add|tenant_set — ສະເພາະ ADMIN_KEY ຂອງເຈົ້າຂອງລະບົບ; ຂໍ້ມູນລະອຽດ (ລະຫັດ PIN) ຜ່ານ body ບໍ່ແມ່ນ URL */
   const J = function (o) { return send(res, 200, JSON.stringify(o), 'application/json'); }, a = String(q.admin);
   if (!keyOk(q.key, 'ADMIN_KEY')) return send(res, 403, 'denied');
   useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]);
+  if (a === 'tenant_super_pin') { /* ຕັ້ງ / ປ່ຽນ PIN Super admin ຂອງແພລດຟອມ — token ເກົ່າທຸກເຄື່ອງໝົດອາຍຸ */
+    let b; try { b = JSON.parse(body || '{}'); } catch (e) { return J({ ok: false, err: 'json' }); }
+    const pin = String(b.pin || ''); if (!/^\d{4,8}$/.test(pin)) return J({ ok: false, err: 'pin' });
+    const p = platRead(); p.pinH = pinHash(pin); p.v = (+p.v || 0) + 1; atomicWrite0(PLAT_FILE, JSON.stringify(p)); return J({ ok: true });
+  }
   if (a === 'tenant_list') return J({ ok: true, tenants: tenantList().map(function (t) { return { code: t.code, name: t.name, apps: t.apps || [], ts: t.ts }; }) });
   let o; try { o = JSON.parse(body || '{}'); } catch (e) { return J({ ok: false, err: 'json' }); }
   const cleanApps = function (x) { return Array.isArray(x) ? x.map(String).filter(function (v) { return /^[a-z0-9_-]{1,32}$/.test(v); }).slice(0, 30) : []; };
@@ -876,6 +929,7 @@ function handle(req, res, body) {
     return send(res, 200, JSON.stringify({ ok: true, ran: ran, branches: ran.length >= 0 ? branches().length : 0, at: new Date().toISOString() }), 'application/json');
   }
   if (q.admin !== undefined && /^tenant_/.test(String(q.admin))) return tenantAdmin(q, body, res);
+  if (q.super !== undefined && u.pathname.replace(/\/+$/, '') === '/api') return superApi(q, body, req, res);
   let pn = u.pathname; const am = /^\/api\/t\/([^\/]+)(\/.*)?$/.exec(pn); /* /api/t/<ບໍລິສັດ>[/<ສາຂາ>|/erp] = ຮູບແບບທີ່ cPanel (ຕໍ່ Node ໄດ້ສະເພາະ /api) ເຂົ້າເຖິງ → ປ່ຽນເປັນ /t/<ບໍລິສັດ>/api… */
   if (am) pn = /^\/(erp|hr)\/?$/.test(am[2] || '') ? '/t/' + am[1] + am[2].replace(/\/$/, '') : '/t/' + am[1] + '/api' + (am[2] || '');
   const tm = /^\/t\/([^\/]+)(\/.*)?$/.exec(pn);

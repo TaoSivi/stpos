@@ -69,6 +69,13 @@ a.g.sm{min-height:40px;padding:6px 14px;font-size:14px;font-weight:700;backgroun
   </form>
   <div class="msg" id="msg" role="status"></div>
  </section>
+ <section class="card">
+  <h2>PIN Super admin ຂອງແພລດຟອມ</h2>
+  <small>ໃຊ້ PIN ນີ້ທີ່ໜ້າຫຼັກ → "Super admin" ເພື່ອເລືອກບໍລິສັດ ແລະເຂົ້າທຸກແອັບໂດຍບໍ່ຕ້ອງໃສ່ PIN ອີກ. ປ່ຽນ PIN = ທຸກເຄື່ອງຕ້ອງເຂົ້າໃໝ່.</small>
+  <label for="spn">PIN ໃໝ່ <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="spn" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password">
+  <button class="p" id="spset" type="button">ຕັ້ງ PIN Super admin</button>
+  <div class="msg" id="spmsg" role="status"></div>
+ </section>
  <section class="card hide" id="ed">
   <h2>3. ແກ້ໄຂບໍລິສັດ: <span id="edc"></span></h2>
   <label for="en">ຊື່ບໍລິສັດ</label><input id="en" type="text" maxlength="60">
@@ -130,6 +137,10 @@ function hrCode(reset) {
 }
 $('hrcode').onclick = function () { hrCode(false); };
 $('hrreset').onclick = function () { hrCode(true); };
+$('spset').onclick = function () {
+ var m = $('spmsg'); m.className = 'msg'; m.textContent = '…';
+ call('tenant_super_pin', { pin: $('spn').value }).then(function (r) { $('spn').value = ''; if (r.ok) { m.className = 'msg ok'; m.textContent = 'ຕັ້ງແລ້ວ ✓ ໄປໜ້າຫຼັກ → Super admin'; } else { m.className = 'msg er'; m.textContent = r.err === 'pin' ? 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ' : 'ບໍ່ສຳເລັດ: ' + (r.err || 'ຜິດພາດ'); } }).catch(function (e) { m.className = 'msg er'; m.textContent = e.message; });
+};
 $('hrseed').onclick = function () {
  var m = $('hrmsg'); m.className = 'msg'; m.textContent = '…';
  call('tenant_hr_seed', { code: $('edc').textContent, hrName: $('en').value.trim() }).then(function (r) {

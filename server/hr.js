@@ -51,6 +51,17 @@ function create(rootDir, codeFile) {
       if (own) return { ok: true, company: nm };
       return { ok: true, company: nm, superAdmin: { code: 'ST-000', pin: pins[0] }, admin: { code: 'ST-001', pin: pins[1], mustChange: true }, staff: ['ST-101', 'ST-102', 'ST-103'] };
     },
+    /* ເຈົ້າຂອງແພລດຟອມເຂົ້າ HR ຂອງບໍລິສັດ: session ຂອງບັນຊີ Super admin (ຫຼື ເຈົ້າຂອງ) ໂດຍບໍ່ຕ້ອງໃສ່ PIN — ຄືນ null ຖ້າ HR ຍັງບໍ່ຖືກສ້າງ */
+    superSession: function (code) {
+      return within(code, function () {
+        vm.runInContext('REQ = {}', ctx);
+        const c = ctx.readCompany(); if (!c) return null;
+        const rows = ctx.userRows(), pick = function (r) { return rows.filter(function (u) { return (u.roles || []).indexOf(r) >= 0; })[0]; };
+        const u = pick('superadmin') || pick('owner'); if (!u) return null;
+        const lock = ctx.LockService.getScriptLock(); lock.waitLock(25000);
+        try { return ctx.openSession(u.employeeId, u.roles, ctx.companyRecord().id); } finally { lock.releaseLock(); }
+      });
+    },
     dirOf: dirOf
   };
   return self;
