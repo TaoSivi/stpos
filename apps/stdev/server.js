@@ -10,17 +10,33 @@ const http = require('http'), fs = require('fs'), os = require('os'), path = req
 const DATA = process.env.DATA_DIR || path.join(os.homedir(), 'stdev-data'), PUB = path.join(__dirname, 'public');
 const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel').create(DATA, accounts), hr = require('./mod-hr').create(DATA);
 
+/* ===== ທະບຽນແອັບ (App registry) — ບ່ອນດຽວທີ່ໜ້າຫຼັກ (launcher) ອ່ານ. ເພີ່ມແອັບໃໝ່ (ເຊັ່ນ SOP) = ເພີ່ມ 1 ແຖວຢູ່ນີ້ + ໄຟລ໌ mod-<id>.js (ເບິ່ງ ADD-APP.md)
+ *   access(u): ບັນຊີນີ້ໃຊ້ແອັບໄດ້ບໍ · href(u)/action: ກົດແລ້ວໄປໃສ · generic:true = ເຈົ້າຂອງຕິກເປີດໃຫ້ຕໍ່ຄົນໃນໜ້າ ພະນັກງານ & ສິດ (user.apps)
+ *   api: ໂມດູນຮັບ action ທີ່ຂຶ້ນຕົ້ນດ້ວຍ "<id>." ເຊັ່ນ POST /api/sop.list → mods.sop.handle('list', body, user) */
+const has = function (u, id) { return u.apps.indexOf('*') >= 0 || u.apps.indexOf(id) >= 0; };
+const APPS = [
+  { id: 'fuel', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return u.fuel === 'driver' ? 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ' : 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ'; }, icon: 'pump', href: function (u) { return u.fuel === 'driver' ? 'driver.html' : 'office.html'; }, access: function (u) { return !!u.fuel; } },
+  { id: 'hr', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } }
+  /* ຕົວຢ່າງ SOP: { id: 'sop', name: 'SOP', desc: function () { return 'ຂັ້ນຕອນການເຮັດວຽກ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } } */
+];
+const MODS = {}; /* ໂມດູນແອັບອື່ນ: MODS.sop = require('./mod-sop').create(DATA, accounts) */
+function appsFor(u) { return APPS.filter(function (a) { return a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
+const catalog = function () { return APPS.filter(function (a) { return a.generic; }).map(function (a) { return { id: a.id, name: a.name }; }); };
+
 /* ===== API: ກວດສິດຊັ້ນບັນຊີກາງກ່ອນ ແລ້ວສົ່ງຕໍ່ໂມດູນ ===== */
 function api(action, o, ip) {
-  if (action === 'login') { const r = accounts.login(o, ip); if (r.ok) r.hr = r.hr && hr.ready(); return r; }
+  if (action === 'login') { const r = accounts.login(o, ip); if (r.ok) { r.hr = r.hr && hr.ready(); r.napps = appsFor(r).length; } return r; }
   const u = accounts.userOf(o.token); if (!u) return { ok: false, error: 'auth' };
   switch (action) {
-    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready() } };
+    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), catalog: u.level === 'user' ? [] : catalog() } };
     case 'pin': return accounts.changePin(u.id, o.old, o.pin);
     case 'userList': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: accounts.list(u) };
     case 'userSave': { const r = accounts.save(o.user || {}, u); return r.ok ? { ok: true, data: 1 } : r; }
+    case 'catalog': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: catalog() };
     case 'hrlogin': return hr.login(u);
   }
+  const dot = action.indexOf('.'); /* <app>.<action> → ໂມດູນຂອງແອັບນັ້ນ (ຕ້ອງມີສິດໃນແອັບນັ້ນກ່ອນ) */
+  if (dot > 0) { const id = action.slice(0, dot), app = APPS.filter(function (a) { return a.id === id; })[0]; if (!app || !MODS[id]) return { ok: false, error: 'noapp' }; if (!app.access(u)) return { ok: false, error: 'noapp' }; return MODS[id].handle(action.slice(dot + 1), o, u); }
   const r = fuel.handle(action, o, u);
   if (action === 'init' && r.ok) { r.data.me.role = u.fuel; r.data.me.phone = u.id; r.data.me.level = u.level; r.data.me.approver = u.approver; r.data.hr = u.hr && hr.ready(); }
   return r;

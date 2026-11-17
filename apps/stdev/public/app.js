@@ -58,7 +58,7 @@ function loadXlsx() { return new Promise(function (res, rej) { if (window.XLSX) 
 function exportXlsx(name, rows, widths, merges) {
  return loadXlsx().then(function () { var ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = (widths || []).map(function (w) { return { wch: w }; }); if (merges) ws['!merges'] = merges; var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31)); XLSX.writeFile(wb, name + '.xlsx'); toast('ບັນທຶກ Excel ແລ້ວ', 'ok'); }, function () { toast('ໂຫຼດຕົວສ້າງ Excel ບໍ່ໄດ້ — ຕ້ອງມີອິນເຕີເນັດ', 'bad'); });
 }
-function header(title, sub, right) { return '<div class="top"><div class="in"><div class="logo float">' + ic('pump') + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>'; }
+function header(title, sub, right) { var home = /home\.html$/.test(location.pathname) ? '' : '<a class="ic" href="home.html" aria-label="ໜ້າຫຼັກ (ເລືອກແອັບ)" title="ໜ້າຫຼັກ" style="text-decoration:none">' + ic('grid') + '</a>'; return '<div class="top"><div class="in"><div class="logo float">' + ic('pump') + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + home + (right || '') + '<button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>'; }
 
 /* ===== ແອັບໃນມືຖື (PWA): ລົງທະບຽນ service worker + ຊ່ວຍຕິດຕັ້ງ ===== */
 if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });

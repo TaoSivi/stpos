@@ -50,7 +50,7 @@ function buildNav() {
  list.forEach(function (m) { if (!seen[m.g]) { seen[m.g] = 1; groups.push(m.g); } });
  side += '<div class="side-head"><div class="avatar">' + ic('pump') + '</div><div><b>ນ້ຳມັນສະໜາມ</b><small>' + esc(I.me.name) + ' · ' + esc(RN[I.me.role] || '') + '</small></div></div>';
  groups.forEach(function (g) { side += '<div class="side-grp">' + esc(g) + '</div>' + list.filter(function (m) { return m.g === g; }).map(function (m) { return navBtn(m, 'nav-item'); }).join(''); });
- side += '<div class="side-foot">' + (I.hr ? '<button class="nav-item" id="sidehr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
+ side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + (I.hr ? '<button class="nav-item" id="sidehr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
  $('side').innerHTML = side;
  var prim = ['dash', 'issue', 'tank', 'appr'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4);
  if (prim.length < 4) { var rp = modOf('report'); if (rp && rp.show() && prim.indexOf(rp) < 0) prim.push(rp); }
@@ -59,8 +59,8 @@ function buildNav() {
  $('lo').onclick = logout; if ($('hrb')) $('hrb').onclick = openHr; $('sidelo').onclick = logout; if ($('sidehr')) $('sidehr').onclick = openHr;
 }
 function moreSheet() {
- var m = modal('<h2>ເມນູທັງໝົດ</h2><div class="more">' + vis().map(function (x) { return '<button data-m="' + x.id + '" aria-current="' + (x.id === MOD) + '">' + ic(x.ic) + '<span>' + esc(x.t) + '</span></button>'; }).join('') + (I.hr ? '<button id="mhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button id="mlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>');
- m.onclick = function (e) { var b = e.target.closest('button'); if (e.target === m) { m.remove(); return; } if (!b) return; if (b.dataset.m) { m.remove(); go(b.dataset.m); } else if (b.id === 'mhr') openHr(); else if (b.id === 'mlo') logout(); };
+ var m = modal('<h2>ເມນູທັງໝົດ</h2><div class="more">' + vis().map(function (x) { return '<button data-m="' + x.id + '" aria-current="' + (x.id === MOD) + '">' + ic(x.ic) + '<span>' + esc(x.t) + '</span></button>'; }).join('') + '<button id="mhome">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></button>' + (I.hr ? '<button id="mhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button id="mlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>');
+ m.onclick = function (e) { var b = e.target.closest('button'); if (e.target === m) { m.remove(); return; } if (!b) return; if (b.dataset.m) { m.remove(); go(b.dataset.m); } else if (b.id === 'mhome') location.href = 'home.html'; else if (b.id === 'mhr') openHr(); else if (b.id === 'mlo') logout(); };
 }
 function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(function (b) { b.textContent = n > 0 ? n : ''; }); }
 function pendingOf(s) { return s ? s.rows.filter(function (r) { return r.add != null && !r.ack && !r.rej; }).length : 0; }

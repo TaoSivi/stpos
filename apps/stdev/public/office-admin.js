@@ -25,11 +25,12 @@ function permLegend() {
 }
 
 /* ===== ພະນັກງານ & ສິດ ===== */
-var UQ = '', UF = 'all';
-function staffView() { api('userList').then(function (r) { if (MOD !== 'staff') return; USERS = r.ok ? r.data : []; drawStaff(); }); }
+var UQ = '', UF = 'all', CAT = [];
+function staffView() { Promise.all([api('userList'), api('catalog')]).then(function (a) { if (MOD !== 'staff') return; USERS = a[0].ok ? a[0].data : []; CAT = a[1].ok ? a[1].data : []; drawStaff(); }); }
+function catName(id) { var c = CAT.filter(function (x) { return x.id === id; })[0]; return c ? c.name : id; }
 function uChips(u) {
  var c = '<span class="chip">' + (LVN[u.level] || u.level) + '</span>';
- if (u.level !== 'user') c += '<span class="chip ok">ທຸກແອັບ</span>'; else { if (u.fuel) c += '<span class="chip ok">ນ້ຳມັນ · ' + (RN[u.fuel] || u.fuel) + '</span>'; if (u.hr) c += '<span class="chip ok">HR</span>'; }
+ if (u.level !== 'user') c += '<span class="chip ok">ທຸກແອັບ</span>'; else { if (u.fuel) c += '<span class="chip ok">ນ້ຳມັນ · ' + (RN[u.fuel] || u.fuel) + '</span>'; if (u.hr) c += '<span class="chip ok">HR</span>'; (u.apps || []).forEach(function (id) { c += '<span class="chip ok">' + esc(catName(id)) + '</span>'; }); }
  if (u.approver && u.level === 'user') c += '<span class="chip warn">' + ic('shield') + 'ຜູ້ອະນຸມັດ</span>';
  if (!u.active) c += '<span class="chip bad">ປິດໃຊ້</span>';
  return c;
@@ -62,7 +63,7 @@ function userForm(u) {
   '<div id="uf-mods"><label class="f">ໜ້າທີ່ໃນແອັບນ້ຳມັນ<select id="uf-fuel">' + opts([['', 'ບໍ່ໃຊ້ແອັບນ້ຳມັນ'], ['driver', 'ຄົນຂັບ — ຮັບຮູ້ລົດຂອງຕົນ'], ['admin', 'ບໍລິຫານສະໜາມ — ເບີກ / ແກ້ cm'], ['head', 'ຫົວໜ້າສະໜາມ — ອະນຸມັດ / ມອບລົດ'], ['office', 'ຫ້ອງການ — ເບິ່ງລາຍງານ']], u.fuel || '') + '</select></label>' +
   '<div id="uf-sites" class="cks"><span class="hint">ສະໜາມທີ່ດູແລ</span><br>' + (I.cfg.sites.map(function (s) { return '<label><input type="checkbox" value="' + esc(s.id) + '"' + ((u.sites || []).indexOf(s.id) >= 0 ? ' checked' : '') + '> ' + esc(s.name) + '</label>'; }).join('') || '<span class="hint">ຍັງບໍ່ມີສະໜາມ — ເພີ່ມໃນ ຕັ້ງຄ່າ ກ່ອນ</span>') + '</div>' +
   '<div id="uf-apprbox">' + sw('uf-appr', u.approver, 'ເປັນຜູ້ອະນຸມັດໃບປະຈຳວັນ', 'ໃຫ້ບໍລິຫານ/ຫ້ອງການ ທີ່ໄວ້ໃຈ ກົດອະນຸມັດໄດ້') + '</div>' +
-  sw('uf-hr', u.hr, 'ເຂົ້າ ST HR ໄດ້', 'ສິດພາຍໃນ HR ກຳນົດໃນແອັບ HR') + '</div>' +
+  sw('uf-hr', u.hr, 'ເຂົ້າ ST HR ໄດ້', 'ສິດພາຍໃນ HR ກຳນົດໃນແອັບ HR') + CAT.map(function (a) { return sw('uf-app-' + a.id, (u.apps || []).indexOf(a.id) >= 0, 'ເຂົ້າ ' + esc(a.name) + ' ໄດ້'); }).join('') + '</div>' +
   '<div id="uf-all" class="hint" style="margin:8px 0">Admin / Super admin ເຂົ້າໄດ້ທຸກແອັບ ແລະ ທຸກຟັງຊັນ ໂດຍບໍ່ຕ້ອງເລືອກ.</div>' +
   (isNew ? '' : sw('uf-active', u.active, 'ເປີດໃຊ້ບັນຊີ', 'ປິດ = ເຂົ້າລະບົບບໍ່ໄດ້ທັນທີ')) +
   '<div class="prev" id="uf-prev" aria-live="polite"></div><div class="row" style="margin-top:6px"><button class="btn line grow" id="uf-cancel" type="button">ຍົກເລີກ</button><button class="btn grow" id="uf-save" type="button">' + ic('check') + (isNew ? 'ເພີ່ມພະນັກງານ' : 'ບັນທຶກ') + '</button></div>');
@@ -71,14 +72,14 @@ function userForm(u) {
   var adm = q('uf-level').value !== 'user', f = q('uf-fuel').value;
   q('uf-mods').classList.toggle('hide', adm); q('uf-all').classList.toggle('hide', !adm);
   q('uf-sites').classList.toggle('hide', f !== 'admin' && f !== 'head'); q('uf-apprbox').classList.toggle('hide', f !== 'admin' && f !== 'office');
-  var pl = permList(q('uf-level').value, f, q('uf-hr').checked, q('uf-appr').checked);
+  var pl = permList(q('uf-level').value, f, q('uf-hr').checked, q('uf-appr').checked); if (q('uf-level').value === 'user') CAT.forEach(function (a) { if (q('uf-app-' + a.id).checked) pl.push('ເຂົ້າ ' + a.name); });
   q('uf-prev').innerHTML = '<b>ຄົນນີ້ຈະມີສິດ:</b>' + (pl.length ? '<ul>' + pl.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<br><span class="chip bad">ຍັງບໍ່ມີສິດໃດ — ເລືອກແອັບຢ່າງໜ້ອຍ 1 ອັນ</span>');
  }
  m.addEventListener('change', refresh); refresh(); (q('uf-phone') || q('uf-name')).focus();
  q('uf-cancel').onclick = function () { m.remove(); };
  q('uf-save').onclick = function () {
   var b = q('uf-save'), adm = q('uf-level').value !== 'user', ac = q('uf-active');
-  var d = { phone: isNew ? q('uf-phone').value : u.phone, name: q('uf-name').value, level: q('uf-level').value, fuel: adm ? '' : q('uf-fuel').value, hr: adm ? false : q('uf-hr').checked, approver: adm ? false : q('uf-appr').checked, pin: q('uf-pin').value, active: ac ? ac.checked : true, sites: sites() };
+  var d = { phone: isNew ? q('uf-phone').value : u.phone, name: q('uf-name').value, level: q('uf-level').value, fuel: adm ? '' : q('uf-fuel').value, hr: adm ? false : q('uf-hr').checked, approver: adm ? false : q('uf-appr').checked, apps: adm ? [] : CAT.filter(function (a) { return q('uf-app-' + a.id).checked; }).map(function (a) { return a.id; }), pin: q('uf-pin').value, active: ac ? ac.checked : true, sites: sites() };
   b.disabled = true; api('userSave', { user: d }).then(function (r) { b.disabled = false; if (r.ok) { m.remove(); toast(isNew ? 'ເພີ່ມພະນັກງານແລ້ວ' : 'ບັນທຶກແລ້ວ', 'ok'); staffView(); api('drivers').then(function (x) { DRV = x.ok ? x.data : DRV; }); } });
  };
 }
