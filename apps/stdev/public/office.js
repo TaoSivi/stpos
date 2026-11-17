@@ -2,8 +2,6 @@
  * ໂມດູນຢູ່ 3 ໄຟລ໌: office-ops.js (ພາບລວມ, ເບີກ&ຈ່າຍ, ຮັບເຂົ້າແທ່ງ&ແທກ, ຮັບຮູ້&ອະນຸມັດ) · office-rep.js (ລາຍງານ, ຍອດແທ່ງ, PDF/Excel) · office-admin.js (ມອບລົດ, ພະນັກງານ&ສິດ, ຕັ້ງຄ່າ, ຂ້ອຍ) */
 'use strict';
 var I = null, S = null, P = {}, LEDGER = [], USERS = [], DRV = [], PHK = null, MOD = 'dash', LOADED = '';
-var RN = { owner: 'ເຈົ້າຂອງ', head: 'ຫົວໜ້າສະໜາມ', admin: 'ບໍລິຫານສະໜາມ', office: 'ຫ້ອງການ', driver: 'ຄົນຂັບ', boss: 'ເຈົ້າຂອງ' };
-var LVN = { superadmin: 'Super admin', admin: 'Admin', user: 'ຜູ້ໃຊ້' };
 var WD = ['ວັນອາທິດ', 'ວັນຈັນ', 'ວັນອັງຄານ', 'ວັນພຸດ', 'ວັນພະຫັດ', 'ວັນສຸກ', 'ວັນເສົາ'], MO = ['ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'];
 function drvName(ph) { var d = DRV.filter(function (x) { return x.phone === ph; })[0]; return d ? d.name : ph ? ph + ' (ບໍ່ພົບ/ປິດ)' : ''; }
 function longDate(d) { var x = new Date(d + 'T00:00:00Z'); return WD[x.getUTCDay()] + ' ' + x.getUTCDate() + ' ' + MO[x.getUTCMonth()]; }
@@ -28,7 +26,7 @@ var MODS = [
  { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites(); }, run: function () { reportView(); } },
  { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites(); }, run: function () { ledgerLoad(); } },
  { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRole(['head']); }, run: function () { assignView(); } },
- { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { staffView(); } },
+ { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { location.href = 'people.html'; } },
  { id: 'cfg', t: 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.boss; }, run: function () { cfgView(); } },
  { id: 'me', t: 'ຂ້ອຍ', ic: 'user', g: 'ບັນຊີ', pick: 'none', show: function () { return true; }, run: function () { meView(); } }
 ];

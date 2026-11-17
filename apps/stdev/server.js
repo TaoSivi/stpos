@@ -16,6 +16,7 @@ const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel'
 const has = function (u, id) { return u.apps.indexOf('*') >= 0 || u.apps.indexOf(id) >= 0; };
 const APPS = [
   { id: 'fuel', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return u.fuel === 'driver' ? 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ' : 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ'; }, icon: 'pump', href: function (u) { return u.fuel === 'driver' ? 'driver.html' : 'office.html'; }, access: function (u) { return !!u.fuel; } },
+  { id: 'people', name: 'ພະນັກງານ & ສິດ', desc: function () { return 'ເພີ່ມຄົນ ກຳນົດສິດທຸກແອັບ ຄັ້ງດຽວ'; }, icon: 'key', href: function () { return 'people.html'; }, access: function (u) { return u.level !== 'user'; } },
   { id: 'hr', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } }
   /* ຕົວຢ່າງ SOP: { id: 'sop', name: 'SOP', desc: function () { return 'ຂັ້ນຕອນການເຮັດວຽກ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } } */
 ];
@@ -31,7 +32,7 @@ function api(action, o, ip) {
     case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), catalog: u.level === 'user' ? [] : catalog() } };
     case 'pin': return accounts.changePin(u.id, o.old, o.pin);
     case 'userList': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: accounts.list(u) };
-    case 'userSave': { const r = accounts.save(o.user || {}, u); return r.ok ? { ok: true, data: 1 } : r; }
+    case 'userSave': { const r = accounts.save(o.user || {}, u); if (!r.ok) return r; const v = accounts.get(r.phone); return { ok: true, data: { hr: v && v.hr ? hr.provision(v) : 'skip' } }; } /* ບັນທຶກຄັ້ງດຽວ → ສ້າງ/ອັບເດດພະນັກງານໃນ HR ໃຫ້ເອງ */
     case 'catalog': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: catalog() };
     case 'hrlogin': return hr.login(u);
   }

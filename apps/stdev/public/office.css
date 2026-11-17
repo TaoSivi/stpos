@@ -69,3 +69,7 @@ nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.formgrid{grid-template-columns:1fr}}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}.empty .logo{margin:0 auto 10px}
 .hint{font-size:13px;color:var(--muted)}
+
+/* ບັດຕໍ່ແອັບໃນຟອມ ພະນັກງານ & ສິດ */
+.appcard{border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:10px 0;background:#fbfdfd}
+.appcard .sw{min-height:44px}

@@ -1,12 +1,13 @@
 /* ບັນຊີກາງ — ສ້າງຜູ້ໃຊ້ຄັ້ງດຽວ ໃຊ້ໄດ້ທຸກໂມດູນ (ນ້ຳມັນ, HR). ໂມດູນບໍ່ເກັບ PIN/ບັນຊີຂອງຕົນເອງ — ຖາມຈາກບ່ອນນີ້ເທົ່ານັ້ນ.
  * level: superadmin = ທຸກຢ່າງ + ຈັດການທຸກບັນຊີ · admin = ທຸກໂມດູນ (ເປັນເຈົ້າຂອງໃນໂມດູນ) + ຈັດການສະເພາະບັນຊີລະດັບ user · user = ສະເພາະໂມດູນທີ່ເປີດໃຫ້
  * user.fuel = ໜ້າທີ່ໃນໂມດູນນ້ຳມັນ (driver|admin|head|office; ວ່າງ = ບໍ່ມີສິດ) · user.hr = ເຂົ້າໂມດູນ HR ໄດ້ (ສິດພາຍໃນ HR ກຳນົດໃນ HR)
+ * user.hrRole = ໜ້າທີ່ໃນ HR (employee|head|accountant|auditor) — mod-hr.js ສ້າງ/ອັບເດດພະນັກງານໃນ HR ຕາມຄ່ານີ້ ເພື່ອບໍ່ຕ້ອງເພີ່ມຊ້ຳ
  * user.apps = ລາຍຊື່ id ແອັບອື່ນທີ່ເປີດໃຫ້ (ເຊັ່ນ 'sop') — ແອັບໃໝ່ບໍ່ຕ້ອງແກ້ໂຄງບັນຊີ; admin/superadmin ເຂົ້າໄດ້ທຸກແອັບ
  * user.approver = ຜູ້ອະນຸມັດໃບນ້ຳມັນປະຈຳວັນ (ນອກຈາກ ຫົວໜ້າສະໜາມ/admin ຂຶ້ນໄປ ທີ່ອະນຸມັດໄດ້ຢູ່ແລ້ວ) — ເຈົ້າຂອງເລືອກໃຫ້ຄົນບໍລິຫານ/ຫ້ອງການທີ່ໄວ້ໃຈ
  * ຂໍ້ມູນ: DATA/users.json (PIN ເກັບແບບ scrypt) · DATA/secret.key */
 'use strict';
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const LEVELS = ['superadmin', 'admin', 'user'], FUEL_ROLES = ['driver', 'admin', 'head', 'office'];
+const LEVELS = ['superadmin', 'admin', 'user'], FUEL_ROLES = ['driver', 'admin', 'head', 'office'], HR_ROLES = ['employee', 'head', 'accountant', 'auditor'];
 
 function create(DATA) {
   const USERS = path.join(DATA, 'users.json');
@@ -25,7 +26,8 @@ function create(DATA) {
   const hasHr = function (u) { return u.level !== 'user' || u.hr === true; };
   const approverOf = function (u) { return u.level !== 'user' || u.approver === true; };
   const appsOf = function (u) { return u.level !== 'user' ? ['*'] : (u.apps || []); };
-  const view = function (ph, u) { return { id: ph, name: u.name, level: u.level, fuel: fuelRole(u), hr: hasHr(u), approver: approverOf(u), apps: appsOf(u), sites: u.sites || [] }; };
+  const hrRoleOf = function (u) { return u.level !== 'user' ? 'owner' : u.hr ? (HR_ROLES.indexOf(u.hrRole) >= 0 ? u.hrRole : 'employee') : ''; };
+  const view = function (ph, u) { return { id: ph, name: u.name, level: u.level, fuel: fuelRole(u), hr: hasHr(u), hrRole: hrRoleOf(u), approver: approverOf(u), apps: appsOf(u), sites: u.sites || [] }; };
 
   /* ບັນທຶກບັນຊີ. actor = {level} ຂອງຜູ້ແກ້ (null = ຄຳສັ່ງ CLI = superadmin) · ຄືນ {ok, phone} ຫຼື {ok:false, error} */
   function save(o, actor) {
@@ -41,15 +43,17 @@ function create(DATA) {
     const fuel = o.fuel == null ? (cur ? cur.fuel || '' : '') : String(o.fuel);
     if (fuel && FUEL_ROLES.indexOf(fuel) < 0) return { ok: false, error: 'role' };
     const hr = o.hr == null ? !!(cur && cur.hr) : o.hr === true, approver = o.approver == null ? !!(cur && cur.approver) : o.approver === true;
+    const hrRole = o.hrRole == null ? (cur && cur.hrRole) || 'employee' : String(o.hrRole);
+    if (HR_ROLES.indexOf(hrRole) < 0) return { ok: false, error: 'role' };
     const apps = (o.apps == null ? (cur && cur.apps) || [] : Array.isArray(o.apps) ? o.apps : []).map(String).filter(function (id, i, a) { return /^[a-z0-9_-]{2,24}$/.test(id) && id !== 'fuel' && id !== 'hr' && a.indexOf(id) === i; });
     if (level === 'user' && !fuel && !hr && !apps.length) return { ok: false, error: 'nomodule' }; /* ບັນຊີ user ຕ້ອງເປີດຢ່າງໜ້ອຍ 1 ໂມດູນ */
-    all[ph] = { name: name, level: level, fuel: level === 'user' ? fuel : '', hr: level === 'user' ? hr : false, approver: level === 'user' ? approver : false, apps: level === 'user' ? apps : [], sites: (Array.isArray(o.sites) ? o.sites : (cur && cur.sites) || []).map(String).filter(function (s) { return /^[a-z0-9]{1,16}$/.test(s); }), active: o.active !== false, pinH: o.pin ? pinHash(o.pin) : cur.pinH };
+    all[ph] = { name: name, level: level, fuel: level === 'user' ? fuel : '', hr: level === 'user' ? hr : false, approver: level === 'user' ? approver : false, hrRole: level === 'user' && hr ? hrRole : '', apps: level === 'user' ? apps : [], sites: (Array.isArray(o.sites) ? o.sites : (cur && cur.sites) || []).map(String).filter(function (s) { return /^[a-z0-9]{1,16}$/.test(s); }), active: o.active !== false, pinH: o.pin ? pinHash(o.pin) : cur.pinH };
     if (!Object.keys(all).some(function (k) { return all[k].level === 'superadmin' && all[k].active; })) return { ok: false, error: 'lastsuper' };
     writeAtomic(USERS, JSON.stringify(all)); return { ok: true, phone: ph };
   }
   /* ລາຍຊື່ໃຫ້ໜ້າຈັດການ: ທຸກຄົນ + editable (ຜູ້ເບິ່ງແກ້ໄດ້ບໍ) */
   function list(actor) {
-    const all = users(); return Object.keys(all).sort().map(function (k) { const u = all[k]; return { phone: k, name: u.name, level: u.level, fuel: u.fuel || '', hr: !!u.hr, approver: !!u.approver, apps: u.apps || [], sites: u.sites || [], active: u.active, editable: actor.level === 'superadmin' || (actor.level === 'admin' && u.level === 'user') }; });
+    const all = users(); return Object.keys(all).sort().map(function (k) { const u = all[k]; return { phone: k, name: u.name, level: u.level, fuel: u.fuel || '', hr: !!u.hr, hrRole: u.hr ? (u.hrRole || 'employee') : '', approver: !!u.approver, apps: u.apps || [], sites: u.sites || [], active: u.active, editable: actor.level === 'superadmin' || (actor.level === 'admin' && u.level === 'user') }; });
   }
   function changePin(ph, oldPin, pin) { const cur = users()[ph]; if (!cur || !pinCheck(oldPin, cur.pinH)) return { ok: false, error: 'oldpin' }; if (!pinOk(pin)) return { ok: false, error: 'pin' }; const r = save({ phone: ph, pin: pin }, { level: 'superadmin' }); return r.ok ? { ok: true, token: tokenFor(ph, users()[ph]) } : r; }
 
@@ -73,6 +77,7 @@ function create(DATA) {
     if (!good) { if (!u) pinCheck('0000', pinHash('0000')); failAdd(kp); failAdd(ki); return { ok: false, error: 'login', left: Math.max(0, 5 - fails.get(kp).n) }; } /* ຂໍ້ຄວາມດຽວກັນທັງ "ບໍ່ມີເບີ" ແລະ "PIN ຜິດ" */
     fails.delete(kp); return Object.assign({ ok: true, token: tokenFor(ph, u) }, view(ph, u));
   }
-  return { users: users, save: save, list: list, changePin: changePin, login: login, userOf: userOf, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
+  const get = function (ph) { const u = users()[ph]; return u ? view(ph, u) : null; };
+  return { users: users, get: get, save: save, list: list, changePin: changePin, login: login, userOf: userOf, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
 }
 module.exports = { create: create };
