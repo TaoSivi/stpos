@@ -73,3 +73,14 @@ nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
 /* ບັດຕໍ່ແອັບໃນຟອມ ພະນັກງານ & ສິດ */
 .appcard{border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:10px 0;background:#fbfdfd}
 .appcard .sw{min-height:44px}
+
+/* ຕິກສິດລະອຽດ (ນ້ຳມັນ / HR) */
+.ticks{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin:6px 0 8px}@media(max-width:560px){.ticks{grid-template-columns:1fr}}
+.tick{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px 6px;border-radius:12px;cursor:pointer;font-size:14px;line-height:1.35}
+.tick:hover{background:#f0f7f7}.tick input{width:22px;height:22px;flex:0 0 22px;margin:0;accent-color:var(--primary)}
+.ticks-title{font-size:13px;color:var(--muted);font-weight:600;margin:10px 0 2px}
+details.grp{border:1px solid var(--line);border-radius:14px;margin:8px 0;padding:2px 10px;background:#fff}
+details.grp summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;list-style:none}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp summary::after{content:"+";margin-left:auto;color:var(--muted);font-size:20px}details.grp[open] summary::after{content:"–"}
+.cnt{font-weight:600;color:var(--primary);font-size:13px}

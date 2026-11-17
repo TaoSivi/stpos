@@ -1,12 +1,29 @@
 /* ST Fuel — ເບີກຈ່າຍນ້ຳມັນສະໜາມ: logic ທັງໝົດ (ບໍ່ຮູ້ເລື່ອງ HTTP / ໄຟລ໌ — server.js ສົ່ງ store ເຂົ້າມາ)
  * ຂໍ້ມູນ: cfg (ສະໜາມ, ລົດ) · d_<ສະໜາມ>_<ວັນທີ> (ໃບປະຈຳວັນ) · p_<ສະໜາມ>_<ວັນທີ> (ຮູບ)
  * ພະນັກງານກອກແຕ່ cm — ລິດຄິດໄລ່ຢູ່ນີ້ບ່ອນດຽວ (ແອັບສະແດງຄ່າທີ່ server ຄືນໃຫ້)
- * ສິດ (user.role): owner = ທຸກຢ່າງ + ຕັ້ງຄ່າ · head/admin = ສະເພາະສະໜາມໃນ user.sites · office = ເບິ່ງທຸກສະໜາມ · driver = ເຫັນ/ຮັບຮູ້ສະເພາະລົດຂອງຕົນ (vehicles[].driver = ເບີໂທ) */
+ * ສິດ = ຟັງຊັນທີ່ຕິກໄດ້ (KEYS) · ເລີ່ມຈາກ "ແມ່ແບບໜ້າທີ່" (PRESET ຕາມ user.role) ແລ້ວ user.rights (ລາຍການຕິກສຸດທ້າຍ) ແທນທີ່ໄດ້ທັງໝົດ
+ *   owner = ທຸກຢ່າງ + ຕັ້ງຄ່າ (ຕິກບໍ່ໄດ້) · ຂອບເຂດສະໜາມ: head/admin/driver ເຮັດໄດ້ສະເພາະສະໜາມໃນ user.sites · office ທຸກສະໜາມ
+ *   ຄົນຂັບຂອງລົດ (vehicles[].driver = ເບີໂທ) ທີ່ບໍ່ມີສະໜາມນັ້ນໃນ sites = ເຮັດໄດ້ສະເພາະ "ຮັບຮູ້ລົດຂອງຕົນ" */
 'use strict';
 const ID = /^[a-z0-9]{1,16}$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
 const num = function (x) { const n = Number(x); return x === '' || x == null || !isFinite(n) || n < 0 || n > 1e6 ? null : n; };
 const str = function (x, n) { return String(x == null ? '' : x).replace(/[<>]/g, '').trim().slice(0, n); };
 
+/* ຟັງຊັນທີ່ຕິກສິດໄດ້ — label ໃຊ້ໃນຟອມ "ພະນັກງານ & ສິດ" */
+const RIGHTS = [
+  { k: 'view', label: 'ເບິ່ງລາຍງານ & ຍອດແທ່ງ' }, { k: 'issue', label: 'ເບີກ & ແກ້ cm ຂອງລົດ' }, { k: 'tank', label: 'ຮັບເຂົ້າແທ່ງ & ແທກແທ່ງ' },
+  { k: 'assign', label: 'ມອບລົດໃຫ້ຄົນຂັບ' }, { k: 'approve', label: 'ອະນຸມັດໃບປະຈຳວັນ' }, { k: 'ack', label: 'ຮັບຮູ້ການເຕີມຂອງລົດຕົນ (ຄົນຂັບ)' }, { k: 'fixAck', label: 'ແກ້ cm ຫຼັງຄົນຂັບຮັບຮູ້ແລ້ວ' }
+];
+const KEYS = RIGHTS.map(function (r) { return r.k; });
+const PRESET = { head: ['view', 'issue', 'tank', 'assign', 'approve', 'fixAck'], admin: ['view', 'issue', 'tank'], office: ['view'], driver: ['ack'] };
+const OPS = ['view', 'issue', 'tank', 'assign', 'approve']; /* ສິດທີ່ໃຊ້ໜ້າບໍລິຫານ (ບໍ່ແມ່ນສະເພາະຮັບຮູ້) */
+/* ສິດຕົວຈິງຂອງ user = {role, rights?, approver?}: owner ໄດ້ທັງໝົດ · ມີ rights ໃຊ້ rights · ບໍ່ມີ ໃຊ້ແມ່ແບບ · approver:true ເພີ່ມ approve (ຂໍ້ມູນເກົ່າ) */
+function rightsFor(user) {
+  if (user.role === 'owner') return KEYS.slice();
+  let l = Array.isArray(user.rights) ? user.rights : (PRESET[user.role] || []);
+  if (user.approver === true) l = l.concat('approve');
+  return KEYS.filter(function (k) { return l.indexOf(k) >= 0; });
+}
 const liters = require('./public/tank.js').liters; /* ສູດຖັງ ຢູ່ tank.js — ມືຖືໃຊ້ໄຟລ໌ດຽວກັນຕອນອອບລາຍ */
 function cleanTank(t) {
   t = t || {};
@@ -25,7 +42,7 @@ function cleanCfg(c) {
 /* store = {read(name) → object|null, write(name, object), list(prefix) → [name]} · user = {id, role, name} */
 function handle(store, user, o) {
   const a = String(o.action || ''), cfg = store.read('cfg') || { sites: [], vehicles: [] };
-  const boss = user.role === 'owner', mem = ['admin', 'head'].indexOf(user.role) >= 0 ? { role: user.role, sites: user.sites || [] } : null;
+  const boss = user.role === 'owner', mem = ['admin', 'head', 'driver'].indexOf(user.role) >= 0 ? { role: user.role, sites: user.sites || [] } : null, R = rightsFor(user), has = function (k) { return R.indexOf(k) >= 0; };
   const mine = cfg.vehicles.filter(function (v) { return v.driver === user.id; });
   /* ບົດບາດຂອງຜູ້ໃຊ້ໃນສະໜາມນີ້: boss > head > admin > office > driver > null */
   const roleAt = function (site) {
@@ -34,17 +51,22 @@ function handle(store, user, o) {
     if (mem && mem.sites.indexOf(site) >= 0) return mem.role;
     return mine.some(function (v) { return v.site === site; }) ? 'driver' : null;
   };
+  /* ຂອບເຂດ "ຄົນຂັບຂອງລົດ" (ບໍ່ມີສະໜາມນີ້ໃນ sites) = ເຮັດໄດ້ສະເພາະຮັບຮູ້ */
+  const carOnly = function (site) { return !boss && roleAt(site) === 'driver' && !(mem && mem.sites.indexOf(site) >= 0); };
+  const canAt = function (site, k) { return boss || (carOnly(site) ? k === 'ack' && has('ack') : has(k)); };
+  const opsAt = function (site) { return boss || (!carOnly(site) && roleAt(site) && OPS.some(has)); };
   const err = function (e) { return { ok: false, error: e }; }, ok = function (d) { return { ok: true, data: d }; };
 
   if (a === 'init') {
     const sites = cfg.sites.filter(function (s) { return roleAt(s.id); });
-    return ok({ me: { id: user.id, name: user.name, boss: boss, roles: sites.reduce(function (m, s) { m[s.id] = roleAt(s.id); return m; }, {}) }, company: cfg.company || '', cfg: boss ? cfg : { sites: sites, vehicles: cfg.vehicles.filter(function (v) { return ['head', 'admin', 'office'].indexOf(roleAt(v.site)) >= 0; }) } }); /* ມີຂະໜາດຖັງ: ມືຖືຕ້ອງຄິດລິດເອງຕອນບໍ່ມີເນັດ */
+    const rs = {}; sites.forEach(function (s) { rs[s.id] = boss ? KEYS.slice() : carOnly(s.id) ? (has('ack') ? ['ack'] : []) : R; });
+    return ok({ me: { id: user.id, name: user.name, boss: boss, roles: sites.reduce(function (m, s) { m[s.id] = roleAt(s.id); return m; }, {}), rights: rs }, company: cfg.company || '', cfg: boss ? cfg : { sites: sites, vehicles: cfg.vehicles.filter(function (v) { return opsAt(v.site); }) } }); /* ມີຂະໜາດຖັງ: ມືຖືຕ້ອງຄິດລິດເອງຕອນບໍ່ມີເນັດ */
   }
   if (a === 'cfgSave') { if (!boss) return err('auth'); const c = cleanCfg(o.cfg); store.write('cfg', c); return ok(c); }
 
   const site = cfg.sites.filter(function (s) { return s.id === o.site; })[0], role = site && roleAt(site.id);
   if (!site || !role) return err('auth');
-  const edit = role === 'boss' || role === 'head' || role === 'admin', chief = role === 'boss' || role === 'head';
+  const can = function (k) { return canAt(site.id, k); }, ownOnly = !opsAt(site.id);
   const cars = cfg.vehicles.filter(function (v) { return v.site === site.id; });
   const sheetOf = function (d) { return store.read('d_' + site.id + '_' + d) || { rows: {}, tank: {} }; };
   /* ຄ່າລິດຂອງ 1 ຄັນ ຈາກ cm ທີ່ກອກ */
@@ -63,27 +85,27 @@ function handle(store, user, o) {
     });
   };
   if (a === 'assign') { /* ມອບລົດໃຫ້ຄົນຂັບ (ຫົວໜ້າ / ເຈົ້າຂອງ) — driver = ເບີໂທ ຫຼື ວ່າງ = ຍົກເລີກ */
-    if (!chief) return err('auth'); const c = cars.filter(function (v) { return v.id === o.v; })[0]; if (!c) return err('vehicle');
+    if (!can('assign')) return err('auth'); const c = cars.filter(function (v) { return v.id === o.v; })[0]; if (!c) return err('vehicle');
     cfg.vehicles.forEach(function (v) { if (v.id === c.id) v.driver = str(o.driver, 40); }); store.write('cfg', cfg);
     return ok(cfg.vehicles.filter(function (v) { return v.site === site.id; }).map(function (v) { return { id: v.id, driver: v.driver }; }));
   }
-  if (a === 'ledger') return role === 'driver' ? err('auth') : ok(ledger());
+  if (a === 'ledger') return ownOnly ? err('auth') : ok(ledger());
 
   if (!DATE.test(o.date)) return err('date');
   const key = 'd_' + site.id + '_' + o.date, pkey = 'p_' + site.id + '_' + o.date, sh = sheetOf(o.date);
   const view = function () {
-    const show = role === 'driver' ? cars.filter(function (v) { return v.driver === user.id; }) : cars;
-    const L = role === 'driver' ? [] : ledger(), today = L.filter(function (x) { return x.date === o.date; })[0], before = L.filter(function (x) { return x.date < o.date; }).pop();
+    const show = ownOnly ? cars.filter(function (v) { return v.driver === user.id; }) : cars;
+    const L = ownOnly ? [] : ledger(), today = L.filter(function (x) { return x.date === o.date; })[0], before = L.filter(function (x) { return x.date < o.date; }).pop();
     return ok({ site: site.id, date: o.date, role: role, approved: sh.approved || null,
       rows: show.map(function (v) { const r = sh.rows[v.id] || {}; return Object.assign({ v: v.id, name: v.name, driver: v.driver, mine: v.driver === user.id }, r, calc(v, r)); }),
-      tank: role === 'driver' ? null : Object.assign({}, sh.tank, { measured: liters(site.tank, sh.tank.cm), bal: today ? today.bal : before ? before.bal : 0, out: today ? today.out : 0 }) });
+      tank: ownOnly ? null : Object.assign({}, sh.tank, { measured: liters(site.tank, sh.tank.cm), bal: today ? today.bal : before ? before.bal : 0, out: today ? today.out : 0 }) });
   };
   if (a === 'sheet') return view();
-  if (a === 'photos') { const p = store.read(pkey) || {}; if (role === 'driver') Object.keys(p).forEach(function (k) { if (!mine.some(function (v) { return k.indexOf(v.id + '_') === 0; })) delete p[k]; }); return ok(p); }
+  if (a === 'photos') { const p = store.read(pkey) || {}; if (ownOnly) Object.keys(p).forEach(function (k) { if (!mine.some(function (v) { return k.indexOf(v.id + '_') === 0; })) delete p[k]; }); return ok(p); }
 
   const car = cars.filter(function (v) { return v.id === o.v; })[0];
   if (a === 'ack') { /* ຄົນຂັບຂອງລົດຄັນນັ້ນເທົ່ານັ້ນ — ຮັບຮູ້ຕົວເລກທີ່ບໍລິຫານກອກ (ເກັບສຳເນົາຕົວເລກໄວ້ກັບການຮັບຮູ້) */
-    if (!car || car.driver !== user.id) return err('auth');
+    if (!car || car.driver !== user.id || !has('ack')) return err('auth');
     if (sh.approved) return err('locked');
     const r = sh.rows[car.id] || {}, c = calc(car, r);
     if (c.add == null) return err('empty');
@@ -92,20 +114,21 @@ function handle(store, user, o) {
     sh.rows[car.id] = r; store.write(key, sh); return view();
   }
   if (a === 'approve') { /* ຫົວໜ້າ/ເຈົ້າຂອງ ຫຼື ຄົນທີ່ເຈົ້າຂອງຕັ້ງເປັນ "ຜູ້ອະນຸມັດ" (ບໍລິຫານ/ຫ້ອງການ) */
-    if (!(chief || (user.approver === true && (role === 'admin' || role === 'office')))) return err('auth');
+    if (!can('approve')) return err('auth');
     if (o.yes) {
       if (cars.some(function (v) { const r = sh.rows[v.id] || {}; return r.cm1 != null && !r.ack; })) return err('unacked');
       sh.approved = { by: user.id, name: user.name, at: Date.now() };
     } else delete sh.approved;
     store.write(key, sh); return view();
   }
-  if (!edit) return err('auth');
+  if (['row', 'tank', 'photo'].indexOf(a) < 0) return err('action');
+  if (a === 'row' ? !can('issue') : a === 'tank' ? !can('tank') : !can(o.key === 'tank' ? 'tank' : 'issue')) return err('auth');
   if (sh.approved) return err('locked');
   if (a === 'row') {
     if (!car) return err('vehicle');
     const r = sh.rows[car.id] || {};
     const fill = ['cm0', 'cm1'].some(function (k) { return k in o && num(o[k]) !== (r[k] == null ? null : r[k]); }) || ('src' in o && (o.src === 'jug' ? 'jug' : 'tank') !== (r.src || 'tank'));
-    if (fill && r.ack) { if (!chief) return err('acked'); delete r.ack; } /* ແກ້ຕົວເລກເຕີມຫຼັງຮັບຮູ້ = ຫົວໜ້າເທົ່ານັ້ນ ແລະ ຄົນຂັບຕ້ອງຮັບຮູ້ໃໝ່ */
+    if (fill && r.ack) { if (!can('fixAck')) return err('acked'); delete r.ack; } /* ແກ້ຕົວເລກເຕີມຫຼັງຮັບຮູ້ = ຫົວໜ້າເທົ່ານັ້ນ ແລະ ຄົນຂັບຕ້ອງຮັບຮູ້ໃໝ່ */
     if (fill) delete r.rej;
     ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in o) { const n = num(o[k]); if (n == null) delete r[k]; else r[k] = n; } });
     if ('src' in o) r.src = o.src === 'jug' ? 'jug' : 'tank';
@@ -126,4 +149,4 @@ function handle(store, user, o) {
   }
   return err('action');
 }
-module.exports = { handle: handle, liters: liters, cleanCfg: cleanCfg };
+module.exports = { handle: handle, liters: liters, cleanCfg: cleanCfg, rightsFor: rightsFor, RIGHTS: RIGHTS, KEYS: KEYS, PRESET: PRESET, OPS: OPS };

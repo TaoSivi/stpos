@@ -132,3 +132,30 @@ console.log('fuel: all passed');
   assert.strictEqual(call('drvA', ap).error, 'auth', 'a driver can never approve');
   console.log('fuel: approver flag passed');
 })();
+
+
+/* ສິດແບບຕິກ: ແມ່ແບບ + user.rights ແທນທີ່ໄດ້ · ຂອບເຂດສະໜາມຍັງຖືກບັງຄັບ · ຄົນຂັບຂອງລົດ (ບໍ່ມີສະໜາມ) ເຮັດໄດ້ແຕ່ຮັບຮູ້ */
+(function () {
+  const D = '2026-12-10', row = { action: 'row', site: 's1', date: D, v: 'v1', cm0: 10, cm1: 40 };
+  const mk = function (id, role, rights, sites) { U[id] = { id: id, role: role, rights: rights, sites: sites || ['s1'], name: id }; return id; };
+  /* ບໍລິຫານ + ຕິກ "ມອບລົດ" = ມອບລົດໄດ້ (ແມ່ແບບປົກກະຕິບໍ່ໄດ້) */
+  mk('aAssign', 'admin', ['view', 'issue', 'tank', 'assign']); assert.ok(call('aAssign', { action: 'assign', site: 's1', v: 'v1', driver: 'u4' }).ok); assert.strictEqual(call('adm', { action: 'assign', site: 's1', v: 'v1', driver: 'u4' }).error, 'auth');
+  /* ບໍລິຫານ ເອົາຕິກ "ເບີກ" ອອກ = ແກ້ cm ບໍ່ໄດ້ ແຕ່ເບິ່ງໄດ້ */
+  mk('aView', 'admin', ['view', 'tank']); assert.strictEqual(call('aView', row).error, 'auth'); assert.ok(call('aView', { action: 'sheet', site: 's1', date: D }).ok); assert.ok(call('aView', { action: 'tank', site: 's1', date: D, recv: 1 }).ok);
+  /* ຫ້ອງການ + ຕິກ "ເບີກ" = ແກ້ cm ໄດ້ ທຸກສະໜາມ */
+  mk('oIssue', 'office', ['view', 'issue'], []); assert.ok(call('oIssue', row).ok); assert.strictEqual(call('oIssue', { action: 'tank', site: 's1', date: D, recv: 1 }).error, 'auth');
+  /* ຫົວໜ້າ ເອົາ "ອະນຸມັດ" ອອກ = ອະນຸມັດບໍ່ໄດ້ */
+  mk('hNoAppr', 'head', ['view', 'issue', 'tank', 'assign', 'fixAck']); assert.strictEqual(call('hNoAppr', { action: 'approve', site: 's1', date: D, yes: 1 }).error, 'auth');
+  /* ຫົວໜ້າ ເອົາ "ແກ້ຫຼັງຮັບຮູ້" ອອກ = ແກ້ cm ຫຼັງຄົນຂັບຮັບຮູ້ບໍ່ໄດ້ (ລະຫັດ 'acked') */
+  mk('hNoFix', 'head', ['view', 'issue', 'tank', 'assign', 'approve']); call('hNoFix', row); assert.ok(call('drv', { action: 'ack', site: 's1', date: D, v: 'v1', yes: 1 }).ok);
+  assert.strictEqual(call('hNoFix', Object.assign({}, row, { cm1: 41 })).error, 'acked'); assert.ok(call('head', Object.assign({}, row, { cm1: 41 })).ok, 'preset head can fix after ack');
+  call('head', { action: 'approve', site: 's1', date: D, yes: 0 });
+  /* ຄົນຂັບ + ຕິກເພີ່ມ + ມີສະໜາມ = ເບິ່ງລາຍງານ/ຍອດແທ່ງໄດ້ ແລະ ຍັງຮັບຮູ້ລົດຕົນໄດ້ */
+  mk('dView', 'driver', ['ack', 'view'], ['s1']); assert.ok(call('dView', { action: 'ledger', site: 's1' }).ok); assert.strictEqual(call('dView', row).error, 'auth');
+  /* ຄົນຂັບຂອງລົດທີ່ບໍ່ມີສະໜາມ: ຕິກ "ເບີກ" ກໍບໍ່ໄດ້ຜົນ (ຂອບເຂດລົດ = ຮັບຮູ້ເທົ່ານັ້ນ) */
+  U.u4x = { id: 'u4', role: 'driver', rights: ['ack', 'issue', 'view'], sites: [], name: 'ລົມ' }; assert.strictEqual(call('u4x', row).error, 'auth'); assert.strictEqual(call('u4x', { action: 'ledger', site: 's1' }).error, 'auth');
+  /* ບໍ່ມີຕິກຫຍັງ = ເຂົ້າສະໜາມບໍ່ໄດ້ຫຍັງ; init ບອກສິດຕໍ່ສະໜາມ */
+  mk('none', 'admin', []); assert.strictEqual(call('none', { action: 'sheet', site: 's1', date: D }).data.rows.length, 0, 'no ticks = sees only own cars (none)'); assert.strictEqual(call('none', { action: 'ledger', site: 's1' }).error, 'auth');
+  const ri = call('aView', { action: 'init' }).data.me.rights; assert.deepStrictEqual(ri.s1, ['view', 'tank'], 'init tells the UI the rights per site'); assert.deepStrictEqual(call('drv', { action: 'init' }).data.me.rights.s1, ['ack']); assert.strictEqual(call('boss', { action: 'init' }).data.me.rights.s1.length, 7);
+  console.log('fuel: tick rights passed');
+})();

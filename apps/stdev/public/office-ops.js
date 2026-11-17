@@ -28,8 +28,8 @@ function dashView() {
    var todo = [], add = function (tone, icn, title, sub, go) { todo.push('<button class="todo ' + tone + '" data-go="' + go + '"><span class="ti">' + ic(icn) + '</span><span><b>' + title + '</b><small>' + sub + '</small></span><span class="go">' + ic('next') + '</span></button>'); };
    if (S.approved) add('ok', 'shield', 'ໃບມື້ນີ້ອະນຸມັດແລ້ວ', 'ໂດຍ ' + esc(S.approved.name) + ' · ' + when(S.approved.at), 'report');
    S.rows.forEach(function (x) {
-    if (x.rej) add('bad', 'alert', esc(x.name) + ': ຄົນຂັບບໍ່ຍອມຮັບ', esc(x.rej.name) + ' — ' + esc(x.rej.why || '-'), hasRole(['head', 'admin']) ? 'issue' : 'appr');
-    else if (x.add == null) add('warn', 'edit', esc(x.name) + ' — ຍັງບໍ່ໄດ້ບັນທຶກ cm', 'ກອກ cm ກ່ອນ / ຫຼັງເຕີມ', hasRole(['head', 'admin']) ? 'issue' : 'appr');
+    if (x.rej) add('bad', 'alert', esc(x.name) + ': ຄົນຂັບບໍ່ຍອມຮັບ', esc(x.rej.name) + ' — ' + esc(x.rej.why || '-'), hasRight('issue') ? 'issue' : 'appr');
+    else if (x.add == null) add('warn', 'edit', esc(x.name) + ' — ຍັງບໍ່ໄດ້ບັນທຶກ cm', 'ກອກ cm ກ່ອນ / ຫຼັງເຕີມ', hasRight('issue') ? 'issue' : 'appr');
     else if (!x.ack) add('warn', 'user', 'ລໍຖ້າ ' + esc(drvName(x.driver) || 'ຄົນຂັບ') + ' ຮັບຮູ້', esc(x.name) + ' · ເຕີມ ' + L(x.add), 'appr');
    });
    if (!S.approved && n && canApprove() && filled.length && acked === filled.length) add('ok', 'check', 'ພ້ອມອະນຸມັດໃບປະຈຳວັນ', 'ຄົນຂັບຮັບຮູ້ຄົບ ' + acked + ' ຄັນ', 'appr');
@@ -70,7 +70,7 @@ function tankView() {
  });
 }
 function drawTank() {
- var ed = canEdit(), t = S.tank, h = approvedBanner();
+ var ed = canTank(), t = S.tank, h = approvedBanner();
  if (!t) { $('v').innerHTML = h + '<div class="card empty">ບົດບາດຂອງເຈົ້າບໍ່ມີສິດເບິ່ງແທ່ງນ້ຳມັນ</div>'; return; }
  h += '<section class="card" data-tank="1"><h2>' + ic('inbox') + 'ຮັບນ້ຳມັນເຂົ້າແທ່ງ · ແທກແທ່ງ</h2><p class="hint">' + esc(siteObj().name) + ' · ' + dmy(S.date) + '</p><div class="g2"><label class="f">ຮັບນ້ຳມັນເຂົ້າມື້ນີ້ (ລິດ)' + numIn('recv', t.recv, !ed) + '</label><label class="f">ແທກແທ່ງຫຼັງເລີກວຽກ (cm)' + numIn('cm', t.cm, !ed) + '</label></div><div class="calc">' + tankHtml(t) + '</div>' + phBtns([['tank', 'ຮູບແທກແທ່ງ']]) + '</section>';
  var rows = LEDGER.slice(-7).reverse();
@@ -81,7 +81,7 @@ function drawTank() {
 /* ===== ຮັບຮູ້ & ອະນຸມັດ ===== */
 function apprView() { withSheet(false, function () { drawAppr(); }); }
 function drawAppr() {
- var h = approvedBanner(), filled = S.rows.filter(function (x) { return x.add != null; }), un = filled.filter(function (x) { return !x.ack; }), ok = canApprove(), edit = hasRole(['head', 'admin']);
+ var h = approvedBanner(), filled = S.rows.filter(function (x) { return x.add != null; }), un = filled.filter(function (x) { return !x.ack; }), ok = canApprove(), edit = hasRight('issue');
  if (!S.rows.length) { $('v').innerHTML = noCars(); return; }
  h += '<section class="card"><h2>' + ic('check') + 'ຄົນຂັບຮັບຮູ້ ' + (filled.length - un.length) + '/' + filled.length + ' ຄັນ</h2>' +
   S.rows.map(function (x) { return '<div class="cr"><div class="row wrap"><b class="grow">' + ic('truck') + ' ' + esc(x.name) + '</b><span class="muted sm">ເຕີມ ' + L(x.add) + '</span></div><small class="muted">ຄົນຂັບ: ' + esc(drvName(x.driver) || '–') + '</small><div>' + chip(x) + '</div>' + (x.rej && edit && !S.approved ? '<button class="btn line" data-go="issue" style="min-height:40px;align-self:start">' + ic('edit') + 'ກວດ ແລະ ແກ້ cm</button>' : '') + '</div>'; }).join('') + '</section>';
@@ -106,7 +106,7 @@ $('v').addEventListener('change', function (e) {
 $('v').addEventListener('click', function (e) {
  var g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
  var b = e.target.closest('button'); if (!b) return;
- if (b.dataset.ph) { if ((MOD === 'issue' || MOD === 'tank') && canEdit()) { PHK = b.dataset.ph; $('file').value = ''; $('file').click(); } else if (P[b.dataset.ph]) viewPhoto(P[b.dataset.ph]); return; }
+ if (b.dataset.ph) { if ((MOD === 'issue' && canEdit()) || (MOD === 'tank' && canTank())) { PHK = b.dataset.ph; $('file').value = ''; $('file').click(); } else if (P[b.dataset.ph]) viewPhoto(P[b.dataset.ph]); return; }
  if (b.id === 'appr') { var a = here(); a.yes = S.approved ? 0 : 1; b.disabled = true; api('approve', a).then(function (r) { b.disabled = false; if (r.ok) { S = r.data; setBadge(pendingOf(S)); drawAppr(); toast(a.yes ? 'ອະນຸມັດແລ້ວ' : 'ຍົກເລີກການອະນຸມັດແລ້ວ', 'ok'); } }); }
 });
 $('file').onchange = function () {

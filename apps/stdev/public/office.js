@@ -8,10 +8,14 @@ function longDate(d) { var x = new Date(d + 'T00:00:00Z'); return WD[x.getUTCDay
 
 /* ===== ສິດ (ຝັ່ງໜ້າຈໍເທົ່ານັ້ນ ເພື່ອສະແດງ/ຊ່ອນ — server ກວດສິດຈິງທຸກຄັ້ງ) ===== */
 function role() { return I.me.roles[$('site').value]; }
-function isChief() { return role() === 'boss' || role() === 'head'; }
-function canEdit() { return ['boss', 'head', 'admin'].indexOf(role()) >= 0 && !(S && S.approved); }
-function canApprove() { var r = role(); return r === 'boss' || r === 'head' || (!!I.me.approver && (r === 'admin' || r === 'office')); }
-function hasRole(list) { if (I.me.boss) return true; return Object.keys(I.me.roles).some(function (s) { return list.indexOf(I.me.roles[s]) >= 0; }); }
+/* ສິດເປັນຟັງຊັນ (view, issue, tank, assign, approve, ack, fixAck) — server ສົ່ງ me.rights ຕໍ່ສະໜາມ */
+function R(k) { return I.me.boss || ((I.me.rights || {})[$('site').value] || []).indexOf(k) >= 0; }
+function hasRight(k) { return I.me.boss || Object.keys(I.me.rights || {}).some(function (s) { return I.me.rights[s].indexOf(k) >= 0; }); }
+function hasOps() { return ['view', 'issue', 'tank', 'assign', 'approve'].some(hasRight); }
+function isChief() { return R('fixAck'); }
+function canEdit() { return R('issue') && !(S && S.approved); }
+function canTank() { return R('tank') && !(S && S.approved); }
+function canApprove() { return R('approve'); }
 function hasSites() { return I.cfg.sites.length > 0; }
 function here() { return { site: $('site').value, date: $('date').value }; }
 function siteObj() { return I.cfg.sites.filter(function (s) { return s.id === $('site').value; })[0] || {}; }
@@ -19,13 +23,13 @@ function fillSites() { var cur = $('site').value; $('site').innerHTML = I.cfg.si
 
 /* ===== ໂມດູນ: id, ຊື່, ໄອຄອນ, ກຸ່ມ, ສິດເຫັນ, ຕົວເລືອກສະໜາມ/ວັນທີ, ຕົວແຕ້ມ ===== */
 var MODS = [
- { id: 'dash', t: 'ພາບລວມ', ic: 'grid', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites(); }, run: function () { dashView(); } },
- { id: 'issue', t: 'ເບີກ & ຈ່າຍນ້ຳມັນ', ic: 'pump', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRole(['head', 'admin']); }, run: function () { issueView(); } },
- { id: 'tank', t: 'ຮັບເຂົ້າແທ່ງ & ແທກ', ic: 'inbox', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRole(['head', 'admin']); }, run: function () { tankView(); } },
- { id: 'appr', t: 'ຮັບຮູ້ & ອະນຸມັດ', ic: 'shield', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites(); }, run: function () { apprView(); } },
- { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites(); }, run: function () { reportView(); } },
- { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites(); }, run: function () { ledgerLoad(); } },
- { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRole(['head']); }, run: function () { assignView(); } },
+ { id: 'dash', t: 'ພາບລວມ', ic: 'grid', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { dashView(); } },
+ { id: 'issue', t: 'ເບີກ & ຈ່າຍນ້ຳມັນ', ic: 'pump', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRight('issue'); }, run: function () { issueView(); } },
+ { id: 'tank', t: 'ຮັບເຂົ້າແທ່ງ & ແທກ', ic: 'inbox', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRight('tank'); }, run: function () { tankView(); } },
+ { id: 'appr', t: 'ຮັບຮູ້ & ອະນຸມັດ', ic: 'shield', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { apprView(); } },
+ { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { reportView(); } },
+ { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites() && hasOps(); }, run: function () { ledgerLoad(); } },
+ { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRight('assign'); }, run: function () { assignView(); } },
  { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { location.href = 'people.html'; } },
  { id: 'cfg', t: 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.boss; }, run: function () { cfgView(); } },
  { id: 'me', t: 'ຂ້ອຍ', ic: 'user', g: 'ບັນຊີ', pick: 'none', show: function () { return true; }, run: function () { meView(); } }
@@ -36,7 +40,7 @@ function modOf(id) { return MODS.filter(function (m) { return m.id === id; })[0]
 function start() {
  api('init').then(function (r) {
   if (!r.ok) return; I = r.data;
-  if (I.me.role === 'driver') { location.href = 'driver.html'; return; }
+  if (!hasOps()) { location.href = 'driver.html'; return; } /* ມີແຕ່ສິດຮັບຮູ້ = ໜ້າຄົນຂັບ */
   $('date').value = today(); fillSites(); buildNav();
   api('drivers').then(function (d) { DRV = d.ok ? d.data : []; if (MOD === 'assign') assignView(); });
   go(hasSites() ? 'dash' : I.me.boss ? 'cfg' : 'me');

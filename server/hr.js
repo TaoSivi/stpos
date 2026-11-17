@@ -94,6 +94,15 @@ function create(rootDir, codeFile) {
         } finally { lock.releaseLock(); }
       });
     },
+    /* ລາຍການສິດທັງໝົດຂອງ HR + ສິດເລີ່ມຕົ້ນຂອງແຕ່ລະບົດບາດ (ລວມທີ່ Admin ປັບໃນ HR) — ໃຫ້ຟອມ "ພະນັກງານ & ສິດ" ຂອງ stdev ສະແດງເປັນຕິກ */
+    schema: function (code) {
+      return within(code, function () {
+        vm.runInContext('REQ = {}', ctx);
+        const st = ctx.settingsRecord(), custom = (st && st.roleRights) || {}, roles = {};
+        Object.keys(ctx.ROLE_RIGHTS).forEach(function (r) { roles[r] = (Array.isArray(custom[r]) && ctx.EDITABLE_ROLES.indexOf(r) >= 0 ? custom[r] : ctx.ROLE_RIGHTS[r]).slice(); });
+        return JSON.parse(JSON.stringify({ all: ctx.ALL_RIGHTS, roles: roles }));
+      });
+    },
     dirOf: dirOf
   };
   return self;
