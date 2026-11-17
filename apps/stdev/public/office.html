@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b2f2d">
-<title>ນ້ຳມັນສະໜາມ — ບໍລິຫານ</title>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,19 +12,28 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>ນ້ຳມັນສະໜາມ — ບໍລິຫານ</title>
 <link rel="stylesheet" href="fuel.css">
+<link rel="stylesheet" href="office.css">
 </head>
-<body>
-<div id="hd"></div>
-<main>
- <div class="pick" id="pick"><select id="site" aria-label="ສະໜາມ"></select><input id="date" type="date" aria-label="ວັນທີ"></div>
- <div id="v"><div class="skel"></div><div class="skel"></div></div>
-</main>
+<body class="has-side">
+<aside class="side" id="side" aria-label="ເມນູຫຼັກ"></aside>
+<div class="content">
+ <div id="hd"></div>
+ <main>
+  <div class="pagehead"><small id="phd"></small><h1 id="pht"></h1></div>
+  <div class="pick" id="pick"><select id="site" aria-label="ສະໜາມ"></select><input id="date" type="date" aria-label="ວັນທີ"></div>
+  <div id="v"><div class="skel"></div><div class="skel"></div></div>
+ </main>
+</div>
 <nav class="tabs" id="nav" aria-label="ເມນູ"></nav>
 <input id="file" type="file" accept="image/*" capture="environment" class="hide">
 <script src="tank.js"></script>
 <script src="app.js"></script>
 <script src="offline.js"></script>
 <script src="office.js"></script>
+<script src="office-ops.js"></script>
+<script src="office-rep.js"></script>
+<script src="office-admin.js"></script>
 </body>
 </html>

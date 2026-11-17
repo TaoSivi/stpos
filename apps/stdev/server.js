@@ -22,7 +22,7 @@ function api(action, o, ip) {
     case 'hrlogin': return hr.login(u);
   }
   const r = fuel.handle(action, o, u);
-  if (action === 'init' && r.ok) { r.data.me.role = u.fuel; r.data.me.phone = u.id; r.data.me.level = u.level; r.data.hr = u.hr && hr.ready(); }
+  if (action === 'init' && r.ok) { r.data.me.role = u.fuel; r.data.me.phone = u.id; r.data.me.level = u.level; r.data.me.approver = u.approver; r.data.hr = u.hr && hr.ready(); }
   return r;
 }
 
@@ -67,7 +67,7 @@ function bootstrap() {
 function cli(a) {
   const flag = function (n) { const m = a.filter(function (x) { return x.indexOf('--' + n) === 0; })[0]; return m === undefined ? null : (m.split('=')[1] || true); };
   if (a[2] === 'adduser') {
-    const r = accounts.save({ phone: a[3], name: a[4], pin: a[5], level: a[6], fuel: flag('fuel') || '', hr: flag('hr') === true, sites: flag('sites') ? String(flag('sites')).split(',') : [] }, null);
+    const r = accounts.save({ phone: a[3], name: a[4], pin: a[5], level: a[6], fuel: flag('fuel') || '', hr: flag('hr') === true, approver: flag('approver') === true, sites: flag('sites') ? String(flag('sites')).split(',') : [] }, null);
     console.log(r.ok ? 'ok ' + r.phone : 'ERROR ' + r.error + ' (ເບີ 8-15 ຕົວເລກ · PIN 4-8 ຫຼັກ · level ' + accounts.LEVELS.join('|') + ' · user ຕ້ອງມີ --fuel=… ຫຼື --hr)'); return r.ok ? 0 : 1;
   }
   if (a[2] === 'listusers') { const all = accounts.users(); Object.keys(all).forEach(function (k) { const u = all[k]; console.log(k, u.level, u.fuel ? 'fuel=' + u.fuel : '', u.hr ? 'hr' : '', u.active ? '' : '(ປິດ)', u.name); }); return 0; }

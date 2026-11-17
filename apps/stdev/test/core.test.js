@@ -121,3 +121,14 @@ console.log('fuel: all passed');
   assert.strictEqual(call('drv', { action: 'sheet', site: 's2', date: D1 }).error, 'auth');
   console.log('fuel: permission matrix passed (' + order.length * who.length + ' checks)');
 })();
+
+/* ຜູ້ອະນຸມັດທີ່ເຈົ້າຂອງເລືອກ: ບໍລິຫານ/ຫ້ອງການ + approver = ອະນຸມັດໄດ້; ບໍ່ມີ flag = ບໍ່ໄດ້; ຄົນຂັບບໍ່ໄດ້ຕໍ່ໃຫ້ມີ flag */
+(function () {
+  U.admA = { id: 'u8', role: 'admin', sites: ['s1'], approver: true, name: 'AdminA' }; U.offA = { id: 'u9', role: 'office', approver: true, name: 'OfficeA' }; U.drvA = { id: 'u4', role: 'driver', approver: true, name: 'ລົມ' };
+  const D = '2026-12-05', ap = { action: 'approve', site: 's1', date: D, yes: 1 };
+  assert.strictEqual(call('adm', ap).error, 'auth'); assert.strictEqual(call('off', ap).error, 'auth');
+  assert.ok(call('admA', ap).ok, 'admin flagged as approver'); assert.ok(call('admA', Object.assign({}, ap, { yes: 0 })).ok);
+  assert.ok(call('offA', ap).ok, 'office flagged as approver'); assert.ok(call('offA', Object.assign({}, ap, { yes: 0 })).ok);
+  assert.strictEqual(call('drvA', ap).error, 'auth', 'a driver can never approve');
+  console.log('fuel: approver flag passed');
+})();

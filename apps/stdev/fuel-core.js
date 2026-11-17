@@ -91,8 +91,8 @@ function handle(store, user, o) {
     else { r.rej = { by: user.id, name: user.name, at: Date.now(), why: str(o.why, 200) }; delete r.ack; }
     sh.rows[car.id] = r; store.write(key, sh); return view();
   }
-  if (a === 'approve') {
-    if (!chief) return err('auth');
+  if (a === 'approve') { /* ຫົວໜ້າ/ເຈົ້າຂອງ ຫຼື ຄົນທີ່ເຈົ້າຂອງຕັ້ງເປັນ "ຜູ້ອະນຸມັດ" (ບໍລິຫານ/ຫ້ອງການ) */
+    if (!(chief || (user.approver === true && (role === 'admin' || role === 'office')))) return err('auth');
     if (o.yes) {
       if (cars.some(function (v) { const r = sh.rows[v.id] || {}; return r.cm1 != null && !r.ack; })) return err('unacked');
       sh.approved = { by: user.id, name: user.name, at: Date.now() };

@@ -19,7 +19,7 @@ function create(DATA, accounts) {
       if (user.fuel === 'driver') return { ok: false, error: 'auth' }; const all = accounts.users();
       return { ok: true, data: Object.keys(all).filter(function (k) { return all[k].level === 'user' && all[k].fuel === 'driver' && all[k].active; }).map(function (k) { return { phone: k, name: all[k].name }; }) };
     }
-    return core.handle(store, { id: user.id, name: user.name, role: user.fuel, sites: user.sites }, Object.assign({}, o, { action: action }));
+    return core.handle(store, { id: user.id, name: user.name, role: user.fuel, sites: user.sites, approver: user.approver }, Object.assign({}, o, { action: action }));
   }
   return { handle: handle };
 }

@@ -1,0 +1,71 @@
+/* ໂຄງໜ້າບໍລິຫານແບບ HR: ເມນູຂ້າງ (ຈໍໃຫຍ່) · ແຖບລຸ່ມ + "ເພີ່ມເຕີມ" (ມືຖື) · ສະຖິຕິ · ພະນັກງານ & ສິດ */
+.side{display:none}
+.pagehead{margin:4px 0 14px}.pagehead small{color:var(--muted);font-size:14px}.pagehead h1{font-size:26px}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:9px 14px;margin:2px 0;border:1px solid transparent;border-radius:16px;background:none;color:rgba(255,255,255,.82);font-weight:600;font-size:15px;text-align:left;transition:background .2s,color .2s,transform .15s}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}.nav-item:active{transform:scale(.98)}
+.nav-item[aria-current=true]{background:rgba(95,217,210,.18);border-color:rgba(95,217,210,.45);color:#fff}
+.nav-item svg{color:var(--mint)}
+.nb{margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#d9531e;color:#fff;font-size:12px;display:inline-grid;place-items:center;animation:badgePulse 2s infinite}
+.nb:empty{display:none}
+@keyframes badgePulse{50%{box-shadow:0 0 0 6px rgba(217,83,30,.18)}}
+.side-head{display:flex;align-items:center;gap:12px;padding:6px 6px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
+.side-head b{display:block;font-size:17px}.side-head small{opacity:.78;font-size:13px;line-height:1.3;display:block}
+.avatar{width:46px;height:46px;border-radius:16px;flex:0 0 46px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;font-weight:800;box-shadow:0 6px 16px rgba(10,186,181,.35)}
+.avatar svg{width:24px;height:24px;stroke:#fff}
+.side-grp{margin:12px 8px 4px;font-size:12px;letter-spacing:.4px;color:rgba(255,255,255,.5);font-weight:700}
+.side-foot{margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
+@media(min-width:1000px){
+ body.has-side .side{display:flex;flex-direction:column;position:fixed;left:16px;top:16px;bottom:16px;width:272px;background:linear-gradient(160deg,#0f3f3c,#0b2f2d);border-radius:var(--r);padding:16px 12px;color:#fff;box-shadow:var(--sh-2);overflow:auto;z-index:4;animation:fadeIn .4s both}
+ body.has-side .content{margin-left:304px}
+ body.has-side .top,body.has-side nav.tabs{display:none}
+ body.has-side main{max-width:1120px;margin:0 auto;padding:22px 24px 40px}
+}
+@media(max-width:999px){body.has-side .pagehead h1{font-size:22px}body.has-side .pagehead small{display:none}}
+nav.tabs button{position:relative;min-width:64px}
+nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
+.more{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.more button{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 14px;border:1.5px solid var(--line-2);border-radius:18px;background:#fff;font-weight:600;text-align:left}
+.more button[aria-current=true]{border-color:var(--accent);background:var(--ok-bg)}
+.more svg{color:var(--primary)}
+.sheet{max-height:92vh;overflow:auto}
+
+/* ການ໌ດສະຖິຕິ + ວົງຮັບຮູ້ */
+.stats{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:12px;margin:0 0 14px}
+@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.stats .dark{grid-column:1/-1}}
+.stat-card{background:#fff;border-radius:var(--r);padding:14px 18px;box-shadow:var(--sh-1);animation:riseIn .45s both}
+.stat-card small{display:block;color:var(--muted);font-size:13px}.stat-card b{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.stat-card.dark{background:linear-gradient(135deg,#0f4744,#082a28);color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-2)}
+.stat-card.dark small{color:rgba(255,255,255,.7)}.stat-card.dark b span{font-size:16px;opacity:.65;font-weight:600}
+.ring{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--mint) calc(var(--p)*1%),rgba(255,255,255,.14) 0);display:grid;place-items:center;position:relative;flex:0 0 64px}
+.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0c3633}.ring span{position:relative;font-size:13px;font-weight:700}
+.todo{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:6px 0 0;border:1px solid var(--line);border-radius:18px;background:#fff;text-align:left;min-height:52px;transition:transform .15s,border-color .2s}
+.todo:hover{border-color:var(--mint)}.todo:active{transform:scale(.99)}
+.todo .ti{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--ok-bg);color:var(--primary);flex:0 0 38px}
+.todo.bad .ti{background:var(--bad-bg);color:var(--bad)}.todo.warn .ti{background:var(--warn-bg);color:var(--warn)}
+.todo b{display:block;font-size:15px}.todo small{color:var(--muted)}
+.todo .go{margin-left:auto;color:var(--muted)}
+.qa{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}.qa .btn{flex:1 1 150px}
+.mini{width:100%;font-size:14px}.mini td,.mini th{padding:8px}
+
+/* ບັດພະນັກງານ + ສະວິດ + ຕາຕະລາງສິດ */
+.urow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:8px 0 0;border:1px solid var(--line);border-radius:20px;background:#fff;text-align:left;min-height:64px;transition:transform .15s,border-color .2s,box-shadow .2s;animation:riseIn .35s both}
+.urow:hover{border-color:var(--mint);box-shadow:var(--sh-1)}.urow:active{transform:scale(.99)}
+.urow .avatar{width:44px;height:44px;flex-basis:44px;border-radius:50%;font-size:17px}
+.urow.off{opacity:.55}
+.urow b{display:block;font-size:16px}.urow small{color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.seg button{min-height:40px;padding:6px 14px;border:1.5px solid var(--line-2);border-radius:99px;background:#fff;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--ok-bg);border-color:var(--accent);color:var(--primary)}
+.sw{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 0;cursor:pointer;position:relative}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.sw .sl{width:48px;height:28px;border-radius:99px;background:#cfdcdc;position:relative;flex:0 0 48px;transition:background .2s}
+.sw .sl::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked+.sl{background:var(--primary)}.sw input:checked+.sl::after{transform:translateX(20px)}
+.sw input:focus-visible+.sl{outline:3px solid rgba(10,186,181,.45);outline-offset:2px}
+.sw .st{font-weight:600}.sw small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.prev{margin:10px 0;padding:12px 14px;border-radius:18px;background:#f0f7f7;font-size:14px}.prev ul{margin:6px 0 0;padding-left:20px}.prev li{margin:2px 0}
+.perm{width:100%;font-size:13px}.perm th{background:var(--dark-2)}.perm td:first-child{text-align:left;font-weight:600}.perm .y{color:var(--primary)}.perm .n{color:#b7c4c4}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.formgrid{grid-template-columns:1fr}}
+.empty{text-align:center;padding:26px 10px;color:var(--muted)}.empty .logo{margin:0 auto 10px}
+.hint{font-size:13px;color:var(--muted)}
