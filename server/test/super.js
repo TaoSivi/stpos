@@ -61,11 +61,38 @@ async function test(n, fn) { await fn(); passed++; console.log('  ✓ ' + n); }
       const lk = await jp('co1', 'login=pin&uid=' + kid + '&pin=5566'); assert.ok(lk.ok, JSON.stringify(lk));
       const h1 = await jp('co1', 'login=hr&tk=' + encodeURIComponent(lk.tk)); assert.ok(h1.ok, JSON.stringify(h1)); assert.deepStrictEqual(h1.hr.member.roles, ['employee']);
       const me = await hr('co1', { action: 'me', token: h1.hr.token }); assert.ok(me.ok, JSON.stringify(me));
+      const iu = (await hr('co1', { action: 'info' })).data.users.filter(function (u) { return u.name === 'ນາງ ແກ້ວ'; }); assert.strictEqual(iu.length, 1, 'the HR record is saved, not only the login');
+      const own = (await hr('co1', { action: 'list', token: h1.hr.token, collection: 'employees' })).data; assert.ok(own.some(function (e) { return e.data && e.data.posUid === kid; }), 'staff sees their own record');
       const h2 = await jp('co1', 'login=hr&tk=' + encodeURIComponent(lk.tk)); assert.strictEqual(h2.hr.member.employeeId, h1.hr.member.employeeId, 'same HR person the second time');
       const emps = (await hr('co1', { action: 'list', token: h0.hr.token, collection: 'employees' })).data.map(function (e) { return e.data; });
       const k = emps.filter(function (e) { return e.posUid === kid; }); assert.strictEqual(k.length, 1); assert.strictEqual(k[0].name, 'ນາງ ແກ້ວ'); assert.ok(/^ST-\d+$/.test(k[0].code));
       assert.strictEqual((await jp('co1', 'login=hr&tk=bad')).err, 'tk');
       assert.strictEqual((await jp('co2', 'login=hr&tk=' + encodeURIComponent(lk.tk))).err, 'tk', 'a co1 session is no good in co2');
+    });
+    await test('home company: the only company opens on the main page; the Super admin can choose another', async function () {
+      const h = await sup('home'); assert.ok(!h.ok, 'two companies and none chosen → no home');
+      assert.strictEqual((await sup('set_home', { stk: stk, code: 'co1' })).ok, true);
+      const h2 = await sup('home'); assert.ok(h2.ok && h2.company.code === 'co1'); assert.deepStrictEqual(Object.keys(h2.company).sort(), ['apps', 'code', 'name']);
+      assert.strictEqual((await sup('set_home', { stk: 'bad', code: 'co1' })).err, 'stk');
+    });
+    await test('the Super admin adds staff with a PIN and chooses their apps; the server holds them to it', async function () {
+      const jp = async function (code, qs) { const t = await (await fetch(HOST + '/api/t/' + code + '/?callback=c&' + qs)).text(); return JSON.parse(t.slice(2, -1)); };
+      assert.strictEqual((await sup('staff_save', { stk: stk, code: 'co1', name: 'ທ້າວ ບຸນມີ', pin: '12' })).err, 'pin');
+      const add = await sup('staff_save', { stk: stk, code: 'co1', name: 'ທ້າວ ບຸນມີ', pin: '7788', apps: ['sthr'] }); assert.ok(add.ok, JSON.stringify(add));
+      assert.strictEqual((await sup('staff_save', { stk: stk, code: 'co1', name: 'ຄົນອື່ນ', pin: '7788' })).err, 'pin_taken');
+      const list = await sup('staff_list', { stk: stk, code: 'co1' }); const b = list.staff.filter(function (u) { return u.id === add.id; })[0];
+      assert.deepStrictEqual(b.apps, ['sthr']); assert.ok(list.apps.indexOf('laobooks') >= 0);
+      const lb = await jp('co1', 'login=pin&uid=' + add.id + '&pin=7788'); assert.ok(lb.ok, JSON.stringify(lb)); assert.deepStrictEqual(lb.apps, ['sthr']);
+      assert.ok((await jp('co1', 'login=hr&tk=' + encodeURIComponent(lb.tk))).ok, 'HR given');
+      const erp = await (await fetch(HOST + '/api/t/co1/erp', { method: 'POST', body: JSON.stringify({ action: 'loadAll', token: lb.tk }) })).json(); assert.strictEqual(erp.ok, false, 'LaoBooks not given');
+      const pos = await jp('co1', 'gz=1&token=' + encodeURIComponent(lb.tk)); assert.ok(!pos.users && !pos.gz, 'POS not given → no shop data: ' + JSON.stringify(pos).slice(0, 80));
+      assert.ok((await sup('staff_save', { stk: stk, code: 'co1', id: add.id, apps: ['laobooks', 'stpos-fnb'] })).ok);
+      assert.strictEqual((await jp('co1', 'login=hr&tk=' + encodeURIComponent(lb.tk))).err, 'app', 'HR taken away');
+      const erp2 = await (await fetch(HOST + '/api/t/co1/erp', { method: 'POST', body: JSON.stringify({ action: 'loadAll', token: lb.tk }) })).json(); assert.ok(erp2.ok, 'LaoBooks given even to a cashier: ' + JSON.stringify(erp2));
+      const pos2 = await jp('co1', 'gz=1&token=' + encodeURIComponent(lb.tk)); assert.ok(pos2.gz || pos2.users, 'POS given → shop data');
+      assert.ok((await sup('staff_save', { stk: stk, code: 'co1', id: add.id, pin: '9900' })).ok, 'PIN reset');
+      assert.strictEqual((await jp('co1', 'login=pin&uid=' + add.id + '&pin=7788')).ok, false); assert.ok((await jp('co1', 'login=pin&uid=' + add.id + '&pin=9900')).ok);
+      assert.strictEqual((await sup('staff_list', { stk: 'bad', code: 'co1' })).err, 'stk');
     });
     await test('changing the platform PIN logs every device out', async function () {
       assert.ok((await adm('tenant_super_pin', { pin: '1357' })).ok);

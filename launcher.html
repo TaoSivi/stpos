@@ -44,6 +44,12 @@ a.app b{font-size:17px;font-weight:700}a.app span.d{color:var(--muted);font-size
 select{width:100%;min-height:48px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font-size:17px}
 select:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,186,181,.2)}
 .lnk{background:none;border:0;color:var(--tiff-deep);font:inherit;font-weight:700;cursor:pointer;min-height:44px;padding:8px 4px;text-decoration:none;display:inline-block}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.apps label{display:flex;gap:8px;align-items:center;min-height:44px;margin:0;padding:6px 10px;border:1.5px solid var(--line);border-radius:12px;background:var(--field);font-weight:600;font-size:14px;cursor:pointer}
+.apps input{width:20px;height:20px;accent-color:#0A7E7A}.apps label:has(input:checked){border-color:var(--tiff);background:var(--tile)}
+.srow{margin-top:12px}.srow .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.srow .top b{font-size:17px}
+.srow .pinrow{display:flex;gap:8px;margin-top:10px}.srow .pinrow input{flex:1}.srow button.g{margin-top:10px}
+.msg-ok{color:var(--ok)}
 </style>
 </head>
 <body>
@@ -67,6 +73,18 @@ select:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,
   </form>
   <p style="text-align:center;margin-top:10px"><a href="platform-admin.html" class="lnk">ໜ້າຜູ້ດູແລລະບົບ (ສ້າງ/ແກ້ໄຂບໍລິສັດ)</a></p>
  </section>
+ <section class="hide" id="sM">
+  <div class="co"><b>ພະນັກງານ · <span id="mco"></span></b><button type="button" id="mback">‹ ກັບໄປແອັບ</button></div>
+  <div class="card">
+   <h2>ເພີ່ມພະນັກງານ</h2>
+   <label for="mn">ຊື່</label><input id="mn" type="text" maxlength="60">
+   <label for="mp">PIN <small>(ຕົວເລກ 4-8 ຫຼັກ)</small></label><input id="mp" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password">
+   <label>ເຂົ້າແອັບໄດ້</label><div class="apps" id="mapps"></div>
+   <button class="p" id="madd" type="button">ເພີ່ມພະນັກງານ</button>
+   <div class="err" id="merr" role="status"></div>
+  </div>
+  <div id="mlist"></div>
+ </section>
  <section class="hide" id="sC">
   <div class="co"><b>ເລືອກບໍລິສັດ</b><button type="button" id="sout">ອອກຈາກ Super admin</button></div>
   <div class="grid" id="clist"></div>
@@ -83,7 +101,8 @@ select:focus{outline:none;border-color:var(--tiff);box-shadow:0 0 0 4px rgba(10,
   <p style="text-align:center;margin-top:6px"><button type="button" class="lnk" id="lback">‹ ປ່ຽນບໍລິສັດ</button></p>
  </section>
  <section id="s2" class="hide">
-  <div class="co"><b id="cn"></b><span><button type="button" id="lout">ອອກຈາກລະບົບ</button> <button type="button" id="chg">ປ່ຽນບໍລິສັດ</button></span></div>
+  <div class="co"><b id="cn"></b><span><button type="button" id="mstaff" class="hide">ຈັດການພະນັກງານ</button> <button type="button" id="lout">ອອກຈາກລະບົບ</button> <button type="button" id="chg">ປ່ຽນບໍລິສັດ</button></span></div>
+  <div class="err" id="aerr" role="alert" style="color:#fff"></div>
   <div class="grid" id="apps"></div>
  </section>
 </main>
@@ -117,11 +136,12 @@ function jsonp(url, cb) {
 }
 function esc(x) { return String(x).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function show(co, api, erp) {
- ['s1', 'sL', 'sS', 'sC'].forEach(function (x) { $(x).classList.add('hide'); }); $('s2').classList.remove('hide'); $('supbtn').parentNode.classList.add('hide'); $('cn').textContent = co.name || co.code;
+ ['s1', 'sL', 'sS', 'sC', 'sM'].forEach(function (x) { $(x).classList.add('hide'); }); $('s2').classList.remove('hide'); $('supbtn').parentNode.classList.add('hide'); $('cn').textContent = co.name || co.code;
  var tiles = (co.apps || []).filter(function (a) { return CATALOG[a]; }).map(function (a) {
   var c = CATALOG[a], href = c.kind === 'erp' ? ERP_URL + '?erp=' + encodeURIComponent(erp) : c.kind === 'hr' ? HR_URL + '?server=' + encodeURIComponent(api + '/hr') : 'index.html?api=' + encodeURIComponent(api);
-  return '<a class="app" href="' + esc(href) + '"><span class="i" aria-hidden="true"><svg viewBox="0 0 24 24">' + c.icon + '</svg></span><b>' + esc(c.name) + '</b><span class="d">' + esc(c.desc) + '</span></a>';
+  return '<a class="app" data-app="' + esc(a) + '" href="' + esc(href) + '"><span class="i" aria-hidden="true"><svg viewBox="0 0 24 24">' + c.icon + '</svg></span><b>' + esc(c.name) + '</b><span class="d">' + esc(c.desc) + '</span></a>';
  });
+ $('aerr').textContent = ''; $('mstaff').classList.toggle('hide', !SUP); $('lout').classList.toggle('hide', !signedHere());
  $('apps').innerHTML = tiles.length ? tiles.join('') : '<div class="card">ບໍລິສັດນີ້ຍັງບໍ່ໄດ້ເປີດໃຊ້ແອັບ — ຕິດຕໍ່ຜູ້ດູແລລະບົບ</div>';
 }
 function lookup(code, auto) {
@@ -131,7 +151,7 @@ function lookup(code, auto) {
   $('go').disabled = false;
   if (!r || !r.ok || !r.company) { if (!auto) $('err').textContent = r ? 'ບໍ່ພົບລະຫັດບໍລິສັດນີ້' : 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່'; try { if (auto) localStorage.removeItem('st_company'); } catch (e) {} return; }
   try { localStorage.setItem('st_company', code); } catch (e) {}
-  CO = { co: r.company, api: api }; if (ls('st_tk_co') === code && ls('stpos_token')) show(r.company, api, api + '/erp'); else askLogin();
+  CO = { co: r.company, api: api }; show(r.company, api, api + '/erp');
  });
 }
 $('f').onsubmit = function (e) { e.preventDefault(); var c = $('code').value.trim().toLowerCase(); if (!/^[a-z0-9][a-z0-9_-]{1,31}$/.test(c)) { $('err').textContent = 'ລະຫັດບໍລິສັດມີສະເພາະ a-z, 0-9, - _'; return; } lookup(c, false); };
@@ -150,7 +170,7 @@ function setSession(code, api, tk, uid) {
  try { localStorage.setItem('st_company', code); localStorage.setItem('st_tk_co', code); localStorage.setItem('stpos_token', tk); localStorage.setItem('stpos_uid', uid); sessionStorage.setItem('erp_url', api + '/erp'); sessionStorage.setItem('erp_tk', tk); } catch (e) {}
 }
 function signOut() {
- try { ['st_tk_co', 'stpos_token', 'stpos_uid', 'sthr-sheets-token', 'sthr-sheets-me', 'sthr-online'].forEach(function (k) { localStorage.removeItem(k); }); sessionStorage.removeItem('erp_tk'); } catch (e) {}
+ try { ['st_tk_co', 'st_apps', 'stpos_token', 'stpos_uid', 'sthr-sheets-token', 'sthr-sheets-me', 'sthr-online'].forEach(function (k) { localStorage.removeItem(k); }); sessionStorage.removeItem('erp_tk'); } catch (e) {}
 }
 function askLogin() {
  only('sL'); $('lco').textContent = CO.co.name || CO.co.code; $('lerr').textContent = ''; $('lu').innerHTML = '<option>ກຳລັງໂຫຼດ…</option>';
@@ -167,17 +187,62 @@ $('lf').onsubmit = function (e) {
  jsonp(api + '/?login=pin&uid=' + encodeURIComponent(uid) + '&pin=' + encodeURIComponent($('lp').value), function (r) {
   $('lp').value = '';
   if (!r || !r.ok || !r.tk) { $('lgo').disabled = false; $('lerr').textContent = !r ? 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້' : r.err === 'locked' ? (r.msg || 'ລັອກຊົ່ວຄາວ') : 'PIN ບໍ່ຖືກ' + (r.left != null ? ' (ເຫຼືອ ' + r.left + ' ເທື່ອ)' : ''); return; }
-  setSession(code, api, r.tk, r.uid);
-  var fin = function () { $('lgo').disabled = false; show(CO.co, api, api + '/erp'); };
-  if ((CO.co.apps || []).some(function (a) { return CATALOG[a] && CATALOG[a].kind === 'hr'; })) jsonp(api + '/?login=hr&tk=' + encodeURIComponent(r.tk), function (h) { if (h && h.ok && h.hr) setHR(api, h.hr); fin(); }); else fin();
+  setSession(code, api, r.tk, r.uid); try { localStorage.setItem('st_apps', JSON.stringify(r.apps || null)); } catch (e) {}
+  var fin = function () { $('lgo').disabled = false; var p = PEND; PEND = null; if (p && allowed(p.app)) { location.href = p.href; return; } show(CO.co, api, api + '/erp'); if (p) $('aerr').textContent = 'ເຈົ້າຍັງບໍ່ມີສິດເຂົ້າແອັບນີ້ — ຂໍໃຫ້ Super admin ເປີດໃຫ້'; };
+  if ((CO.co.apps || []).some(function (a) { return CATALOG[a] && CATALOG[a].kind === 'hr'; }) && allowed('sthr')) jsonp(api + '/?login=hr&tk=' + encodeURIComponent(r.tk), function (h) { if (h && h.ok && h.hr) setHR(api, h.hr); fin(); }); else fin();
  });
 };
-$('lback').onclick = function () { only('s1'); $('code').focus(); };
+$('lback').onclick = function () { PEND = null; show(CO.co, CO.api, CO.api + '/erp'); };
 $('lout').onclick = function () { signOut(); if (SUP) { supList(); return; } if (CO) askLogin(); else only('s1'); };
+/* ===== ກົດແອັບ: ຍັງບໍ່ເຂົ້າລະບົບ → ເລືອກຊື່ + PIN ກ່ອນ · ບໍ່ມີສິດແອັບນີ້ → ບອກ (server ກໍກວດຊ້ຳ) ===== */
+var PEND = null;
+function signedHere() { return !!CO && ls('st_tk_co') === CO.co.code && !!ls('stpos_token'); }
+function myApps() { try { return JSON.parse(ls('st_apps') || 'null'); } catch (e) { return null; } }
+function allowed(a) { var m = myApps(); return !m || m.indexOf(a) >= 0; }
+$('apps').onclick = function (e) {
+ var t = e.target.closest('a[data-app]'); if (!t) return;
+ if (!signedHere()) { e.preventDefault(); PEND = { app: t.dataset.app, href: t.getAttribute('href') }; askLogin(); return; }
+ if (!allowed(t.dataset.app)) { e.preventDefault(); $('aerr').textContent = 'ເຈົ້າຍັງບໍ່ມີສິດເຂົ້າແອັບນີ້ — ຂໍໃຫ້ Super admin ເປີດໃຫ້'; }
+};
+/* ===== Super admin: ຈັດການພະນັກງານ (ເພີ່ມ, PIN, ແອັບທີ່ເຂົ້າໄດ້) ===== */
+function appBoxes(apps, sel) { return apps.filter(function (a) { return CATALOG[a]; }).map(function (a) { return '<label><input type="checkbox" value="' + esc(a) + '"' + (!sel || sel.indexOf(a) >= 0 ? ' checked' : '') + '> ' + esc(CATALOG[a].name) + '</label>'; }).join(''); }
+function ticked(box) { return Array.prototype.map.call(box.querySelectorAll('input[type=checkbox]:checked'), function (c) { return c.value; }); }
+var ROLE = { superadmin: 'Super admin', owner: 'ເຈົ້າຂອງ', admin: 'Admin', manager: 'ຜູ້ຈັດການ', accountant: 'ບັນຊີ', cashier: 'ພະນັກງານ', waiter: 'ພະນັກງານເສີບ' };
+function staffLoad() {
+ only('sM'); $('mco').textContent = CO.co.name || CO.co.code; $('mlist').innerHTML = '<div class="card">ກຳລັງໂຫຼດ…</div>';
+ sapi('staff_list', { stk: SUP, code: CO.co.code }).then(function (r) {
+  if (!r.ok) { $('mlist').innerHTML = '<div class="card err">ໂຫຼດບໍ່ໄດ້ (' + esc(r.err || '') + ')</div>'; return; }
+  STAFF_APPS = r.apps; $('mapps').innerHTML = appBoxes(r.apps, null);
+  $('mlist').innerHTML = r.staff.map(function (u) {
+   var boss = u.role === 'superadmin' || u.role === 'owner';
+   return '<div class="card srow" data-id="' + esc(u.id) + '"><div class="top"><b>' + esc(u.name) + '</b><small>' + esc(ROLE[u.role] || u.role) + (u.active ? '' : ' · ປິດ') + '</small></div>' +
+    (boss ? '<small>ເຂົ້າໄດ້ທຸກແອັບ (ເຈົ້າຂອງ)</small>' : '<label>ເຂົ້າແອັບໄດ້</label><div class="apps">' + appBoxes(r.apps, u.apps) + '</div>') +
+    '<div class="pinrow"><input type="password" inputmode="numeric" maxlength="8" autocomplete="new-password" placeholder="PIN ໃໝ່ (ຖ້າຈະປ່ຽນ)"></div>' +
+    '<button class="g" type="button">ບັນທຶກ</button> <span class="m"></span></div>';
+  }).join('');
+ }).catch(function () { $('mlist').innerHTML = '<div class="card err">ເຊື່ອມຕໍ່ server ບໍ່ໄດ້</div>'; });
+}
+var STAFF_APPS = [];
+var ERR = { pin: 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ', pin_taken: 'PIN ນີ້ມີຄົນໃຊ້ແລ້ວ', name_taken: 'ຊື່ນີ້ມີແລ້ວ', need: 'ໃສ່ຊື່ ແລະ PIN', stk: 'ໝົດເວລາ — ເຂົ້າ Super admin ໃໝ່' };
+$('mstaff').onclick = staffLoad;
+$('mback').onclick = function () { show(CO.co, CO.api, CO.api + '/erp'); };
+$('madd').onclick = function () {
+ $('merr').className = 'err'; $('merr').textContent = '';
+ sapi('staff_save', { stk: SUP, code: CO.co.code, name: $('mn').value.trim(), pin: $('mp').value, apps: ticked($('mapps')) }).then(function (r) {
+  $('mp').value = ''; if (!r.ok) { $('merr').textContent = ERR[r.err] || ('ບໍ່ສຳເລັດ: ' + r.err); return; }
+  $('mn').value = ''; staffLoad(); $('merr').className = 'msg-ok'; $('merr').textContent = 'ເພີ່ມແລ້ວ ✓';
+ });
+};
+$('mlist').onclick = function (e) {
+ var b = e.target.closest('button'), row = e.target.closest('.srow'); if (!b || !row) return;
+ var box = row.querySelector('.apps'), pin = row.querySelector('.pinrow input'), m = row.querySelector('.m'), body = { stk: SUP, code: CO.co.code, id: row.dataset.id, pin: pin.value };
+ if (box) body.apps = ticked(box);
+ sapi('staff_save', body).then(function (r) { pin.value = ''; m.className = r.ok ? 'm msg-ok' : 'm err'; m.textContent = r.ok ? 'ບັນທຶກແລ້ວ ✓' : (ERR[r.err] || ('ບໍ່ສຳເລັດ: ' + r.err)); });
+};
 /* ===== Super admin (ເຈົ້າຂອງແພລດຟອມ): PIN ດຽວ → ເລືອກບໍລິສັດ → ກົດແອັບ ເຂົ້າເລີຍ ===== */
 var SUP = null; try { SUP = localStorage.getItem('st_super'); } catch (e) {}
 function sapi(a, body) { return fetch(serverBase() + '/api/?super=' + a, { method: 'POST', body: JSON.stringify(body || {}) }).then(function (r) { return r.json(); }); }
-function only(id) { ['s1', 's2', 'sS', 'sC', 'sL'].forEach(function (x) { $(x).classList.toggle('hide', x !== id); }); $('supbtn').parentNode.classList.toggle('hide', id !== 's1'); }
+function only(id) { ['s1', 's2', 'sS', 'sC', 'sL', 'sM'].forEach(function (x) { $(x).classList.toggle('hide', x !== id); }); $('supbtn').parentNode.classList.toggle('hide', id !== 's1'); }
 function supOut() { SUP = null; try { localStorage.removeItem('st_super'); } catch (e) {} only('s1'); }
 function supList() {
  only('sC'); $('cerr').textContent = ''; $('clist').innerHTML = '<div class="card">ກຳລັງໂຫຼດ…</div>';
@@ -191,7 +256,7 @@ function supEnter(code) {
  sapi('enter', { stk: SUP, code: code }).then(function (r) {
   if (!r.ok) { if (r.err === 'stk') { supOut(); only('sS'); } else $('cerr').textContent = 'ເຂົ້າບໍລິສັດນີ້ບໍ່ໄດ້'; return; }
   var api = serverBase() + '/api/t/' + code; CO = { co: r.company, api: api };
-  if (r.pos) setSession(code, api, r.pos.tk, r.pos.uid);
+  if (r.pos) setSession(code, api, r.pos.tk, r.pos.uid); try { localStorage.setItem('st_apps', 'null'); } catch (e) {}
   if (r.hr) setHR(api, r.hr);
   show(r.company, api, api + '/erp');
  }).catch(function () { $('cerr').textContent = 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້'; });
@@ -207,7 +272,9 @@ $('sf').onsubmit = function (e) {
   else $('serr').textContent = r.err === 'notset' ? 'ຍັງບໍ່ໄດ້ຕັ້ງ PIN Super admin — ຕັ້ງໃນໜ້າຜູ້ດູແລລະບົບ' : r.err === 'locked' ? 'ໃສ່ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' : 'PIN ບໍ່ຖືກ' + (r.left != null ? ' (ເຫຼືອ ' + r.left + ' ເທື່ອ)' : '');
  }).catch(function () { $('sgo').disabled = false; $('serr').textContent = 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້'; });
 };
-(function () { var q = /[?&]code=([a-z0-9_-]+)/i.exec(location.search), c = q && q[1].toLowerCase(); if (!c) try { c = localStorage.getItem('st_company'); } catch (e) {} if (SUP && !q) { supList(); return; } if (c) { $('code').value = c; lookup(c, true); } })();
+(function () { var q = /[?&]code=([a-z0-9_-]+)/i.exec(location.search), c = q && q[1].toLowerCase(); if (!c) try { c = localStorage.getItem('st_company'); } catch (e) {} if (q) { $('code').value = c; lookup(c, true); return; }
+ sapi('home', {}).then(function (h) { if (h.ok) { $('code').value = h.company.code; lookup(h.company.code, true); } else if (SUP) supList(); else if (c) { $('code').value = c; lookup(c, true); } }).catch(function () { if (c) { $('code').value = c; lookup(c, true); } });
+})();
 </script>
 </body>
 </html>

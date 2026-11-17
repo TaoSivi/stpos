@@ -91,6 +91,12 @@ function stposLicensed(st) {
 /* ===== LaoBooks ERP ຕໍ່ບໍລິສັດ: POST /t/<code>/erp — ໂປຣໂຕຄໍຄືກັບ Apps Script ({action, payload} → {ok, data|error}) ແຕ່ຕ້ອງມີ session ຜູ້ໃຊ້ (token) ຂອງບໍລິສັດ ແລະ ບົດບາດບັນຊີ/ເຈົ້າຂອງ =====
  * ຂໍ້ມູນ: <ໂຟນເດີບໍລິສັດ>/erp/<collection>.json (ແຖວ = ວັດຖຸ, id ບໍ່ຊ້ຳ) */
 const ERP_ROLES = ['superadmin', 'owner', 'admin', 'accountant'];
+/* ===== ສິດເຂົ້າແອັບຂອງແຕ່ລະຄົນ (Super admin ກຳນົດ) — ເກັບແຍກໃນ access.json ຂອງບໍລິສັດ ບໍ່ຢູ່ໃນ state ຂອງ POS (POS ບັນທຶກທັບບໍ່ໄດ້)
+ * ບໍ່ມີລາຍການ = ບໍ່ຈຳກັດ (ຕາມບົດບາດເດີມ). ມີລາຍການ = ເຂົ້າໄດ້ສະເພາະແອັບໃນລາຍການ — server ກວດທຸກທາງ (POS, HR, ERP) */
+function accFile(t) { return path.join(t.code === 'default' ? ROOT_DIR : path.join(ROOT_DIR, 't', t.code), 'access.json'); }
+function accRead(t) { try { return JSON.parse(fs.readFileSync(accFile(t), 'utf8')) || {}; } catch (e) { return {}; } }
+function appsOf(t, uid) { const a = accRead(t)[uid]; return Array.isArray(a) ? a : null; }
+function mayUse(t, uid, kind) { const a = appsOf(t, uid); if (!a) return null; return a.some(function (x) { return kind === 'pos' ? /^stpos-/.test(x) : x === kind; }); }
 function erpFile(c) { return path.join(shim.dir(), 'erp', c + '.json'); }
 function erpRead(c) { try { const a = JSON.parse(fs.readFileSync(erpFile(c), 'utf8')); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
 function erpWrite(c, a) { fs.mkdirSync(path.join(shim.dir(), 'erp'), { recursive: true }); atomicWrite0(erpFile(c), JSON.stringify(a)); }
@@ -104,7 +110,7 @@ function erpHandle(req, res, body) {
   if (!apiToken()) return done({ ok: false, error: 'company not ready' });
   if (!(CURTEN.apps || []).some(function (x) { return x === 'laobooks' || x === '*'; })) return done({ ok: false, error: 'ບໍລິສັດນີ້ບໍ່ມີສິດໃຊ້ LaoBooks' });
   let o; try { o = JSON.parse(body || '{}'); } catch (e) { return done({ ok: false, error: 'json' }); }
-  const u = sessUser(o.token); if (!u || ERP_ROLES.indexOf(u.role) < 0) return done({ ok: false, error: 'auth' });
+  const u = sessUser(o.token), may = u ? mayUse(CURTEN, u.id, 'laobooks') : false; if (!u || may === false || (may === null && ERP_ROLES.indexOf(u.role) < 0)) return done({ ok: false, error: 'auth' });
   const p = o.payload || {}, a = String(o.action || ''), okColl = function (c) { return /^[a-z0-9_]{1,40}$/.test(String(c || '')); };
   if (a === 'loadAll') { const out = {}; try { fs.readdirSync(path.join(shim.dir(), 'erp')).forEach(function (f) { const m = /^([a-z0-9_]{1,40})\.json$/.exec(f); if (m) out[m[1]] = erpRead(m[1]); }); } catch (e) {} return done({ ok: true, data: out }); }
   if (!okColl(p.sheet)) return done({ ok: false, error: a === 'uploadFile' ? 'ຍັງບໍ່ຮອງຮັບອັບໂຫຼດໄຟລ໌ຜ່ານ server ນີ້' : 'sheet' });
@@ -153,6 +159,9 @@ function superApi(q, body, req, res) {
   useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]);
   const a = String(q.super), P = platRead();
   if (a === 'status') return J({ ok: true, set: !!P.pinH });
+  /* ໜ້າຫຼັກ stdev.store: ບໍລິສັດຫຼັກ (ທີ່ Super admin ເລືອກ ຫຼື ບໍລິສັດດຽວທີ່ມີ) — ຊື່ + ແອັບເທົ່ານັ້ນ */
+  if (a === 'home') { const L = tenantList(), t = L.filter(function (x) { return x.code === P.home; })[0] || (L.length === 1 ? L[0] : null); return J(t ? { ok: true, company: { code: t.code, name: t.name || t.code, apps: t.apps || [] } } : { ok: false }); }
+
   if (a === 'login') {
     if (!P.pinH) return J({ ok: false, err: 'notset' });
     const cache = CacheService.getScriptCache(), ip = clientIp(req), ki = 'spi_' + ip, n = +(cache.get(ki) || 0), na = +(cache.get('spa') || 0);
@@ -163,6 +172,45 @@ function superApi(q, body, req, res) {
     return J({ ok: false, err: 'pin', left: Math.max(0, 4 - n) });
   }
   if (!platOk(o.stk)) return J({ ok: false, err: 'stk' });
+  if (a === 'staff_list' || a === 'staff_save' || a === 'set_home') {
+    const code = String(o.code || '').toLowerCase(), t = tenantList().filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
+    if (a === 'set_home') { P.home = t.code; atomicWrite0(PLAT_FILE, JSON.stringify(P)); return J({ ok: true }); }
+    const acc = accRead(t), cleanApps = function (x) { return Array.isArray(x) ? x.map(String).filter(function (v) { return (t.apps || []).indexOf(v) >= 0; }) : null; };
+    let out;
+    try {
+      useTenant(t); useBranch(brFind('b1') || branches()[0]); shim.beginRequest();
+      try {
+        if (a === 'staff_list') out = { ok: true, apps: t.apps || [], staff: stateUsers().filter(Boolean).map(function (u) { return { id: u.id, name: u.name || u.id, role: u.role || '', active: u.active !== false, apps: Array.isArray(acc[u.id]) ? acc[u.id] : null }; }) };
+        else {
+          const name = String(o.name || '').replace(/[<>]/g, '').trim().slice(0, 60), pin = o.pin == null || o.pin === '' ? '' : String(o.pin), apps = cleanApps(o.apps);
+          let id = String(o.id || '');
+          if (pin && !/^\d{4,8}$/.test(pin)) out = { ok: false, err: 'pin' };
+          else if (!id && (!name || !pin)) out = { ok: false, err: 'need' };
+          else {
+            const dupe = stateUsers().filter(function (u) { return u && u.id !== id && u.active !== false && (pin && userPinH(u) === pinHash(pin) || name && String(u.name || '').trim() === name); })[0];
+            if (dupe) out = { ok: false, err: userPinH(dupe) === pinHash(pin) ? 'pin_taken' : 'name_taken' };
+            else {
+              if (!id) id = 'u' + Date.now().toString(36) + crypto.randomBytes(2).toString('hex');
+              let n = 0;
+              branches().forEach(function (b) { n += withBranch(b, function () {
+                const raw = G.getState_(); if (!raw) return 0; const st = JSON.parse(raw); st.users = st.users || [];
+                let u = st.users.filter(function (x) { return x && x.id === id; })[0];
+                if (!u) { if (o.id) return 0; u = { id: id, name: name, role: 'cashier' }; st.users.push(u); }
+                if (name) u.name = name; if (o.role && /^[a-z]{3,20}$/.test(String(o.role))) u.role = String(o.role);
+                if (o.active !== undefined) u.active = !!o.active;
+                if (pin) { u.pinH = pinHash(pin); delete u.pin; }
+                st.usersV = (+st.usersV || 0) + 1; st._v = Math.max(Date.now(), (+st._v || 0) + 1);
+                const lock = LockService.getScriptLock(); lock.waitLock(30000); try { G.saveStateRaw_(JSON.stringify(st), true); } finally { lock.releaseLock(); }
+                CacheService.getScriptCache().remove('lfu_' + id); return 1; }); });
+              if (!n) out = { ok: false, err: 'user' };
+              else { if (apps) acc[id] = apps; else if (o.apps === null) delete acc[id]; atomicWrite0(accFile(t), JSON.stringify(acc)); out = { ok: true, id: id }; try { AUDIT.append([{ t: 'super_staff', u: 'platform', ip: clientIp(req), d: { company: code, id: id, apps: apps, pin: !!pin } }]); } catch (e) {} }
+            }
+          }
+        }
+      } finally { shim.endRequest(); }
+    } finally { useTenant(DEFAULT_TEN); useBranch(brFind('b1') || branches()[0]); }
+    return J(out);
+  }
   if (a === 'list') return J({ ok: true, companies: tenantList().map(function (t) { return { code: t.code, name: t.name || t.code, apps: t.apps || [] }; }) });
   if (a === 'enter') {
     const code = String(o.code || '').toLowerCase(), t = tenantList().filter(function (x) { return x.code === code; })[0]; if (!t) return J({ ok: false, err: 'company' });
@@ -334,8 +382,9 @@ function sessOk(tk) { return !!sessUser(tk); }
 /* ແປ session → API_TOKEN ກ່ອນສົ່ງໃຫ້ Code.gs (Code.gs ບໍ່ຕ້ອງແກ້) */
 function liftToken(q) {
   const t = apiToken(); if (!t) return;
-  if (q.token && q.token !== t && sessOk(q.token)) q.token = t;
-  if (q.chat === '1' && q.p) { try { const p = JSON.parse(q.p); if (p && p.token && p.token !== t && sessOk(p.token)) { p.token = t; q.p = JSON.stringify(p); } } catch (e) {} }
+  const posOk = function (tk) { const su = sessUser(tk); return !!su && mayUse(CURTEN, su.id, 'pos') !== false; };
+  if (q.token && q.token !== t && posOk(q.token)) q.token = t;
+  if (q.chat === '1' && q.p) { try { const p = JSON.parse(q.p); if (p && p.token && p.token !== t && posOk(p.token)) { p.token = t; q.p = JSON.stringify(p); } } catch (e) {} }
 }
 function clientIp(req) { return String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim(); }
 function loginApi(q, req) {
@@ -348,7 +397,7 @@ function loginApi(q, req) {
     return { ok: true, login: 1, branches: brList(req).map(function (b) { return { id: b.id, name: b.name, type: b.type, url: b.url }; }) };
   if (q.login === 'hr') { /* ບັນຊີດຽວທຸກແອັບ: session ຂອງບໍລິສັດ (ຈາກ PIN ໜ້າຫຼັກ / POS) → session HR ຂອງຄົນດຽວກັນ */
     const su = sessUser(q.tk); if (!su) return { ok: false, err: 'tk' };
-    if (!hrLicensed(CURTEN)) return { ok: false, err: 'app' };
+    if (!hrLicensed(CURTEN) || mayUse(CURTEN, su.id, 'sthr') === false) return { ok: false, err: 'app' };
     const x = stateUsers().filter(function (z) { return z && z.id === su.id; })[0] || {};
     let r; try { r = hrx().sessionFor(CURTEN.code, { id: su.id, role: su.role, name: x.name || su.id }); } catch (e) { return { ok: false, err: 'hr' }; }
     return r ? { ok: true, hr: r } : { ok: false, err: 'nohr' };
@@ -359,7 +408,7 @@ function loginApi(q, req) {
     const ua = String((req.headers && req.headers['user-agent']) || '').slice(0, 120), uName = function () { const x = stateUsers().filter(function (z) { return z && z.id === uid; })[0]; return x ? (x.name || uid) : uid; };
     if (nu >= 5 || ni >= 20) { try { AUDIT.append([{ t: 'login_lock', u: uid, ip: ip, d: { name: uName(), ua: ua } }]); if (nu === 5 || ni === 20 || nu > 5 && nu % 5 === 0) auditAlert(null, ['🔒 PIN ຜິດຫຼາຍເທື່ອ — ລັອກ ' + uName() + ' ຈາກ IP ' + ip], { u: uid, ip: ip }); } catch (e) {} return { ok: false, err: 'locked', msg: 'ໃສ່ PIN ຜິດຫຼາຍເທື່ອ — ລໍ 15 ນາທີ' }; }
     const u = stateUsers().filter(function (x) { return x && x.id === uid; })[0];
-    if (u && u.active !== false && userPinH(u) && userPinH(u) === pinHash(String(q.pin || ''))) { cache.remove(ku); try { AUDIT.append([{ t: 'login', u: u.id, ip: ip, d: { name: u.name || '', role: u.role || '', ua: ua } }]); } catch (e) {} return { ok: true, tk: sessMake(u), uid: u.id, name: u.name || '' }; }
+    if (u && u.active !== false && userPinH(u) && userPinH(u) === pinHash(String(q.pin || ''))) { cache.remove(ku); try { AUDIT.append([{ t: 'login', u: u.id, ip: ip, d: { name: u.name || '', role: u.role || '', ua: ua } }]); } catch (e) {} return { ok: true, tk: sessMake(u), uid: u.id, name: u.name || '', apps: appsOf(CURTEN, u.id) }; }
     cache.put(ku, String(nu + 1), 900); cache.put(ki, String(ni + 1), 900);
     try { AUDIT.append([{ t: 'login_fail', u: uid, ip: ip, d: { name: uName(), n: nu + 1, ua: ua } }]); } catch (e) {}
     return { ok: false, err: 'pin', left: Math.max(0, 9 - nu) };
