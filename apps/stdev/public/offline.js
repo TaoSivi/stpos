@@ -26,6 +26,7 @@ function getQ() { return kv.get('q').then(function (q) { return q || []; }); }
 
 /* ===== ຄິດໄລ່ໃນເຄື່ອງ (ໃຫ້ຜົນຄືກັບ server ເພາະໃຊ້ Tank.liters ໄຟລ໌ດຽວກັນ) ===== */
 var num = function (x) { var n = Number(x); return x === '' || x == null || !isFinite(n) || n < 0 || n > 1e6 ? null : n; };
+function mcalc(t) { if (!t.meter) return; t.mused = t.mtr != null && t.mprev != null ? t.mtr - t.mprev : null; t.mdiff = t.mused != null ? t.mused - ((t.mbase || 0) + t.out) : null; }
 function calcRow(car, r) { var L0 = Tank.liters(car.tank, r.cm0), L1 = Tank.liters(car.tank, r.cm1), L2 = Tank.liters(car.tank, r.cm2); r.L0 = L0; r.L1 = L1; r.L2 = L2; r.gap = r.prev && L0 != null && r.prev.L2 != null ? L0 - r.prev.L2 : null; r.add = L0 != null && L1 != null ? L1 - L0 : null; r.used = L1 != null && L2 != null ? L1 - L2 : null; }
 function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,error} — ແລະ ບັນທຶກແຄັດ */
  return Promise.all([kv.get('init'), kv.get(rkey('sheet', b)), kv.get(rkey('photos', b))]).then(function (c) {
@@ -43,11 +44,11 @@ function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,err
    if (fill) { delete row.ack; delete row.rej; }
    ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete row[k]; else row[k] = n; } });
    if ('src' in b) row.src = b.src === 'jug' ? 'jug' : 'tank'; if ('note' in b) row.note = String(b.note || '').slice(0, 200); calcRow(car, row);
-   if (sh.tank) { var out0 = sh.tank.out, out1 = sumOut(); sh.tank.bal += out0 - out1; sh.tank.out = out1; }
+   if (sh.tank) { var out0 = sh.tank.out, out1 = sumOut(); sh.tank.bal += out0 - out1; sh.tank.out = out1; mcalc(sh.tank); }
   } else if (action === 'tank') {
    if (!sh.tank) return { ok: false, error: 'auth' }; var recv0 = sh.tank.recv || 0;
-   ['cm', 'recv'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
-   sh.tank.bal += (sh.tank.recv || 0) - recv0; sh.tank.measured = Tank.liters(site.tank, sh.tank.cm);
+   ['cm', 'recv', 'mtr'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
+   sh.tank.bal += (sh.tank.recv || 0) - recv0; sh.tank.measured = Tank.liters(site.tank, sh.tank.cm); mcalc(sh.tank);
   } else if (action === 'ack') {
    if (!row || row.add == null) return { ok: false, error: 'empty' };
    if (b.yes) { row.ack = { by: me.id, name: me.name, at: Date.now(), cm0: row.cm0, cm1: row.cm1, add: row.add }; delete row.rej; } else { row.rej = { by: me.id, name: me.name, at: Date.now(), why: String(b.why || '').slice(0, 200) }; delete row.ack; }

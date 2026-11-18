@@ -33,7 +33,7 @@ function cleanTank(t) {
 }
 function cleanCfg(c) {
   c = c || {}; const out = { company: str(c.company, 100), sites: [], vehicles: [] }, seen = {};
-  (Array.isArray(c.sites) ? c.sites : []).forEach(function (s) { if (s && ID.test(s.id) && !seen[s.id] && str(s.name, 80)) { seen[s.id] = 1; out.sites.push({ id: s.id, name: str(s.name, 80), tank: cleanTank(s.tank) }); } });
+  (Array.isArray(c.sites) ? c.sites : []).forEach(function (s) { if (s && ID.test(s.id) && !seen[s.id] && str(s.name, 80)) { seen[s.id] = 1; const lg = typeof s.logo === 'string' && s.logo.length <= 200000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(s.logo) ? s.logo : '', tl = Number(s.tol); out.sites.push({ id: s.id, name: str(s.name, 80), tank: cleanTank(s.tank), company: str(s.company, 100), meter: !!s.meter, logo: lg, tol: isFinite(tl) && tl >= 0 && tl <= 100000 && s.tol !== '' && s.tol != null ? tl : null }); } });
   const vs = {};
   (Array.isArray(c.vehicles) ? c.vehicles : []).forEach(function (v) { if (v && ID.test(v.id) && !vs[v.id] && seen[v.site] && str(v.name, 60) && cleanTank(v.tank)) { vs[v.id] = 1; out.vehicles.push({ id: v.id, name: str(v.name, 60), site: v.site, driver: str(v.driver, 40), tank: cleanTank(v.tank) }); } });
   return out;
@@ -84,13 +84,15 @@ function handle(store, user, o) {
   const issued = function (sh) { return cars.reduce(function (t, v) { const c = calc(v, sh.rows[v.id] || {}); return t + (c.add > 0 ? c.add : 0); }, 0); };
   /* shortcut: ຍອດເຫຼືອແທ່ງ ອ່ານທຸກໃບຂອງສະໜາມທຸກເທື່ອ (ມື້ລະ 1 ໄຟລ໌ນ້ອຍ) — ຖ້າເກີນຫຼາຍຮ້ອຍມື້ແລ້ວຊ້າ ໃຫ້ເກັບຍອດຍົກມາ */
   const ledger = function () {
-    let bal = 0, last = null, acc = 0; /* ຕ່າງ = ແທກຈິງ − (ແທກຄັ້ງກ່ອນ + ຮັບ − ຈ່າຍ ຕັ້ງແຕ່ນັ້ນ) — ຄັ້ງທຳອິດເປັນຖານ ບໍ່ມີຄ່າຕ່າງ */
+    let bal = 0, last = null, acc = 0, lastM = null, accO = 0; /* ຕ່າງ = ແທກຈິງ − (ແທກຄັ້ງກ່ອນ + ຮັບ − ຈ່າຍ ຕັ້ງແຕ່ນັ້ນ) — ຄັ້ງທຳອິດເປັນຖານ ບໍ່ມີຄ່າຕ່າງ */
     return store.list('d_' + site.id + '_').sort().map(function (n) {
       const d = n.slice(-10), sh = store.read(n) || { rows: {}, tank: {} }, recv = sh.tank.recv || 0, out = issued(sh);
       bal += recv - out; acc += recv - out;
       const m = liters(site.tank, sh.tank.cm); let exp = null, diff = null;
       if (m != null) { if (last != null) { exp = last + acc; diff = m - exp; } last = m; acc = 0; }
-      return { date: d, recv: recv, out: out, bal: bal, cm: sh.tank.cm, measured: m, exp: exp, diff: diff, approved: !!sh.approved };
+      const mt = sh.tank.mtr; let mused = null, mdiff = null; /* ມິເຕີ: ໃຊ້ = ເລກມື້ນີ້ − ເລກຄັ້ງກ່ອນ · ຕ່າງ = ມິເຕີນັບໄດ້ − ລິດທີ່ເບີກຕາມໃບ (ຕັ້ງແຕ່ຄັ້ງກ່ອນ) */
+      if (mt != null) { if (lastM != null) { mused = mt - lastM; mdiff = mused - (accO + out); } lastM = mt; accO = 0; } else accO += out;
+      return { date: d, recv: recv, out: out, bal: bal, cm: sh.tank.cm, measured: m, exp: exp, diff: diff, mtr: mt != null ? mt : null, mused: mused, mdiff: mdiff, approved: !!sh.approved };
     });
   };
   if (a === 'assign') { /* ມອບລົດໃຫ້ຄົນຂັບ (ຫົວໜ້າ / ເຈົ້າຂອງ) — driver = ເບີໂທ ຫຼື ວ່າງ = ຍົກເລີກ */
@@ -102,12 +104,16 @@ function handle(store, user, o) {
 
   if (!DATE.test(o.date)) return err('date');
   const key = 'd_' + site.id + '_' + o.date, pkey = 'p_' + site.id + '_' + o.date, sh = sheetOf(o.date);
+  const meterInfo = function (L, today, date) { /* ເລກມິເຕີຄັ້ງກ່ອນ + ລິດເບີກສະສົມຕັ້ງແຕ່ນັ້ນ (ໃຫ້ມືຖືຄິດເອງຕອນບໍ່ມີເນັດ) */
+    const pv = L.filter(function (x) { return x.date < date && x.mtr != null; }).pop(), base = L.filter(function (x) { return x.date < date && (!pv || x.date > pv.date); }).reduce(function (t, x) { return t + x.out; }, 0);
+    return { mprev: pv ? pv.mtr : null, mbase: pv ? base : null, mused: today ? today.mused : null, mdiff: today ? today.mdiff : null };
+  };
   const view = function () {
     const show = ownOnly ? cars.filter(function (v) { return v.driver === user.id; }) : cars;
     const L = ownOnly ? [] : ledger(), today = L.filter(function (x) { return x.date === o.date; })[0], before = L.filter(function (x) { return x.date < o.date; }).pop();
     return ok({ site: site.id, date: o.date, role: role, approved: sh.approved || null,
       rows: show.map(function (v) { const r = sh.rows[v.id] || {}, c = calc(v, r), pv = ownOnly ? null : prevOf(v, o.date); return Object.assign({ v: v.id, name: v.name, driver: v.driver, mine: v.driver === user.id }, r, c, { prev: pv, gap: pv && c.L0 != null && pv.L2 != null ? c.L0 - pv.L2 : null }); }),
-      tank: ownOnly ? null : Object.assign({}, sh.tank, { measured: liters(site.tank, sh.tank.cm), bal: today ? today.bal : before ? before.bal : 0, out: today ? today.out : 0, exp: today ? today.exp : null, diff: today ? today.diff : null }) });
+      tank: ownOnly ? null : Object.assign({}, sh.tank, meterInfo(L, today, o.date), { has: !!site.tank, meter: !!site.meter || !!site.tank, measured: liters(site.tank, sh.tank.cm), bal: today ? today.bal : before ? before.bal : 0, out: today ? today.out : 0, exp: today ? today.exp : null, diff: today ? today.diff : null }) });
   };
   if (a === 'sheet') return view();
   if (a === 'photometa') { const pm = store.read('pm_' + site.id + '_' + o.date) || {}; delete pm._log; if (ownOnly) Object.keys(pm).forEach(function (k) { if (!mine.some(function (v) { return k.indexOf(v.id + '_') === 0; })) delete pm[k]; }); return ok(pm); }
@@ -151,12 +157,12 @@ function handle(store, user, o) {
     r.by = user.id; r.at = nowMs; sh.rows[car.id] = r; store.write(key, sh); return view();
   }
   if (a === 'tank') {
-    ['cm', 'recv'].forEach(function (k) { if (k in o) { const n = num(o[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
+    ['cm', 'recv', 'mtr'].forEach(function (k) { if (k in o) { const n = num(o[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
     store.write(key, sh); return view();
   }
   if (a === 'photo') { /* key = <ລົດ>_b|a|e ຫຼື tank · data = data:image/jpeg ທີ່ແອັບຫຍໍ້ແລ້ວ */
     const m = /^([a-z0-9]{1,16})_(b|a|e)$/.exec(String(o.key || ''));
-    if (o.key !== 'tank' && !(m && cars.some(function (v) { return v.id === m[1]; }))) return err('key');
+    if (o.key !== 'tank' && o.key !== 'mtr' && !(m && cars.some(function (v) { return v.id === m[1]; }))) return err('key');
     const p = store.read(pkey) || {}, mk = 'pm_' + site.id + '_' + o.date, pm = store.read(mk) || {};
     if (!o.data) { delete p[o.key]; delete pm[o.key]; pm._log = (pm._log || []).concat({ at: nowMs, by: user.id, key: o.key, act: 'del' }).slice(-50); }
     else { if (!/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(o.data) || o.data.length > 400000) return err('image'); p[o.key] = o.data;

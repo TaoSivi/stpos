@@ -26,15 +26,22 @@ function go(v) { if (['home', 'people', 'setup', 'assign'].indexOf(v) < 0) v = '
 function refreshAll() { return Promise.all([api('userList'), api('drivers'), api('init')]).then(function (a) { if (a[0].ok) USERS = a[0].data; if (a[1].ok) DRV = a[1].data; if (a[2].ok) CFG = a[2].data.cfg || CFG; }); }
 
 /* ===== ໜ້າຫຼັກຂອງສູນຈັດການ ===== */
+function tile(t) { /* t: [go|href|act, value, icon, title, sub, chip] */ var a = t[0] === 'go' ? 'data-go' : t[0] === 'href' ? 'data-href' : 'data-act'; return '<button class="hubtile" ' + a + '="' + esc(t[1]) + '"><span class="logo">' + ic(t[2]) + '</span><span class="grow"><b>' + esc(t[3]) + '</b><span class="sub">' + esc(t[4]) + '</span>' + (t[5] || '') + '</span>' + ic('next', 'muted') + '</button>'; }
 function home() {
  var cars = CFG.vehicles, noDrv = cars.filter(function (c) { return !c.driver; }).length, people = USERS.filter(function (u) { return u.level === 'user'; }).length;
- var steps = [[CFG.sites.length > 0, 'ເພີ່ມສະໜາມ (ບ່ອນເຮັດວຽກ + ແທ່ງນ້ຳມັນ)', 'setup'], [cars.length > 0, 'ເພີ່ມລົດ ແລະ ບອກຂະໜາດຖັງ', 'setup'], [people > 0, 'ເພີ່ມຄົນ (ຄົນຂັບ, ບໍລິຫານ, HR…)', 'people'], [cars.length > 0 && noDrv === 0, 'ມອບລົດໃຫ້ຄົນຂັບ', 'assign']], all = steps.every(function (s) { return s[0]; });
- $('v').innerHTML = '<p class="hello">ສະບາຍດີ ' + esc(ME.name) + ' — ເລືອກສິ່ງທີ່ຢາກເຮັດ</p><div class="hub">' +
-  '<button class="hubtile" data-go="people"><span class="logo">' + ic('users') + '</span><span class="grow"><b>ຄົນ & ສິດ</b><span class="sub">ເພີ່ມຄົນ · ບອກວ່າເຮັດວຽກຫຍັງ ໃນແອັບນ້ຳມັນ ແລະ HR — ຄັ້ງດຽວ</span><span class="chip">' + USERS.length + ' ຄົນ</span></span>' + ic('next', 'muted') + '</button>' +
-  '<button class="hubtile" data-go="setup" style="animation-delay:70ms"><span class="logo">' + ic('pump') + '</span><span class="grow"><b>ສະໜາມ & ລົດ</b><span class="sub">ເພີ່ມສະໜາມ, ລົດ, ແລະ ຂະໜາດຖັງ</span><span class="chip">' + CFG.sites.length + ' ສະໜາມ · ' + cars.length + ' ຄັນ</span></span>' + ic('next', 'muted') + '</button>' +
-  '<button class="hubtile" data-go="assign" style="animation-delay:140ms"><span class="logo">' + ic('truck') + '</span><span class="grow"><b>ມອບລົດໃຫ້ຄົນຂັບ</b><span class="sub">ບອກວ່າໃຜຂັບລົດຄັນໃດ</span>' + (noDrv ? '<span class="chip warn">' + noDrv + ' ຄັນຍັງບໍ່ມີຄົນຂັບ</span>' : cars.length ? '<span class="chip ok">ມອບຄົບແລ້ວ</span>' : '') + '</span>' + ic('next', 'muted') + '</button></div>' +
+ var steps = [[CFG.sites.length > 0, 'ເພີ່ມສະໜາມ (ບ່ອນເຮັດວຽກ)', 'setup'], [cars.length > 0, 'ເພີ່ມລົດ ແລະ ບອກຂະໜາດຖັງ', 'setup'], [people > 0, 'ເພີ່ມຄົນ (ຄົນຂັບ, ບໍລິຫານ, HR…)', 'people'], [cars.length > 0 && noDrv === 0, 'ມອບລົດໃຫ້ຄົນຂັບ (ໃນ "ຄົນ & ສິດ")', 'people']], all = steps.every(function (s) { return s[0]; });
+ var G = [
+  ['users', 'ຄົນ & ສິດ', [['go', 'people', 'users', 'ຄົນ & ສິດ', 'ເພີ່ມຄົນ · ເລືອກວຽກ ນ້ຳມັນ / HR / SOP · ມອບລົດໃຫ້ຄົນຂັບ — ຄັ້ງດຽວ', '<span class="chip">' + USERS.length + ' ຄົນ</span>' + (noDrv ? '<span class="chip warn">' + noDrv + ' ຄັນຍັງບໍ່ມີຄົນຂັບ</span>' : '')]]],
+  ['pump', 'ໂຄງການ, ສະໜາມ & ລົດ', [['go', 'setup', 'pump', 'ສະໜາມ & ລົດ', 'ຊື່ໂຄງການ · ສະໜາມ (ຊື່ບໍລິສັດ, ໂລໂກ້, ເກນເຕືອນ) · ລົດ ແລະ ຂະໜາດຖັງ', '<span class="chip">' + CFG.sites.length + ' ສະໜາມ · ' + cars.length + ' ຄັນ</span>']]],
+  ['sheet', 'ເຊັກລິດ SOP', [['href', 'sop.html#assign', 'sheet', 'ມອບໝາຍເຊັກລິດ', 'ເລືອກວ່າໃຜຕ້ອງເຮັດໃບໃດ (ຕໍ່ມື້ / ອາທິດ / ເດືອນ / ຕໍ່ລົດ)'], ['href', 'sop.html#board', 'report', 'ກະດານຕິດຕາມ', 'ເບິ່ງວ່າໃຜເຮັດແລ້ວ / ຍັງ'], ['href', 'sop.html#edit', 'edit', 'ແກ້ລາຍການເຊັກລິດ', 'ເພີ່ມ / ລຶບ / ແກ້ຂໍ້ໃນໃບ']]],
+  ['users', 'ຕັ້ງຄ່າ HR', [['act', 'hr', 'users', 'ຕັ້ງຄ່າ HR', 'ກະ · ວັນຢຸດ · ອັດຕາ OT · ສາຂາ — ເປີດ ST HR ແລ້ວໄປເມນູ ☰']]]
+ ];
+ $('v').innerHTML = '<p class="hello">ສະບາຍດີ ' + esc(ME.name) + ' — ຕັ້ງຄ່າທຸກຢ່າງຢູ່ບ່ອນນີ້</p><label class="field" style="margin-top:0">ຄົ້ນຫາ<input type="text" id="hq" placeholder="ຢາກຕັ້ງຫຍັງ? ເຊັ່ນ ສິດ, ລົດ, ໂລໂກ້, OT, SOP" autocomplete="off"></label>' +
+  G.map(function (g) { return '<div class="hgrp"><div class="sect">' + ic(g[0]) + esc(g[1]) + '</div><div class="hub">' + g[2].map(tile).join('') + '</div></div>'; }).join('') + '<p class="empty hide" id="hnone">ບໍ່ພົບ — ລອງຄຳອື່ນ</p>' +
   '<section class="card" style="margin-top:14px"><h2>' + ic('check') + (all ? 'ທຸກຢ່າງພ້ອມແລ້ວ' : 'ເລີ່ມຕົ້ນ — ເຮັດຕາມລຳດັບ') + '</h2><ul class="todoList">' + steps.map(function (s, i) { return '<li><span class="dot' + (s[0] ? ' ok' : '') + '">' + (s[0] ? ic('check') : i + 1) + '</span><span class="grow">' + s[1] + '</span>' + (s[0] ? '' : '<button class="btn" data-go="' + s[2] + '" style="min-height:44px">ເຮັດເລີຍ</button>') + '</li>'; }).join('') + '</ul></section>';
 }
+window.MENU_HR = true; window.menuItems = function () { return [{ g: 'ຕັ້ງຄ່າ', items: [{ t: 'ພາບລວມ', ic: 'grid', cur: VIEW === 'home', act: function () { go('home'); } }, { t: 'ຄົນ & ສິດ', ic: 'users', cur: VIEW === 'people', act: function () { go('people'); } }, { t: 'ສະໜາມ & ລົດ', ic: 'pump', cur: VIEW === 'setup', act: function () { go('setup'); } }] }, { g: 'ເຊັກລິດ SOP', items: [{ t: 'ມອບໝາຍເຊັກລິດ', ic: 'sheet', href: 'sop.html#assign' }, { t: 'ກະດານຕິດຕາມ', ic: 'report', href: 'sop.html#board' }, { t: 'ແກ້ລາຍການເຊັກລິດ', ic: 'edit', href: 'sop.html#edit' }] }, { g: 'HR', items: [{ t: 'ຕັ້ງຄ່າ HR (ເປີດ ST HR)', ic: 'users', act: openHr }] }]; };
+function hubFilter(q) { q = q.trim().toLowerCase(); var any = false; document.querySelectorAll('.hgrp').forEach(function (g) { var n = 0; g.querySelectorAll('.hubtile').forEach(function (t) { var on = !q || t.textContent.toLowerCase().indexOf(q) >= 0 || g.querySelector('.sect').textContent.toLowerCase().indexOf(q) >= 0; t.style.display = on ? '' : 'none'; if (on) n++; }); g.style.display = n ? '' : 'none'; if (n) any = true; }); var z = $('hnone'); if (z) z.classList.toggle('hide', any); }
 
 /* ===== ຄົນ & ສິດ ===== */
 function chips(u) {
@@ -59,6 +66,7 @@ function summary(W) {
  if (W.level !== 'user') return ['ເຮັດໄດ້ທຸກຢ່າງ ໃນທຸກແອັບ', 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', W.level === 'superadmin' ? 'ຈັດການທຸກບັນຊີ ລວມ Admin' : 'ຈັດການບັນຊີຜູ້ໃຊ້ທົ່ວໄປ'];
  var out = [];
  if (W.fuel) { var on = fuelOn(W), lab = (SCH.fuel.rights || []).filter(function (r) { return on.indexOf(r.k) >= 0; }).map(function (r) { return r.label; }); out.push('ແອັບນ້ຳມັນ — ' + W.fuels.map(function (r) { return RN[r] || r; }).join(' + ') + (lab.length ? ': ' + lab.join(' · ') : ' (ຍັງບໍ່ໄດ້ຕິກສິດໃດ)')); }
+ if (W.fuels.indexOf('driver') >= 0) out.push('ຄົນຂັບລົດ: ' + (W.cars.length ? CFG.vehicles.filter(function (v) { return W.cars.indexOf(v.id) >= 0; }).map(function (v) { return v.name; }).join(', ') : 'ຍັງບໍ່ໄດ້ເລືອກລົດ'));
  if (W.hrRole) { var h = hrOn(W), base = hrPreset(W.hrRole), add = h.filter(function (k) { return base.indexOf(k) < 0; }).length, del = base.filter(function (k) { return h.indexOf(k) < 0; }).length; out.push('ແອັບ HR — ' + (HRN[W.hrRole] || W.hrRole) + ' (' + h.length + ' ສິດ' + (add || del ? ', ປັບ +' + add + ' / −' + del : '') + ')'); }
  W.apps.forEach(function (id) { out.push(catName(id) + ' — ເຂົ້າໃຊ້ໄດ້'); });
  return out;
@@ -78,7 +86,9 @@ function wizard(u) {
  var W = { isNew: isNew, phone: u.phone || '', name: u.name || '', pin: '', level: u.level, fuel: u.fuel || '', fuels: fuelsOf(u), approve: !!u.approver, advF: Array.isArray(u.fuelRights) ? u.fuelRights : null, hrRole: u.hr ? (u.hrRole || 'employee') : '', advH: Array.isArray(u.hrRights) ? u.hrRights : null, sites: (u.sites || []).slice(), apps: (u.apps || []).slice(), active: u.active !== false }, step = isNew ? 0 : 1, err = '';
  var m = modal('<div id="wz"></div>');
  var lv = ME.level;
- function stepList() { return ['ໃຜ', 'ວຽກ'].concat(needSites(W) ? ['ສະໜາມ'] : [], ['ກວດ']); }
+ W.cars = CFG.vehicles.filter(function (v) { return u.phone && v.driver === u.phone; }).map(function (v) { return v.id; });
+ function isDrv() { return W.level === 'user' && W.fuels.indexOf('driver') >= 0; }
+ function stepList() { return ['ໃຜ', 'ວຽກ'].concat(isDrv() ? ['ລົດ'] : [], needSites(W) ? ['ສະໜາມ'] : [], ['ກວດ']); }
  function check(i) {
   var k = stepList()[i];
   if (k === 'ໃຜ') { if (!W.name.trim()) return 'ກະລຸນາໃສ່ຊື່'; if (isNew && W.phone.replace(/\D/g, '').length < 8) return 'ເບີໂທຕ້ອງມີຢ່າງໜ້ອຍ 8 ໂຕເລກ'; if ((isNew || W.pin) && !/^\d{4,8}$/.test(W.pin)) return 'PIN ຕ້ອງເປັນຕົວເລກ 4 ຫາ 8 ໂຕ'; }
@@ -103,6 +113,7 @@ function wizard(u) {
    if (lv === 'superadmin') h += '<details class="adv"><summary>ເຮັດໃຫ້ຄົນນີ້ເປັນແອດມິນ? (ສຳລັບເຈົ້າຂອງ)</summary>' + lvCards + '</details>';
    return h;
   }
+  if (k === 'ລົດ') return '<div class="q">ຄົນນີ້ຂັບລົດຄັນໃດ?</div><p class="qs">ແຕະເລືອກລົດ — ຄົນຂັບຈະເຫັນສະເພາະລົດຂອງຕົນ. ລົດ 1 ຄັນມີຄົນຂັບໄດ້ 1 ຄົນ.</p>' + (CFG.vehicles.map(function (v) { var on = W.cars.indexOf(v.id) >= 0, o = v.driver && v.driver !== W.phone ? ' · ຕອນນີ້: ' + nameOf(v.driver) : ''; return '<button type="button" class="sitecard" role="checkbox" aria-checked="' + on + '" data-car="' + esc(v.id) + '"><span class="cb">' + (on ? ic('check') : '') + '</span><span><b>' + esc(v.name) + '</b><small style="display:block">' + esc(siteName(v.site) + o) + '</small></span></button>'; }).join('') || '<p class="chip warn">ຍັງບໍ່ມີລົດ — ປິດໜ້ານີ້ ແລ້ວໄປ "ສະໜາມ & ລົດ" ເພີ່ມກ່ອນ (ຂ້າມໄດ້)</p>');
   if (k === 'ສະໜາມ') return '<div class="q">ເຮັດວຽກຢູ່ສະໜາມໃດ?</div><p class="qs">ແຕະເລືອກສະໜາມທີ່ຄົນນີ້ດູແລ' + (W.fuel === 'driver' ? ' (ຄົນຂັບປົກກະຕິຂ້າມໄດ້ — ເຫັນລົດຂອງຕົນຢູ່ແລ້ວ)' : '') + '.</p>' + (CFG.sites.map(function (s) { var on = W.sites.indexOf(s.id) >= 0; return '<button type="button" class="sitecard" role="checkbox" aria-checked="' + on + '" data-site="' + esc(s.id) + '"><span class="cb">' + (on ? ic('check') : '') + '</span><b>' + esc(s.name) + '</b></button>'; }).join('') || '<p class="chip warn">ຍັງບໍ່ມີສະໜາມ — ປິດໜ້ານີ້ ແລ້ວໄປ "ສະໜາມ & ລົດ" ເພີ່ມກ່ອນ</p>');
   /* ກວດ */ var pl = summary(W);
   return '<div class="q">ກວດອີກຄັ້ງ</div><p class="qs">ຖ້າຖືກຕ້ອງ ກົດ "ບັນທຶກ".</p><div class="card" style="box-shadow:none;border:1px solid var(--line)"><div class="row"><span class="avatar" style="border-radius:50%">' + initial(W.name) + '</span><div><b style="font-size:18px">' + esc(W.name) + '</b><div class="muted">' + esc(W.phone) + '</div></div></div><ul style="margin:10px 0 0;padding-left:20px;line-height:1.7">' + (pl.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') || '<li>ຍັງບໍ່ໄດ້ເລືອກວຽກ</li>') + '</ul></div>' + (W.hrRole && W.isNew ? '<p class="hint">ບັນທຶກແລ້ວ ລະບົບຈະສ້າງຄົນນີ້ໃນ HR ໃຫ້ເອງ — ບໍ່ຕ້ອງເພີ່ມຊ້ຳ.</p>' : '');
@@ -126,7 +137,8 @@ function wizard(u) {
   btn.disabled = true; api('userSave', { user: d }).then(function (r) {
    btn.disabled = false; if (!r.ok) { err = ERR[r.error] || 'ບັນທຶກບໍ່ໄດ້ — ກວດຂໍ້ມູນອີກຄັ້ງ'; paint(); return; }
    m.remove(); var h = r.data && r.data.hr; toast((isNew ? 'ເພີ່ມ ' : 'ບັນທຶກ ') + W.name + ' ແລ້ວ ✓' + (h === 'ok' ? ' · ສ້າງໃນ HR ແລ້ວ' : ''), h === 'error' ? 'bad' : 'ok'); if (h === 'error') toast('ອັບເດດ HR ບໍ່ສຳເລັດ — ກົດບັນທຶກໃໝ່', 'bad');
-   refreshAll().then(function () { if (VIEW === 'people') people(); else go(VIEW); });
+   var ph = (r.data && r.data.phone) || W.phone, own = isDrv() ? W.cars : [], jobs = CFG.vehicles.filter(function (v) { return own.indexOf(v.id) >= 0 ? v.driver !== ph : v.driver === ph; }).map(function (v) { return api('assign', { site: v.site, v: v.id, driver: own.indexOf(v.id) >= 0 ? ph : '' }); });
+   Promise.all(jobs).then(function () { return refreshAll(); }).then(function () { if (VIEW === 'people') people(); else go(VIEW); });
   });
  }
  m.addEventListener('click', function (e) {
@@ -138,7 +150,8 @@ function wizard(u) {
   if (b.dataset.lv) { W.level = b.dataset.lv; err = ''; paint(); return; }
   if (b.dataset.fuel !== undefined) { var fv = b.dataset.fuel, M = ['head', 'admin', 'office']; if (!fv) W.fuels = []; else if (W.fuels.indexOf(fv) >= 0) W.fuels = W.fuels.filter(function (x) { return x !== fv; }); else W.fuels = (M.indexOf(fv) >= 0 ? W.fuels.filter(function (x) { return M.indexOf(x) < 0; }) : W.fuels).concat(fv); W.fuel = fuelMain(W.fuels); W.advF = null; W.approve = false; err = ''; paint(); return; }
   if (b.dataset.hr !== undefined) { W.hrRole = b.dataset.hr; W.advH = null; err = ''; paint(); return; }
-  if (b.dataset.site) { var i = W.sites.indexOf(b.dataset.site); if (i >= 0) W.sites.splice(i, 1); else W.sites.push(b.dataset.site); paint(); return; }
+  if (b.dataset.car) { var ci = W.cars.indexOf(b.dataset.car); if (ci >= 0) W.cars.splice(ci, 1); else W.cars.push(b.dataset.car); paint(); return; }
+  if (b.dataset.site) { var i =W.sites.indexOf(b.dataset.site); if (i >= 0) W.sites.splice(i, 1); else W.sites.push(b.dataset.site); paint(); return; }
  });
  m.addEventListener('change', function (e) {
   var t = e.target; if (t.dataset && t.dataset.t) { /* ຕິກລະອຽດ */ var z = $('wz'); W.advF = [].map.call(z.querySelectorAll('input[data-t="f"]:checked'), function (x) { return x.value; }); if (SCH.hr) { var l = []; z.querySelectorAll('input[data-t^="h:"]:checked').forEach(function (x) { l.push(x.value); }); W.advH = l; } if (!z.querySelector('input[data-t="f"]')) W.advF = null; return; }
@@ -152,8 +165,8 @@ function tankText(t) { if (!t) return '–'; return t.t === 'hcyl' ? 'ຖັງ�
 function saveCfg(next, done) { api('cfgSave', { cfg: next }).then(function (r) { if (!r.ok) return; CFG = r.data; toast('ບັນທຶກແລ້ວ ✓', 'ok'); if (done) done(); if (VIEW === 'setup') setup(); }); }
 function setup() {
  $('v').innerHTML = BACKB + '<h1 style="margin:0 0 10px">ສະໜາມ & ລົດ</h1>' +
-  '<section class="card"><label class="field" style="margin-top:0">ຊື່ບໍລິສັດ <small>ສະແດງຢູ່ຫົວລາຍງານ</small><input type="text" id="co" maxlength="100" value="' + esc(CFG.company) + '"></label><button class="btn line" id="cosave" style="min-height:48px">ບັນທຶກຊື່</button></section>' +
-  '<section class="card"><h2>' + ic('drop') + 'ສະໜາມ</h2><p class="hint" style="margin:0">ສະໜາມ = ບ່ອນເຮັດວຽກ ທີ່ມີແທ່ງນ້ຳມັນ 1 ແທ່ງ</p>' + (CFG.sites.map(function (s) { var n = CFG.vehicles.filter(function (v) { return v.site === s.id; }).length; return '<div class="itemrow"><span class="grow"><b>' + esc(s.name) + '</b><small>' + esc(tankText(s.tank)) + ' · ' + n + ' ຄັນ</small></span><button class="btn line" data-site-edit="' + esc(s.id) + '">ແກ້ໄຂ</button></div>'; }).join('') || '<div class="empty" style="padding:14px">ຍັງບໍ່ມີສະໜາມ</div>') + '<button class="btn ok bigbtn" id="site-add" style="margin-top:12px">' + ic('plus') + 'ເພີ່ມສະໜາມ</button></section>' +
+  '<section class="card"><label class="field" style="margin-top:0">ຊື່ໂຄງການ <small>ສະແດງຢູ່ຫົວລາຍງານ</small><input type="text" id="co" maxlength="100" value="' + esc(CFG.company) + '"></label><button class="btn line" id="cosave" style="min-height:48px">ບັນທຶກຊື່</button></section>' +
+  '<section class="card"><h2>' + ic('drop') + 'ສະໜາມ</h2><p class="hint" style="margin:0">ສະໜາມ = ບ່ອນເຮັດວຽກ (ໃສ່ແຕ່ຊື່). ຖັງນ້ຳມັນໃສ່ຢູ່ລົດ.</p>' + (CFG.sites.map(function (s) { var n = CFG.vehicles.filter(function (v) { return v.site === s.id; }).length; return '<div class="itemrow"><span class="grow"><b>' + esc(s.name) + '</b><small>' + n + ' ຄັນ</small></span><button class="btn line" data-site-edit="' + esc(s.id) + '">ແກ້ໄຂ</button></div>'; }).join('') || '<div class="empty" style="padding:14px">ຍັງບໍ່ມີສະໜາມ</div>') + '<button class="btn ok bigbtn" id="site-add" style="margin-top:12px">' + ic('plus') + 'ເພີ່ມສະໜາມ</button></section>' +
   '<section class="card"><h2>' + ic('truck') + 'ລົດ / ເຄື່ອງຈັກ</h2>' + (CFG.vehicles.map(function (v) { return '<div class="itemrow"><span class="grow"><b>' + esc(v.name) + '</b><small>' + esc(siteName(v.site)) + ' · ຄົນຂັບ: ' + esc(nameOf(v.driver) || 'ຍັງບໍ່ມີ') + ' · ' + esc(tankText(v.tank)) + '</small></span><button class="btn line" data-car-edit="' + esc(v.id) + '">ແກ້ໄຂ</button></div>'; }).join('') || '<div class="empty" style="padding:14px">ຍັງບໍ່ມີລົດ</div>') + (CFG.sites.length ? '<button class="btn ok bigbtn" id="car-add" style="margin-top:12px">' + ic('plus') + 'ເພີ່ມລົດ</button>' : '<p class="chip warn" style="margin-top:10px">ເພີ່ມສະໜາມກ່ອນ ຈຶ່ງເພີ່ມລົດໄດ້</p>') + '</section>';
 }
 /* ຕົວຊ່ວຍເລືອກຮູບຖັງ + ທົດສອບລິດທັນທີ */
@@ -172,22 +185,26 @@ function tankPicker(t) {
 }
 function confirmBox(title, text, okText, fn) { var m = modal('<h2>' + esc(title) + '</h2><p>' + esc(text) + '</p><div class="bar2"><button class="btn line grow" id="c-no">ບໍ່</button><button class="btn bad grow" id="c-yes" style="background:var(--bad);color:#fff">' + esc(okText) + '</button></div>'); m.querySelector('#c-no').onclick = function () { m.remove(); }; m.querySelector('#c-yes').onclick = function () { m.remove(); fn(); }; }
 function siteForm(s) {
- var isNew = !s, m = modal('<h2>' + ic('drop') + (isNew ? 'ເພີ່ມສະໜາມ' : 'ແກ້ໄຂສະໜາມ') + '</h2><label class="field">ຊື່ສະໜາມ<input type="text" id="s-name" maxlength="80" value="' + esc(s ? s.name : '') + '" placeholder="ເຊັ່ນ ບ້ານນາເລີດ"></label><div class="sect">' + ic('drop') + 'ແທ່ງນ້ຳມັນຂອງສະໜາມ ເປັນແບບໃດ?</div><div id="s-tank"></div><div class="err2" id="s-err" role="alert"></div><div class="bar2"><button class="btn line grow" id="s-cancel">ຍົກເລີກ</button><button class="btn ok grow" id="s-save">' + ic('check') + 'ບັນທຶກ</button></div>' + (isNew ? '' : '<button class="btn bad blk" id="s-del" style="margin-top:12px">ລຶບສະໜາມນີ້</button>'));
- var tp = tankPicker(s && s.tank); m.querySelector('#s-tank').appendChild(tp.el); m.querySelector('#s-cancel').onclick = function () { m.remove(); };
+ var isNew = !s, m = modal('<h2>' + ic('drop') + (isNew ? 'ເພີ່ມສະໜາມ' : 'ແກ້ໄຂສະໜາມ') + '</h2><label class="field">ຊື່ສະໜາມ<input type="text" id="s-name" maxlength="80" value="' + esc(s ? s.name : '') + '" placeholder="ເຊັ່ນ ບ້ານນາເລີດ"></label><label class="field">ຊື່ບໍລິສັດຂອງສະໜາມນີ້ <small>ສະແດງຢູ່ຫົວລາຍງານ — ເວັ້ນໄວ້ = ໃຊ້ຊື່ໂຄງການກາງ</small><input type="text" id="s-co" maxlength="100" value="' + esc(s && s.company || '') + '"></label><div class="field">ໂລໂກ້ບໍລິສັດ <small>ສະແດງຢູ່ຫົວລາຍງານ (ໜ້າຈໍ / PDF)</small><div class="row wrap" style="align-items:center;gap:10px;margin-top:6px"><img id="s-lgv" alt="" style="max-height:56px;max-width:140px;display:none"><label class="btn line" style="min-height:44px">ເລືອກຮູບ<input type="file" accept="image/*" id="s-lgf" hidden></label><button type="button" class="btn line" id="s-lgx" style="min-height:44px">ລຶບຮູບ</button></div></div><label class="sw"><input type="checkbox" id="s-mtr"' + (s && (s.meter || s.tank) ? ' checked' : '') + '><span class="sl"></span><span class="st">ມີແທ່ງນ້ຳມັນ ແລະ ມິເຕີນັບລິດ<small>ບໍ່ແທກ cm — ບັນທຶກເລກມິເຕີທ້າຍມື້ ແລ້ວລະບົບທຽບກັບລິດທີ່ເບີກ. ປິດ = ຊື້ທີ່ປໍ້າ</small></span></label><label class="field">ເກນເຕືອນ ເມື່ອຕົວເລກຕ່າງກັນເກິນ (ລິດ)<small>ເວັ້ນໄວ້ = 20 ລິດ</small><input type="number" inputmode="decimal" min="0" id="s-tol" value="' + esc(s && s.tol != null ? s.tol : '') + '"></label><div class="err2" id="s-err" role="alert"></div><div class="bar2"><button class="btn line grow" id="s-cancel">ຍົກເລີກ</button><button class="btn ok grow" id="s-save">' + ic('check') + 'ບັນທຶກ</button></div>' + (isNew ? '' : '<button class="btn bad blk" id="s-del" style="margin-top:12px">ລຶບສະໜາມນີ້</button>'));
+ var logo = (s && s.logo) || '', lv = m.querySelector('#s-lgv'); function lgShow() { lv.style.display = logo ? '' : 'none'; if (logo) lv.src = logo; m.querySelector('#s-lgx').style.display = logo ? '' : 'none'; } lgShow();
+ m.querySelector('#s-lgx').onclick = function () { logo = ''; lgShow(); };
+ m.querySelector('#s-lgf').onchange = function (e) { var f = e.target.files[0]; if (!f) return; var im = new Image(), u = URL.createObjectURL(f); im.onload = function () { var k = Math.min(1, 240 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k)); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); var d = c.toDataURL('image/png'); if (d.length > 150000) d = c.toDataURL('image/jpeg', 0.8); URL.revokeObjectURL(u); if (d.length > 190000) { m.querySelector('#s-err').textContent = 'ຮູບໃຫຍ່ເກີນ — ເລືອກຮູບອື່ນ'; return; } m.querySelector('#s-err').textContent = ''; logo = d; lgShow(); }; im.onerror = function () { m.querySelector('#s-err').textContent = 'ເປີດຮູບນີ້ບໍ່ໄດ້'; }; im.src = u; };
+ m.querySelector('#s-cancel').onclick = function () { m.remove(); };
  m.querySelector('#s-save').onclick = function () {
-  var name = m.querySelector('#s-name').value.trim(), t = tp.get(), er = m.querySelector('#s-err'); if (!name) { er.textContent = 'ກະລຸນາໃສ່ຊື່ສະໜາມ'; return; } if (!t) { er.textContent = 'ໃສ່ຂະໜາດແທ່ງນ້ຳມັນ ໃຫ້ຄົບ'; return; }
-  var next = JSON.parse(JSON.stringify(CFG)); if (isNew) next.sites.push({ id: uid('s'), name: name, tank: t }); else next.sites.forEach(function (x) { if (x.id === s.id) { x.name = name; x.tank = t; } });
+  var name = m.querySelector('#s-name').value.trim(), er = m.querySelector('#s-err'); if (!name) { er.textContent = 'ກະລຸນາໃສ່ຊື່ສະໜາມ'; return; }
+  var ex = { meter: m.querySelector('#s-mtr').checked, company: m.querySelector('#s-co').value.trim(), logo: logo, tol: m.querySelector('#s-tol').value === '' ? null : +m.querySelector('#s-tol').value };
+  var next = JSON.parse(JSON.stringify(CFG)); if (isNew) next.sites.push(Object.assign({ id: uid('s'), name: name }, ex)); else next.sites.forEach(function (x) { if (x.id === s.id) Object.assign(x, { name: name }, ex); });
   saveCfg(next, function () { m.remove(); });
  };
  if (!isNew) m.querySelector('#s-del').onclick = function () { var n = CFG.vehicles.filter(function (v) { return v.site === s.id; }).length; confirmBox('ລຶບສະໜາມ "' + s.name + '"?', n ? 'ລົດ ' + n + ' ຄັນໃນສະໜາມນີ້ຈະຖືກລຶບນຳ. ຂໍ້ມູນໃບເກົ່າຍັງຢູ່.' : 'ລຶບສະໜາມນີ້?', 'ລຶບ', function () { var next = JSON.parse(JSON.stringify(CFG)); next.sites = next.sites.filter(function (x) { return x.id !== s.id; }); saveCfg(next, function () { m.remove(); }); }); };
 }
 function carForm(v) {
- var isNew = !v, drv = [['', 'ຍັງບໍ່ມອບ']].concat(DRV.map(function (d) { return [d.phone, d.name]; }));
- var m = modal('<h2>' + ic('truck') + (isNew ? 'ເພີ່ມລົດ' : 'ແກ້ໄຂລົດ') + '</h2><label class="field">ຊື່ລົດ / ທະບຽນ<input type="text" id="c-name" maxlength="60" value="' + esc(v ? v.name : '') + '" placeholder="ເຊັ່ນ ລົດເກດ 3069"></label><label class="field">ຢູ່ສະໜາມ<select id="c-site">' + opts(CFG.sites.map(function (s) { return [s.id, s.name]; }), v ? v.site : (CFG.sites[0] || {}).id) + '</select></label><label class="field">ຄົນຂັບ<small>ຄົນທີ່ຈະກົດຮັບຮູ້ໃນມືຖື (ເພີ່ມຄົນຂັບໃນ "ຄົນ & ສິດ" ກ່ອນ)</small><select id="c-drv">' + opts(drv, v ? v.driver : '') + '</select></label><div class="sect">' + ic('drop') + 'ຖັງນ້ຳມັນຂອງລົດ ເປັນແບບໃດ?</div><div id="c-tank"></div><div class="err2" id="c-err" role="alert"></div><div class="bar2"><button class="btn line grow" id="c-cancel">ຍົກເລີກ</button><button class="btn ok grow" id="c-save">' + ic('check') + 'ບັນທຶກ</button></div>' + (isNew ? '' : '<button class="btn bad blk" id="c-del" style="margin-top:12px">ລຶບລົດຄັນນີ້</button>'));
+ var isNew = !v;
+ var m = modal('<h2>' + ic('truck') + (isNew ? 'ເພີ່ມລົດ' : 'ແກ້ໄຂລົດ') + '</h2><label class="field">ຊື່ລົດ / ທະບຽນ<input type="text" id="c-name" maxlength="60" value="' + esc(v ? v.name : '') + '" placeholder="ເຊັ່ນ ລົດເກດ 3069"></label><label class="field">ຢູ່ສະໜາມ<select id="c-site">' + opts(CFG.sites.map(function (s) { return [s.id, s.name]; }), v ? v.site : (CFG.sites[0] || {}).id) + '</select></label><p class="hint">ມອບຄົນຂັບ: ໄປ "ຄົນ & ສິດ" → ເລືອກຄົນ → ບັດ "ຄົນຂັບລົດ" ແລ້ວແຕະເລືອກລົດ.</p><div class="sect">' + ic('drop') + 'ຖັງນ້ຳມັນຂອງລົດ ເປັນແບບໃດ?</div><div id="c-tank"></div><div class="err2" id="c-err" role="alert"></div><div class="bar2"><button class="btn line grow" id="c-cancel">ຍົກເລີກ</button><button class="btn ok grow" id="c-save">' + ic('check') + 'ບັນທຶກ</button></div>' + (isNew ? '' : '<button class="btn bad blk" id="c-del" style="margin-top:12px">ລຶບລົດຄັນນີ້</button>'));
  var tp = tankPicker(v && v.tank); m.querySelector('#c-tank').appendChild(tp.el); m.querySelector('#c-cancel').onclick = function () { m.remove(); };
  m.querySelector('#c-save').onclick = function () {
   var name = m.querySelector('#c-name').value.trim(), t = tp.get(), er = m.querySelector('#c-err'); if (!name) { er.textContent = 'ກະລຸນາໃສ່ຊື່ລົດ'; return; } if (!t) { er.textContent = 'ໃສ່ຂະໜາດຖັງ ໃຫ້ຄົບ'; return; }
-  var rec = { name: name, site: m.querySelector('#c-site').value, driver: m.querySelector('#c-drv').value, tank: t }, next = JSON.parse(JSON.stringify(CFG));
+  var rec = { name: name, site: m.querySelector('#c-site').value, tank: t }, next = JSON.parse(JSON.stringify(CFG));
   if (isNew) next.vehicles.push(Object.assign({ id: uid('v') }, rec)); else next.vehicles.forEach(function (x) { if (x.id === v.id) Object.assign(x, rec); });
   saveCfg(next, function () { m.remove(); });
  };
@@ -206,6 +223,7 @@ function assign() {
 
 /* ===== ເຫດການຮ່ວມ ===== */
 $('v').addEventListener('click', function (e) {
+ var hf = e.target.closest('[data-href]'); if (hf) { location.href = hf.dataset.href; return; } var ha = e.target.closest('[data-act]'); if (ha) { if (ha.dataset.act === 'hr') openHr(); return; }
  var g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
  var b = e.target.closest('button'); if (!b) return;
  if (b.id === 'uadd') wizard(null);
@@ -216,7 +234,7 @@ $('v').addEventListener('click', function (e) {
  else if (b.dataset.carEdit) carForm(CFG.vehicles.filter(function (v) { return v.id === b.dataset.carEdit; })[0]);
  else if (b.id === 'cosave') { var next = JSON.parse(JSON.stringify(CFG)); next.company = $('co').value; saveCfg(next); }
 });
-$('v').addEventListener('input', function (e) { if (e.target.id === 'usearch') { UQ = e.target.value; $('ulist').innerHTML = ulist(); } });
+$('v').addEventListener('input', function (e) { if (e.target.id === 'hq') hubFilter(e.target.value); if (e.target.id === 'usearch') { UQ = e.target.value; $('ulist').innerHTML = ulist(); } });
 $('v').addEventListener('change', function (e) {
  if (e.target.id === 'asite') { ASITE = e.target.value; assign(); return; }
  var id = e.target.dataset.asg; if (!id) return;
@@ -224,3 +242,5 @@ $('v').addEventListener('change', function (e) {
 });
 window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (h && h !== VIEW && ME) go(h); });
 start();
+
+window.pageBack = function () { if (VIEW !== 'home') { go('home'); return true; } return false; };

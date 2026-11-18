@@ -16,14 +16,15 @@ const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel'
  *   api: ໂມດູນຮັບ action ທີ່ຂຶ້ນຕົ້ນດ້ວຍ "<id>." ເຊັ່ນ POST /api/sop.list → mods.sop.handle('list', body, user) */
 const has = function (u, id) { return u.apps.indexOf('*') >= 0 || u.apps.indexOf(id) >= 0; };
 /* ໝວດໃນໜ້າຫຼັກ (ລຳດັບ = ລຳດັບທີ່ສະແດງ). ແອັບໃໝ່ໃສ່ cat: 'work' | 'admin' | 'docs' ຢູ່ທະບຽນດ້ານລຸ່ມ */
-const CATS = [{ id: 'work', name: 'ວຽກປະຈຳວັນ', hint: 'ແອັບທີ່ໃຊ້ທຸກມື້' }, { id: 'docs', name: 'ເອກະສານ & ຂັ້ນຕອນ', hint: 'SOP ແລະ ຄູ່ມື' }, { id: 'admin', name: 'ຈັດການ & ຕັ້ງຄ່າ', hint: 'ສຳລັບຜູ້ດູແລລະບົບ' }];
+const CATS = [{ id: 'work', name: 'ວຽກປະຈຳວັນ', hint: 'ແອັບທີ່ໃຊ້ທຸກມື້' }, { id: 'report', name: 'ລາຍງານ', hint: 'ສົ່ງອອກ Excel' }, { id: 'docs', name: 'ເອກະສານ & ຂັ້ນຕອນ', hint: 'SOP ແລະ ຄູ່ມື' }, { id: 'admin', name: 'ຈັດການ & ຕັ້ງຄ່າ', hint: 'ສຳລັບຜູ້ດູແລລະບົບ' }];
 const APPS = [
   { id: 'fuel', cat: 'work', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
   { id: 'people', cat: 'admin', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
   { id: 'hr', cat: 'work', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } },
+  { id: 'hrreport', cat: 'report', name: 'ລາຍງານ HR (Excel)', desc: function () { return 'ການເຂົ້າວຽກ · ມາຊ້າ · ລາ · OT ຕໍ່ວັນ ແລະ ສະຫຼຸບຕໍ່ຄົນ'; }, icon: 'xls', href: function () { return 'hrreport.html'; }, access: function (u) { return hr.ready() && (u.level !== 'user' || (u.hr && ['accountant', 'owner', 'auditor'].indexOf(u.hrRole) >= 0)); } },
   { id: 'sop', cat: 'docs', name: 'SOP ເຊັກລິດ', desc: function (u) { return u.level !== 'user' ? 'ມອບໝາຍເຊັກລິດ · ຕິດຕາມ · ແກ້ລາຍການ' : 'ເຊັກລິດວຽກທີ່ໄດ້ຮັບມອບໝາຍ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } }
 ];
-const MODS = { sop: require('./mod-sop').create(DATA, accounts, { vehicles: fuel.vehicles }) }; /* ໂມດູນແອັບອື່ນ: MODS.<id> = require('./mod-<id>').create(DATA, accounts) */
+const MODS = { sop: require('./mod-sop').create(DATA, accounts, { vehicles: fuel.vehicles }), hrreport: require('./mod-hrreport').create(hr) }; /* ໂມດູນແອັບອື່ນ: MODS.<id> = require('./mod-<id>').create(DATA, accounts) */
 function appsFor(u) { return APPS.filter(function (a) { return a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, cat: a.cat || 'work', href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
 const catalog = function () { return APPS.filter(function (a) { return a.generic; }).map(function (a) { return { id: a.id, name: a.name }; }); };
 
@@ -35,7 +36,7 @@ function api(action, o, ip) {
     case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), cats: CATS, catalog: u.level === 'user' ? [] : catalog() } };
     case 'pin': return accounts.changePin(u.id, o.old, o.pin);
     case 'userList': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: accounts.list(u) };
-    case 'userSave': { const r = accounts.save(o.user || {}, u); if (!r.ok) return r; const v = accounts.get(r.phone); return { ok: true, data: { hr: v && v.hr ? hr.provision(v) : 'skip' } }; } /* ບັນທຶກຄັ້ງດຽວ → ສ້າງ/ອັບເດດພະນັກງານໃນ HR ໃຫ້ເອງ */
+    case 'userSave': { const r = accounts.save(o.user || {}, u); if (!r.ok) return r; const v = accounts.get(r.phone); return { ok: true, data: { phone: r.phone, hr: v && v.hr ? hr.provision(v) : 'skip' } }; } /* ບັນທຶກຄັ້ງດຽວ → ສ້າງ/ອັບເດດພະນັກງານໃນ HR ໃຫ້ເອງ */
     case 'schema': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: { fuel: fuel.schema(), hr: hr.schema(), apps: catalog() } };
     case 'catalog': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: catalog() };
     case 'hrlogin': return hr.login(u);

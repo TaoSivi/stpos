@@ -22,6 +22,12 @@ function create(DATA) {
     avail: avail, ready: ready, code: CODE,
     setup: function (company, ownerName, pin) { memo = { v: false, t: 0 }; return x().seed(CODE, company, { name: ownerName, pin: pin }); },
     post: function (body) { return x().post(CODE, body); }, ping: function () { return x().ping(CODE); },
+    /* ສຳເນົາຂໍ້ມູນ HR ສຳລັບລາຍງານ (ອ່ານຢ່າງດຽວ ດ້ວຍ session ເຈົ້າຂອງ) — null ຖ້າຍັງບໍ່ໄດ້ສ້າງ HR */
+    snapshot: function () {
+      if (!ready()) return null; const sup = x().superSession(CODE); if (!sup) return null;
+      const get = function (c) { const r = JSON.parse(x().post(CODE, JSON.stringify({ action: 'list', token: sup.token, collection: c }))); return r.ok ? r.data.map(function (row) { return Object.assign({ id: row.id }, row.data || row); }) : []; };
+      return { employees: get('employees'), scans: get('scans'), leaves: get('leaves'), ots: get('ots'), shifts: get('shifts'), branches: get('branches'), overrides: get('overrides'), settings: get('settings')[0] || {} };
+    },
     /* ລາຍການສິດ (ແບ່ງກຸ່ມ ມີປ້າຍລາວ) + ສິດເລີ່ມຕົ້ນຂອງແຕ່ລະບົດບາດ — null ຖ້າຍັງບໍ່ໄດ້ສ້າງ HR */
     schema: function () {
       if (!ready()) return null; let s; try { s = x().schema(CODE); } catch (e) { console.error(e); return null; }

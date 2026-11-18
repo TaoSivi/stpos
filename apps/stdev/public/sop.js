@@ -15,7 +15,7 @@ function paint(html, keep) { var y = y0(); $('v').innerHTML = html; if (keep) wi
 /* ===== ເລີ່ມຕົ້ນ ===== */
 function load() { return api('sop.me').then(function (r) {
  if (!r.ok) { $('v').innerHTML = '<div class="card empty">ເຂົ້າແອັບ SOP ບໍ່ໄດ້ — ຕິດຕໍ່ຜູ້ດູແລລະບົບ</div>'; return; }
- S.me = r.data; S.admin = r.data.admin; S.id = r.data.id; render();
+ S.me = r.data; S.admin = r.data.admin; S.id = r.data.id; var ht = location.hash.slice(1); if (S.admin && !S.tabSet && ['board', 'assign', 'edit'].indexOf(ht) >= 0) S.tab = ht; S.tabSet = 1; render();
 }); }
 function render() {
  $('hd').innerHTML = header('SOP ເຊັກລິດ', S.me ? S.me.name : ''); $('lo').onclick = logout;
@@ -162,3 +162,7 @@ document.addEventListener('change', function (ev) {
 });
 function confirmBox(msg) { return new Promise(function (res) { var m = modal('<p style="font-size:16px">' + esc(msg) + '</p><div class="row" style="gap:10px"><button class="btn grow" id="cy">ຢືນຢັນ</button><button class="btn line" id="cn">ຍົກເລີກ</button></div>'); m.querySelector('#cy').onclick = function () { m.remove(); res(true); }; m.querySelector('#cn').onclick = function () { m.remove(); res(false); }; }); }
 load();
+
+window.pageBack = function () { if (S.run) { S.run = null; load(); return true; } if (S.edit) { S.edit = null; render(); return true; } if (S.admin && S.tab !== 'mine') { S.tab = 'mine'; load(); return true; } return false; };
+
+window.menuItems = function () { return S.admin ? [{ g: 'SOP', items: TABS.map(function (t) { return { t: t[1], ic: 'sheet', cur: S.tab === t[0], act: function () { S.tab = t[0]; S.run = null; S.edit = null; if (t[0] === 'mine') load(); else render(); } }; }) }] : []; };

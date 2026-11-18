@@ -29,9 +29,8 @@ var MODS = [
  { id: 'appr', t: 'ຮັບຮູ້ & ອະນຸມັດ', ic: 'shield', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { apprView(); } },
  { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { reportView(); } },
  { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites() && hasOps(); }, run: function () { ledgerLoad(); } },
- { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRight('assign'); }, run: function () { assignView(); } },
- { id: 'staff', t: 'ພະນັກງານ & ສິດ', ic: 'users', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin'; }, run: function () { location.href = 'admin.html#people'; } },
- { id: 'cfg', t: 'ຕັ້ງຄ່າ ສະໜາມ & ລົດ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.boss; }, run: function () { location.href = 'admin.html#setup'; } },
+ { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRight('assign') && I.me.level === 'user'; }, run: function () { assignView(); } },
+ { id: 'staff', t: 'ຕັ້ງຄ່າ (ຄົນ, ສິດ, ສະໜາມ, SOP, HR)', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin' || I.me.boss; }, run: function () { location.href = 'admin.html'; } },
  { id: 'me', t: 'ຂ້ອຍ', ic: 'user', g: 'ບັນຊີ', pick: 'none', show: function () { return true; }, run: function () { meView(); } }
 ];
 function vis() { return MODS.filter(function (m) { return m.show(); }); }
@@ -56,13 +55,10 @@ function buildNav() {
  $('side').innerHTML = side;
  var prim = ['dash', 'issue', 'tank', 'appr'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4);
  if (prim.length < 4) { var rp = modOf('report'); if (rp && rp.show() && prim.indexOf(rp) < 0) prim.push(rp); }
- $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span>' + (m.id === 'appr' ? '<i class="nb"></i>' : '') + '</button>'; }).join('') + '<button data-more="1">' + ic('dots') + '<span>ເພີ່ມເຕີມ</span></button>';
- $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), I.hr ? '<button class="ic" id="hrb" aria-label="ST HR">' + ic('users') + '</button>' : '');
- $('lo').onclick = logout; if ($('hrb')) $('hrb').onclick = openHr; $('sidelo').onclick = logout; if ($('sidehr')) $('sidehr').onclick = openHr;
-}
-function moreSheet() {
- var m = modal('<h2>ເມນູທັງໝົດ</h2><div class="more">' + vis().map(function (x) { return '<button data-m="' + x.id + '" aria-current="' + (x.id === MOD) + '">' + ic(x.ic) + '<span>' + esc(x.t) + '</span></button>'; }).join('') + '<button id="mhome">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></button>' + (I.hr ? '<button id="mhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button id="mlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>');
- m.onclick = function (e) { var b = e.target.closest('button'); if (e.target === m) { m.remove(); return; } if (!b) return; if (b.dataset.m) { m.remove(); go(b.dataset.m); } else if (b.id === 'mhome') location.href = 'home.html'; else if (b.id === 'mhr') openHr(); else if (b.id === 'mlo') logout(); };
+ $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span>' + (m.id === 'appr' ? '<i class="nb"></i>' : '') + '</button>'; }).join('');
+ $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), '');
+ window.MENU_HR = !!I.hr; window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
+ $('sidelo').onclick = logout; if ($('sidehr')) $('sidehr').onclick = openHr;
 }
 function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(function (b) { b.textContent = n > 0 ? n : ''; }); }
 function pendingOf(s) { return s ? s.rows.filter(function (r) { return r.add != null && !r.ack && !r.rej; }).length : 0; }
@@ -75,7 +71,7 @@ function go(id) {
  $('v').innerHTML = '<div class="skel"></div><div class="skel"></div>'; window.scrollTo(0, 0);
  m.run();
 }
-$('nav').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.more) moreSheet(); else if (b.dataset.m) go(b.dataset.m); };
+$('nav').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.m) go(b.dataset.m); };
 $('side').onclick = function (e) { var b = e.target.closest('[data-m]'); if (b) go(b.dataset.m); };
 $('site').onchange = $('date').onchange = function () { go(MOD); };
 /* ສົ່ງຄິວຄົບແລ້ວ → ໂຫຼດໜ້າໃໝ່ (ຖ້າບໍ່ໄດ້ກຳລັງພິມຢູ່) */
@@ -89,3 +85,5 @@ function withSheet(photos, cb) {
   if (photos) Promise.all([api('photos', here()), api('photometa', here())]).then(function (a) { if (a[0].ok && MOD === mine) { P = a[0].data; PM = a[1].ok ? a[1].data : {}; cb(true); } });
  });
 }
+
+window.pageBack = function () { if (hasSites() && MOD && MOD !== 'dash') { go('dash'); return true; } return false; };

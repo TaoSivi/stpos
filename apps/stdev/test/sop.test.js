@@ -83,7 +83,7 @@ VEH = [{ id: 'v1', name: 'ລົດຈິກ 1', site: 's1', driver: d1 }, { id:
   const tpl = call(sa, 'tpls').data.tpls.find(function (x) { return x.id === 'f01'; }), items = tpl.items.slice(0, 3).map(function (i) { return { id: i.id, code: i.code, text: i.text + ' (ແກ້)' }; }).concat({ text: 'ຂໍ້ໃໝ່' });
   const sv = call(ad, 'tplSave', { id: 'f01', title: 'ຮັບນ້ຳມັນ (ແກ້)', items: items }); assert.ok(sv.ok && sv.data.items.length === 4 && sv.data.edited && sv.data.title === 'ຮັບນ້ຳມັນ (ແກ້)' && /^x/.test(sv.data.items[3].id));
   assert.strictEqual(call(d2, 'open', { id: ev1.id }).data.items.length, before, 'existing runs keep their own copy'); assert.strictEqual(call(d2, 'new', { tpl: 'f01', label: 'ໃໝ່' }).data.items.length, 4, 'new runs use the edited list');
-  assert.strictEqual(call(ad, 'tplSave', { id: 'f01', items: [{ text: '  ' }] }).error, 'empty'); assert.strictEqual(call(ad, 'tplSave', { id: 'nope', items: [{ text: 'x' }] }).error, 'tpl');
+  assert.strictEqual(call(ad, 'tplSave', { id: 'f01', items: [{ text: '  ' }] }).error, 'noitems'); assert.strictEqual(call(ad, 'tplSave', { id: 'nope', items: [{ text: 'x' }] }).error, 'tpl');
   assert.strictEqual(call(ad, 'tplSave', { id: 'f01', items: [{ id: 'aa', text: 'a' }, { id: 'aa', text: 'b' }] }).error, 'item', 'duplicate ids refused');
   assert.strictEqual(call(ad, 'tplReset', { id: 'f01' }).data.items.length, 8); ok('admin edits the list; old runs are unaffected; reset restores the original');
   console.log('sop: ' + n + ' passed');

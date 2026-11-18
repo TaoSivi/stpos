@@ -93,6 +93,12 @@ const lg1 = call('off', { action: 'ledger', site: 's1' }).data.filter(function (
 call('adm', { action: 'tank', site: 's1', date: '2026-11-20', recv: 500, cm: 65 });
 const lg2 = call('off', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-20'; })[0]; assert.deepStrictEqual([lg2.exp, lg2.diff], [LL(65) + 500, -500], 'received 500 but level did not move → -500');
 assert.strictEqual(call('adm', { action: 'sheet', site: 's1', date: '2026-11-20' }).data.tank.diff, -500, 'the day sheet carries the same difference');
+/* ມິເຕີທີ່ແທ່ງ: ເລກຄັ້ງທຳອິດເປັນຖານ · ໃຊ້ = ເລກນີ້ − ເລກຄັ້ງກ່ອນ · ຕ່າງ = ໃຊ້ − ລິດທີ່ເບີກຕາມໃບ ໃນຊ່ວງນັ້ນ */
+call('adm', { action: 'tank', site: 's1', date: D, mtr: 1000 }); call('adm', { action: 'tank', site: 's1', date: '2026-11-17', mtr: 1100 });
+const mg = call('off', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.mtr != null; });
+assert.deepStrictEqual([mg[0].mused, mg[0].mdiff, mg[1].mused, mg[1].mdiff], [null, null, 100, 0], 'meter +100 and the issue sheet said 100 → difference 0');
+const mt3 = call('adm', { action: 'tank', site: 's1', date: '2026-11-19', mtr: 1140 }).data.tank;
+assert.deepStrictEqual([mt3.mprev, mt3.mused, mt3.mdiff, mt3.mbase], [1100, 40, 40, 0], 'meter moved 40 with nothing issued → +40');
 /* ກວດ cm / ປະຫວັດແກ້ / ຂອບເຂດວັນທີ / ຮູບມີເວລາ+ຜູ້ອັບ */
 const DW = '2026-11-20', rw = function (u, d, o) { return call(u, Object.assign({ action: 'row', site: 's1', date: d, v: 'v2' }, o)); };
 assert.strictEqual(rw('adm', DW, { cm0: 10, cm1: 5 }).error, 'cmorder', 'level after filling cannot be lower than before');

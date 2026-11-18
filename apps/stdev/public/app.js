@@ -19,6 +19,7 @@ var ICONS = {
  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
  shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
  edit: '<path d="M4 20h4l10-10-4-4L4 16z"/><path d="M13 7l4 4"/>',
+ menu: '<path d="M4 7h16M4 12h16M4 17h10"/>',
  dots: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
  inbox: '<path d="M4 13l2-8h12l2 8v6H4z"/><path d="M4 13h5l1 2h4l1-2h5"/>',
  key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',
@@ -32,7 +33,7 @@ function today() { return new Date(Date.now() + 7 * 36e5).toISOString().slice(0,
 function dmy(d) { return d.split('-').reverse().join('/'); }
 function shift(d, n) { return new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
 
-var ERR = { auth: 'ເຈົ້າບໍ່ມີສິດເຮັດລາຍການນີ້', locked: 'ໃບນີ້ອະນຸມັດແລ້ວ ແກ້ບໍ່ໄດ້', acked: 'ຄົນຂັບຮັບຮູ້ແລ້ວ — ຕ້ອງໃຫ້ຫົວໜ້າສະໜາມແກ້', unacked: 'ຍັງມີລົດທີ່ຄົນຂັບບໍ່ທັນຮັບຮູ້', empty: 'ຍັງບໍ່ໄດ້ກອກ cm ກ່ອນ ແລະ ຫຼັງເຕີມ', image: 'ຮູບໃຫຍ່ເກີນໄປ', run: 'ບໍ່ພົບໃບເຊັກນີ້', tpl: 'ບໍ່ພົບເຊັກລິດນີ້', label: 'ໃສ່ຊື່ກຳກັບກ່ອນ', open: 'ຍັງຕອບບໍ່ຄົບທຸກຂໍ້', note: 'ຂໍ້ທີ່ບໍ່ຜ່ານ ຕ້ອງຂຽນເຫດຜົນ', item: 'ລາຍການບໍ່ຖືກຕ້ອງ', people: 'ບໍ່ພົບພະນັກງານ ຫຼື ບັນຊີຖືກປິດ', empty: 'ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂໍ້', cmrange: 'ຄ່າ cm ເກີນຄວາມສູງຖັງ — ກວດຕົວເລກອີກຄັ້ງ', cmorder: 'cm ຫຼັງເຕີມຕ້ອງບໍ່ຕ່ຳກວ່າ cm ກ່ອນເຕີມ', future: 'ກອກລ່ວງໜ້າວັນທີບໍ່ໄດ້', old: 'ວັນທີນີ້ເກົ່າເກີນໄປ — ແກ້ຍ້ອນຫຼັງໄດ້ສະເພາະຫົວໜ້າ/ເຈົ້າຂອງ', net: 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ', phone: 'ເບີໂທຕ້ອງເປັນຕົວເລກ 8-15 ຫຼັກ', name: 'ໃສ່ຊື່', pin: 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ', oldpin: 'PIN ເກົ່າບໍ່ຖືກ', lastowner: 'ຕ້ອງມີເຈົ້າຂອງຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', role: 'ເລືອກໜ້າທີ່', level: 'ລະດັບບັນຊີບໍ່ຖືກ', noapp: 'ບັນຊີນີ້ບໍ່ມີສິດໃຊ້ແອັບນີ້', nohr: 'ຍັງບໍ່ໄດ້ສ້າງລະບົບ HR ໃນ server', lastsuper: 'ຕ້ອງມີ Super admin ຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', nomodule: 'ເລືອກຢ່າງໜ້ອຍ 1 ແອັບ (ນ້ຳມັນ ຫຼື HR)' };
+var ERR = { auth: 'ເຈົ້າບໍ່ມີສິດເຮັດລາຍການນີ້', locked: 'ໃບນີ້ອະນຸມັດແລ້ວ ແກ້ບໍ່ໄດ້', acked: 'ຄົນຂັບຮັບຮູ້ແລ້ວ — ຕ້ອງໃຫ້ຫົວໜ້າສະໜາມແກ້', unacked: 'ຍັງມີລົດທີ່ຄົນຂັບບໍ່ທັນຮັບຮູ້', empty: 'ຍັງບໍ່ໄດ້ກອກ cm ກ່ອນ ແລະ ຫຼັງເຕີມ', image: 'ຮູບໃຫຍ່ເກີນໄປ', run: 'ບໍ່ພົບໃບເຊັກນີ້', tpl: 'ບໍ່ພົບເຊັກລິດນີ້', label: 'ໃສ່ຊື່ກຳກັບກ່ອນ', open: 'ຍັງຕອບບໍ່ຄົບທຸກຂໍ້', note: 'ຂໍ້ທີ່ບໍ່ຜ່ານ ຕ້ອງຂຽນເຫດຜົນ', item: 'ລາຍການບໍ່ຖືກຕ້ອງ', people: 'ບໍ່ພົບພະນັກງານ ຫຼື ບັນຊີຖືກປິດ', noitems: 'ຕ້ອງມີຢ່າງໜ້ອຍ 1 ຂໍ້', range: 'ຊ່ວງວັນທີຍາວເກີນ (ສູງສຸດ 93 ມື້)', date: 'ວັນທີບໍ່ຖືກຕ້ອງ', noemp: 'ບໍ່ພົບພະນັກງານຕາມເງື່ອນໄຂທີ່ເລືອກ', cmrange: 'ຄ່າ cm ເກີນຄວາມສູງຖັງ — ກວດຕົວເລກອີກຄັ້ງ', cmorder: 'cm ຫຼັງເຕີມຕ້ອງບໍ່ຕ່ຳກວ່າ cm ກ່ອນເຕີມ', future: 'ກອກລ່ວງໜ້າວັນທີບໍ່ໄດ້', old: 'ວັນທີນີ້ເກົ່າເກີນໄປ — ແກ້ຍ້ອນຫຼັງໄດ້ສະເພາະຫົວໜ້າ/ເຈົ້າຂອງ', net: 'ເຊື່ອມຕໍ່ server ບໍ່ໄດ້ — ກວດອິນເຕີເນັດ', phone: 'ເບີໂທຕ້ອງເປັນຕົວເລກ 8-15 ຫຼັກ', name: 'ໃສ່ຊື່', pin: 'PIN ຕ້ອງເປັນຕົວເລກ 4-8 ຫຼັກ', oldpin: 'PIN ເກົ່າບໍ່ຖືກ', lastowner: 'ຕ້ອງມີເຈົ້າຂອງຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', role: 'ເລືອກໜ້າທີ່', level: 'ລະດັບບັນຊີບໍ່ຖືກ', noapp: 'ບັນຊີນີ້ບໍ່ມີສິດໃຊ້ແອັບນີ້', nohr: 'ຍັງບໍ່ໄດ້ສ້າງລະບົບ HR ໃນ server', lastsuper: 'ຕ້ອງມີ Super admin ຢ່າງໜ້ອຍ 1 ຄົນທີ່ເປີດໃຊ້ຢູ່', nomodule: 'ເລືອກຢ່າງໜ້ອຍ 1 ແອັບ (ນ້ຳມັນ ຫຼື HR)' };
 /* api() ແລະ logout() ຢູ່ offline.js (ຮອງຮັບຕອນບໍ່ມີເນັດ) */
 
 var _t;
@@ -73,7 +74,12 @@ function loadXlsx() { return new Promise(function (res, rej) { if (window.XLSX) 
 function exportXlsx(name, rows, widths, merges) {
  return loadXlsx().then(function () { var ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = (widths || []).map(function (w) { return { wch: w }; }); if (merges) ws['!merges'] = merges; var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31)); XLSX.writeFile(wb, name + '.xlsx'); toast('ບັນທຶກ Excel ແລ້ວ', 'ok'); }, function () { toast('ໂຫຼດຕົວສ້າງ Excel ບໍ່ໄດ້ — ຕ້ອງມີອິນເຕີເນັດ', 'bad'); });
 }
-function header(title, sub, right) { var home = /home\.html$/.test(location.pathname) ? '' : '<a class="ic" href="home.html" aria-label="ໜ້າຫຼັກ (ເລືອກແອັບ)" title="ໜ້າຫຼັກ" style="text-decoration:none">' + ic('grid') + '</a>'; return '<div class="top"><div class="in"><div class="logo float">' + ic('pump') + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + home + (right || '') + '<button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>'; }
+function header(title, sub, right) { /* ໜ້າຫຼັກ: ໂລໂກ້ + ອອກຈາກລະບົບ · ໜ້າອື່ນ: ☰ ເມນູ (ຊ້າຍ) · ຊື່ · ກັບຄືນ (ຂວາ) — ຮູບແບບດຽວກັບແອັບ HR */
+ var pg = location.pathname.split('/').pop(), logo = ({ 'sop.html': 'sheet', 'hrreport.html': 'xls', 'admin.html': 'key', 'home.html': 'grid' })[pg] || 'pump';
+ window.__hdr = { title: title, sub: sub || '', logo: logo };
+ if (pg === 'home.html') return '<div class="top"><div class="in"><div class="logo float">' + ic(logo) + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>';
+ return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
+}
 
 /* ===== ແອັບໃນມືຖື (PWA): ລົງທະບຽນ service worker + ຊ່ວຍຕິດຕັ້ງ ===== */
 if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
@@ -94,7 +100,39 @@ function openHr() {
   if (!r.ok) return; var h = r.data.hr, url = location.origin + '/api/hr';
   ls('sthr-sheets-info', null); ls('sthr-sheets-logins', null);
   ls('sthr-server', JSON.stringify({ kind: 'sheets', url: url, key: '' })); ls('sthr-sheets-token', h.token);
-  ls('sthr-sheets-me', JSON.stringify({ member: h.member, company: h.company })); ls('sthr-online', h.member.companyId);
+  ls('sthr-sheets-me', JSON.stringify({ member: h.member, company: h.company })); ls('sthr-online', h.member.companyId); ls('sthr-gate-at', String(Date.now()));
   location.href = '/hr/?server=' + encodeURIComponent(url);
  });
 }
+
+
+/* ===== ປຸ່ມ/ທ່າປັດ "ກັບຄືນ" — iPhone/iPad ທີ່ເປີດເປັນແອັບ (ໜ້າຈໍຫຼັກ) ບໍ່ມີປຸ່ມຍ້ອນກັບ ແລະ ປັດຂ້າງບໍ່ໄດ້
+ * ລຳດັບ: ປິດໜ້າຕ່າງທີ່ເປີດຢູ່ (ກົດປຸ່ມ ຍົກເລີກ ຂອງມັນ) → ຂັ້ນເທິງຂອງໜ້ານັ້ນ (window.pageBack) → ໜ້າຫຼັກ */
+function goBack() {
+ var dr = document.querySelector('.drawer-back'); if (dr) { dr.remove(); return; }
+ var ms = document.querySelectorAll('.mask'), m = ms[ms.length - 1];
+ if (m) { var b = m.querySelector('#w-back') || [].slice.call(m.querySelectorAll('button')).filter(function (x) { return /ຍົກເລີກ|ປິດ|^ບໍ່$|ກັບ/.test(x.textContent.trim()); })[0]; if (b) b.click(); else m.remove(); return; }
+ if (window.pageBack && window.pageBack()) return;
+ if (!/home\.html$/.test(location.pathname)) location.href = 'home.html';
+}
+document.addEventListener('click', function (e) { if (e.target.closest('#hb')) goBack(); });
+(function () { /* ທ່າປັດຈາກຂອບຊ້າຍ → ກັບ (ສະເພາະ iOS ທີ່ເປີດເປັນແອັບ; ໃນ Safari ປົກກະຕິມີທ່າປັດຂອງຕົນເອງ) */
+ var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), x0 = null, y0 = 0;
+ if (!ios || !navigator.standalone) return;
+ document.addEventListener('touchstart', function (e) { var t = e.touches[0]; x0 = t.clientX < 24 ? t.clientX : null; y0 = t.clientY; }, { passive: true });
+ document.addEventListener('touchend', function (e) { if (x0 == null) return; var t = e.changedTouches[0], dx = t.clientX - x0, dy = Math.abs(t.clientY - y0); x0 = null; if (dx > 70 && dy < 60) goBack(); }, { passive: true });
+})();
+
+/* ===== ເມນູ ☰ (drawer) ຮ່ວມທຸກໜ້າ — ໜ້າໃດຢາກມີລາຍການຂອງຕົນ ໃຫ້ກຳນົດ window.menuItems() = [{g:'ຫົວຂໍ້', items:[{t, ic, cur, act | href}]}] ແລະ window.MENU_HR = true ຖ້າມີ HR ===== */
+function openMenu() {
+ var H = window.__hdr || {}, items = window.menuItems ? window.menuItems() : [], d = document.createElement('div'), h = '<aside class="drawer" aria-label="ເມນູ"><div class="dr-head"><span class="logo">' + ic(H.logo || 'pump') + '</span><div><b>' + esc(H.title || '') + '</b><small>' + esc(H.sub || '') + '</small></div></div>';
+ items.forEach(function (g, gi) { h += (g.g ? '<div class="dr-grp">' + esc(g.g) + '</div>' : '') + g.items.map(function (it, ii) { return '<button class="dr-item" data-gi="' + gi + '" data-ii="' + ii + '" aria-current="' + !!it.cur + '">' + ic(it.ic || 'grid') + '<span>' + esc(it.t) + '</span></button>'; }).join(''); });
+ h += '<div class="dr-foot"><a class="dr-item" href="home.html">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + (window.MENU_HR ? '<button class="dr-item" id="dhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="dr-item" id="dlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div></aside>';
+ d.className = 'drawer-back'; d.innerHTML = h; document.body.appendChild(d); setTimeout(function () { d.classList.add('on'); }, 20);
+ d.onclick = function (e) {
+  if (e.target === d) { d.remove(); return; } var b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'dhr') { openHr(); return; } if (b.id === 'dlo') { logout(); return; }
+  if (b.dataset.gi != null) { var it = items[+b.dataset.gi].items[+b.dataset.ii]; d.remove(); if (it.href) location.href = it.href; else if (it.act) it.act(); }
+ };
+}
+document.addEventListener('click', function (e) { if (e.target.closest('#mb')) openMenu(); });

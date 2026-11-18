@@ -49,6 +49,6 @@ api('init').then(function (r) {
  if (!r.ok) return; ME = r.data.me; CFG = r.data.cfg;
  if (!Object.keys(ME.roles).some(function (s) { return ME.roles[s] === 'driver'; }) && Object.keys(ME.roles).length) { location.href = 'office.html'; return; }
  $('hd').innerHTML = header('ຮັບຮູ້ການເຕີມນ້ຳມັນ', ME.name, r.data.hr ? '<button class="ic" id="hrb" aria-label="ST HR">' + ic('users') + '</button>' : '');
- $('lo').onclick = logout; if ($('hrb')) $('hrb').onclick = openHr; load();
+ window.MENU_HR = !!r.data.hr; $('lo').onclick = logout; if ($('hrb')) $('hrb').onclick = openHr; load();
  $('v').insertAdjacentHTML('afterend', '<div id="inst"></div>'); installHint('inst');
 });

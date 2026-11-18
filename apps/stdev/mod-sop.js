@@ -136,7 +136,7 @@ function create(DATA, accounts, opts) {
         const text = str(i.text, 600); if (!text) return null; const id = /^[a-z0-9]{1,12}$/i.test(i.id || '') ? i.id : 'x' + nowMs().toString(36) + n;
         return { id: id, code: str(i.code, 12), sec: str(i.sec, 60), text: text, by: str(i.by, 80), co: str(i.co, 80), doc: str(i.doc, 100), gate: !!i.gate };
       }).filter(Boolean);
-      if (!items.length) return err('empty');
+      if (!items.length) return err('noitems');
       const seen = {}; for (let i = 0; i < items.length; i++) { if (seen[items[i].id]) return err('item'); seen[items[i].id] = 1; }
       const ov = read('templates.json', {}); ov[t.id] = { title: str(o.title, 100) || t.title, items: items }; write('templates.json', ov); return ok(tplOf(t.id));
     }

@@ -68,6 +68,14 @@ cd "ST POS/apps/stdev" && npm test
 
 - ສ່ວນຕ່າງຂ້າມຄືນ: ແຕ່ລະແຖວລົດມີ `prev` (cm2 ມື້ກ່ອນທີ່ເຄີຍບັນທຶກ, ≤14 ໄຟລ໌ຍ້ອນຫຼັງ) ແລະ `gap` = L(cm0 ມື້ນີ້) − L(cm2 ມື້ກ່ອນ); ເກີນ `Tank.GAP` (10 L) ເຕືອນໃນພາບລວມ. cm0 ຍັງຕ້ອງແທກ/ກອກເອງທຸກມື້ (ບໍ່ເຕີມໃຫ້ອັດຕະໂນມັດ — ເຈົ້າຂອງຕ້ອງການໃຫ້ເຫັນສ່ວນຕ່າງ).
 
+- **ລາຍງານ HR (Excel)** (ໝວດ "ລາຍງານ"): `hr-report.js` ຄິດແຖວຕໍ່ຄົນຕໍ່ວັນ (ອ່ານ HR ຜ່ານ `hr.snapshot()` ໃນ mod-hr.js) + `xlsx.js` (ຕົວຂຽນ xlsx ບໍ່ມີ dependency) + `mod-hrreport.js` (`hrreport.info|build`) + ໜ້າ `public/hrreport.html|js`. ແບບຕາມໄຟລ໌ຕົວຢ່າງ "Time for Jun.xlsx" (ຖັນ A..BA: ຂໍ້ມູນ, ເຂົ້າ/ອອກ, ພັກ, ລາ, OT, ເວລາຈິງ, ຊົ່ວໂມງຄິດເງິນ, ພາບລວມ) + ແຜ່ນ "ສະຫຼຸບ". ຮອບ 26→25. ສິດ: admin ຂຶ້ນໄປ ຫຼື HR ບັນຊີ/ເຈົ້າຂອງ/ຜູ້ກວດ. ບໍ່ມີເງິນເດືອນ/ເງິນ OT. ເທສ `test/hrreport.test.js`.
+- ແກ້ບັກ: ຂໍ້ຄວາມຜິດພາດ `empty` ຂອງນ້ຳມັນ (ກອກ cm) ຖືກ SOP ທັບ — SOP ປ່ຽນເປັນ `noitems`.
+
+- **ປະຕູ HR** `apps/hr/hr-gate.js` (ໂຫຼດແທນ module ຫຼັກໃນ `apps/hr/index.html` ຜ່ານ `data-main`): ບໍ່ໃຫ້ເຫັນໜ້າ login ຂອງ HR — ມີ session ກາງ → ຂໍ session HR ເອງ (`/api/hrlogin`, ໃໝ່ທຸກ 12 ຊມ); ບໍ່ມີ → ໜ້າ login ກາງ; session HR ຫາຍກາງຄັນ → ໜ້າຫຼັກ. ຖ້າສ້າງ HR build ໃໝ່ ຕ້ອງແກ້ `data-main` ໃຫ້ຕົງຊື່ `assets/index-*.js`. ອັບໂຫຼດໄປ `public_html/hr/` (index.html + hr-gate.js).
+
+- **ເມນູ "ລາຍງານ HR (Excel)" ໃນ HR**: `apps/hr/hr-report-link.js` (ໂຫຼດໃນ index.html) ແຊກປຸ່ມໃສ່ເມນູ ☰ ຂອງ HR (`aside.drawer`, ກຸ່ມ "ລາຍງານ ແລະ ການອະນຸມັດ") ສຳລັບຄົນທີ່ມີສິດ (ກວດ `/api/hrreport.info`) → ໄປ `/hrreport.html?from=hr` ມີປຸ່ມກັບ HR. ຖ້າ HR build ໃໝ່ປ່ຽນ class ເມນູ ຕ້ອງປັບໄຟລ໌ນີ້.
+- ປັບດີໄຊນ໌: ໂລໂກ້ຫົວຕາມແອັບ (header ໃນ app.js), ຕົວອັກສອນຕ່ຳສຸດ 13px + ສີ muted ເຂັ້ມຂຶ້ນ, ອະນິເມຊັນສັ້ນລົງ + ເຄົາລົບ prefers-reduced-motion, SOP 2 ຖັນເທິງຈໍກວ້າງ (≥1000px). ບັກທີ່ແກ້: ຕົວອັກສອນ backspace (0x08) ຫຼຸດເຂົ້າ regex ເພາະ `` ໃນ Python string.
+
 ## 7. ຂໍ້ຈຳກັດທີ່ບອກເຈົ້າຂອງແລ້ວ
 - ປິດບັນຊີກາງ ບໍ່ຕັດ session HR ທີ່ອອກໄປແລ້ວ
 - ພະນັກງານ HR ເດີມ (ST-001, ST-000) ບໍ່ໄດ້ຜູກກັບບັນຊີກາງ
