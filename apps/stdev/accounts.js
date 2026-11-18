@@ -8,7 +8,7 @@
  * ຂໍ້ມູນ: DATA/users.json (PIN ເກັບແບບ scrypt) · DATA/secret.key */
 'use strict';
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const LEVELS = ['superadmin', 'admin', 'user'], FUEL_ROLES = ['driver', 'admin', 'head', 'office'], HR_ROLES = ['employee', 'head', 'accountant', 'auditor'];
+const LEVELS = ['superadmin', 'admin', 'user'], FUEL_ROLES = ['driver', 'admin', 'head', 'office', 'tech'], HR_ROLES = ['employee', 'head', 'accountant', 'auditor'];
 
 function create(DATA) {
   const USERS = path.join(DATA, 'users.json');

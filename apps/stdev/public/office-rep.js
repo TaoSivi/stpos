@@ -18,7 +18,7 @@ function drawReport() {
   '<div class="sign"><div>ບໍລິຫານສະໜາມ<br><br><br>(..............................)</div><div>ຜູ້ອະນຸມັດ<br><br>' + (S.approved ? '✓ ອະນຸມັດ ' + when(S.approved.at) + '<br>( ' + esc(S.approved.name) + ' )' : '<span class="chip warn">ຍັງບໍ່ອະນຸມັດ</span><br>(..............................)') + '</div></div>' + exportBar() + '</section>';
 }
 function xlsReport() {
- var t = totals(), src = function (r) { return r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : 'ແທ່ງ'; };
+ var t = totals(), src = function (r) { return r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ'; };
  var rows = [[coName()], ['ໃບຕິດຕາມ ຮັບ ແລະ ເບີກຈ່າຍນ້ຳມັນ ປະຈຳວັນ'], ['ໂຄງການ: ' + siteObj().name + ' · ປະຈຳວັນທີ: ' + dmy(S.date)], [],
   ['ລ/ດ', 'ປະເພດລົດ', 'ກ່ອນເຕີມ (L)', 'ກ່ອນເຕີມ (cm)', 'ເຕີມ (L)', 'ເຕີມຈາກ', 'ຫຼັງເຕີມ (cm)', 'ລວມໃນລົດ (L)', 'ຕອນແລງ (cm)', 'ຄ້າງຖັງ (L)', 'ໃຊ້ຕົວຈິງ (L)', 'ຄົນຂັບຮັບຮູ້', 'ເວລາຮັບຮູ້', 'ໝາຍເຫດ']];
  S.rows.forEach(function (r, i) { rows.push([i + 1, r.name, r.L0, r.cm0, r.add, src(r), r.cm1, r.L1, r.cm2, r.L2, r.used, r.ack ? r.ack.name : r.rej ? 'ບໍ່ຍອມຮັບ: ' + r.rej.why : '', r.ack ? when(r.ack.at) : '', r.note || '']); });
@@ -40,6 +40,7 @@ function xlsLedger() { /* ແບບຟອມ "ຕິດຕາມນ້ຳມັ�
  LEDGER.forEach(function (x) {
   var note = x.measured != null ? 'ແທກແທ່ງໄດ້ ' + Math.round(x.measured) + ' L' + (x.diff != null ? ' (ຕ່າງ ' + (x.diff > 0 ? '+' : '') + Math.round(x.diff) + ')' : '') : x.mtr != null ? 'ມິເຕີ ' + x.mtr + (x.mused != null ? ' (ໃຊ້ ' + Math.round(x.mused) + (x.mdiff != null ? ', ຕ່າງ ' + (x.mdiff > 0 ? '+' : '') + Math.round(x.mdiff) : '') + ')' : '') : '', last = x.out > 0 ? 'out' : 'in';
   if (x.recv > 0) { bal += x.recv; tr += x.recv; rows.push([++n, dmy(x.date), pump ? 'ຊື້ນ້ຳມັນທີ່ປໍ້າ' : 'ຮັບນ້ຳມັນລົງສະໜາມເພີ່ມ', 'ລິດ', '', x.recv, '', bal, last === 'in' ? note : '']); }
+  if (x.shop > 0) rows.push([++n, dmy(x.date), 'ເຕີມຈາກຮ້ານ/ປໍ້າອື່ນ (ບໍ່ຫັກແທ່ງ)', 'ລິດ', '', '', '', bal, x.shop + ' L']);
   if (x.out > 0) { bal -= x.out; to += x.out; rows.push([++n, dmy(x.date), 'ຈ່າຍນ້ຳມັນອອກສະໜາມ', 'ລິດ', '', '', x.out, bal, note]); }
   if (!(x.recv > 0) && !(x.out > 0) && note) rows.push([++n, dmy(x.date), 'ແທກແທ່ງ', 'ລິດ', '', '', '', bal, note]);
  });

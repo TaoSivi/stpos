@@ -1,6 +1,6 @@
 /* ຕົວຊ່ວຍຮ່ວມ ໜ້າ "ພະນັກງານ & ສິດ" ແລະ ໜ້າ "ຂ້ອຍ": ຊື່ໜ້າທີ່, ຄຳອະທິບາຍສິດ, ຕາຕະລາງສິດ (ສິດຈິງກວດຢູ່ server) */
 'use strict';
-var RN = { owner: 'ເຈົ້າຂອງ', head: 'ຫົວໜ້າສະໜາມ', admin: 'ບໍລິຫານສະໜາມ', office: 'ຫ້ອງການ', driver: 'ຄົນຂັບ', boss: 'ເຈົ້າຂອງ' };
+var RN = { owner: 'ເຈົ້າຂອງ', head: 'ຫົວໜ້າສະໜາມ', tech: 'ວິຊາການ', admin: 'ບໍລິຫານສະໜາມ', office: 'ຫ້ອງການ', driver: 'ຄົນຂັບ', boss: 'ເຈົ້າຂອງ' };
 var LVN = { superadmin: 'Super admin', admin: 'Admin', user: 'ຜູ້ໃຊ້' };
 var HRN = { employee: 'ພະນັກງານ', head: 'ຫົວໜ້າ', accountant: 'ບັນຊີ', auditor: 'ຜູ້ກວດສອບ', owner: 'ເຈົ້າຂອງ HR' };
 function opts(list, sel) { return list.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === sel ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join(''); }

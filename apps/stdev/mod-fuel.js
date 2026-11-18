@@ -18,7 +18,7 @@ function create(DATA, accounts) {
     if (!user.fuel) return { ok: false, error: 'noapp' };
     if (action === 'drivers') { /* ລາຍຊື່ຄົນຂັບ ໃຫ້ຜູ້ມອບລົດ — ຄົນຂັບເອງບໍ່ເຫັນ */
       if (user.fuel !== 'owner' && core.rightsFor(fuelUser(user)).indexOf('assign') < 0) return { ok: false, error: 'auth' }; const all = accounts.users();
-      return { ok: true, data: Object.keys(all).filter(function (k) { return all[k].level === 'user' && all[k].active && (all[k].fuel === 'driver' || (all[k].fuel && Array.isArray(all[k].fuelRights) && all[k].fuelRights.indexOf('ack') >= 0)); }).map(function (k) { return { phone: k, name: all[k].name }; }) };
+      return { ok: true, data: Object.keys(all).filter(function (k) { return all[k].level === 'user' && all[k].active && !!all[k].fuel; }).map(function (k) { return { phone: k, name: all[k].name }; }) };
     }
     if (action === 'pending') { /* ຕົວເລກເທິງໄອຄອນແອັບ: ລາຍການລໍຂ້ອຍຮັບຮູ້ (ຄົນຂັບ) + ຖືກປະຕິເສດ (ຜູ້ບໍລິຫານ) ຂອງວັນນີ້ ແລະ ມື້ວານ */
       const me = fuelUser(user), init = core.handle(store, me, { action: 'init' }); if (!init.ok) return init;
@@ -30,7 +30,11 @@ function create(DATA, accounts) {
       }); });
       return { ok: true, data: { wait: wait, rej: rej, n: wait + rej } };
     }
-    return core.handle(store, fuelUser(user), Object.assign({}, o, { action: action }));
+    const r = core.handle(store, fuelUser(user), Object.assign({}, o, { action: action }));
+    if (action === 'assign' && r.ok && o.driver) { /* ມອບລົດໃຫ້ໃຜ ຄົນນັ້ນຕ້ອງມີສິດ "ຮັບຮູ້" — ເຕີມໃຫ້ເອງ (ບໍ່ຕ້ອງໄປຕິກໃນ ຄົນ & ສິດ) */
+      const d = accounts.get(String(o.driver)); if (d && d.fuel && d.level === 'user') { const rs = core.rightsFor(fuelUser(d)); if (rs.indexOf('ack') < 0) accounts.save({ phone: String(o.driver), fuelRights: rs.concat('ack') }, null); }
+    }
+    return r;
   }
   /* ຜູ້ໃຊ້ນີ້ເຂົ້າໜ້າບໍລິຫານ (office) ໄດ້ບໍ — ບໍ່ແມ່ນຮັບຮູ້ຢ່າງດຽວ */
   const ops = function (u) { return !!u.fuel && (u.fuel === 'owner' || core.rightsFor(fuelUser(u)).some(function (k) { return core.OPS.indexOf(k) >= 0; })); };

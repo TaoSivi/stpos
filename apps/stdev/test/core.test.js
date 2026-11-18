@@ -99,6 +99,12 @@ const mg = call('off', { action: 'ledger', site: 's1' }).data.filter(function (x
 assert.deepStrictEqual([mg[0].mused, mg[0].mdiff, mg[1].mused, mg[1].mdiff], [null, null, 100, 0], 'meter +100 and the issue sheet said 100 → difference 0');
 const mt3 = call('adm', { action: 'tank', site: 's1', date: '2026-11-19', mtr: 1140 }).data.tank;
 assert.deepStrictEqual([mt3.mprev, mt3.mused, mt3.mdiff, mt3.mbase], [1100, 40, 40, 0], 'meter moved 40 with nothing issued → +40');
+/* ເຕີມຈາກຮ້ານ/ປໍ້າອື່ນ: ນັບລິດເຕີມ ແຕ່ບໍ່ຫັກຈາກແທ່ງຂອງສະໜາມ */
+const sb = call('adm', { action: 'sheet', site: 's1', date: '2026-11-18' }).data.tank, outB = sb.out;
+call('adm', { action: 'row', site: 's1', date: '2026-11-18', v: 'v2', cm0: 10, cm1: 40, src: 'shop', shop: 'ປໍ້າ ABC' });
+const sa = call('adm', { action: 'sheet', site: 's1', date: '2026-11-18' }).data, v2 = sa.rows.filter(function (x) { return x.v === 'v2'; })[0];
+assert.deepStrictEqual([v2.add, v2.src, v2.shop, sa.tank.out], [150, 'shop', 'ປໍ້າ ABC', outB], 'shop fill is counted for the car (+150 L) but not deducted from the site tank');
+assert.strictEqual(call('off', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-18'; })[0].shop, 150, 'ledger shows the shop litres separately');
 /* ກວດ cm / ປະຫວັດແກ້ / ຂອບເຂດວັນທີ / ຮູບມີເວລາ+ຜູ້ອັບ */
 const DW = '2026-11-20', rw = function (u, d, o) { return call(u, Object.assign({ action: 'row', site: 's1', date: d, v: 'v2' }, o)); };
 assert.strictEqual(rw('adm', DW, { cm0: 10, cm1: 5 }).error, 'cmorder', 'level after filling cannot be lower than before');
@@ -123,6 +129,65 @@ assert.ok(PG('2026-11-15', { cm0: 25 }).ok); g0 = rowOf('adm', '2026-11-15'); as
 assert.ok(PG('2026-11-15', { cm0: 30 }).ok); assert.strictEqual(rowOf('adm', '2026-11-15').gap, 0, 'same level = no difference');
 assert.ok(rowOf('drv', '2026-11-15').prev === null, 'drivers do not see the comparison');
 assert.strictEqual(rowOf('adm', '2026-11-14').prev, null, 'first day has nothing to compare with');
+/* ເຕີມຫຼາຍຮອບຕໍ່ມື້: ຮອບ 2 ເກັບເປັນ v1_r2 · ໃຊ້ຕົວຈິງ = Σ(ຫຼັງເຕີມ − ກ່ອນເຕີມຮອບຖັດໄປ) + (ຫຼັງເຕີມຮອບສຸດທ້າຍ − ຕອນແລງ) · ຄົນຂັບຮັບຮູ້ທຸກຮອບ */
+const DR = '2026-11-15', SR = { site: 's1', date: DR };
+call('adm', Object.assign({ action: 'row', v: 'v1', cm0: 10, cm1: 30, cm2: 15 }, SR));
+assert.strictEqual(call('adm', Object.assign({ action: 'row', v: 'v1_r3', cm0: 1 }, SR)).error, 'vehicle', 'round 3 needs round 2 first');
+assert.strictEqual(call('drv', Object.assign({ action: 'row', v: 'v1_r2', cm0: 12 }, SR)).error, 'auth', 'a driver cannot start another fill');
+call('adm', Object.assign({ action: 'row', v: 'v1_r2', cm0: 12, cm1: 32, src: 'shop', shop: 'ປໍ້າ B' }, SR));
+const rr = call('adm', Object.assign({ action: 'sheet' }, SR)).data, r1 = rr.rows.filter(function (x) { return x.v === 'v1'; })[0], r2 = rr.rows.filter(function (x) { return x.v === 'v1_r2'; })[0];
+assert.deepStrictEqual([r2.base, r2.round, r1.add, r2.add, r1.used, r2.used, rr.tank.out], ['v1', 2, 100, 100, 175, null, 100], 'two fills (200 L), chain used 175 L, only the tank fill (100 L) is deducted from the site tank');
+assert.ok(call('head', Object.assign({ action: 'approve', yes: 1 }, SR)).error === 'unacked', 'every round must be acknowledged before approval');
+assert.ok(call('drv', Object.assign({ action: 'ack', v: 'v1', yes: 1 }, SR)).ok && call('drv', Object.assign({ action: 'ack', v: 'v1_r2', yes: 1 }, SR)).ok, 'the driver acknowledges each round');
+assert.strictEqual(call('drv', Object.assign({ action: 'sheet' }, SR)).data.rows.length, 2, 'the driver sees both rounds');
+assert.ok(call('adm', Object.assign({ action: 'row', v: 'v1_r2', del: 1 }, SR)).error === 'acked', 'an acknowledged round cannot be deleted by staff without the fix right');
+/* ຫົວໜ້າທີ່ເປັນຄົນຂັບຂອງລົດຄັນໜຶ່ງ ຮັບຮູ້ລົດຂອງຕົນໄດ້ (ບໍ່ຕ້ອງຕິກສິດ ack) ແຕ່ຮັບຮູ້ລົດຂອງຄົນອື່ນບໍ່ໄດ້ */
+call('boss', { action: 'assign', site: 's1', v: 'v2', driver: 'u3' });
+call('adm', Object.assign({ action: 'row', v: 'v2', cm0: 5, cm1: 25 }, SR));
+assert.ok(call('head', Object.assign({ action: 'ack', v: 'v2', yes: 1 }, SR)).ok, 'a head who is assigned as the driver can acknowledge his own car');
+assert.strictEqual(call('head', Object.assign({ action: 'ack', v: 'v1', yes: 1 }, SR)).error, 'auth', 'but not a car assigned to someone else');
+/* ===== ຂັ້ນຕອນຄຳຂໍນ້ຳມັນ: ວິຊາການຂໍ → ບໍລິຫານອະນຸມັດ (ແຫຼ່ງ + ລິດ) → ເຕີມ → ຄົນຂັບຮັບຮູ້ → ອະນຸມັດໃບ ===== */
+(function () {
+  const cfgQ = { sites: [{ id: 's1', name: 'ນາເລີດ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }, { id: 's2', name: 'ກິ່ວເກຍ', tank: { t: 'lpc', k: 10 } }], vehicles: [{ id: 'v1', name: 'ລົດເກດ', site: 's1', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'v2', name: 'ລົດຈົກ', site: 's1', driver: 'u5', tank: { t: 'lpc', k: 5 } }] };
+  call('boss', { action: 'cfgSave', cfg: cfgQ });
+  U.tech = { id: 'u9', role: 'tech', sites: ['s1'], name: 'ວິຊາການ' };
+  const DQ = '2026-11-13', SQ = { site: 's1', date: DQ};
+  assert.strictEqual(call('adm', Object.assign({ action: 'row', v: 'v1', cm0: 10 }, SQ)).error, 'norq', 'on a request-site a fill cannot start without an approved request');
+  assert.strictEqual(call('drv', Object.assign({ action: 'rqNew', v: 'v1', lit: 100 }, SQ)).error, 'auth', 'a driver cannot ask for fuel');
+  const ti = call('tech', { action: 'init' }).data; assert.deepStrictEqual([ti.me.rights.s1, ti.cfg.vehicles.length], [['request'], 2], 'technical staff see the cars to ask for');
+  assert.strictEqual(call('tech', Object.assign({ action: 'sheet' }, SQ)).data.rows.length, 0, 'technical staff do not see issue sheets');
+  assert.strictEqual(call('tech', { action: 'ledger', site: 's1' }).error, 'auth', 'nor the tank ledger');
+  assert.strictEqual(call('tech', Object.assign({ action: 'rqNew', v: 'v1', lit: 0 }, SQ)).error, 'lit');
+  const n1 = call('tech', Object.assign({ action: 'rqNew', v: 'v1', lit: 200, note: 'ຂຸດດິນ' }, SQ)).data.reqs; assert.strictEqual(n1.length, 1);
+  const id1 = n1[0].id, st = function (x) { return call('head', Object.assign({ action: 'sheet' }, SQ)).data.reqs.filter(function (r) { return r.id === x; })[0]; };
+  assert.strictEqual(st(id1).state, 'pending');
+  assert.strictEqual(call('tech', Object.assign({ action: 'rqDecide', id: id1, yes: 1 }, SQ)).error, 'auth', 'technical staff cannot approve their own request');
+  assert.strictEqual(call('adm', Object.assign({ action: 'rqStart', id: id1 }, SQ)).error, 'rqstate', 'a pending request cannot be filled');
+  assert.strictEqual(call('head', Object.assign({ action: 'approve', yes: 1 }, SQ)).error, 'openrq', 'the day cannot be approved while a request is still open');
+  assert.ok(call('head', Object.assign({ action: 'rqDecide', id: id1, yes: 1, lit: 150, src: 'shop', shop: 'ປໍ້າ ABC' }, SQ)).ok);
+  assert.deepStrictEqual([st(id1).state, st(id1).ok.lit, st(id1).ok.src], ['approved', 150, 'shop'], 'the approver may change the litres and picks the source');
+  assert.ok(call('adm', Object.assign({ action: 'rqStart', id: id1 }, SQ)).ok);
+  let rw = call('adm', Object.assign({ action: 'sheet' }, SQ)).data.rows.filter(function (x) { return x.v === 'v1'; })[0]; assert.deepStrictEqual([rw.src, rw.shop, rw.rqi.ask, rw.rqi.ok], ['shop', 'ປໍ້າ ABC', 200, 150], 'the fill row carries the approved source');
+  call('adm', Object.assign({ action: 'row', v: 'v1', cm0: 10, cm1: 40, src: 'tank' }, SQ));
+  rw = call('adm', Object.assign({ action: 'sheet' }, SQ)).data.rows.filter(function (x) { return x.v === 'v1'; })[0]; assert.strictEqual(rw.src, 'shop', 'staff without the fix right cannot change the approved source');
+  assert.strictEqual(st(id1).state, 'done');
+  /* ຕ້ອງຄົນຂັບຮັບຮູ້ ແລ້ວຈຶ່ງອະນຸມັດໃບ; ຄຳຂໍທີ່ປະຕິເສດ/ຍົກເລີກ ບໍ່ກີດ */
+  const n2 = call('tech', Object.assign({ action: 'rqNew', v: 'v2', lit: 50 }, SQ)).data.reqs.filter(function (r) { return r.v === 'v2'; })[0];
+  assert.ok(call('head', Object.assign({ action: 'rqDecide', id: n2.id, yes: 0, why: 'ບໍ່ຈຳເປັນ' }, SQ)).ok); assert.strictEqual(call('head', Object.assign({ action: 'rqStart', id: n2.id }, SQ)).error, 'rqstate');
+  assert.strictEqual(call('head', Object.assign({ action: 'approve', yes: 1 }, SQ)).error, 'unacked');
+  assert.ok(call('drv', Object.assign({ action: 'ack', v: 'v1', yes: 1 }, SQ)).ok);
+  assert.ok(call('head', Object.assign({ action: 'approve', yes: 1 }, SQ)).ok, 'all acknowledged and no open request → the day can be approved');
+  /* ເຕີມດ່ວນ: ສິດ urgent ເທົ່ານັ້ນ, ເກັບເປັນຄຳຂໍ "ດ່ວນ" */
+  call('head', Object.assign({ action: 'approve', yes: 0 }, SQ));
+  assert.strictEqual(call('adm', Object.assign({ action: 'rqUrgent', v: 'v2' }, SQ)).error, 'auth', 'admin without the urgent right cannot start an urgent fill');
+  const ur = call('head', Object.assign({ action: 'rqUrgent', v: 'v2', src: 'tank' }, SQ)).data; const ux = ur.reqs.filter(function (r) { return r.urgent; })[0];
+  assert.deepStrictEqual([ux.urgent, ux.state === 'filling', ur.rows.filter(function (x) { return x.v === 'v2'; })[0].rqi.urgent], [true, true, true], 'urgent fill is recorded as an urgent request');
+  /* ຄຳຂໍທີ່ຍົກເລີກ: ຜູ້ຂໍຍົກເລີກໄດ້ສະເພາະທີ່ລໍ */
+  const n3 = call('tech', Object.assign({ action: 'rqNew', v: 'v1', lit: 30 }, SQ)).data.reqs.filter(function (r) { return r.lit === 30; })[0];
+  assert.ok(call('tech', Object.assign({ action: 'rqCancel', id: n3.id }, SQ)).ok); assert.strictEqual(st(n3.id).state, 'cancel');
+  assert.strictEqual(call('boss', { action: 'rqNew', v: 'v1', lit: 10, site: 's2', date: DQ }).error, 'rqoff', 'sites without the switch keep the old way');
+  console.log('fuel: request workflow passed');
+})();
 console.log('fuel: all passed');
 
 /* ມອບລົດ: ຫົວໜ້າ/ເຈົ້າຂອງເທົ່ານັ້ນ · ຄົນຂັບໃໝ່ເຫັນລົດທັນທີ, ຄົນເກົ່າບໍ່ເຫັນ · ບໍລິຫານ/ຫ້ອງການເຫັນລາຍການລົດ+ຄົນຂັບ (ບໍ່ເຫັນຂະໜາດຖັງ) */
@@ -196,6 +261,19 @@ console.log('fuel: all passed');
   U.u4x = { id: 'u4', role: 'driver', rights: ['ack', 'issue', 'view'], sites: [], name: 'ລົມ' }; assert.strictEqual(call('u4x', row).error, 'auth'); assert.strictEqual(call('u4x', { action: 'ledger', site: 's1' }).error, 'auth');
   /* ບໍ່ມີຕິກຫຍັງ = ເຂົ້າສະໜາມບໍ່ໄດ້ຫຍັງ; init ບອກສິດຕໍ່ສະໜາມ */
   mk('none', 'admin', []); assert.strictEqual(call('none', { action: 'sheet', site: 's1', date: D }).data.rows.length, 0, 'no ticks = sees only own cars (none)'); assert.strictEqual(call('none', { action: 'ledger', site: 's1' }).error, 'auth');
-  const ri = call('aView', { action: 'init' }).data.me.rights; assert.deepStrictEqual(ri.s1, ['view', 'tank'], 'init tells the UI the rights per site'); assert.deepStrictEqual(call('drv', { action: 'init' }).data.me.rights.s1, ['ack']); assert.strictEqual(call('boss', { action: 'init' }).data.me.rights.s1.length, 7);
+  const ri = call('aView', { action: 'init' }).data.me.rights; assert.deepStrictEqual(ri.s1, ['view', 'tank'], 'init tells the UI the rights per site'); assert.deepStrictEqual(call('drv', { action: 'init' }).data.me.rights.s1, ['ack']); assert.strictEqual(call('boss', { action: 'init' }).data.me.rights.s1.length, F.KEYS.length);
   console.log('fuel: tick rights passed');
+})();
+
+/* ຮັບເຂົ້າແທ່ງຫຼາຍຄັ້ງຕໍ່ມື້ */
+(function () {
+  const S2 = { site: 's1', date: '2026-11-16' };
+  call('boss', Object.assign({ action: 'tank', recv: 4000 }, S2)); /* ຂໍ້ມູນເກົ່າ: recv ຄ່າດຽວ */
+  let t = call('boss', Object.assign({ action: 'tank', add: { lit: 2000, from: 'ແທ່ງສະໜາມອື່ນ' } }, S2)).data.tank;
+  assert.strictEqual(t.recv, 6000, 'legacy 4000 migrated + 2000 added'); assert.strictEqual(t.recvs.length, 2);
+  assert.strictEqual(call('boss', Object.assign({ action: 'tank', add: { lit: 0 } }, S2)).error, 'lit');
+  assert.ok(call('boss', Object.assign({ action: 'photo', key: 'tank_' + t.recvs[1].id, data: 'data:image/jpeg;base64,AAAA' }, S2)).ok, 'photo per receipt');
+  t = call('boss', Object.assign({ action: 'tank', del: t.recvs[1].id }, S2)).data.tank;
+  assert.strictEqual(t.recv, 4000); assert.strictEqual(call('boss', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-16'; })[0].recv, 4000, 'ledger uses the sum');
+  console.log('fuel: multi receipts passed');
 })();

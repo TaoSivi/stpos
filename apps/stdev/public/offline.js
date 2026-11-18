@@ -35,19 +35,27 @@ function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,err
   if (action === 'photo') { if (b.data) ph[b.key] = b.data; else delete ph[b.key]; return kv.set(rkey('photos', b), ph).then(function () { return { ok: true, data: 1, queued: true }; }); }
   if (!sh || !me) return { ok: false, error: 'net' };
   var site = ((cfg && cfg.sites) || []).filter(function (s) { return s.id === b.site; })[0] || {}, car = ((cfg && cfg.vehicles) || []).filter(function (v) { return v.id === b.v; })[0], row = sh.rows.filter(function (r) { return r.v === b.v; })[0];
-  var sumOut = function () { return sh.rows.reduce(function (t, r) { return t + (r.add > 0 ? r.add : 0); }, 0); };
+  var sumOut = function () { return sh.rows.reduce(function (t, r) { return t + (r.add > 0 && r.src !== 'shop' ? r.add : 0); }, 0); };
+  var vm = /^(.+)_r([2-9])$/.exec(String(b.v || '')); /* ຮອບເຕີມທີ 2, 3… ຂອງລົດດຽວກັນ (ເບິ່ງ fuel-core: <ລົດ>_r2) */
+  if (!car && vm) { var bc = ((cfg && cfg.vehicles) || []).filter(function (v) { return v.id === vm[1]; })[0]; if (bc) { car = Object.assign({}, bc, { id: b.v, round: +vm[2], name: bc.name + ' · ເຕີມຄັ້ງທີ ' + vm[2] }); if (!row && action === 'row' && !b.del) { row = { v: b.v, name: car.name, driver: bc.driver, mine: bc.driver === me.id, base: bc.id, round: +vm[2] }; sh.rows.push(row); } } }
+  if (action === 'row' && b.del && vm && row) { sh.rows = sh.rows.filter(function (r) { return r.v !== b.v; }); if (sh.tank) { var d0 = sh.tank.out, d1 = sumOut(); sh.tank.bal += d0 - d1; sh.tank.out = d1; mcalc(sh.tank); } return kv.set(rkey('sheet', b), sh).then(function () { return { ok: true, data: sh, queued: true }; }); }
+  if (action === 'row' && vm) delete b.cm2;
   if (action === 'row') {
    if (!car || !row) return { ok: false, error: 'vehicle' };
-   var fill = ['cm0', 'cm1'].some(function (k) { return k in b && num(b[k]) !== (row[k] == null ? null : row[k]); }) || ('src' in b && (b.src === 'jug' ? 'jug' : 'tank') !== (row.src || 'tank'));
+   var fill = ['cm0', 'cm1'].some(function (k) { return k in b && num(b[k]) !== (row[k] == null ? null : row[k]); }) || ('src' in b && (b.src === 'jug' ? 'jug' : b.src === 'shop' ? 'shop' : 'tank') !== (row.src || 'tank'));
    var nrow = Object.assign({}, row); ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in b) { var n0 = num(b[k]); if (n0 == null) delete nrow[k]; else nrow[k] = n0; } });
    var bad = Tank.check(car.tank, nrow); if (bad) return { ok: false, error: bad };
    if (fill) { delete row.ack; delete row.rej; }
    ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete row[k]; else row[k] = n; } });
-   if ('src' in b) row.src = b.src === 'jug' ? 'jug' : 'tank'; if ('note' in b) row.note = String(b.note || '').slice(0, 200); calcRow(car, row);
+   if ('src' in b) row.src = b.src === 'jug' ? 'jug' : b.src === 'shop' ? 'shop' : 'tank'; if ('shop' in b) row.shop = String(b.shop || '').replace(/[<>]/g, '').slice(0, 60); if ('note' in b) row.note = String(b.note || '').slice(0, 200); calcRow(car, row);
    if (sh.tank) { var out0 = sh.tank.out, out1 = sumOut(); sh.tank.bal += out0 - out1; sh.tank.out = out1; mcalc(sh.tank); }
   } else if (action === 'tank') {
    if (!sh.tank) return { ok: false, error: 'auth' }; var recv0 = sh.tank.recv || 0;
-   ['cm', 'recv', 'mtr'].forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
+   ['cm', 'mtr'].concat(Array.isArray(sh.tank.recvs) ? [] : ['recv']).forEach(function (k) { if (k in b) { var n = num(b[k]); if (n == null) delete sh.tank[k]; else sh.tank[k] = n; } });
+   if (b.add || b.del) { var tk = sh.tank; if (!Array.isArray(tk.recvs)) tk.recvs = tk.recv > 0 ? [{ id: 'r0', lit: tk.recv, from: '', note: '' }] : [];
+    if (b.add) { var al = num(b.add.lit); if (!(al > 0)) return { ok: false, error: 'lit' }; tk.recvs.push({ id: 'r' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36), lit: al, from: String(b.add.from || '').replace(/[<>]/g, '').slice(0, 60), note: String(b.add.note || '').replace(/[<>]/g, '').slice(0, 200) }); }
+    if (b.del) tk.recvs = tk.recvs.filter(function (r) { return r.id !== b.del; });
+    tk.recv = tk.recvs.reduce(function (s, r) { return s + r.lit; }, 0); }
    sh.tank.bal += (sh.tank.recv || 0) - recv0; sh.tank.measured = Tank.liters(site.tank, sh.tank.cm); mcalc(sh.tank);
   } else if (action === 'ack') {
    if (!row || row.add == null) return { ok: false, error: 'empty' };
