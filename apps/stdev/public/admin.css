@@ -14,7 +14,7 @@
 .back:hover{background:var(--ok-bg)}
 .bigbtn{min-height:56px;font-size:17px;border-radius:18px;width:100%}
 .steps{display:flex;gap:6px;margin:4px 0 14px}
-.steps button{flex:1;min-height:44px;border:0;border-radius:14px;background:#eaf0f0;color:var(--muted);font-weight:700;font-size:13px;padding:4px}
+.steps button{flex:1;min-height:44px;border:0;border-radius:14px;background:#eaf0f0;color:var(--muted);font-weight:700;font-size:14px;padding:4px}
 .steps button[aria-current=true]{background:var(--primary);color:#fff}.steps button.done{background:var(--ok-bg);color:var(--primary)}
 .q{font-size:22px;font-weight:800;margin:4px 0 4px}.qs{color:var(--muted);margin:0 0 12px}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.rgrid{grid-template-columns:1fr}}
@@ -23,7 +23,7 @@
 .rcard[aria-checked=true]{border-color:var(--primary);background:var(--ok-bg)}
 .rcard .ri{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#eef4f4;color:var(--primary);flex:0 0 40px}
 .rcard[aria-checked=true] .ri{background:var(--primary);color:#fff}
-.rcard b{display:block;font-size:16px}.rcard small{color:var(--muted);font-size:13px;line-height:1.35;display:block}
+.rcard b{display:block;font-size:16px}.rcard small{color:var(--muted);font-size:14px;line-height:1.35;display:block}
 .sect{font-weight:800;margin:16px 0 6px;display:flex;align-items:center;gap:8px}
 .sect svg{color:var(--primary)}
 .field{display:block;font-weight:700;margin:10px 0}.field small{display:block;font-weight:400;color:var(--muted)}
@@ -42,3 +42,7 @@
 .adv{margin-top:14px;border:1px dashed var(--line-2);border-radius:18px;padding:4px 12px}
 .adv summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--muted)}
 .hello{font-size:15px;color:var(--muted);margin:0 0 10px}
+
+/* ໜ້າຈໍກວ້າງ (iPad ແນວນອນ / ຄອມ): ສູນຈັດການ 2 ຖັນ */
+.hubtile{border:1px solid var(--line)}
+@media(min-width:900px){main{max-width:1040px}.hub{grid-template-columns:1fr 1fr}.top .in{max-width:1040px}}

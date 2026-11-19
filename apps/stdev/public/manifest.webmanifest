@@ -1,13 +1,13 @@
 {
-  "name": "ນ້ຳມັນສະໜາມ",
-  "short_name": "ນ້ຳມັນ",
-  "description": "ເບີກຈ່າຍນ້ຳມັນສະໜາມ ແທກຖັງ ຄົນຂັບຮັບຮູ້",
+  "name": "LTG Track",
+  "short_name": "LTG Track",
+  "description": "LaoTai Group — ນ້ຳມັນສະໜາມ · HR · SOP",
   "lang": "lo",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b2f2d",
+  "background_color": "#e6e9ec",
   "theme_color": "#0b2f2d",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

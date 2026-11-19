@@ -17,7 +17,7 @@ function create(DATA, accounts) {
   function handle(action, o, user) {
     if (!user.fuel) return { ok: false, error: 'noapp' };
     if (action === 'drivers') { /* ລາຍຊື່ຄົນຂັບ ໃຫ້ຜູ້ມອບລົດ — ຄົນຂັບເອງບໍ່ເຫັນ */
-      if (user.fuel !== 'owner' && core.rightsFor(fuelUser(user)).indexOf('assign') < 0) return { ok: false, error: 'auth' }; const all = accounts.users();
+      if (user.fuel !== 'owner' && ['assign', 'request'].every(function (k) { return core.rightsFor(fuelUser(user)).indexOf(k) < 0; })) return { ok: false, error: 'auth' }; const all = accounts.users(); /* ຜູ້ມອບລົດ ແລະ ວິຊາການ (ເລືອກຄົນຂັບແທນ) */
       return { ok: true, data: Object.keys(all).filter(function (k) { return all[k].level === 'user' && all[k].active && !!all[k].fuel; }).map(function (k) { return { phone: k, name: all[k].name }; }) };
     }
     if (action === 'pending') { /* ຕົວເລກເທິງໄອຄອນແອັບ: ລາຍການລໍຂ້ອຍຮັບຮູ້ (ຄົນຂັບ) + ຖືກປະຕິເສດ (ຜູ້ບໍລິຫານ) ຂອງວັນນີ້ ແລະ ມື້ວານ */
@@ -30,6 +30,7 @@ function create(DATA, accounts) {
       }); });
       return { ok: true, data: { wait: wait, rej: rej, n: wait + rej } };
     }
+    if (action === 'subDriver' && o.driver) { const all = accounts.users(), u = all[o.driver]; if (!u || u.level !== 'user' || !u.active || !u.fuel) return { ok: false, error: 'driver' }; } /* ຄົນແທນຕ້ອງເປັນຄົນຂັບທີ່ມີບັນຊີນ້ຳມັນ */
     const r = core.handle(store, fuelUser(user), Object.assign({}, o, { action: action }));
     if (action === 'assign' && r.ok && o.driver) { /* ມອບລົດໃຫ້ໃຜ ຄົນນັ້ນຕ້ອງມີສິດ "ຮັບຮູ້" — ເຕີມໃຫ້ເອງ (ບໍ່ຕ້ອງໄປຕິກໃນ ຄົນ & ສິດ) */
       const d = accounts.get(String(o.driver)); if (d && d.fuel && d.level === 'user') { const rs = core.rightsFor(fuelUser(d)); if (rs.indexOf('ack') < 0) accounts.save({ phone: String(o.driver), fuelRights: rs.concat('ack') }, null); }

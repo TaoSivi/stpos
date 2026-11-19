@@ -49,7 +49,7 @@ function api(action, o, ip) {
 }
 
 /* ===== HTTP ===== */
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json' };
 const HEAD = { 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'no-referrer', 'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'" };
 const send = function (res, code, body, type) { res.writeHead(code, Object.assign({ 'Content-Type': (type || 'text/plain') + '; charset=utf-8', 'Cache-Control': 'no-store' }, HEAD)); res.end(body); };
 function readBody(req, res, max, cb) { const ch = []; let size = 0, dead = false; req.on('data', function (c) { size += c.length; if (size > max) { dead = true; send(res, 413, 'too large'); req.destroy(); } else ch.push(c); }); req.on('end', function () { if (!dead) cb(Buffer.concat(ch).toString('utf8')); }); }

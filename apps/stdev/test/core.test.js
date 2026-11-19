@@ -4,7 +4,8 @@ const assert = require('assert'), F = require('../fuel-core');
 const mem = {}, store = { read: function (n) { return mem[n] ? JSON.parse(mem[n]) : null; }, write: function (n, v) { mem[n] = JSON.stringify(v); }, list: function (p) { return Object.keys(mem).filter(function (k) { return k.indexOf(p) === 0; }); } };
 const U = { boss: { id: 'u1', role: 'owner', name: 'Boss' }, adm: { id: 'u2', role: 'admin', sites: ['s1'], name: 'Admin' }, head: { id: 'u3', role: 'head', sites: ['s1', 'nope'], name: 'Head' }, drv: { id: 'u4', role: 'driver', name: 'ລົມ' }, drv2: { id: 'u5', role: 'driver', name: 'ສອນ' }, off: { id: 'u6', role: 'office', name: 'Office' }, other: { id: 'u7', role: 'admin', sites: [], name: 'X' } };
 store.now = function () { return Date.parse('2026-11-20T12:00:00+07:00'); }; /* ໂມງທົດສອບ: ວັນທີໃນເທສຢູ່ໃນຂອບເຂດ 7 ມື້ */
-const call = function (u, o) { return F.handle(store, U[u], o); };
+const rawCall = function (u, o) { return F.handle(store, U[u], o); };
+const call = function (u, o) { return rawCall(u, o.action === 'row' && o.reason === undefined ? Object.assign({ reason: 'ທົດສອບ' }, o) : o); }; /* ແກ້ຄ່າທີ່ບັນທຶກແລ້ວຕ້ອງມີເຫດຜົນ — ເທສທົ່ວໄປໃສ່ໃຫ້ເອງ; ເທສເລື່ອງເຫດຜົນໃຊ້ rawCall */
 const D = '2026-11-16', S = { site: 's1', date: D };
 
 /* ສູດຖັງ: ລົດໃນລາຍງານ 10cm = 50L · ຖັງ 6086 ສີ່ຫຼ່ຽມ 104×61 → 6.344 L/cm · ຖັງກົມນອນ ເຄິ່ງຖັງ = ເຄິ່ງບໍລິມາດ, ເຕັມ = πr²L */
@@ -76,7 +77,8 @@ assert.strictEqual(call('drv', Object.assign({ action: 'photo', key: 'v1_b', dat
 ['v1_b', 'v2_e', 'tank'].forEach(function (k) { assert.ok(call('adm', Object.assign({ action: 'photo', key: k, data: img }, S)).ok); });
 assert.deepStrictEqual(Object.keys(call('drv', Object.assign({ action: 'photos' }, S)).data), ['v1_b']);
 assert.strictEqual(Object.keys(call('off', Object.assign({ action: 'photos' }, S)).data).length, 3);
-call('adm', Object.assign({ action: 'photo', key: 'tank', data: '' }, S));
+assert.strictEqual(call('adm', Object.assign({ action: 'photo', key: 'tank', data: '' }, S)).error, 'auth', 'a saved bill photo is removed by Admin / Super admin only');
+assert.ok(call('boss', Object.assign({ action: 'photo', key: 'tank', data: '' }, S)).ok);
 assert.strictEqual(Object.keys(call('adm', Object.assign({ action: 'photos' }, S)).data).length, 2);
 
 /* ຍອດແທ່ງ: ຮັບ 1000, ຈ່າຍ 150 → ເຫຼືອ 850 · ມື້ຕໍ່ໄປຈ່າຍ 100 → 750 · ວັດແທ່ງ (ຖັງກົມ) ຄືນເປັນລິດ */
@@ -273,7 +275,176 @@ console.log('fuel: all passed');
   assert.strictEqual(t.recv, 6000, 'legacy 4000 migrated + 2000 added'); assert.strictEqual(t.recvs.length, 2);
   assert.strictEqual(call('boss', Object.assign({ action: 'tank', add: { lit: 0 } }, S2)).error, 'lit');
   assert.ok(call('boss', Object.assign({ action: 'photo', key: 'tank_' + t.recvs[1].id, data: 'data:image/jpeg;base64,AAAA' }, S2)).ok, 'photo per receipt');
-  t = call('boss', Object.assign({ action: 'tank', del: t.recvs[1].id }, S2)).data.tank;
+  assert.strictEqual(call('boss', Object.assign({ action: 'tank', del: t.recvs[1].id }, S2)).error, 'reason', 'a correction needs a reason');
+  t = call('boss', Object.assign({ action: 'tank', del: t.recvs[1].id, reason: 'ພິມຜິດ' }, S2)).data.tank;
   assert.strictEqual(t.recv, 4000); assert.strictEqual(call('boss', { action: 'ledger', site: 's1' }).data.filter(function (x) { return x.date === '2026-11-16'; })[0].recv, 4000, 'ledger uses the sum');
   console.log('fuel: multi receipts passed');
+})();
+
+/* ໃບຂໍຫຼາຍຄັນ: ອະນຸມັດລາຍຄັນ / ທັງໝົດ · ຫ້າມອະນຸມັດຂອງຕົນເອງ · ນ້ຳມັນເຫຼືອໃນລົດ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's1', name: 'ນາເລີດ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }], vehicles: [{ id: 'v1', name: 'ລົດເກດ', site: 's1', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'v2', name: 'ລົດຈົກ', site: 's1', driver: 'u5', tank: { t: 'lpc', k: 5 } }, { id: 'v3', name: 'ລົດ 3', site: 's1', driver: 'u6', tank: { t: 'lpc', k: 5 } }] } });
+  const day = function (n) { return new Date(store.now() + 7 * 3600e3 - n * 864e5).toISOString().slice(0, 10); }; /* ວັນທີທຽບກັບມື້ນີ້ ເພື່ອໃຫ້ທົດສອບໄດ້ທຸກມື້ */
+  store.write('d_s1_' + day(4), { rows: { v1: { cm0: 5, cm1: 25, cm2: 20 } }, tank: {} }); /* ມື້ວານ: ແທກເລີກວຽກ 20 cm = 100 L */
+  const SQ = { site: 's1', date: day(3) };
+  assert.strictEqual(call('tech', Object.assign({ action: 'rqNew', lines: [{ v: 'v1', lit: 50 }, { v: 'v1', lit: 20 }] }, SQ)).error, 'dup', 'a car twice in one sheet is refused');
+  assert.strictEqual(call('tech', Object.assign({ action: 'rqNew', lines: [{ v: 'v1', lit: 50 }, { v: 'v2', lit: 0 }] }, SQ)).error, 'lit', 'one bad line refuses the whole sheet');
+  assert.strictEqual(call('tech', Object.assign({ action: 'sheet' }, SQ)).data.reqs.length, 0, 'nothing was saved by the refused sheets');
+  const sh = call('tech', Object.assign({ action: 'rqNew', lines: [{ v: 'v1', lit: 50 }, { v: 'v2', lit: 80 }, { v: 'v3', lit: 30 }], note: 'ຂຸດໜອງ' }, SQ)).data;
+  assert.strictEqual(sh.reqs.length, 3); assert.deepStrictEqual([sh.reqs[0].bno, sh.reqs[1].bno, sh.reqs[2].bno, sh.reqs[0].bid === sh.reqs[2].bid], [1, 1, 1, true], 'three lines share one sheet');
+  assert.deepStrictEqual([sh.left.v1 && sh.left.v1.L, sh.left.v2], [100, null], 'fuel left in the car comes from the last end-of-work reading');
+  const sh2 = call('tech', Object.assign({ action: 'rqNew', v: 'v3', lit: 10 }, SQ)).data.reqs; assert.strictEqual(sh2[3].bno, 2, 'the old single-car call still works and is the next sheet');
+  /* ອະນຸມັດລາຍຄັນ ແລະ ທາງລັດທັງໝົດ */
+  assert.ok(call('head', Object.assign({ action: 'rqDecide', id: sh.reqs[0].id, yes: 1, lit: 45, src: 'tank' }, SQ)).ok);
+  const ids = sh.reqs.slice(1).map(function (r) { return r.id; });
+  const all = call('head', Object.assign({ action: 'rqDecideMany', ids: ids, src: 'shop' }, SQ)).data.reqs;
+  assert.deepStrictEqual(all.slice(0, 3).map(function (r) { return r.state + ':' + r.ok.lit; }), ['approved:45', 'approved:80', 'approved:30'], 'approve-all keeps each line\'s litres');
+  /* ຫ້າມອະນຸມັດຂອງຕົນເອງ */
+  const own = call('head', Object.assign({ action: 'rqNew', lines: [{ v: 'v2', lit: 5 }] }, SQ)).data.reqs.filter(function (r) { return r.by === U.head.id && r.state === 'pending'; })[0];
+  assert.strictEqual(call('head', Object.assign({ action: 'rqDecide', id: own.id, yes: 1 }, SQ)).error, 'self', 'nobody approves their own request');
+  const own2 = call('head', Object.assign({ action: 'rqDecideMany', ids: [own.id] }, SQ)).data.reqs.filter(function (r) { return r.id === own.id; })[0]; assert.strictEqual(own2.state, 'pending', 'approve-all skips the caller\'s own lines');
+  assert.strictEqual(call('tech', Object.assign({ action: 'rqDecideMany', ids: [own.id] }, SQ)).error, 'auth', 'technical staff cannot approve');
+  console.log('fuel: multi-car request sheet passed');
+})();
+
+/* ເບີກຈາກແທ່ງ: ອະນຸມັດໄດ້ບໍ່ເກີນຍອດແທ່ງເຫຼືອ; ຊື້ທີ່ປໍ້າບໍ່ຈຳກັດ; ຮູບບິນປໍ້າຫຼາຍຮູບ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's9', name: 'ທົດລອງແທ່ງ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }], vehicles: [{ id: 'w1', name: 'ລົດ W1', site: 's9', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'w2', name: 'ລົດ W2', site: 's9', driver: 'u5', tank: { t: 'lpc', k: 5 } }, { id: 'w3', name: 'ລົດ W3', site: 's9', driver: 'u6', tank: { t: 'lpc', k: 5 } }] } });
+  const D = new Date(store.now() + 7 * 3600e3 - 2 * 864e5).toISOString().slice(0, 10), S9 = { site: 's9', date: D }, ask = function (n, lit) { return call('boss', Object.assign({ action: 'rqNew', lines: [{ v: n, lit: lit }] }, S9)).data.reqs; };
+  U.t9 = { id: 'u19', role: 'tech', sites: ['s9'], name: 'ວິຊາການ 9' }; /* ຄົນຂໍ ≠ ຄົນອະນຸມັດ */
+  const askT = function (lines) { const z = call('t9', Object.assign({ action: 'rqNew', lines: lines }, S9)); assert.ok(z.ok, 'tech request: ' + z.error); return z.data.reqs; };
+  let r = askT([{ v: 'w1', lit: 100 }]); const e1 = call('boss', Object.assign({ action: 'rqDecide', id: r[0].id, yes: 1, src: 'tank' }, S9));
+  assert.deepStrictEqual([e1.error, e1.have], ['stock', 0], 'an empty tank cannot approve a tank request');
+  assert.ok(call('boss', Object.assign({ action: 'rqDecide', id: r[0].id, yes: 1, lit: 500, src: 'shop', shop: 'ປໍ້າ A' }, S9)).ok, 'pump purchase is not limited by the tank');
+  call('boss', Object.assign({ action: 'tank', add: { lit: 150 } }, S9)); /* ຮັບເຂົ້າແທ່ງ 150 L */
+  r = askT([{ v: 'w2', lit: 100 }, { v: 'w3', lit: 100 }]);
+  const e2 = call('boss', Object.assign({ action: 'rqDecide', id: r[1].id, yes: 1, lit: 160, src: 'tank' }, S9)); assert.strictEqual(e2.error, 'stock', 'more than the tank has is refused');
+  assert.ok(call('boss', Object.assign({ action: 'rqDecide', id: r[0].id, yes: 1, src: 'tank' }, S9)).ok, '100 of 150 is fine');
+  const st = call('boss', Object.assign({ action: 'sheet' }, S9)).data.stock; assert.deepStrictEqual([st.have, st.pend], [150, 100], 'the approver sees stock and approved-but-not-filled (no automatic reservation)');
+  const rr = askT([{ v: 'w1', lit: 60 }, { v: 'w2', lit: 60 }, { v: 'w3', lit: 60 }]);
+  const m = call('boss', Object.assign({ action: 'rqDecideMany', ids: rr.slice(-3).map(function (x) { return x.id; }), src: 'tank' }, S9)).data;
+  assert.strictEqual(m.skipped, 1, 'approve-all counts the stock cumulatively and skips the line that does not fit'); assert.strictEqual(m.reqs.filter(function (x) { return x.lit === 60 && x.state === 'pending'; }).length, 1);
+  const rs0 = call('boss', Object.assign({ action: 'rqStart', id: r[0].id }, S9)); assert.ok(rs0.ok, 'start fill: ' + rs0.error);
+  ['p1', 'p2', 'p3'].forEach(function (k) { assert.ok(call('boss', Object.assign({ action: 'photo', key: 'w2_' + k, data: 'data:image/jpeg;base64,AAAA' }, S9)).ok, 'pump bill photo ' + k); });
+  /* ເຕີມເກີນທີ່ອະນຸມັດ: ອະນຸມັດ 100 L ຖັງ 5 L/cm ເຕີມໄດ້ສູງສຸດ 110 L (10%) — ເກີນນັ້ນກັນ */
+  const w2 = call('boss', Object.assign({ action: 'sheet' }, S9)).data.reqs.filter(function (x) { return x.v === 'w2' && x.lit === 100; })[0];
+  assert.ok(call('boss', Object.assign({ action: 'rqDecide', id: w2.id, yes: 1, src: 'tank' }, S9)).ok); assert.ok(call('boss', Object.assign({ action: 'rqStart', id: w2.id }, S9)).ok);
+  const rw = call('boss', Object.assign({ action: 'row', v: 'w2', cm0: 10 }, S9)); assert.ok(rw.ok, 'start of the fill is saved: ' + rw.error);
+  assert.strictEqual(rw.data.rows.filter(function (x) { return x.v === 'w2'; })[0].rqi.max, 110, 'the UI gets the most that may be filled');
+  const over = call('boss', Object.assign({ action: 'row', v: 'w2', cm1: 33 }, S9)); assert.deepStrictEqual([over.error, over.max], ['overcap', 110], '115 L is over the approved 100 + 10%');
+  assert.ok(call('boss', Object.assign({ action: 'row', v: 'w2', cm1: 32 }, S9)).ok, '110 L (the limit) is accepted');
+  console.log('fuel: tank stock check passed');
+})();
+
+/* ຄົນຂັບແທນສະເພາະມື້ · ລົດບໍ່ມີຄົນຂັບ = ບໍ່ເຕີມ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's8', name: 'ທົດລອງແທນ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }], vehicles: [{ id: 'x1', name: 'ລົດ X1', site: 's8', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'x2', name: 'ລົດ X2', site: 's8', tank: { t: 'lpc', k: 5 } }, { id: 'x3', name: 'ລົດ X3', site: 's8', driver: 'u5', tank: { t: 'lpc', k: 5 } }] } });
+  const day = function (n) { return new Date(store.now() + 7 * 3600e3 + n * 864e5).toISOString().slice(0, 10); }, D = day(0), S8 = { site: 's8', date: D };
+  U.t8 = { id: 'u28', role: 'tech', sites: ['s8'], name: 'ວິຊາການ 8' }; U.d7 = { id: 'u7', role: 'driver', sites: [], name: 'ຄົນແທນ' }; U.d5 = { id: 'u5', role: 'driver', sites: [], name: 'ຄົນຂັບ 5' };
+  assert.strictEqual(call('t8', Object.assign({ action: 'rqNew', lines: [{ v: 'x2', lit: 50 }] }, S8)).error, 'nodriver', 'a car with no driver cannot be requested');
+  assert.strictEqual(call('d7', Object.assign({ action: 'subDriver', v: 'x2', driver: 'u7' }, S8)).error, 'auth', 'a driver cannot pick the substitute');
+  assert.strictEqual(call('t8', Object.assign({ action: 'subDriver', v: 'x2', driver: 'u7' }, { site: 's8', date: day(-1) })).error, 'date', 'substitutes are for today or later');
+  assert.ok(call('t8', Object.assign({ action: 'subDriver', v: 'x2', driver: 'u7' }, S8)).ok, 'technical staff set today\'s driver');
+  const sh = call('t8', Object.assign({ action: 'sheet' }, S8)).data; assert.deepStrictEqual([sh.drv.x2.d, sh.drv.x2.sub, sh.drv.x1.d], ['u7', true, 'u4']);
+  assert.ok(call('t8', Object.assign({ action: 'rqNew', lines: [{ v: 'x2', lit: 50 }] }, S8)).ok, 'now the car can be requested');
+  /* ຄົນຂັບປະຈຳລາ ບໍ່ມີຄົນແທນ → ຈອດ; ຍົກເລີກການແທນ → ກັບເປັນຄົນຂັບປະຈຳ */
+  assert.ok(call('t8', Object.assign({ action: 'subDriver', v: 'x1', driver: '' }, S8)).ok); assert.strictEqual(call('t8', Object.assign({ action: 'rqNew', lines: [{ v: 'x1', lit: 30 }] }, S8)).error, 'nodriver', 'regular driver on leave and no substitute: parked');
+  assert.ok(call('t8', Object.assign({ action: 'subDriver', v: 'x1', reset: 1 }, S8)).ok); assert.ok(call('t8', Object.assign({ action: 'rqNew', lines: [{ v: 'x1', lit: 30 }] }, S8)).ok, 'back to the regular driver');
+  /* ຄົນຂັບຂອງມື້: ຄົນແທນຮັບຮູ້ໄດ້ ຄົນຂັບປະຈຳບໍ່ໄດ້ */
+  assert.ok(call('t8', Object.assign({ action: 'subDriver', v: 'x3', driver: 'u7' }, S8)).ok);
+  const q = call('t8', Object.assign({ action: 'rqNew', lines: [{ v: 'x3', lit: 50 }] }, S8)).data.reqs.filter(function (x) { return x.v === 'x3'; })[0];
+  assert.ok(call('boss', Object.assign({ action: 'rqDecide', id: q.id, yes: 1, src: 'shop' }, S8)).ok); assert.ok(call('boss', Object.assign({ action: 'rqStart', id: q.id }, S8)).ok);
+  assert.ok(call('boss', Object.assign({ action: 'row', v: 'x3', cm0: 10, cm1: 20 }, S8)).ok);
+  assert.strictEqual(call('d5', Object.assign({ action: 'ack', v: 'x3', yes: 1 }, S8)).error, 'auth', 'the regular driver is on leave that day');
+  const mine = call('d7', Object.assign({ action: 'sheet' }, S8)); assert.ok(mine.ok && mine.data.rows.some(function (r) { return r.v === 'x3' && r.mine && r.sub; }), 'the substitute sees the car as his own');
+  assert.ok(call('d7', Object.assign({ action: 'ack', v: 'x3', yes: 1 }, S8)).ok, 'the substitute acknowledges');
+  assert.strictEqual(call('t8', Object.assign({ action: 'subDriver', v: 'x3', driver: 'u5' }, S8)).error, 'subacked', 'cannot swap the driver after the acknowledgement');
+  console.log('fuel: substitute driver passed');
+})();
+
+/* ຮັບເຂົ້າແທ່ງ: ບໍລິຫານແກ້ເອງບໍ່ໄດ້ · Admin ແກ້ໄດ້ພ້ອມເຫດຜົນ + log */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's7', name: 'ທົດລອງຮັບເຂົ້າ', tank: { t: 'hcyl', d: 120, len: 250 } }], vehicles: [{ id: 'y1', name: 'ລົດ Y1', site: 's7', driver: 'u4', tank: { t: 'lpc', k: 5 } }] } });
+  U.a7 = { id: 'u17', role: 'admin', sites: ['s7'], name: 'ບໍລິຫານ 7' };
+  const D7 = new Date(store.now() + 7 * 3600e3 - 864e5).toISOString().slice(0, 10), S7 = { site: 's7', date: D7 };
+  const t1 = call('a7', Object.assign({ action: 'tank', add: { lit: 3000, from: 'ຜູ້ຂາຍ' } }, S7)).data.tank; assert.strictEqual(t1.recv, 3000, 'the administrator records a receipt');
+  const id = t1.recvs[0].id;
+  assert.strictEqual(call('a7', Object.assign({ action: 'tank', edit: { id: id, lit: 300 }, reason: 'x' }, S7)).error, 'auth', 'the administrator cannot change a saved receipt');
+  assert.strictEqual(call('a7', Object.assign({ action: 'tank', del: id, reason: 'x' }, S7)).error, 'auth', 'nor remove it');
+  assert.strictEqual(call('a7', Object.assign({ action: 'tank', recv: 1 }, S7)).data.tank.recv, 3000, 'nor overwrite the total with the old single-value field');
+  assert.strictEqual(call('a7', { action: 'adjlog', site: 's7' }).error, 'auth', 'the correction log is for Admin / Super admin');
+  assert.strictEqual(call('boss', Object.assign({ action: 'tank', edit: { id: id, lit: 300 } }, S7)).error, 'reason');
+  const t2 = call('boss', Object.assign({ action: 'tank', edit: { id: id, lit: 300, from: 'ປໍ້າ', note: 'ແກ້ຕາມບິນ' }, reason: 'ພິມຜິດ 3000 → 300' }, S7)).data.tank;
+  assert.deepStrictEqual([t2.recv, t2.recvs[0].edited.reason, t2.recvs[0].from], [300, 'ພິມຜິດ 3000 → 300', 'ປໍ້າ'], 'Admin corrects, the total follows, the receipt is marked');
+  assert.ok(call('a7', Object.assign({ action: 'tank', add: { lit: 200 } }, S7)).ok, 'adding another receipt is still free');
+  const lg = call('boss', { action: 'adjlog', site: 's7' }).data; assert.deepStrictEqual([lg.length, lg[0].kind, lg[0].from.lit, lg[0].to.lit, lg[0].reason], [1, 'edit', 3000, 300, 'ພິມຜິດ 3000 → 300'], 'the correction is logged with old and new values');
+  assert.ok(call('a7', Object.assign({ action: 'photo', key: 'tank_' + id, data: 'data:image/jpeg;base64,AAAA' }, S7)).ok, 'a receipt photo needs only the tank right');
+  assert.strictEqual(call('a7', Object.assign({ action: 'photo', key: 'tank_' + id, data: '' }, S7)).error, 'auth', 'a saved bill photo cannot be removed by the administrator');
+  /* ຫຼັງອະນຸມັດໃບ (ລັອກ): ບໍລິຫານແກ້ບໍ່ໄດ້ ແຕ່ Admin ແກ້ໄດ້ (ມີ log) */
+  assert.strictEqual(call('boss', Object.assign({ action: 'approve', yes: 1 }, S7)).error, 'nobill', 'approval needs a bill photo on every receipt');
+  call('boss', Object.assign({ action: 'tank', site: 's7' }, S7)).data.tank.recvs.forEach(function (r) { call('a7', Object.assign({ action: 'photo', key: 'tank_' + r.id, data: 'data:image/jpeg;base64,AAAA' }, S7)); });
+  assert.ok(call('boss', Object.assign({ action: 'approve', yes: 1 }, S7)).ok);
+  assert.strictEqual(call('a7', Object.assign({ action: 'tank', add: { lit: 5 } }, S7)).error, 'locked');
+  assert.ok(call('boss', Object.assign({ action: 'tank', del: t2.recvs[0].id, reason: 'ບິນຊ້ຳ' }, S7)).ok, 'Admin may still void on a locked day');
+  assert.strictEqual(call('boss', { action: 'adjlog', site: 's7' }).data.length, 2);
+  console.log('fuel: receipts immutable passed');
+})();
+
+/* ອະນຸມັດໃບປະຈຳວັນ: ຕ້ອງມີການເຕີມຢ່າງໜ້ອຍ 1 ຄັ້ງ — ມື້ບໍ່ມີຄຳຂໍ ບໍ່ຕ້ອງອະນຸມັດ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's6', name: 'ທົດລອງອະນຸມັດໃບ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }, { id: 's5', name: 'ແບບເກົ່າ', tank: { t: 'hcyl', d: 120, len: 250 } }], vehicles: [{ id: 'z1', name: 'ລົດ Z1', site: 's6', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'z5', name: 'ລົດ Z5', site: 's5', driver: 'u4', tank: { t: 'lpc', k: 5 } }] } });
+  U.t6 = { id: 'u26', role: 'tech', sites: ['s6'], name: 'ວິຊາການ 6' };
+  const day = function (n) { return new Date(store.now() + 7 * 3600e3 - n * 864e5).toISOString().slice(0, 10); }, D = day(1), S6 = { site: 's6', date: D };
+  assert.strictEqual(call('boss', Object.assign({ action: 'approve', yes: 1 }, S6)).error, 'nofill', 'an empty day cannot be approved on a request-site');
+  const lg = call('boss', { action: 'ledger', site: 's6' }); assert.ok(!lg.ok || lg.data.every(function (x) { return x.approved || x.idle; }), 'idle days are marked, not left "waiting"');
+  const q = call('t6', Object.assign({ action: 'rqNew', lines: [{ v: 'z1', lit: 50 }] }, S6)).data.reqs[0];
+  assert.strictEqual(call('boss', Object.assign({ action: 'approve', yes: 1 }, S6)).error, 'openrq', 'a pending request blocks the approval');
+  assert.ok(call('boss', Object.assign({ action: 'rqDecide', id: q.id, yes: 1, src: 'shop' }, S6)).ok);
+  assert.strictEqual(call('boss', Object.assign({ action: 'approve', yes: 1 }, S6)).error, 'openrq', 'approved but not yet filled still blocks');
+  assert.ok(call('boss', Object.assign({ action: 'rqStart', id: q.id }, S6)).ok); assert.ok(call('boss', Object.assign({ action: 'row', v: 'z1', cm0: 10, cm1: 20 }, S6)).ok);
+  U.d4 = { id: 'u4', role: 'driver', sites: [], name: 'ຄົນຂັບ 4' }; assert.ok(call('d4', Object.assign({ action: 'ack', v: 'z1', yes: 1 }, S6)).ok);
+  assert.ok(call('boss', Object.assign({ action: 'approve', yes: 1 }, S6)).ok, 'a day with a filled, acknowledged request can be approved');
+  /* ສະໜາມແບບເກົ່າ (ບໍ່ໃຊ້ຄຳຂໍ) ບໍ່ປ່ຽນ */
+  assert.ok(call('boss', Object.assign({ action: 'approve', yes: 1 }, { site: 's5', date: D })).ok, 'old-style sites still approve as before');
+  const lg2 = call('boss', { action: 'ledger', site: 's6' }).data.filter(function (x) { return x.date === D; })[0]; assert.deepStrictEqual([lg2.approved, lg2.idle], [true, false]);
+  console.log('fuel: approval needs a fill passed');
+})();
+
+/* ແກ້ຄ່າ cm ທີ່ບັນທຶກແລ້ວ: ຕ້ອງມີເຫດຜົນ · ມີປະຫວັດ · ເຂົ້າລາຍງານການປັບປຸງ · ຮູບລັອກຫຼັງຄົນຂັບຮັບຮູ້ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's4', name: 'ທົດລອງແກ້ cm', tank: { t: 'hcyl', d: 120, len: 250 } }], vehicles: [{ id: 'k1', name: 'ລົດ K1', site: 's4', driver: 'u4', tank: { t: 'lpc', k: 5 } }] } });
+  U.i4 = { id: 'u14', role: 'admin', sites: ['s4'], name: 'ຜູ້ເບີກ 4' }; U.h4 = { id: 'u24', role: 'head', sites: ['s4'], name: 'ຫົວໜ້າ 4' }; U.d4b = { id: 'u4', role: 'driver', sites: [], name: 'ຄົນຂັບ' };
+  const D = new Date(store.now() + 7 * 3600e3 - 864e5).toISOString().slice(0, 10), S4 = { site: 's4', date: D };
+  assert.ok(rawCall('i4', Object.assign({ action: 'row', v: 'k1', cm0: 10, cm1: 30 }, S4)).ok, 'the first entry needs no reason');
+  assert.strictEqual(rawCall('i4', Object.assign({ action: 'row', v: 'k1', cm1: 31 }, S4)).error, 'reason', 'changing a saved cm needs a reason');
+  assert.ok(rawCall('i4', Object.assign({ action: 'row', v: 'k1', cm2: 12 }, S4)).ok, 'adding the evening reading is not an edit');
+  assert.ok(rawCall('i4', Object.assign({ action: 'row', v: 'k1', cm1: 31, reason: 'ກອກເລກຜິດ' }, S4)).ok);
+  const h = call('i4', Object.assign({ action: 'sheet' }, S4)).data.rows[0].h; assert.deepStrictEqual([h.length, h[0].k, h[0].from, h[0].to, h[0].why, h[0].name], [1, 'cm1', 30, 31, 'ກອກເລກຜິດ', 'ຜູ້ເບີກ 4'], 'the history keeps who, what and why');
+  const lg = call('boss', { action: 'adjlog', site: 's4' }).data; assert.deepStrictEqual([lg.length, lg[0].kind, lg[0].car, lg[0].from.txt, lg[0].to.txt, lg[0].reason], [1, 'row', 'ລົດ K1', 'ຫຼັງເຕີມ 30 cm', 'ຫຼັງເຕີມ 31 cm', 'ກອກເລກຜິດ'], 'the edit appears in the adjustment report');
+  const img = 'data:image/jpeg;base64,AAAA';
+  assert.ok(rawCall('i4', Object.assign({ action: 'photo', key: 'k1_b', data: img }, S4)).ok); assert.ok(rawCall('i4', Object.assign({ action: 'photo', key: 'k1_b', data: img }, S4)).ok, 'a photo can be retaken before the acknowledgement');
+  assert.ok(rawCall('d4b', Object.assign({ action: 'ack', v: 'k1', yes: 1 }, S4)).ok);
+  assert.strictEqual(rawCall('i4', Object.assign({ action: 'photo', key: 'k1_b', data: img }, S4)).error, 'photolock', 'after the acknowledgement the photo is locked for the operator');
+  assert.ok(rawCall('i4', Object.assign({ action: 'photo', key: 'k1_a', data: img }, S4)).ok, 'a photo that does not exist yet can still be added');
+  assert.ok(rawCall('h4', Object.assign({ action: 'photo', key: 'k1_b', data: img }, S4)).ok, 'the chief may replace it');
+  console.log('fuel: cm edit reason + log + photo lock passed');
+})();
+
+/* ຂໍ / ອະນຸມັດ ລ່ວງໜ້າ (ມື້ອື່ນ → +7 ມື້); ເລີ່ມເຕີມ ແລະເຕີມດ່ວນ = ມື້ນີ້ເທົ່ານັ້ນ */
+(function () {
+  call('boss', { action: 'cfgSave', cfg: { sites: [{ id: 's3', name: 'ທົດລອງລ່ວງໜ້າ', tank: { t: 'hcyl', d: 120, len: 250 }, rq: true }], vehicles: [{ id: 'a1', name: 'ລົດ A1', site: 's3', driver: 'u4', tank: { t: 'lpc', k: 5 } }, { id: 'a2', name: 'ລົດ A2', site: 's3', tank: { t: 'lpc', k: 5 } }] } });
+  U.t3 = { id: 'u33', role: 'tech', sites: ['s3'], name: 'ວິຊາການ 3' };
+  const day = function (n) { return new Date(store.now() + 7 * 3600e3 + n * 864e5).toISOString().slice(0, 10); }, T = { site: 's3', date: day(0) }, N1 = { site: 's3', date: day(1) }, N8 = { site: 's3', date: day(8) };
+  assert.strictEqual(call('t3', Object.assign({ action: 'rqNew', lines: [{ v: 'a1', lit: 50 }] }, N8)).error, 'future', 'more than 7 days ahead is refused');
+  const q = call('t3', Object.assign({ action: 'rqNew', lines: [{ v: 'a1', lit: 50 }] }, N1)); assert.ok(q.ok, 'a request for tomorrow is accepted'); const id = q.data.reqs[0].id;
+  assert.strictEqual(call('t3', Object.assign({ action: 'rqNew', lines: [{ v: 'a2', lit: 20 }] }, N1)).error, 'nodriver', 'the driver rule applies to the chosen day');
+  assert.ok(call('t3', Object.assign({ action: 'subDriver', v: 'a2', driver: 'u7' }, N1)).ok); assert.ok(call('t3', Object.assign({ action: 'rqNew', lines: [{ v: 'a2', lit: 20 }] }, N1)).ok, 'a substitute set for tomorrow lets tomorrow\'s request through');
+  assert.strictEqual(call('t3', Object.assign({ action: 'sheet' }, T)).data.reqs.length, 0, 'today stays empty');
+  call('boss', Object.assign({ action: 'tank', add: { lit: 500 } }, T));
+  assert.strictEqual(call('boss', Object.assign({ action: 'rqDecide', id: id, yes: 1, src: 'shop' }, N1)).data.reqs.filter(function (x) { return x.id === id; })[0].state, 'approved', 'the approver can approve tomorrow\'s request today');
+  assert.strictEqual(call('boss', Object.assign({ action: 'rqStart', id: id }, N1)).error, 'future', 'but the fill cannot start before that day');
+  assert.strictEqual(call('boss', Object.assign({ action: 'rqUrgent', v: 'a1', src: 'tank' }, N1)).error, 'future', 'nor an urgent fill');
+  const ah = call('boss', Object.assign({ action: 'rqAhead' }, T)).data; assert.deepStrictEqual([ah.length, ah[0].date, ah[0].total, ah[0].pending, ah[0].approved], [1, day(1), 2, 1, 1], 'the approver sees what is waiting ahead');
+  const mine = call('t3', Object.assign({ action: 'rqAhead' }, T)).data; assert.strictEqual(mine[0].total, 2, 'technical staff see their own');
+  console.log('fuel: advance requests passed');
 })();

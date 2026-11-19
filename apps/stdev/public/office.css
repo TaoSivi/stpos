@@ -5,14 +5,14 @@
 .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}.nav-item:active{transform:scale(.98)}
 .nav-item[aria-current=true]{background:rgba(95,217,210,.18);border-color:rgba(95,217,210,.45);color:#fff}
 .nav-item svg{color:var(--mint)}
-.nb{margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#d9531e;color:#fff;font-size:13px;display:inline-grid;place-items:center;animation:badgePulse 2s infinite}
+.nb{margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#d9531e;color:#fff;font-size:14px;display:inline-grid;place-items:center;animation:badgePulse 2s infinite}
 .nb:empty{display:none}
 @keyframes badgePulse{50%{box-shadow:0 0 0 6px rgba(217,83,30,.18)}}
 .side-head{display:flex;align-items:center;gap:12px;padding:6px 6px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
-.side-head b{display:block;font-size:17px}.side-head small{opacity:.78;font-size:13px;line-height:1.3;display:block}
+.side-head b{display:block;font-size:17px}.side-head small{opacity:.78;font-size:14px;line-height:1.3;display:block}
 .avatar{width:46px;height:46px;border-radius:16px;flex:0 0 46px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;font-weight:800;box-shadow:0 6px 16px rgba(10,186,181,.35)}
 .avatar svg{width:24px;height:24px;stroke:#fff}
-.side-grp{margin:12px 8px 4px;font-size:13px;letter-spacing:.4px;color:rgba(255,255,255,.5);font-weight:700}
+.side-grp{margin:12px 8px 4px;font-size:14px;letter-spacing:.4px;color:rgba(255,255,255,.5);font-weight:700}
 .side-foot{margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
 @media(min-width:1000px){
  body.has-side .side{display:flex;flex-direction:column;position:fixed;left:16px;top:16px;bottom:16px;width:272px;background:linear-gradient(160deg,#0f3f3c,#0b2f2d);border-radius:var(--r);padding:16px 12px;color:#fff;box-shadow:var(--sh-2);overflow:auto;z-index:4;animation:fadeIn .4s both}
@@ -33,11 +33,11 @@ nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
 .stats{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:12px;margin:0 0 14px}
 @media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.stats .dark{grid-column:1/-1}}
 .stat-card{background:#fff;border-radius:var(--r);padding:14px 18px;box-shadow:var(--sh-1);animation:riseIn .45s both}
-.stat-card small{display:block;color:var(--muted);font-size:13px}.stat-card b{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.stat-card small{display:block;color:var(--muted);font-size:14px}.stat-card b{font-size:26px;font-weight:800;letter-spacing:-.5px}
 .stat-card.dark{background:linear-gradient(135deg,#0f4744,#082a28);color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-2)}
 .stat-card.dark small{color:rgba(255,255,255,.7)}.stat-card.dark b span{font-size:16px;opacity:.65;font-weight:600}
 .ring{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--mint) calc(var(--p)*1%),rgba(255,255,255,.14) 0);display:grid;place-items:center;position:relative;flex:0 0 64px}
-.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0c3633}.ring span{position:relative;font-size:13px;font-weight:700}
+.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0c3633}.ring span{position:relative;font-size:14px;font-weight:700}
 .todo{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:6px 0 0;border:1px solid var(--line);border-radius:18px;background:#fff;text-align:left;min-height:52px;transition:transform .15s,border-color .2s}
 .todo:hover{border-color:var(--mint)}.todo:active{transform:scale(.99)}
 .todo .ti{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--ok-bg);color:var(--primary);flex:0 0 38px}
@@ -63,12 +63,12 @@ nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
 .sw .sl::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
 .sw input:checked+.sl{background:var(--primary)}.sw input:checked+.sl::after{transform:translateX(20px)}
 .sw input:focus-visible+.sl{outline:3px solid rgba(10,186,181,.45);outline-offset:2px}
-.sw .st{font-weight:600}.sw small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.sw .st{font-weight:600}.sw small{display:block;color:var(--muted);font-weight:400;font-size:14px}
 .prev{margin:10px 0;padding:12px 14px;border-radius:18px;background:#f0f7f7;font-size:14px}.prev ul{margin:6px 0 0;padding-left:20px}.prev li{margin:2px 0}
-.perm{width:100%;font-size:13px}.perm th{background:var(--dark-2)}.perm td:first-child{text-align:left;font-weight:600}.perm .y{color:var(--primary)}.perm .n{color:#b7c4c4}
+.perm{width:100%;font-size:14px}.perm th{background:var(--dark-2)}.perm td:first-child{text-align:left;font-weight:600}.perm .y{color:var(--primary)}.perm .n{color:#b7c4c4}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.formgrid{grid-template-columns:1fr}}
 .empty{text-align:center;padding:26px 10px;color:var(--muted)}.empty .logo{margin:0 auto 10px}
-.hint{font-size:13px;color:var(--muted)}
+.hint{font-size:14px;color:var(--muted)}
 
 /* ບັດຕໍ່ແອັບໃນຟອມ ພະນັກງານ & ສິດ */
 .appcard{border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:10px 0;background:#fbfdfd}
@@ -78,12 +78,12 @@ nav.tabs button .nb{position:absolute;top:2px;right:6px;margin:0}
 .ticks{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin:6px 0 8px}@media(max-width:560px){.ticks{grid-template-columns:1fr}}
 .tick{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px 6px;border-radius:12px;cursor:pointer;font-size:14px;line-height:1.35}
 .tick:hover{background:#f0f7f7}.tick input{width:22px;height:22px;flex:0 0 22px;margin:0;accent-color:var(--primary)}
-.ticks-title{font-size:13px;color:var(--muted);font-weight:600;margin:10px 0 2px}
+.ticks-title{font-size:14px;color:var(--muted);font-weight:600;margin:10px 0 2px}
 details.grp{border:1px solid var(--line);border-radius:14px;margin:8px 0;padding:2px 10px;background:#fff}
 details.grp summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;list-style:none}
 details.grp summary::-webkit-details-marker{display:none}
 details.grp summary::after{content:"+";margin-left:auto;color:var(--muted);font-size:20px}details.grp[open] summary::after{content:"–"}
-.cnt{font-weight:600;color:var(--primary);font-size:13px}
+.cnt{font-weight:600;color:var(--primary);font-size:14px}
 
 .fns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
 .fn{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;min-height:92px;padding:14px;border:1.5px solid var(--line-2);border-radius:20px;background:#fff;color:var(--ink,#0b2f2d);font:inherit;font-weight:700;font-size:16px;text-align:left;cursor:pointer}
@@ -91,7 +91,115 @@ details.grp summary::after{content:"+";margin-left:auto;color:var(--muted);font-
 
 .carlist{display:grid;gap:8px;margin:8px 0 4px}
 .carrow{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;padding:10px 14px;border:1.5px solid var(--line-2);border-radius:18px;background:#fff;font:inherit;text-align:left;cursor:pointer}
-.carrow:active{transform:scale(.98)}.carrow b{display:block;font-size:17px}.carrow small{display:block;color:var(--muted);font-size:13px}
+.carrow:active{transform:scale(.98)}.carrow b{display:block;font-size:17px}.carrow small{display:block;color:var(--muted);font-size:14px}
 .carrow[aria-pressed=true]{border-color:var(--primary);background:var(--ok-bg)}
 .carrow .chip{flex:0 0 auto;max-width:46%;text-align:center}
 .carrow.hide{display:none}
+
+/* ===== ຂັ້ນຕອນ: ແຖບເທິງທຸກໜ້າ + ລາຍການໃນໜ້າພາບລວມ ===== */
+.stepbar{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding:2px 0 6px;scrollbar-width:none}
+.stepbar::-webkit-scrollbar{display:none}.stepbar[hidden]{display:none}
+.stepbar button{flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 14px 6px 8px;border:1.5px solid var(--line-2);border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+.stepbar button small{display:block;font-weight:500;font-size:13.5px;color:var(--muted)}
+.stepbar button[aria-current=true]{background:var(--dark-2);border-color:var(--dark-2);color:#fff}.stepbar button[aria-current=true] small{color:#cfe9e6}
+.sn{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ok-bg);color:var(--primary);font-size:14px;font-weight:800}
+.stepbar .ok .sn,.stp.ok .sn{background:var(--primary);color:#fff}.stepbar .warn .sn,.stp.warn .sn{background:#e7a40c;color:#fff}
+.stepbar button[aria-current=true] .sn{background:#fff;color:var(--dark-2)}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.stp{width:100%;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border:1.5px solid var(--line-2);border-radius:18px;background:#fff;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.stp b{display:block;font-size:16px}.stp small{display:block;color:var(--muted);font-size:14px}.stp.warn{border-color:#e7a40c;background:var(--warn-bg)}.stp:active{transform:scale(.98)}
+
+/* ===== ໃບຂໍຫຼາຍຄັນ ===== */
+.rql{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 8px 6px 12px;border:1.5px solid var(--line-2);border-radius:16px;background:#fff;margin-bottom:8px}
+.rql.hide{display:none}.rql b{display:block;font-size:16px}.rql small{display:block;color:var(--muted);font-size:13.5px}
+.rql input{width:96px;min-height:44px;text-align:right;font-size:18px;font-weight:700}
+.sum{margin:6px 0 0;font-size:15px}.sheet{border-top:2px solid var(--line-2);padding-top:10px;margin-top:12px}.sheet:first-of-type{border-top:0;margin-top:0;padding-top:0}.sheet-h b{font-size:16px}
+.allbox{background:var(--ok-bg);border-radius:14px;padding:10px;margin:8px 0}
+@media print{.rqsheet{break-after:page}.rqsheet:last-of-type{break-after:auto}}
+
+.stockbar{background:var(--ok-bg);border-radius:16px;padding:12px 14px;margin:0 0 12px;font-size:15px}.stockbar small{display:block;color:var(--muted);margin-top:4px}.stockbar .neg{color:var(--bad)}
+
+.rql.nodrv{background:#f6f2f0;border-color:#ead8d2}.rql .lnk{display:block;margin-top:4px;padding:6px 0;min-height:40px;border:0;background:none;color:var(--primary);font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;text-decoration:underline}
+.subbox{margin:-4px 0 10px;padding:10px 12px;border:1.5px dashed var(--line-2);border-radius:14px;background:#fafdfd}.subbox[hidden]{display:none}
+
+/* ===== ສະກິນແດຊບອດ: ພາບລວມ 4 ຊ່ອງ · ບັດສະຖິຕິມີໄອຄອນ · ບັດລົດ + ແຖບຄວາມຄືບໜ້າ · ເມນູຂ້າງຕິດຂອບ ===== */
+.ov-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.ov-h h2{margin:0}
+.ov-g{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ov-c{display:grid;gap:2px;justify-items:start;padding:14px;background:#fff;border:0;border-right:1px solid var(--line);text-align:left;font:inherit;cursor:pointer;transition:background .15s}
+.ov-c:last-child{border-right:0}.ov-c:hover{background:#f7fbfb}.ov-c:active{background:#eef6f6}
+.ov-c small{color:var(--muted);font-size:14px}.ov-c b{font-size:30px;font-weight:800;line-height:1.1;letter-spacing:-.5px}.ov-s{font-size:13.5px;color:var(--muted)}
+.ov-i,.st-i,.vc-i{display:grid;place-items:center;color:var(--primary)}
+.ov-i{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);margin-bottom:4px}.ov-c.on b{color:var(--primary)}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:6px;justify-items:start;box-shadow:var(--sh-1);animation:riseIn .45s both}
+.st-h{display:flex;align-items:center;justify-content:space-between;width:100%}.st-h small{color:var(--muted);font-size:14px}
+.st-i{width:36px;height:36px;border-radius:10px;border:1px solid var(--line)}.kpi b{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.15}
+.dgrid{display:grid;grid-template-columns:1fr;gap:0 14px}
+.sec-h{margin-bottom:10px}.dsearch{max-width:220px;margin:0!important}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:6px}
+.vcard{border:1px solid var(--line);border-radius:14px;background:#fafcfc;padding:12px 14px;display:grid;gap:8px}.vcard.hide{display:none}
+.vc-top{display:flex;align-items:center;justify-content:space-between}.vc-i{width:44px;height:34px;border-radius:10px;background:var(--ok-bg)}
+.vc-n{font-size:16px}.vc-m{display:flex;justify-content:space-between;gap:8px;font-size:14px}.vc-b{display:flex;justify-content:space-between}
+.brand{width:44px;height:44px;border-radius:12px;flex:0 0 44px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.pick .rf{flex:0 0 46px;padding:0;min-width:46px}.pick .rf span{display:none}
+@media(max-width:560px){.ov-g{grid-template-columns:1fr 1fr}.ov-c:nth-child(2){border-right:0}.ov-c:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media(max-width:560px){.stats4{grid-template-columns:1fr 1fr}}
+@media(min-width:720px){.dgrid{grid-template-columns:1fr 1fr;align-items:start}#rqlist{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}#rqlist .subbox{grid-column:1/-1}.carlist{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+@media(min-width:1000px){
+ .dgrid{grid-template-columns:1fr 1fr;align-items:start}
+ body.has-side .side{left:0;top:0;bottom:0;width:264px;border-radius:0;box-shadow:none}
+ body.has-side .content{margin-left:264px}
+ body.has-side main{display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:end}
+ body.has-side main>*{grid-column:1/-1}
+ body.has-side main>.pagehead{grid-column:1}
+ body.has-side main>.pick{grid-column:2;margin:0 0 14px;flex-wrap:nowrap}
+ body.has-side .pick>*{flex:0 0 auto;width:auto;min-width:150px}
+ body.has-side .pick .rf{min-width:0;padding:9px 16px}body.has-side .pick .rf span{display:inline}
+}
+@media(max-width:560px){.ov-h .muted{display:none}}
+
+.sn{color:var(--ptext)}
+.stepbar .warn .sn,.stp.warn .sn{background:#f5b800;color:#3a2900}
+.stepbar .ok .sn,.stp.ok .sn{background:var(--primary);color:#fff}
+.stepbar button[aria-current=true] .sn{color:var(--dark-2)}
+.stp b,.todo b,.ov-c small,.kpi .st-h small{font-weight:600}.stp small,.todo small,.ov-s,.vc-m,.stepbar button small{font-size:13.5px;font-weight:500}
+.ov-c b,.kpi b{font-weight:800}.vc-n{font-size:17px}
+.nav-item{font-weight:600}.side-grp{font-size:13.5px}
+
+.card.now{border-color:#f0c24b;box-shadow:0 0 0 3px rgba(245,184,0,.12)}
+.seg button[aria-pressed=true],.rql .lnk,.more svg,.carrow[aria-pressed=true]{color:var(--ptext)}
+.seg button{font-size:14px;font-weight:600}
+
+/* ===== ໜ້າ A4 ໃນມືຖື ===== */
+.pv-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 8px}.pv-bar .btn{min-height:40px;padding:6px 14px;white-space:nowrap}.pv-hint{flex:1 1 100%}
+.pv-scroll{overflow:auto;-webkit-overflow-scrolling:touch;background:#dfe7e8;border:1px solid var(--line);border-radius:12px;padding:0}
+.pv-sheet{background:#fff;padding:38px;box-sizing:border-box;box-shadow:0 2px 10px rgba(15,42,41,.18);font-size:15px}
+.pv-sheet .tw{overflow:visible;border:0;border-radius:0}.pv-sheet table{font-size:14px}.pv-sheet .rh{text-align:center;margin-bottom:12px}
+@media(min-width:901px){.pv-scroll{background:none;border:0;overflow:visible}.pv-sheet{box-shadow:none;padding:0;width:auto!important;transform:none!important}}
+@media print{.pv-bar{display:none!important}.pv-scroll{height:auto!important;overflow:visible!important;border:0!important;background:none!important}.pv-sheet{transform:none!important;width:auto!important;padding:0!important;box-shadow:none!important}}
+
+.hist{margin:8px 0 0;border:1px solid var(--line);border-radius:12px;background:#fafcfc;padding:6px 12px}.hist summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);min-height:32px;display:flex;align-items:center}
+.hist .hi{padding:6px 0;border-top:1px solid var(--line)}.hist .hi b{display:block;font-size:14px}.hist .hi small{color:var(--muted)}
+
+/* ===== ມືຖື: ບັດລົດ / ເລືອກລົດ ເປັນ 2 ຖັນ ເຫັນຫຼາຍຄັນພ້ອມກັນ (ຄືໜ້າຄອມ) ===== */
+@media(max-width:560px){
+ .vgrid{grid-template-columns:1fr 1fr;gap:10px}
+ .vcard{padding:10px 12px;gap:6px}.vc-i{display:none}.vc-top{justify-content:flex-start}
+ .vc-n{font-size:16px;line-height:1.35;overflow-wrap:anywhere}.vc-m{flex-direction:column;gap:2px}
+ .carlist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .carrow{flex-direction:column;align-items:flex-start;gap:6px;min-height:96px;padding:10px 12px;position:relative}
+ .carrow .grow{width:100%}.carrow b{font-size:16px;line-height:1.35;overflow-wrap:anywhere;padding-right:14px}.carrow .chip{max-width:100%;align-self:flex-start;white-space:normal;text-align:left}
+ .carrow>svg{position:absolute;right:8px;top:10px;width:16px;height:16px}
+ #rqlist{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}#rqlist .subbox{grid-column:1/-1}
+ .rql{flex-direction:column;align-items:stretch;gap:8px;padding:10px 12px}.rql b{font-size:16px;overflow-wrap:anywhere}.rql input{width:100%;text-align:left}
+}
+
+/* ===== ສະອາດຂຶ້ນ: ໄອຄອນແທນຄຳ · ຕັດປະໂຫຍກຍາວ ===== */
+.ibtn{display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px;border:1.5px solid var(--line-2);background:#fff;color:var(--ptext);cursor:pointer}
+.ibtn:active{transform:scale(.94)}.ibtn svg{width:20px;height:20px}.rql .ibtn.sw{width:36px;height:36px;min-height:36px;margin-top:4px;border-radius:10px}
+.iseg button{display:inline-flex;align-items:center;gap:6px;min-width:56px;justify-content:center}.iseg svg{width:18px;height:18px}
+.todo:not(.bad) small{display:none}.stockbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}.stockbar svg{color:var(--primary)}
+.rql small svg,.vc-m svg,.carrow small svg{width:15px;height:15px;vertical-align:-3px}
+.sheet-h b{font-size:15px}.cr .chip svg{width:14px;height:14px}
+
+.iseg{flex-wrap:nowrap;gap:6px}.iseg button{flex:1 1 0;min-width:0;padding:6px 6px;min-height:44px}

@@ -70,7 +70,7 @@ function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,err
 /* ===== api(): ໜ້າຕ່າງທຸກໜ້າໃຊ້ອັນນີ້ ===== */
 function api(action, body) {
  body = body || {}; var tk = ls('fuel_tk');
- var fin = function (r) { if (!r.ok && r.error === 'auth' && action === 'init') { ls('fuel_tk', null); location.href = '/'; } if (!r.ok && action !== 'login' && !(r.error === 'net' && READS[action])) toast(ERR[r.error] || 'ບໍ່ສຳເລັດ: ' + r.error, 'bad'); syncBar(); return r; };
+ var fin = function (r) { if (!r.ok && r.error === 'auth' && action === 'init') { ls('fuel_tk', null); location.href = '/'; } if (!r.ok && action !== 'login' && !(r.error === 'net' && READS[action])) toast((ERR[r.error] || 'ບໍ່ສຳເລັດ: ' + r.error) + (r.have != null ? ' (ແທ່ງເຫຼືອ ' + Math.round(r.have) + ' L)' : '') + (r.max != null ? ' (ເຕີມໄດ້ສູງສຸດ ' + Math.round(r.max) + ' L)' : ''), 'bad'); syncBar(); return r; };
  if (READS[action]) {
   return getQ().then(function (q) { return q.length ? flush() : 0; }).then(function () { return post(action, body, tk); }).then(function (r) {
    if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { return r; });

@@ -4,7 +4,7 @@ function greet() { var h = new Date().getHours(); return h < 11 ? 'ສະບາ�
 function today() { var d = new Date(), p = function (n) { return ('0' + n).slice(-2); }; return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear(); }
 api('me').then(function (r) {
  if (!r.ok) { ls('fuel_tk', null); location.href = '/'; return; } var m = r.data, apps = m.apps || [], cats = m.cats && m.cats.length ? m.cats : [{ id: 'work', name: 'ແອັບ' }];
- $('hd').innerHTML = header('ໜ້າຫຼັກ', m.name); $('lo').onclick = logout; installHint('inst');
+ $('hd').innerHTML = header('LTG Track', m.name); $('lo').onclick = logout; installHint('inst');
  var tile = function (a, i) { return '<button class="tile" data-app="' + esc(a.id) + '" data-cat="' + esc(a.cat || 'work') + '" style="animation-delay:' + i * 70 + 'ms"><div class="logo">' + ic(a.icon) + '</div><div class="grow"><b>' + esc(a.name) + '</b><span class="muted">' + esc(a.desc) + '</span></div>' + ic('next', 'muted') + '</button>'; };
  var known = {}; cats.forEach(function (c) { known[c.id] = 1; });
  var sections = cats.map(function (c) { return { c: c, list: apps.filter(function (a) { return (known[a.cat] ? a.cat : cats[0].id) === c.id; }) }; }).filter(function (s) { return s.list.length; }), n = 0;

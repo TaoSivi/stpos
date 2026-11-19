@@ -26,18 +26,46 @@ function fillSites() { var cur = $('site').value; $('site').innerHTML = I.cfg.si
 
 /* ===== ໂມດູນ: id, ຊື່, ໄອຄອນ, ກຸ່ມ, ສິດເຫັນ, ຕົວເລືອກສະໜາມ/ວັນທີ, ຕົວແຕ້ມ ===== */
 var MODS = [
- { id: 'dash', t: 'ພາບລວມ', ic: 'grid', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasAny(); }, run: function () { dashView(); } },
- { id: 'rq', t: 'ຂໍນ້ຳມັນ', ic: 'edit', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && rqAny() && hasRight('request'); }, run: function () { rqView(); } },
- { id: 'rqok', t: 'ອະນຸມັດຄຳຂໍ', ic: 'check', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && rqAny() && hasRight('reqOk'); }, run: function () { rqokView(); } },
- { id: 'issue', t: 'ເບີກອອກ / ເຕີມເຂົ້າລົດ', ic: 'pump', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRight('issue'); }, run: function () { issueView(); } },
- { id: 'tank', t: 'ຮັບນ້ຳມັນເຂົ້າແທ່ງ', ic: 'inbox', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasRight('tank'); }, run: function () { tankView(); } },
- { id: 'appr', t: 'ຮັບຮູ້ & ອະນຸມັດໃບ', ic: 'shield', g: 'ປະຕິບັດການ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { apprView(); } },
- { id: 'report', t: 'ລາຍງານປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { reportView(); } },
+ { id: 'dash', t: 'ພາບລວມ', ic: 'grid', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && hasAny(); }, run: function () { dashView(); } },
+ { id: 'rq', t: 'ຂໍນ້ຳມັນ', ic: 'edit', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && rqAny() && hasRight('request'); }, run: function () { rqView(); } },
+ { id: 'rqok', t: 'ອະນຸມັດຄຳຂໍ', ic: 'check', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && rqAny() && hasRight('reqOk'); }, run: function () { rqokView(); } },
+ { id: 'tank', t: 'ຮັບນ້ຳມັນເຂົ້າແທ່ງ', ic: 'inbox', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && hasRight('tank'); }, run: function () { tankView(); } },
+ { id: 'issue', t: 'ເບີກອອກ / ເຕີມເຂົ້າລົດ', ic: 'pump', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && hasRight('issue'); }, run: function () { issueView(); } },
+ { id: 'appr', t: 'ຮັບຮູ້ & ອະນຸມັດໃບ', ic: 'shield', g: 'ຂັ້ນຕອນການເຮັດວຽກ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { apprView(); } },
+ { id: 'report', t: 'ໃບຕິດຕາມປະຈຳວັນ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && hasOps(); }, run: function () { reportView(); } },
+ { id: 'rqrep', t: 'ແບບຟອມໃບຂໍ', ic: 'report', g: 'ລາຍງານ', pick: 'both', show: function () { return hasSites() && (hasOps() || hasRight('request')) && rqAny(); }, run: function () { rqRepView(); } },
  { id: 'ledger', t: 'ຍອດແທ່ງ', ic: 'ledger', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites() && hasOps(); }, run: function () { ledgerLoad(); } },
+ { id: 'adjrep', t: 'ການປັບປຸງ (Admin)', ic: 'report', g: 'ລາຍງານ', pick: 'site', show: function () { return hasSites() && I.me.boss; }, run: function () { adjLoad(); } },
  { id: 'assign', t: 'ມອບລົດໃຫ້ຄົນຂັບ', ic: 'truck', g: 'ຈັດການ', pick: 'site', show: function () { return hasSites() && hasRight('assign') && I.me.level === 'user'; }, run: function () { assignView(); } },
- { id: 'staff', t: 'ຕັ້ງຄ່າ (ຄົນ, ສິດ, ສະໜາມ, SOP, HR)', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin' || I.me.boss; }, run: function () { location.href = 'admin.html'; } },
+ { id: 'staff', t: 'ຕັ້ງຄ່າ', ic: 'gear', g: 'ຈັດການ', pick: 'none', show: function () { return I.me.level === 'superadmin' || I.me.level === 'admin' || I.me.boss; }, run: function () { location.href = 'admin.html'; } },
  { id: 'me', t: 'ຂ້ອຍ', ic: 'user', g: 'ບັນຊີ', pick: 'none', show: function () { return true; }, run: function () { meView(); } }
 ];
+/* ===== ຂັ້ນຕອນການເຮັດວຽກ: ຂໍ > ອະນຸມັດ > ຮັບເຂົ້າແທ່ງ > ເຕີມເຂົ້າລົດ > ຮັບຮູ້/ອະນຸມັດໃບ > ລາຍງານ (ສະແດງສະເພາະຂັ້ນທີ່ເຈົ້າມີສິດ) ===== */
+var STEPS = [['rq', 'ຂໍນ້ຳມັນ'], ['rqok', 'ອະນຸມັດຄຳຂໍ'], ['tank', 'ຮັບເຂົ້າແທ່ງ'], ['issue', 'ເຕີມເຂົ້າລົດ'], ['appr', 'ຮັບຮູ້ & ອະນຸມັດໃບ'], ['report', 'ລາຍງານ']];
+function stepList() { return STEPS.filter(function (s) { var m = modOf(s[0]); return m && m.show(); }); }
+function stepNo(id) { var l = stepList().map(function (s) { return s[0]; }), i = l.indexOf(id); return i < 0 ? 0 : i + 1; }
+function stepState(id) { /* [tone, ຂໍ້ຄວາມ] ຈາກຂໍ້ມູນໃບມື້ນີ້ (S): ບອກດ້ວຍຕົວໜັງສື ບໍ່ແມ່ນສີຢ່າງດຽວ */
+ if (!S) return ['', ''];
+ var reqs = S.reqs || [], pend = reqs.filter(function (x) { return x.state === 'pending'; }).length, wait = reqs.filter(function (x) { return x.state === 'approved'; }).length, rows = S.rows || [], filled = rows.filter(function (x) { return x.add != null; }), un = filled.filter(function (x) { return !x.ack; }).length;
+ if (id === 'rq') return reqs.length ? ['ok', reqs.length + ' ຄຳຂໍ'] : ['', 'ຍັງບໍ່ມີ'];
+ if (id === 'rqok') return pend ? ['warn', pend + ' ລໍອະນຸມັດ'] : reqs.length ? ['ok', 'ຄົບແລ້ວ'] : ['', '-'];
+ if (id === 'tank') return S.tank && S.tank.recv > 0 ? ['ok', 'ຮັບ ' + L(S.tank.recv)] : ['', 'ຍັງບໍ່ມີ'];
+ if (id === 'issue') return wait ? ['warn', wait + ' ລໍເຕີມ'] : filled.length ? ['ok', 'ເຕີມ ' + filled.length + ' ຄັນ'] : ['', 'ຍັງບໍ່ເຕີມ'];
+ if (id === 'appr') return S.approved ? ['ok', 'ອະນຸມັດແລ້ວ'] : un ? ['warn', 'ລໍຮັບຮູ້ ' + un] : filled.length ? ['warn', 'ພ້ອມອະນຸມັດ'] : ['', '-'];
+ return S.approved ? ['ok', 'ພ້ອມ'] : ['', 'ຫຼັງອະນຸມັດ'];
+}
+function stepBar() { /* ແຖບຂັ້ນຕອນນ້ອຍ ເທິງທຸກໜ້າທີ່ເປັນຂັ້ນ */
+ var el = $('steps'); if (!el) { el = document.createElement('nav'); el.id = 'steps'; el.className = 'stepbar noprint'; el.setAttribute('aria-label', 'ຂັ້ນຕອນ'); $('v').parentNode.insertBefore(el, $('v')); }
+ var l = stepList(); if (!I || l.length < 2 || MOD === 'dash' || !l.some(function (s) { return s[0] === MOD; })) { el.innerHTML = ''; el.hidden = true; return; }
+ el.hidden = false; el.innerHTML = l.map(function (s, i) { var st = stepState(s[0]); return '<button type="button" data-go="' + s[0] + '" class="' + st[0] + '" aria-current="' + (s[0] === MOD) + '"><span class="sn">' + (st[0] === 'ok' && s[0] !== MOD ? '\u2713' : i + 1) + '</span><span>' + esc(s[1]) + (st[1] ? '<small>' + esc(st[1]) + '</small>' : '') + '</span></button>'; }).join('');
+ var cur = el.querySelector('[aria-current=true]'); if (cur) el.scrollLeft = cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2; /* ໃຫ້ຂັ້ນປັດຈຸບັນຢູ່ກາງ */
+}
+document.addEventListener('click', function (e) { var g = e.target.closest('#steps [data-go]'); if (g) go(g.dataset.go); }); /* ແຖບຂັ້ນຕອນຢູ່ນອກ #v */
+function stepsCard() { /* ໜ້າພາບລວມ: ລາຍການຂັ້ນຕອນເປັນເລກ ແຕະເພື່ອໄປຂັ້ນນັ້ນ */
+ var l = stepList(); if (l.length < 2) return '';
+ return '<section class="card"><h2>' + ic('check') + 'ຂັ້ນຕອນຂອງມື້ນີ້</h2><ol class="steps">' + l.map(function (s, i) { var st = stepState(s[0]), m = modOf(s[0]); return '<li><button type="button" class="stp ' + st[0] + '" data-go="' + s[0] + '"><span class="sn">' + (st[0] === 'ok' ? '\u2713' : i + 1) + '</span><span class="grow"><b>' + esc(s[1]) + '</b><small>' + esc(st[1] || m.t) + '</small></span>' + ic('next', 'muted') + '</button></li>'; }).join('') + '</ol></section>';
+}
+new MutationObserver(function () { if (window.I) stepBar(); }).observe($('v'), { childList: true });
 function vis() { return MODS.filter(function (m) { return m.show(); }); }
 function modOf(id) { return MODS.filter(function (m) { return m.id === id; })[0]; }
 
@@ -50,11 +78,11 @@ function start() {
   go(hasSites() ? 'dash' : I.me.boss ? 'cfg' : 'me');
  });
 }
-function navBtn(m, cls) { return '<button class="' + cls + '" data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t) + '</span>' + (m.id === 'appr' ? '<i class="nb" aria-label="ລໍຖ້າຮັບຮູ້"></i>' : '') + '</button>'; }
+function navBtn(m, cls) { return '<button class="' + cls + '" data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + esc(m.t) + '</span>' + (m.id === 'appr' ? '<i class="nb" aria-label="ລໍຖ້າຮັບຮູ້"></i>' : '') + '</button>'; }
 function buildNav() {
  var list = vis(), groups = [], seen = {}, side = '';
  list.forEach(function (m) { if (!seen[m.g]) { seen[m.g] = 1; groups.push(m.g); } });
- side += '<div class="side-head"><div class="avatar">' + ic('pump') + '</div><div><b>ນ້ຳມັນສະໜາມ</b><small>' + esc(I.me.name) + ' · ' + esc(RN[I.me.role] || '') + '</small></div></div>';
+ side += '<div class="side-head"><div class="avatar">' + ic('pump') + '</div><div><b>LTG Track</b><small>' + esc(I.me.name) + ' · ' + esc(RN[I.me.role] || '') + '</small></div></div>';
  groups.forEach(function (g) { side += '<div class="side-grp">' + esc(g) + '</div>' + list.filter(function (m) { return m.g === g; }).map(function (m) { return navBtn(m, 'nav-item'); }).join(''); });
  side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + (I.hr ? '<button class="nav-item" id="sidehr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
  $('side').innerHTML = side;
@@ -62,7 +90,7 @@ function buildNav() {
  if (prim.length < 4) { var rp = modOf('report'); if (rp && rp.show() && prim.indexOf(rp) < 0) prim.push(rp); }
  $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span>' + (m.id === 'appr' ? '<i class="nb"></i>' : '') + '</button>'; }).join('');
  $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), '');
- window.MENU_HR = !!I.hr; window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
+ window.MENU_HR = !!I.hr; window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
  $('sidelo').onclick = logout; if ($('sidehr')) $('sidehr').onclick = openHr;
 }
 function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(function (b) { b.textContent = n > 0 ? n : ''; }); }
@@ -79,6 +107,7 @@ function go(id) {
 $('nav').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.m) go(b.dataset.m); };
 $('side').onclick = function (e) { var b = e.target.closest('[data-m]'); if (b) go(b.dataset.m); };
 $('site').onchange = $('date').onchange = function () { go(MOD); };
+if ($('rf')) $('rf').onclick = function () { go(MOD); };
 /* ສົ່ງຄິວຄົບແລ້ວ → ໂຫຼດໜ້າໃໝ່ (ຖ້າບໍ່ໄດ້ກຳລັງພິມຢູ່) */
 document.addEventListener('synced', function () { var a = document.activeElement; if (I && ['cfg', 'me', 'staff'].indexOf(MOD) < 0 && !(a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName))) go(MOD); });
 
