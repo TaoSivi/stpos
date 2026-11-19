@@ -204,3 +204,22 @@ ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 
 .iseg{flex-wrap:nowrap;gap:6px}.iseg button{flex:1 1 0;min-width:0;padding:6px 6px;min-height:44px}
 .perm th,.perm td{white-space:nowrap;padding:8px 10px}.perm td:first-child{position:sticky;left:0;background:#fff}
+
+/* ແຖບລຸ່ມ = ຂັ້ນຕອນ 1–6 */
+nav.tabs.steps{gap:2px;padding:6px 4px;max-width:calc(100% - 16px);width:calc(100% - 16px);justify-content:space-between}
+nav.tabs.steps button{flex:1 1 0;min-width:0;padding:6px 2px;gap:3px;border-radius:14px}
+nav.tabs.steps .sn{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ok-bg);color:var(--primary);font-size:15px;font-weight:700}
+nav.tabs.steps .sl{font-size:12.5px;font-weight:600;line-height:1.1;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+nav.tabs.steps button.ok .sn{background:var(--primary);color:#fff}nav.tabs.steps button.warn .sn{background:#f5b800;color:#3a2900}
+nav.tabs.steps button[aria-current=true]{background:var(--ok-bg)}nav.tabs.steps button[aria-current=true] .sn{background:var(--dark-2);color:#fff;box-shadow:0 0 0 3px rgba(15,63,60,.18)}
+nav.tabs.steps .nb{position:absolute;top:0;right:4px;margin:0;min-width:18px;height:18px;font-size:11px;padding:0 4px}
+
+/* ໄອຄອນແທນເລກ + ແບບປຸ່ມຄືແອັບ HR (ປຸ່ມທີ່ເລືອກ = ຕື່ມສີຂຽວອຳພັນ ໄອຄອນຂາວ) */
+nav.tabs.steps .si{position:relative;display:grid;place-items:center;width:30px;height:28px}nav.tabs.steps .si svg{width:23px;height:23px}
+nav.tabs.steps .sd{position:absolute;top:0;right:-2px;width:10px;height:10px;border-radius:50%;border:2px solid #fff}
+nav.tabs.steps .sd.ok{background:#2fae7b}nav.tabs.steps .sd.warn{background:#f5b800}
+nav.tabs.steps button{color:var(--primary)}nav.tabs.steps .sl{color:var(--primary)}
+nav.tabs button[aria-current=true],nav.tabs.steps button[aria-current=true]{background:linear-gradient(135deg,#18a8a0,#0b7e7a);color:#fff;box-shadow:0 4px 12px rgba(10,126,122,.35)}
+nav.tabs button[aria-current=true] .sl,nav.tabs.steps button[aria-current=true] .sl{color:#fff}
+nav.tabs.steps button[aria-current=true] .sd{border-color:#0f8f8a}
+.stp .sn svg{width:20px;height:20px}

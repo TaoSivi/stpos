@@ -54,16 +54,18 @@ function stepState(id) { /* [tone, ຂໍ້ຄວາມ] ຈາກຂໍ້ມ�
  if (id === 'appr') return S.approved ? ['ok', 'ອະນຸມັດແລ້ວ'] : un ? ['warn', 'ລໍຮັບຮູ້ ' + un] : filled.length ? ['warn', 'ພ້ອມອະນຸມັດ'] : ['', '-'];
  return S.approved ? ['ok', 'ພ້ອມ'] : ['', 'ຫຼັງອະນຸມັດ'];
 }
-function stepBar() { /* ແຖບຂັ້ນຕອນນ້ອຍ ເທິງທຸກໜ້າທີ່ເປັນຂັ້ນ */
- var el = $('steps'); if (!el) { el = document.createElement('nav'); el.id = 'steps'; el.className = 'stepbar noprint'; el.setAttribute('aria-label', 'ຂັ້ນຕອນ'); $('v').parentNode.insertBefore(el, $('v')); }
- var l = stepList(); if (!I || l.length < 2 || MOD === 'dash' || !l.some(function (s) { return s[0] === MOD; })) { el.innerHTML = ''; el.hidden = true; return; }
- el.hidden = false; el.innerHTML = l.map(function (s, i) { var st = stepState(s[0]); return '<button type="button" data-go="' + s[0] + '" class="' + st[0] + '" aria-current="' + (s[0] === MOD) + '"><span class="sn">' + (st[0] === 'ok' && s[0] !== MOD ? '\u2713' : i + 1) + '</span><span>' + esc(s[1]) + (st[1] ? '<small>' + esc(st[1]) + '</small>' : '') + '</span></button>'; }).join('');
- var cur = el.querySelector('[aria-current=true]'); if (cur) el.scrollLeft = cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2; /* ໃຫ້ຂັ້ນປັດຈຸບັນຢູ່ກາງ */
+var STEPIC = { rq: 'edit', rqok: 'check', tank: 'inbox', issue: 'pump', appr: 'shield', report: 'report' };
+var STEPSHORT = { rq: 'ຂໍນ້ຳມັນ', rqok: 'ອະນຸມັດ', tank: 'ຮັບເຂົ້າ', issue: 'ເຕີມລົດ', appr: 'ຮັບຮູ້', report: 'ລາຍງານ' };
+function stepBar() { /* ແຖບລຸ່ມ = ຂັ້ນຕອນ 1–6 (ວົງເລກ + ຊື່ສັ້ນ); ບໍ່ມີຂັ້ນ → ເມນູສັ້ນແບບເກົ່າ */
+ var old = $('steps'); if (old) { old.innerHTML = ''; old.hidden = true; }
+ if (!I) return; var l = stepList();
+ if (!l.length) { var prim = ['rqok', 'rq', 'tank', 'issue', 'appr', 'dash'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4); $('nav').className = 'tabs'; $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span></button>'; }).join(''); return; }
+ var nav = $('nav'); nav.className = 'tabs steps'; nav.innerHTML = l.map(function (s, i) { var st = stepState(s[0]), cur = s[0] === MOD, bd = s[0] === 'appr' && S ? pendingOf(S) : 0; return '<button type="button" data-m="' + s[0] + '" class="' + st[0] + '" aria-current="' + cur + '" aria-label="' + esc(s[1]) + '"><span class="si">' + ic(STEPIC[s[0]] || 'grid') + (st[0] ? '<i class="sd ' + st[0] + '"></i>' : '') + '</span><span class="sl">' + esc(STEPSHORT[s[0]] || s[1]) + '</span>' + (bd ? '<i class="nb">' + bd + '</i>' : '') + '</button>'; }).join('');
+ var c = nav.querySelector('[aria-current=true]'); if (c) nav.scrollLeft = c.offsetLeft - (nav.clientWidth - c.offsetWidth) / 2;
 }
-document.addEventListener('click', function (e) { var g = e.target.closest('#steps [data-go]'); if (g) go(g.dataset.go); }); /* ແຖບຂັ້ນຕອນຢູ່ນອກ #v */
 function stepsCard() { /* ໜ້າພາບລວມ: ລາຍການຂັ້ນຕອນເປັນເລກ ແຕະເພື່ອໄປຂັ້ນນັ້ນ */
  var l = stepList(); if (l.length < 2) return '';
- return '<section class="card"><h2>' + ic('check') + 'ຂັ້ນຕອນຂອງມື້ນີ້</h2><ol class="steps">' + l.map(function (s, i) { var st = stepState(s[0]), m = modOf(s[0]); return '<li><button type="button" class="stp ' + st[0] + '" data-go="' + s[0] + '"><span class="sn">' + (st[0] === 'ok' ? '\u2713' : i + 1) + '</span><span class="grow"><b>' + esc(s[1]) + '</b><small>' + esc(st[1] || m.t) + '</small></span>' + ic('next', 'muted') + '</button></li>'; }).join('') + '</ol></section>';
+ return '<section class="card"><h2>' + ic('check') + 'ຂັ້ນຕອນຂອງມື້ນີ້</h2><ol class="steps">' + l.map(function (s, i) { var st = stepState(s[0]), m = modOf(s[0]); return '<li><button type="button" class="stp ' + st[0] + '" data-go="' + s[0] + '"><span class="sn">' + ic(STEPIC[s[0]] || 'grid') + '</span><span class="grow"><b>' + esc(s[1]) + '</b><small>' + esc(st[1] || m.t) + '</small></span>' + ic('next', 'muted') + '</button></li>'; }).join('') + '</ol></section>';
 }
 new MutationObserver(function () { if (window.I) stepBar(); }).observe($('v'), { childList: true });
 function vis() { return MODS.filter(function (m) { return m.show(); }); }
@@ -78,7 +80,7 @@ function start() {
   go(hasSites() ? 'dash' : I.me.boss ? 'cfg' : 'me');
  });
 }
-function navBtn(m, cls) { return '<button class="' + cls + '" data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + esc(m.t) + '</span>' + (m.id === 'appr' ? '<i class="nb" aria-label="ລໍຖ້າຮັບຮູ້"></i>' : '') + '</button>'; }
+function navBtn(m, cls) { return '<button class="' + cls + '" data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t) + '</span>' + (m.id === 'appr' ? '<i class="nb" aria-label="ລໍຖ້າຮັບຮູ້"></i>' : '') + '</button>'; }
 function buildNav() {
  var list = vis(), groups = [], seen = {}, side = '';
  list.forEach(function (m) { if (!seen[m.g]) { seen[m.g] = 1; groups.push(m.g); } });
@@ -86,11 +88,9 @@ function buildNav() {
  groups.forEach(function (g) { side += '<div class="side-grp">' + esc(g) + '</div>' + list.filter(function (m) { return m.g === g; }).map(function (m) { return navBtn(m, 'nav-item'); }).join(''); });
  side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
  $('side').innerHTML = side;
- var prim = ['rqok', 'rq', 'tank', 'issue', 'appr', 'dash'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4); /* ລຳດັບຕາມຂັ້ນຕອນ: ອະນຸມັດຄຳຂໍ · ຂໍ · ຮັບເຂົ້າແທ່ງ · ເຕີມເຂົ້າລົດ */
- if (prim.length < 4) { var rp = modOf('report'); if (rp && rp.show() && prim.indexOf(rp) < 0) prim.push(rp); }
- $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span>' + (m.id === 'appr' ? '<i class="nb"></i>' : '') + '</button>'; }).join('');
+ stepBar();
  $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), '');
- window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
+ window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
  $('sidelo').onclick = logout;
 }
 function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(function (b) { b.textContent = n > 0 ? n : ''; }); }

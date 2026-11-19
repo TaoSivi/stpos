@@ -11,7 +11,7 @@ h1,h2,h3{margin:0;line-height:1.3}h1{font-size:22px;font-weight:800;letter-spaci
 :focus-visible{outline:3px solid rgba(10,186,181,.45);outline-offset:2px}
 ::selection{background:#0abab540}
 .hide{display:none!important}.muted{color:var(--muted)}.sm{font-size:14px}
-svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 
 /* ໂຄງໜ້າ */
 .top{background:linear-gradient(135deg,var(--dark-2),var(--dark));color:#fff;padding:calc(14px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 18px calc(18px + env(safe-area-inset-left));border-radius:0 0 var(--r) var(--r);box-shadow:var(--sh-2);position:relative;z-index:2}
