@@ -203,3 +203,4 @@ ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .sheet-h b{font-size:15px}.cr .chip svg{width:14px;height:14px}
 
 .iseg{flex-wrap:nowrap;gap:6px}.iseg button{flex:1 1 0;min-width:0;padding:6px 6px;min-height:44px}
+.perm th,.perm td{white-space:nowrap;padding:8px 10px}.perm td:first-child{position:sticky;left:0;background:#fff}

@@ -14,6 +14,7 @@ var $ = function (i) { return document.getElementById(i); };
 function esc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } return ''; }
 var ICONS = {
+ bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
  pump: '<path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h13M7 7h6v4H7zM15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3"/>',
  truck: '<path d="M2 6h11v10H2zM13 9h4l4 4v3h-8"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
  cam: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/>',
@@ -37,7 +38,7 @@ var ICONS = {
  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.1"/>'
 };
 function ic(n, extra) { return '<svg class="i ' + (extra || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '') + '</svg>'; }
-function L(x) { return x == null ? '–' : Math.round(x).toLocaleString('en') + ' L'; }
+function L(x) { return x == null ? '–' : Math.round(x).toLocaleString('en') + ' L'; }
 function when(t) { return new Date(t).toLocaleString('en-GB', { timeZone: 'Asia/Vientiane', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
 function today() { return new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10); }
 function dmy(d) { return d.split('-').reverse().join('/'); }
@@ -47,7 +48,32 @@ var ERR = { nobill: 'ມີການຮັບນ້ຳມັນເຂົ້າ�
 /* api() ແລະ logout() ຢູ່ offline.js (ຮອງຮັບຕອນບໍ່ມີເນັດ) */
 
 var _t;
-function toast(msg, kind) { var o = document.querySelector('.toast'); if (o) o.remove(); var t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); clearTimeout(_t); _t = setTimeout(function () { t.remove(); }, 3500); }
+var TOASTN = 0;
+function toast(msg, kind) { /* ປອບອັບກາງຈໍ: ✓ ສຳເລັດ / ! ຜິດພາດ — ແຕະເພື່ອປິດ */
+ TOASTN++; var o = document.querySelector('.toast'); if (o) o.remove(); var t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status');
+ t.innerHTML = '<span class="tic">' + (kind === 'bad' ? ic('alert') : kind === 'ok' ? ic('check') : ic('bell')) + '</span><span class="tmsg"></span>'; t.querySelector('.tmsg').textContent = msg; t.onclick = function () { t.remove(); }; document.body.appendChild(t);
+ if (kind === 'ok' || kind === 'bad') nadd(msg, kind); clearTimeout(_t); _t = setTimeout(function () { t.remove(); }, kind === 'bad' ? 4500 : 2200); }
+var _bz = 0, _bzT = 0, _bzL = '';
+function bzy(d, label) { /* ປອບອັບ "ກຳລັງໂຫຼດ / ກຳລັງບັນທຶກ…" ເມື່ອໃຊ້ເວລາເກີນ ~0.5 ວິ */
+ _bz = Math.max(0, _bz + d); if (d > 0 && label && (!_bzL || /\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81/.test(label))) _bzL = label;
+ if (d > 0 && _bz === 1) _bzT = setTimeout(function () { if (!_bz || document.getElementById('bz')) return; var e = document.createElement('div'); e.id = 'bz'; e.className = 'bz'; e.innerHTML = '<div class="bzc"><span class="spin"></span><b></b></div>'; e.querySelector('b').textContent = _bzL; document.body.appendChild(e); setTimeout(function () { if (e.parentNode) { _bz = 0; e.remove(); } }, 25000); }, 450);
+ if (!_bz) { clearTimeout(_bzT); _bzL = ''; var x = document.getElementById('bz'); if (x) x.remove(); } }
+/* ===== ກະດິ່ງແຈ້ງເຕືອນ: ຕ້ອງເຮັດ (ຈາກໜ້ານັ້ນ) + ປະຫວັດ 30 ລາຍການຫຼ້າສຸດໃນເຄື່ອງນີ້ ===== */
+function nlog() { try { return JSON.parse(localStorage.getItem('ltg_notif') || '') || { l: [], r: 0 }; } catch (e) { return { l: [], r: 0 }; } }
+function nsave(o) { try { localStorage.setItem('ltg_notif', JSON.stringify(o)); } catch (e) { } }
+function nadd(msg, kind) { var o = nlog(); o.l.unshift({ t: Date.now(), m: msg, k: kind || '' }); o.l = o.l.slice(0, 30); nsave(o); bellPaint(); }
+function nTodo() { try { return window.notifTodo ? window.notifTodo() || [] : []; } catch (e) { return []; } }
+function bellPaint() { var b = document.getElementById('bell'); if (!b) return; var o = nlog(), n = nTodo().length + o.l.filter(function (x) { return x.t > o.r && x.k === 'bad'; }).length, d = b.querySelector('.bd'); if (!d) { d = document.createElement('i'); d.className = 'bd'; b.appendChild(d); } d.textContent = n > 9 ? '9+' : n; d.hidden = !n; }
+function openNotif() {
+ var o = nlog(), td = nTodo(); o.r = Date.now(); nsave(o); bellPaint();
+ var e = document.createElement('div'); e.className = 'nov'; e.innerHTML = '<div class="nsh" role="dialog" aria-label="\u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99"><div class="row" style="margin-bottom:6px"><h2 class="grow" style="margin:0">' + ic('bell') + ' \u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99</h2><button type="button" class="ic" id="nx" aria-label="\u0e9b\u0eb4\u0e94">' + ic('x') + '</button></div>' +
+  (td.length ? '<div class="nh">' + ic('alert') + '</div>' + td.map(function (x, i) { return '<button type="button" class="nit" data-ng="' + i + '">' + ic(x.i || 'alert') + '<span class="grow">' + esc(x.t) + '</span>' + ic('next', 'muted') + '</button>'; }).join('') : '') +
+  '<div class="nh">' + ic('inbox') + '</div>' + (o.l.length ? o.l.map(function (x) { return '<div class="nit h ' + esc(x.k) + '">' + ic(x.k === 'bad' ? 'alert' : 'check') + '<span class="grow">' + esc(x.m) + '</span><small>' + when(x.t) + '</small></div>'; }).join('') + '<button type="button" class="btn line blk" id="nclr" style="margin-top:10px">' + ic('trash') + '</button>' : '<p class="muted" style="text-align:center;padding:14px 0">\u2013</p>') + '</div>';
+ e.onclick = function (ev) { var g = ev.target.closest('[data-ng]'); if (g) { e.remove(); var it = td[+g.dataset.ng]; if (it && it.go) it.go(); return; } if (ev.target.closest('#nclr')) { nsave({ l: [], r: Date.now() }); e.remove(); bellPaint(); return; } if (ev.target === e || ev.target.closest('#nx')) e.remove(); };
+ document.body.appendChild(e);
+}
+document.addEventListener('click', function (ev) { if (ev.target.closest('#bell')) openNotif(); });
+setInterval(bellPaint, 4000); document.addEventListener('DOMContentLoaded', function () { setTimeout(bellPaint, 600); });
 /* ໂມດອນ: ຄືນ element; ປິດດ້ວຍ close() ຫຼື ກົດພື້ນຫຼັງ */
 function modal(html) { var m = document.createElement('div'); m.className = 'mask'; m.innerHTML = '<div class="sheet" role="dialog" aria-modal="true">' + html + '</div>'; m.onclick = function (e) { if (e.target === m) m.remove(); }; document.body.appendChild(m); return m; }
 function ask(title, label, okText) { /* ຖາມຂໍ້ຄວາມ → Promise(ຂໍ້ຄວາມ | null) */
@@ -90,8 +116,8 @@ function exportXlsx(name, rows, widths, merges) {
 function header(title, sub, right) { /* ໜ້າຫຼັກ: ໂລໂກ້ + ອອກຈາກລະບົບ · ໜ້າອື່ນ: ☰ ເມນູ (ຊ້າຍ) · ຊື່ · ກັບຄືນ (ຂວາ) — ຮູບແບບດຽວກັບແອັບ HR */
  var pg = location.pathname.split('/').pop(), logo = ({ 'sop.html': 'sheet', 'hrreport.html': 'xls', 'admin.html': 'key', 'home.html': 'grid' })[pg] || 'pump';
  window.__hdr = { title: title, sub: sub || '', logo: logo };
- if (pg === 'home.html') return '<div class="top"><div class="in"><div class="logo float">' + ic(logo) + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>';
- return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
+ if (pg === 'home.html') return '<div class="top"><div class="in"><div class="logo float">' + ic(logo) + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>';
+ return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
 }
 
 /* ===== ແອັບໃນມືຖື (PWA): ລົງທະບຽນ service worker + ຊ່ວຍຕິດຕັ້ງ ===== */

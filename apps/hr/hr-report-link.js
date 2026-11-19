@@ -1,7 +1,7 @@
 /* ເມນູ "ລາຍງານ HR (Excel)" ໃນແອັບ HR: ເພີ່ມປຸ່ມໃສ່ເມນູຂ້າງ (☰) ສຳລັບຜູ້ທີ່ມີສິດ (admin / HR ບັນຊີ-ເຈົ້າຂອງ-ຜູ້ກວດສອບ).
  * ແຍກຈາກ build ຂອງ HR (ບໍ່ແກ້ໂຄ້ດ HR) — ສັງເກດ DOM ເມື່ອເມນູເປີດ ແລ້ວແຊກປຸ່ມເຂົ້າ. ກົດ → /hrreport.html?from=hr (ມີປຸ່ມກັບ HR).
  * ສິດກວດຈາກ server (/api/hrreport.info ດ້ວຍ session ກາງ) — ບໍ່ມີ session ກາງ ຫຼື ບໍ່ມີສິດ = ບໍ່ສະແດງປຸ່ມ.
- * ຖ້າສ້າງ HR build ໃໝ່ ແລະ ຊື່ class ເມນູ (aside.drawer / .drawer-sec) ປ່ຽນ ຕ້ອງປັບໄຟລ໌ນີ້; ລາຍງານຍັງເຂົ້າໄດ້ຈາກໜ້າຫຼັກ (ໝວດ "ລາຍງານ"). */
+ * ຖ້າສ້າງ HR build ໃໝ່ ແລະ ຊື່ class ເມນູ (aside.drawer / .drawer-sec) ປ່ຽນ ຕ້ອງປັບໄຟລ໌ນີ້; ລາຍງານເຂົ້າໄດ້ຈາກເມນູນີ້ເທົ່ານັ້ນ (ເອົາອອກຈາກໜ້າຫຼັກແລ້ວ). */
 (function () {
   var tok = ''; try { tok = localStorage.getItem('fuel_tk') || ''; } catch (e) { }
   if (!tok || !window.fetch) return;

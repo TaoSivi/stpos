@@ -7,7 +7,7 @@ function load() { api('hrreport.info').then(function (r) {
  INFO = r.data; F.from = INFO.cycles.previous.from; F.to = INFO.cycles.previous.to; draw();
 }); }
 function draw() {
- var fromHr = /[?&]from=hr(&|$)/.test(location.search); $('hd').innerHTML = header('ລາຍງານ HR (Excel)', 'ການເຂົ້າວຽກ ລາ OT', fromHr ? '<a class="ic" href="/hr/" aria-label="ກັບໄປ HR" title="ກັບໄປ HR" style="text-decoration:none">' + ic('back') + '</a>' : ''); $('lo').onclick = logout; window.MENU_HR = true;
+ $('hd').innerHTML = header('ລາຍງານ HR (Excel)', 'ການເຂົ້າວຽກ ລາ OT'); window.pageBack = function () { location.href = '/hr/'; return true; }; /* ໜ້ານີ້ຢູ່ໃນແອັບ HR: ປຸ່ມ ກັບຄືນ → HR */ $('lo').onclick = logout; window.MENU_HR = true;
  $('v').innerHTML = '<section class="card"><h2>' + ic('xls') + 'ເລືອກຊ່ວງວັນທີ</h2>' +
   '<div class="chips" role="group"><button data-pick="prev" aria-pressed="' + (F.pick === 'prev') + '">ຮອບກ່ອນ ' + dmyS(INFO.cycles.previous.from).slice(0, 5) + '–' + dmyS(INFO.cycles.previous.to).slice(0, 5) + '</button><button data-pick="cur" aria-pressed="' + (F.pick === 'cur') + '">ຮອບປັດຈຸບັນ ' + dmyS(INFO.cycles.current.from).slice(0, 5) + '–' + dmyS(INFO.cycles.current.to).slice(0, 5) + '</button><button data-pick="custom" aria-pressed="' + (F.pick === 'custom') + '">ເລືອກເອງ</button></div>' +
   '<div class="g2r"><label class="field">ຈາກວັນທີ<input type="date" id="f-from" value="' + F.from + '"></label><label class="field">ເຖິງວັນທີ<input type="date" id="f-to" value="' + F.to + '"></label></div>' +

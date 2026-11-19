@@ -35,7 +35,7 @@ function cleanTank(t) {
 }
 function cleanCfg(c) {
   c = c || {}; const out = { company: str(c.company, 100), sites: [], vehicles: [] }, seen = {};
-  (Array.isArray(c.sites) ? c.sites : []).forEach(function (s) { if (s && ID.test(s.id) && !seen[s.id] && str(s.name, 80)) { seen[s.id] = 1; const lg = typeof s.logo === 'string' && s.logo.length <= 200000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(s.logo) ? s.logo : '', tl = Number(s.tol); out.sites.push({ id: s.id, name: str(s.name, 80), tank: cleanTank(s.tank), company: str(s.company, 100), meter: !!s.meter, rq: !!s.rq, logo: lg, tol: isFinite(tl) && tl >= 0 && tl <= 100000 && s.tol !== '' && s.tol != null ? tl : null }); } });
+  (Array.isArray(c.sites) ? c.sites : []).forEach(function (s) { if (s && ID.test(s.id) && !seen[s.id] && str(s.name, 80)) { seen[s.id] = 1; const lg = typeof s.logo === 'string' && s.logo.length <= 200000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(s.logo) ? s.logo : '', tl = Number(s.tol); out.sites.push({ id: s.id, name: str(s.name, 80), tank: cleanTank(s.tank), company: str(s.company, 100), hdr: str(s.hdr, 400), nat: s.nat !== false, meter: !!s.meter, rq: !!s.rq, logo: lg, tol: isFinite(tl) && tl >= 0 && tl <= 100000 && s.tol !== '' && s.tol != null ? tl : null }); } });
   const vs = {};
   (Array.isArray(c.vehicles) ? c.vehicles : []).forEach(function (v) { if (v && ID.test(v.id) && !vs[v.id] && seen[v.site] && str(v.name, 60) && cleanTank(v.tank)) { vs[v.id] = 1; out.vehicles.push({ id: v.id, name: str(v.name, 60), site: v.site, driver: str(v.driver, 40), tank: cleanTank(v.tank) }); } });
   return out;

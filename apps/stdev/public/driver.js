@@ -16,6 +16,7 @@ function chip(r) {
  if (r.rej) return '<span class="chip bad">' + ic('x') + 'ບໍ່ຍອມຮັບ: ' + esc(r.rej.why || '') + '</span>';
  return '<span class="chip warn">ລໍຖ້າທ່ານຮັບຮູ້</span>';
 }
+window.notifTodo = function () { var n = 0; DATA.forEach(function (x) { x.sh.data.rows.forEach(function (r) { if (r.add != null && !r.ack && !r.rej) n++; }); }); return n ? [{ t: n + ' ລໍຮັບຮູ້', i: 'check', go: function () { window.scrollTo(0, 0); } }] : []; };
 function draw() {
  var h = '', n = 0;
  DATA.forEach(function (d) {
@@ -48,7 +49,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 api('init').then(function (r) {
  if (!r.ok) return; ME = r.data.me; CFG = r.data.cfg;
  if (!Object.keys(ME.roles).some(function (s) { return ME.roles[s] === 'driver'; }) && Object.keys(ME.roles).length) { location.href = 'office.html'; return; }
- $('hd').innerHTML = header('ຮັບຮູ້ການເຕີມນ້ຳມັນ', ME.name, r.data.hr ? '<button class="ic" id="hrb" aria-label="ST HR">' + ic('users') + '</button>' : '');
- window.MENU_HR = !!r.data.hr; $('lo').onclick = logout; if ($('hrb')) $('hrb').onclick = openHr; load();
+ $('hd').innerHTML = header('ຮັບຮູ້ການເຕີມນ້ຳມັນ', ME.name);
+ $('lo').onclick = logout; load(); /* ບໍ່ມີທາງລັດໄປ HR — ສະລັບແອັບຜ່ານ ໜ້າຫຼັກ */
  $('v').insertAdjacentHTML('afterend', '<div id="inst"></div>'); installHint('inst');
 });

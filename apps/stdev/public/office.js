@@ -84,14 +84,14 @@ function buildNav() {
  list.forEach(function (m) { if (!seen[m.g]) { seen[m.g] = 1; groups.push(m.g); } });
  side += '<div class="side-head"><div class="avatar">' + ic('pump') + '</div><div><b>LTG Track</b><small>' + esc(I.me.name) + ' · ' + esc(RN[I.me.role] || '') + '</small></div></div>';
  groups.forEach(function (g) { side += '<div class="side-grp">' + esc(g) + '</div>' + list.filter(function (m) { return m.g === g; }).map(function (m) { return navBtn(m, 'nav-item'); }).join(''); });
- side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + (I.hr ? '<button class="nav-item" id="sidehr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
+ side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
  $('side').innerHTML = side;
  var prim = ['rqok', 'rq', 'tank', 'issue', 'appr', 'dash'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4); /* ລຳດັບຕາມຂັ້ນຕອນ: ອະນຸມັດຄຳຂໍ · ຂໍ · ຮັບເຂົ້າແທ່ງ · ເຕີມເຂົ້າລົດ */
  if (prim.length < 4) { var rp = modOf('report'); if (rp && rp.show() && prim.indexOf(rp) < 0) prim.push(rp); }
  $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span>' + (m.id === 'appr' ? '<i class="nb"></i>' : '') + '</button>'; }).join('');
  $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), '');
- window.MENU_HR = !!I.hr; window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
- $('sidelo').onclick = logout; if ($('sidehr')) $('sidehr').onclick = openHr;
+ window.menuItems = function () { return groups.map(function (g) { return { g: g, items: vis().filter(function (m) { return m.g === g; }).map(function (m) { return { t: (stepNo(m.id) && m.g === 'ຂັ້ນຕອນການເຮັດວຽກ' ? stepNo(m.id) + '. ' : '') + m.t, ic: m.ic, cur: m.id === MOD, act: function () { go(m.id); } }; }) }; }); };
+ $('sidelo').onclick = logout;
 }
 function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(function (b) { b.textContent = n > 0 ? n : ''; }); }
 function pendingOf(s) { return s ? s.rows.filter(function (r) { return r.add != null && !r.ack && !r.rej; }).length : 0; }

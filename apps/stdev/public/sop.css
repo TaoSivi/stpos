@@ -59,3 +59,102 @@ details.sec .irs{border-top-left-radius:0;border-top-right-radius:0;margin:0}
 
 /* ໜ້າຈໍກວ້າງ (ຄອມ/ແທັບເລັດ): ໃຊ້ພື້ນທີ່ກວ້າງຂຶ້ນ ແລະ ລາຍການເປັນ 2 ຖັນ */
 @media(min-width:1000px){main{max-width:1000px!important}#v{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}#v>*:not(.cl){grid-column:1/-1}}
+
+/* ===== ໜ້າຕາໃໝ່: ກະເບື້ອງ + ວົງຄວາມຄືບໜ້າ + ໄອຄອນ (ຂໍ້ຄວາມໜ້ອຍ) ===== */
+.stabs{gap:6px;padding:4px 2px 8px}
+.stabs button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:48px;min-height:48px;padding:0 14px;border-radius:16px;box-shadow:var(--sh-1);color:var(--primary)}
+.stabs button[aria-selected=true]{padding:0 18px;background:linear-gradient(135deg,#0f8f8a,#0b5f5c)}
+.hero{display:flex;align-items:center;gap:16px;margin:0 0 6px;padding:16px 18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#0d3b39 0%,#0f6f6a 100%);box-shadow:0 10px 24px rgba(11,63,60,.28);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hn b{font-size:34px;line-height:1;font-weight:700;letter-spacing:-.5px}.hn small{font-size:18px;font-weight:500;opacity:.7}.hn span{display:block;margin-top:4px;font-size:14px;opacity:.8}
+.rg{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;flex:0 0 auto}
+.rg svg:first-child{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.rg circle{fill:none;stroke:#dbe8e7;stroke-width:4}.rg circle.v{stroke:var(--primary);stroke-linecap:round;transition:stroke-dasharray .4s}
+.rg b{font-size:13px;color:var(--primary)}.rg .i{width:16px;height:16px;stroke-width:2.6;color:#fff;position:relative}
+.rg.ok circle.v{stroke:#2fae7b}.rg.ok:not(.lg) .i{color:#17744f}
+.rg.lg{width:64px;height:64px}.rg.lg circle{stroke:rgba(255,255,255,.2)}.rg.lg circle.v{stroke:#7be0b5}.rg.lg .i{width:26px;height:26px}
+.sgrp{display:flex;align-items:center;gap:8px;margin:20px 4px 10px;font-size:15px;color:var(--ink)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tl{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;border:0;border-radius:22px;padding:14px;min-height:150px;background:var(--card);box-shadow:var(--sh-1);overflow:hidden;animation:riseIn .4s both;--ac:#0f8f8a;--ac2:#e3f4f2}
+.tl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ac)}
+.f-weekly{--ac:#2f6fc0;--ac2:#e3efff}.f-monthly{--ac:#d18a00;--ac2:#fff1d6}.f-event{--ac:#6b55c9;--ac2:#ece9fb}
+.tl .ti{display:grid;place-items:center;width:40px;height:40px;border-radius:14px;background:var(--ac2);color:var(--ac)}
+.tl .rg{position:absolute;right:12px;top:12px}
+.tl .cd{margin-top:auto;font-size:19px;font-weight:700;letter-spacing:.3px}
+.tl .tt{font-size:14px;line-height:1.35;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tl .tm{display:flex;gap:6px;align-items:center}
+.tl .fq{background:var(--ac2);color:var(--ac)}.tl .fq.v{background:#fde9f1;color:#a3306a;padding:3px 7px}.tl .fq .i{width:15px;height:15px}
+.tl.done{background:linear-gradient(160deg,#ecfbf4,#fff)}.tl.done::before{background:#2fae7b}
+.tl:active{transform:scale(.97)}
+.tl.wide{grid-column:1/-1;min-height:0}
+.tl.wide .th{display:flex;align-items:center;gap:12px}.tl.wide .cd{margin:0;display:block;font-size:17px}.tl.wide .tt{display:block;-webkit-line-clamp:1}
+.sr{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin-top:8px;padding:6px 12px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff;font:inherit;font-weight:700;color:var(--ink);text-align:left}
+.sr .i{color:var(--primary)}
+.st{display:inline-flex;align-items:center;gap:4px;min-width:34px;justify-content:center}.st .i{width:16px;height:16px;stroke-width:2.6}.st.done .i{color:#17744f}
+.runhd b{font-size:16px}
+@media(min-width:640px){.tg{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1000px){#v>.tg{grid-column:1/-1}.tg{grid-template-columns:repeat(4,1fr)}}
+.rg circle.v[stroke-dasharray^='0 ']{stroke:transparent}
+.irb button{width:48px;height:48px;border-radius:14px}.irb button.y{color:#2fae7b;border-color:#bfe3d2;background:#f0fbf6}.irb button.n{color:#d64545;border-color:#f3c9c9;background:#fff6f6}
+.ir .inf summary{display:inline-flex;align-items:center;min-height:24px}
+
+/* ===== ຮູບແບບ "UX Audit Checklist": ຄຣີມ + ນ້ຳຕານ, ເລກວົງມົນ 01 02, ຊ່ອງຕິກ, ເກຈ ===== */
+body.sop{--bg:#fbf6f0;--card:#fffdf9;--ink:#2a2018;--muted:#8b7b6b;--line:#eee3d6;--line-2:#e2d3c1;--primary:#a8734a;--primary-600:#8d5d38;--accent:#c79a6b;--dark:#4a3526;--dark-2:#5c4332;--sh-1:0 1px 2px rgba(80,55,30,.05),0 6px 18px rgba(80,55,30,.06);--r:22px;background:var(--bg);color:var(--ink)}
+body.sop .top{background:transparent;color:var(--ink);box-shadow:none;border-radius:0}
+body.sop .top h1,body.sop .top small{color:var(--ink)}body.sop .top small{opacity:.65}
+body.sop .top .ic{background:#f3e8da;color:var(--primary)}body.sop .top .ic:hover{background:#ecdcc8}
+body.sop .btn:not(.line):not(.bad){background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:none}
+body.sop .btn.ok{background:#6f9a60;border-color:#6f9a60}
+body.sop .btn.line{background:#fff;color:var(--primary);border:1.5px solid var(--line-2)}
+.sop .card{border:1px solid var(--line);box-shadow:none}
+.sop .stabs button{background:#fff;border:1px solid var(--line);box-shadow:none;color:var(--primary)}
+.sop .stabs button[aria-selected=true]{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 6px 14px rgba(168,115,74,.28)}
+/* ເກຈຄະແນນ */
+.hero{display:block;text-align:center;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none;padding:14px 18px 12px}.hero::after{display:none}
+.gg{position:relative;width:200px;max-width:70%;margin:0 auto}.gg svg{display:block;width:100%}
+.gb,.gv{fill:none;stroke-width:9;stroke-linecap:round}.gb{stroke:#f0e5d8}.gv{transition:stroke-dasharray .5s}
+.gn{position:absolute;left:0;right:0;bottom:2px}.gn b{font-size:40px;line-height:1;font-weight:700;color:var(--ink)}.gn small{font-size:16px;color:var(--muted)}
+.hs{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+.sgrp{margin:20px 4px 10px;font-weight:700;color:var(--ink)}
+/* ກະເບື້ອງ */
+.tl{border:1px solid var(--line);box-shadow:none;border-radius:20px;--ac:#a8734a;--ac2:#f6ece0;min-height:140px}
+.tl::before{display:none}
+.f-weekly{--ac:#6f8fb0;--ac2:#e8eff6}.f-monthly{--ac:#c98a2b;--ac2:#fbefd8}.f-event{--ac:#8a6bb0;--ac2:#f0e9f6}
+.nb{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;font-size:13px;font-weight:700;letter-spacing:.3px}
+.cb{position:absolute;right:12px;top:12px;min-width:26px;height:26px;padding:0 6px;display:inline-grid;place-items:center;border:1.5px solid var(--line-2);border-radius:8px;background:#fff;color:var(--muted);font-size:12px}
+.cb b{font-weight:700}.cb.part{border-color:var(--ac);color:var(--ac)}.cb.ok{background:#7aa86b;border-color:#7aa86b;color:#fff}.cb .i{width:15px;height:15px;stroke-width:3}
+.tl .rg{display:none}.tl .ti{width:26px;height:26px;border-radius:50%}.tl .ti .i{width:15px;height:15px}
+.tl .cd{margin-top:6px;font-size:18px}
+.tl.done{background:#f7fbf4;border-color:#d5e6cc}
+.tl.wide .th{align-items:center}
+.sr{border:1px solid var(--line);background:#fff}.sr .i{color:var(--primary)}
+/* ຕົວເລກໝວດ 01 02 */
+#v{counter-reset:sc}details.sec{counter-increment:sc}
+details.sec>summary{border:1px solid var(--line);box-shadow:none}
+details.sec>summary::before{content:counter(sc,decimal-leading-zero);display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;font-weight:700}
+.irs{border:1px solid var(--line);box-shadow:none}
+.ir .cd{background:#f6ece0;color:var(--primary)}
+.ir.y{background:#f9fcf6;border-left-color:#7aa86b}.ir.n{background:#fff8f6;border-left-color:#d9776a}.ir.gate{background:#f7f1e9;border-left-color:#a8734a}
+.irb button{border-radius:12px;width:46px;height:46px;border:1.5px solid var(--line-2);background:#fff;color:var(--muted)}
+.irb button.y{color:#7aa86b;border-color:#cfe2c6;background:#f9fcf6}.irb button.n{color:#d9776a;border-color:#f1cfc9;background:#fff8f6}
+.irb button.y[aria-pressed=true]{background:#7aa86b;border-color:#7aa86b;color:#fff}.irb button.n[aria-pressed=true]{background:#d9776a;border-color:#d9776a;color:#fff}
+.fq{background:#f6ece0;color:var(--primary)}.fq.w{background:#e8eff6;color:#4f6f90}.fq.m{background:#fbefd8;color:#9a6513}.fq.e{background:#f0e9f6;color:#6b4d92}.fq.v{background:#f6e3e0;color:#a5554a}
+.st.done{background:#e8f2e2;color:#4f7a41}.st.open{background:#fbefd8;color:#9a6513}.st.none{background:#f4ede4;color:var(--muted)}.st.bad{background:#f8e2de;color:#b4503f}
+.runhd .bar i,.bar i{background:var(--primary)}.bar{background:#f0e5d8}
+.sec .cnt{background:#fbefd8;color:#9a6513}.sec .cnt.ok{background:#e8f2e2;color:#4f7a41}
+.allp{border-color:#cfe2c6;background:#f9fcf6;color:#4f7a41}
+.warnbox,details.warnbox{background:#fbf1e3;border-left-color:#c98a2b;color:#7a5316}
+.sendbar{background:linear-gradient(180deg,transparent,var(--bg) 30%)}
+.seg{background:#f1e7da}.seg button[aria-selected=true]{color:var(--primary)}
+.acc .cnt{background:#f6ece0;color:var(--primary)}
+.pk input{accent-color:var(--primary)}
+
+/* ພິມ / PDF ຂອງໃບເຊັກລິດ */
+#sopaper{display:none}
+@media print{body.printing-sop>*:not(#sopaper){display:none!important}body.printing-sop{background:#fff!important}
+body.printing-sop #sopaper{display:block;color:#000;font-size:12px;line-height:1.5}
+#sopaper .sp-h{text-align:center;line-height:1.6;margin:0 0 8px}#sopaper .sp-h b,#sopaper .sp-h span{display:block;font-size:14px;font-weight:600}
+#sopaper h2{text-align:center;font-size:16px;margin:6px 0}#sopaper p{margin:2px 0}
+#sopaper table{width:100%;border-collapse:collapse;margin:10px 0}#sopaper th,#sopaper td{border:1px solid #444;padding:4px 6px;vertical-align:top;text-align:left}#sopaper th{background:#eee;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#sopaper td.c{text-align:center;white-space:nowrap}#sopaper tr.n td{background:#fde8e5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#sopaper .sp-s{display:flex;justify-content:space-around;margin-top:36px}#sopaper .sp-s span{border-top:1px solid #000;padding:4px 30px 0}}

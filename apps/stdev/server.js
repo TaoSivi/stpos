@@ -11,6 +11,7 @@ const http = require('http'), fs = require('fs'), os = require('os'), path = req
 const DATA = process.env.DATA_DIR || path.join(os.homedir(), 'stdev-data'), PUB = path.join(__dirname, 'public');
 const accounts = require('./accounts').create(DATA), fuel = require('./mod-fuel').create(DATA, accounts), hr = require('./mod-hr').create(DATA);
 
+/* inHr:true = ຢູ່ໃນແອັບ HR (ເມນູ ☰ ຂອງ HR) ບໍ່ສະແດງເປັນແອັບແຍກໃນໜ້າຫຼັກ — ແຕ່ API <id>.* ຍັງກວດສິດດ້ວຍ access() ຄືເກົ່າ */
 /* ===== ທະບຽນແອັບ (App registry) — ບ່ອນດຽວທີ່ໜ້າຫຼັກ (launcher) ອ່ານ. ເພີ່ມແອັບໃໝ່ (ເຊັ່ນ SOP) = ເພີ່ມ 1 ແຖວຢູ່ນີ້ + ໄຟລ໌ mod-<id>.js (ເບິ່ງ ADD-APP.md)
  *   access(u): ບັນຊີນີ້ໃຊ້ແອັບໄດ້ບໍ · href(u)/action: ກົດແລ້ວໄປໃສ · generic:true = ເຈົ້າຂອງຕິກເປີດໃຫ້ຕໍ່ຄົນໃນໜ້າ ພະນັກງານ & ສິດ (user.apps)
  *   api: ໂມດູນຮັບ action ທີ່ຂຶ້ນຕົ້ນດ້ວຍ "<id>." ເຊັ່ນ POST /api/sop.list → mods.sop.handle('list', body, user) */
@@ -21,11 +22,11 @@ const APPS = [
   { id: 'fuel', cat: 'work', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
   { id: 'people', cat: 'admin', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
   { id: 'hr', cat: 'work', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } },
-  { id: 'hrreport', cat: 'report', name: 'ລາຍງານ HR (Excel)', desc: function () { return 'ການເຂົ້າວຽກ · ມາຊ້າ · ລາ · OT ຕໍ່ວັນ ແລະ ສະຫຼຸບຕໍ່ຄົນ'; }, icon: 'xls', href: function () { return 'hrreport.html'; }, access: function (u) { return hr.ready() && (u.level !== 'user' || (u.hr && ['accountant', 'owner', 'auditor'].indexOf(u.hrRole) >= 0)); } },
+  { id: 'hrreport', cat: 'report', inHr: true, name: 'ລາຍງານ HR (Excel)', desc: function () { return 'ການເຂົ້າວຽກ · ມາຊ້າ · ລາ · OT ຕໍ່ວັນ ແລະ ສະຫຼຸບຕໍ່ຄົນ'; }, icon: 'xls', href: function () { return 'hrreport.html'; }, access: function (u) { return hr.ready() && (u.level !== 'user' || (u.hr && ['accountant', 'owner', 'auditor'].indexOf(u.hrRole) >= 0)); } },
   { id: 'sop', cat: 'docs', name: 'SOP ເຊັກລິດ', desc: function (u) { return u.level !== 'user' ? 'ມອບໝາຍເຊັກລິດ · ຕິດຕາມ · ແກ້ລາຍການ' : 'ເຊັກລິດວຽກທີ່ໄດ້ຮັບມອບໝາຍ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } }
 ];
 const MODS = { sop: require('./mod-sop').create(DATA, accounts, { vehicles: fuel.vehicles }), hrreport: require('./mod-hrreport').create(hr) }; /* ໂມດູນແອັບອື່ນ: MODS.<id> = require('./mod-<id>').create(DATA, accounts) */
-function appsFor(u) { return APPS.filter(function (a) { return a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, cat: a.cat || 'work', href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
+function appsFor(u) { return APPS.filter(function (a) { return !a.inHr && a.access(u); }).map(function (a) { return { id: a.id, name: a.name, desc: a.desc(u), icon: a.icon, cat: a.cat || 'work', href: a.href ? a.href(u) : '', action: a.action || '' }; }); }
 const catalog = function () { return APPS.filter(function (a) { return a.generic; }).map(function (a) { return { id: a.id, name: a.name }; }); };
 
 /* ===== API: ກວດສິດຊັ້ນບັນຊີກາງກ່ອນ ແລ້ວສົ່ງຕໍ່ໂມດູນ ===== */

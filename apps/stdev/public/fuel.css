@@ -181,3 +181,30 @@ nav.tabs button{font-size:13.5px;padding-left:10px;padding-right:10px}
 @keyframes spDot{50%{opacity:1;transform:translateY(-4px)}}
 @media(prefers-reduced-motion:reduce){#splash img,.sp-dots i{animation:none}}
 @media print{#splash{display:none!important}}
+
+/* ຫົວເອກະສານລາຍງານ (ແບບຟອມບໍລິສັດ) */
+.lh{margin:0 0 10px;text-align:left}.lh-n{text-align:center;line-height:1.5;margin:0 0 6px}.lh-n b{display:block;font-size:15px}.lh-n span{display:block;font-size:14px}
+.lh-c{display:flex;align-items:center;gap:12px}.lh-c img{max-height:64px;max-width:120px;object-fit:contain;flex:0 0 auto}.lh-t{font-size:13px;line-height:1.5;min-width:0}.lh-t b{display:block;font-size:15px}
+.lh-n b,.lh-n span{display:block;font-size:15px;font-weight:600;line-height:1.6}
+/* ຕົວເລກ + ຫົວໜ່ວຍ (L, cm) ບໍ່ຕົກແຖວ; ຕາຕະລາງນ້ອຍບໍ່ຫັກຄຳ ແຕ່ເລື່ອນຂ້າງໄດ້ */
+.mini{font-size:13px}.mini td,.mini th{white-space:nowrap;padding:8px 4px}
+.chip,.fq,.st,.cnt,.ibtn,.btn{white-space:nowrap}
+/* ກັນຄຳ/ຕົວອັກສອນຕົກແຖວຕົວດຽວ (orphan) */
+h1,h2,h3,.sgrp,.tt,.hubtile b,.todo b,.stp b,summary{text-wrap:balance}p,small,label,.hint,.muted{text-wrap:pretty}
+
+/* ===== ປອບອັບກາງຈໍ (ສຳເລັດ / ຜິດພາດ), ກຳລັງໂຫຼດ, ກະດິ່ງແຈ້ງເຕືອນ ===== */
+.toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:190px;max-width:84%;padding:22px 24px;border-radius:24px;background:#fff;color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.28);text-align:center;font-weight:600;font-size:16px;line-height:1.45;animation:toastPop .22s both}
+.toast.ok{background:#fff;color:var(--ink)}.toast.bad{background:#fff;color:var(--ink)}
+.toast .tic{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--ok-bg);color:var(--primary)}.toast .tic .i{width:28px;height:28px;stroke-width:2.6}
+.toast.ok .tic{background:#dff3e8;color:#1f8a57}.toast.bad .tic{background:var(--bad-bg);color:var(--bad)}.toast.ok{pointer-events:none}
+@keyframes toastPop{from{opacity:0;transform:translate(-50%,-46%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.bz{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(15,42,41,.28);backdrop-filter:blur(2px)}
+.bzc{display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 28px;border-radius:22px;background:#fff;color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.25);font-size:16px}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line-2);border-top-color:var(--primary);animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.ic{position:relative}.ic .bd{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5483b;color:#fff;font-size:11px;font-weight:700;line-height:18px;font-style:normal;text-align:center;box-shadow:0 0 0 2px var(--dark-2)}.ic .bd[hidden]{display:none}
+.nov{position:fixed;inset:0;z-index:75;background:rgba(15,42,41,.35);display:flex;align-items:flex-end;justify-content:center}
+.nsh{width:100%;max-width:560px;max-height:78vh;overflow:auto;background:var(--card);border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));animation:sheetUp .25s both}@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.nsh .ic{background:var(--ok-bg);color:var(--primary);width:40px;height:40px}
+.nh{display:flex;align-items:center;gap:6px;margin:12px 4px 6px;color:var(--muted)}
+.nit{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 12px;margin:0 0 6px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;color:var(--ink);text-align:left}
+button.nit{cursor:pointer;border-color:var(--line-2)}.nit .i{color:var(--primary)}.nit.bad .i{color:var(--bad)}.nit.ok .i{color:#1f8a57}.nit small{color:var(--muted);white-space:nowrap}
