@@ -86,6 +86,9 @@ VEH = [{ id: 'v1', name: 'ລົດຈິກ 1', site: 's1', driver: d1 }, { id:
   assert.strictEqual(call(ad, 'tplSave', { id: 'f01', items: [{ text: '  ' }] }).error, 'noitems'); assert.strictEqual(call(ad, 'tplSave', { id: 'nope', items: [{ text: 'x' }] }).error, 'tpl');
   assert.strictEqual(call(ad, 'tplSave', { id: 'f01', items: [{ id: 'aa', text: 'a' }, { id: 'aa', text: 'b' }] }).error, 'item', 'duplicate ids refused');
   assert.strictEqual(call(ad, 'tplReset', { id: 'f01' }).data.items.length, 8); ok('admin edits the list; old runs are unaffected; reset restores the original');
+  assert.strictEqual(call(d2, 'hdrSet', { company: 'x' }).error, 'auth', 'only admins set the report header');
+  const hs = call(ad, 'hdrSet', { company: 'Co <b>', hdr: 'a\nb', nat: false, logo: 'data:image/png;base64,AAAA' }).data; assert.deepStrictEqual([hs.company, hs.hdr, hs.nat, hs.logo.length > 0], ['Co b', 'a\nb', false, true]);
+  assert.strictEqual(call(ad, 'hdrSet', { company: 'y', logo: 'javascript:1' }).data.logo, '', 'bad logo dropped'); assert.strictEqual(call(d2, 'hdr').data.company, 'y', 'everyone reads the header'); ok('report header: admin-only write, sanitised, readable by all');
   console.log('sop: ' + n + ' passed');
   try { fs.rmSync(DATA, { recursive: true, force: true }); } catch (e) { }
 })();

@@ -25,6 +25,7 @@ function create(DATA, accounts, opts) {
   const tplOf = function (id) { return templates().filter(function (t) { return t.id === id; })[0] || null; };
   const brief = function (t) { return { id: t.id, sop: t.sop, code: t.code, title: t.title, freq: t.freq, per: t.per || '', n: t.items.length, warn: t.warn || '', edited: !!t.edited }; };
 
+  const hdrCfg = function () { const c = read('hdr.json', {}); return { company: c.company || '', hdr: c.hdr || '', nat: c.nat !== false, logo: c.logo || '' }; };
   /* ----- ການມອບໝາຍ: [{tpl, user}] ----- */
   const assigns = function () { return read('assign.json', []); };
   const people = function () { const all = accounts.users(); return Object.keys(all).filter(function (k) { return all[k].active; }).sort().map(function (k) { return { phone: k, name: all[k].name, level: all[k].level }; }); };
@@ -111,6 +112,11 @@ function create(DATA, accounts, opts) {
         rows.push({ tpl: brief(t), user: a.user, name: userName(a.user), key: key, run: cur ? sum(cur) : null });
       });
       return ok({ day: laoDay(0), rows: rows, recent: runs.slice(0, 60).map(sum) });
+    }
+    if (action === 'hdr') return ok(hdrCfg()); /* ຫົວເອກະສານລາຍງານ (ໂລໂກ້ + ຊື່ບໍລິສັດ + ທີ່ຢູ່) — ທຸກຄົນໃນແອັບອ່ານໄດ້ */
+    if (admin && action === 'hdrSet') {
+      const lg = typeof o.logo === 'string' && o.logo.length <= 200000 && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(o.logo) ? o.logo : '';
+      const c = { company: str(o.company, 100), hdr: str(o.hdr, 400), nat: o.nat !== false, logo: lg }; write('hdr.json', c); return ok(c);
     }
     if (admin && action === 'tpls') return ok({ tpls: templates(), people: people(), assign: assigns() });
     if (admin && action === 'assignSet') { /* {tpl, users:[…]} (ຕາມເຊັກລິດ) ຫຼື {user, tpls:[…]} (ຕາມຄົນ) — ແທນທີ່ທັງຊຸດຂອງອັນນັ້ນ */
