@@ -44,6 +44,7 @@ function cleanCfg(c) {
 /* store = {read(name) → object|null, write(name, object), list(prefix) → [name]} · user = {id, role, name} */
 function handle(store, user, o) {
   const a = String(o.action || ''), cfg = store.read('cfg') || { sites: [], vehicles: [] };
+  (cfg.sites || []).forEach(function (s) { if (s && s.rq === undefined) s.rq = true; }); /* ສະໜາມທີ່ບໍ່ເຄີຍຕັ້ງ rq (ຂໍ້ມູນເກົ່າ) = ໃຊ້ລະບົບຄຳຂໍ → ອະນຸມັດ → ເຕີມ; ຜູ້ດູແລປິດໄດ້ໃນ ຕັ້ງຄ່າສະໜາມ */
   const boss = user.role === 'owner', mem = ['admin', 'head', 'driver', 'tech'].indexOf(user.role) >= 0 ? { role: user.role, sites: user.sites || [] } : null, R = rightsFor(user), has = function (k) { return R.indexOf(k) >= 0 || (k === 'ack' && mine.length > 0); }; /* ເປັນຄົນຂັບຂອງລົດຄັນໃດ = ຮັບຮູ້ລົດຂອງຕົນໄດ້ ເຖິງບໍ່ໄດ້ຕິກສິດ */
   const todayLao = new Date((typeof store.now === 'function' ? store.now() : Date.now()) + 7 * 36e5).toISOString().slice(0, 10);
   const mine = cfg.vehicles.filter(function (v) { const sb = ((store.read('sub_' + v.site + '_' + todayLao) || {}).cars || {})[v.id]; return (sb ? sb.driver : v.driver) === user.id; }); /* ຄົນຂັບແທນສະເພາະມື້: ນັບເປັນຄົນຂັບຂອງລົດມື້ນັ້ນ */

@@ -448,3 +448,9 @@ console.log('fuel: all passed');
   const mine = call('t3', Object.assign({ action: 'rqAhead' }, T)).data; assert.strictEqual(mine[0].total, 2, 'technical staff see their own');
   console.log('fuel: advance requests passed');
 })();
+
+(function () { /* ສະໜາມຂໍ້ມູນເກົ່າທີ່ບໍ່ມີ rq = ໃຊ້ລະບົບຄຳຂໍ (ຄືກັນທຸກເຄື່ອງ); ຕັ້ງ rq:false ຈຶ່ງປິດ */
+  store.write('cfg', { company: '', sites: [{ id: 'o1', name: 'ເກົ່າ', tank: { t: 'lpc', k: 5 } }, { id: 'o2', name: 'ປິດ', rq: false, tank: { t: 'lpc', k: 5 } }], vehicles: [] });
+  const c = call('boss', { action: 'init' }).data.cfg.sites; assert.deepStrictEqual([c[0].rq, c[1].rq], [true, false]);
+  console.log('fuel: legacy site without rq defaults to the request workflow');
+})();
