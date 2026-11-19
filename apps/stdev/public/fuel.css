@@ -208,3 +208,16 @@ h1,h2,h3,.sgrp,.tt,.hubtile b,.todo b,.stp b,summary{text-wrap:balance}p,small,l
 .nh{display:flex;align-items:center;gap:6px;margin:12px 4px 6px;color:var(--muted)}
 .nit{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 12px;margin:0 0 6px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;color:var(--ink);text-align:left}
 button.nit{cursor:pointer;border-color:var(--line-2)}.nit .i{color:var(--primary)}.nit.bad .i{color:var(--bad)}.nit.ok .i{color:#1f8a57}.nit small{color:var(--muted);white-space:nowrap}
+
+/* ກະດິ່ງແຈ້ງເຕືອນ: ໜ້າຕາໃໝ່ */
+.nsh{border-radius:28px 28px 0 0;padding:10px 16px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+.nsh::before{content:"";display:block;width:42px;height:4px;border-radius:2px;background:var(--line-2);margin:0 auto 14px}
+.nhd{display:flex;align-items:center;gap:10px;margin:0 0 14px}.nhd h2{margin:0;font-size:19px}
+.nbell{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--ok-bg);color:var(--primary)}
+.nsh .nx{display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:50%;background:var(--line);color:var(--muted);outline:none;box-shadow:none}
+.nsh .nx:focus-visible{box-shadow:0 0 0 3px var(--ok-bg)}
+.nsh .nit{display:flex;align-items:center;gap:14px;width:100%;min-height:62px;padding:10px 14px;margin:0 0 10px;border:1px solid #f1dfae;border-radius:20px;background:linear-gradient(135deg,var(--warn-bg),#fff);font:inherit;font-weight:600;color:var(--ink);text-align:left;cursor:pointer;transition:transform .12s}
+.nsh .nit:active{transform:scale(.98)}.nsh .nit .i.muted{color:var(--muted)}
+.nnum{display:grid;place-items:center;flex:0 0 auto;min-width:40px;height:40px;padding:0 8px;border-radius:14px;background:#e7a40c;color:#fff;font-size:18px;font-weight:700}.nnum .i{width:20px;height:20px;stroke-width:2.4}
+.nempty{display:grid;place-items:center;padding:26px 0}.nempty span{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--ok-bg);color:var(--primary)}.nempty .i{width:28px;height:28px;stroke-width:2.6}
+body.sop .nsh .nit{border-color:#efd9b8;background:linear-gradient(135deg,#fbf1e3,#fffdf9)}body.sop .nnum{background:#c98a2b}

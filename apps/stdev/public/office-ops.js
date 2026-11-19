@@ -32,13 +32,10 @@ function paintPhotos() { document.querySelectorAll('[data-ph]').forEach(function
 function numIn(k, val, dis) { return '<input type="number" inputmode="decimal" min="0" step="0.1" data-k="' + k + '" value="' + (val == null ? '' : val) + '"' + (dis ? ' disabled' : '') + '>'; }
 function totals() { var a = 0, u = 0; S.rows.forEach(function (r) { a += r.add > 0 && r.src !== 'shop' ? r.add : 0; u += r.used > 0 ? r.used : 0; }); return [a, u]; } /* ເບີກ = ຫັກຈາກແທ່ງ (ບໍ່ນັບທີ່ເຕີມຮ້ານອື່ນ) */
 function approvedBanner() { return S.approved ? '<div class="card dark row">' + ic('shield') + '<div>ອະນຸມັດແລ້ວ ໂດຍ <b>' + esc(S.approved.name) + '</b> · ' + when(S.approved.at) + '<br><small style="opacity:.75">ໃບນີ້ຖືກລັອກ — ແກ້ບໍ່ໄດ້ຈົນກວ່າຈະຍົກເລີກການອະນຸມັດ</small>' + (R('approve') ? '<br><button type="button" class="btn line" id="unappr" style="margin-top:8px;min-height:44px">' + ic('x') + 'ຍົກເລີກການອະນຸມັດ ເພື່ອແກ້ໄຂ</button>' : '') + '</div></div>' : ''; }
-window.notifTodo = function () { /* ກະດິ່ງ: ສິ່ງທີ່ຕ້ອງເຮັດຈາກຂໍ້ມູນມື້ນີ້ (ຖ້າໂຫຼດແລ້ວ) */
- if (typeof S === 'undefined' || !S || !S.rows) return []; var o = [], reqs = S.reqs || [], pend = reqs.filter(function (x) { return x.state === 'pending'; }).length, wait = reqs.filter(function (x) { return x.state === 'approved'; }).length, filled = S.rows.filter(function (x) { return x.add != null; }), un = filled.filter(function (x) { return !x.ack && !x.rej; }).length, rej = S.rows.filter(function (x) { return x.rej; }).length, nb = ((S.tank && S.tank.recvs) || []).filter(function (r) { return !P[r.id === 'r0' ? 'tank' : 'tank_' + r.id]; }).length;
- if (pend && hasRight('reqOk')) o.push({ t: pend + ' ຄຳຂໍລໍອະນຸມັດ', i: 'check', go: function () { go('rqok'); } });
- if (wait && hasRight('issue')) o.push({ t: wait + ' ລໍເຕີມເຂົ້າລົດ', i: 'pump', go: function () { go('issue'); } });
- if (un && (hasRight('approve') || hasRight('issue'))) o.push({ t: un + ' ລໍຄົນຂັບຮັບຮູ້', i: 'user', go: function () { go('appr'); } });
- if (rej) o.push({ t: rej + ' ຄົນຂັບບໍ່ຍອມຮັບ', i: 'alert', go: function () { go(hasRight('issue') ? 'issue' : 'appr'); } });
- if (nb && hasRight('tank')) o.push({ t: nb + ' ການຮັບເຂົ້າແທ່ງ ຍັງບໍ່ມີຮູບບິນ', i: 'inbox', go: function () { go('tank'); } });
+window.notifTodo = function () { /* ກະດິ່ງ: ສະເພາະສິ່ງທີ່ລໍຖ້າ "ອະນຸມັດ" */
+ if (typeof S === 'undefined' || !S || !S.rows) return []; var o = [], reqs = S.reqs || [], pend = reqs.filter(function (x) { return x.state === 'pending'; }).length, filled = S.rows.filter(function (x) { return x.add != null; }), acked = filled.filter(function (x) { return x.ack; }).length;
+ if (rqSite() && pend && hasRight('reqOk')) o.push({ t: pend + ' ຄຳຂໍລໍອະນຸມັດ', i: 'check', go: function () { go('rqok'); } });
+ if (!S.approved && S.rows.length && canApprove() && filled.length && acked === filled.length) o.push({ t: 'ໃບປະຈຳວັນລໍອະນຸມັດ', i: 'shield', go: function () { go('appr'); } });
  return o;
 };
 function noCars() { return '<div class="card empty"><div class="logo">' + ic('truck') + '</div>ສະໜາມນີ້ຍັງບໍ່ມີລົດ' + (I.me.boss ? '<br><button class="btn line" data-go="cfg" style="margin-top:10px">ໄປ ຕັ້ງຄ່າ ສະໜາມ & ລົດ</button>' : '') + '</div>'; }

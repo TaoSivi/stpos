@@ -16,7 +16,6 @@ function chip(r) {
  if (r.rej) return '<span class="chip bad">' + ic('x') + 'ບໍ່ຍອມຮັບ: ' + esc(r.rej.why || '') + '</span>';
  return '<span class="chip warn">ລໍຖ້າທ່ານຮັບຮູ້</span>';
 }
-window.notifTodo = function () { var n = 0; DATA.forEach(function (x) { x.sh.data.rows.forEach(function (r) { if (r.add != null && !r.ack && !r.rej) n++; }); }); return n ? [{ t: n + ' ລໍຮັບຮູ້', i: 'check', go: function () { window.scrollTo(0, 0); } }] : []; };
 function draw() {
  var h = '', n = 0;
  DATA.forEach(function (d) {

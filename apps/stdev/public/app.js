@@ -52,7 +52,7 @@ var TOASTN = 0;
 function toast(msg, kind) { /* ປອບອັບກາງຈໍ: ✓ ສຳເລັດ / ! ຜິດພາດ — ແຕະເພື່ອປິດ */
  TOASTN++; var o = document.querySelector('.toast'); if (o) o.remove(); var t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status');
  t.innerHTML = '<span class="tic">' + (kind === 'bad' ? ic('alert') : kind === 'ok' ? ic('check') : ic('bell')) + '</span><span class="tmsg"></span>'; t.querySelector('.tmsg').textContent = msg; t.onclick = function () { t.remove(); }; document.body.appendChild(t);
- if (kind === 'ok' || kind === 'bad') nadd(msg, kind); clearTimeout(_t); _t = setTimeout(function () { t.remove(); }, kind === 'bad' ? 4500 : 2200); }
+ clearTimeout(_t); _t = setTimeout(function () { t.remove(); }, kind === 'bad' ? 4500 : 2200); }
 var _bz = 0, _bzT = 0, _bzL = '';
 function bzy(d, label) { /* ປອບອັບ "ກຳລັງໂຫຼດ / ກຳລັງບັນທຶກ…" ເມື່ອໃຊ້ເວລາເກີນ ~0.5 ວິ */
  _bz = Math.max(0, _bz + d); if (d > 0 && label && (!_bzL || /\u0e9a\u0eb1\u0e99\u0e97\u0eb6\u0e81/.test(label))) _bzL = label;
@@ -63,13 +63,12 @@ function nlog() { try { return JSON.parse(localStorage.getItem('ltg_notif') || '
 function nsave(o) { try { localStorage.setItem('ltg_notif', JSON.stringify(o)); } catch (e) { } }
 function nadd(msg, kind) { var o = nlog(); o.l.unshift({ t: Date.now(), m: msg, k: kind || '' }); o.l = o.l.slice(0, 30); nsave(o); bellPaint(); }
 function nTodo() { try { return window.notifTodo ? window.notifTodo() || [] : []; } catch (e) { return []; } }
-function bellPaint() { var b = document.getElementById('bell'); if (!b) return; var o = nlog(), n = nTodo().length + o.l.filter(function (x) { return x.t > o.r && x.k === 'bad'; }).length, d = b.querySelector('.bd'); if (!d) { d = document.createElement('i'); d.className = 'bd'; b.appendChild(d); } d.textContent = n > 9 ? '9+' : n; d.hidden = !n; }
-function openNotif() {
- var o = nlog(), td = nTodo(); o.r = Date.now(); nsave(o); bellPaint();
- var e = document.createElement('div'); e.className = 'nov'; e.innerHTML = '<div class="nsh" role="dialog" aria-label="\u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99"><div class="row" style="margin-bottom:6px"><h2 class="grow" style="margin:0">' + ic('bell') + ' \u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99</h2><button type="button" class="ic" id="nx" aria-label="\u0e9b\u0eb4\u0e94">' + ic('x') + '</button></div>' +
-  (td.length ? '<div class="nh">' + ic('alert') + '</div>' + td.map(function (x, i) { return '<button type="button" class="nit" data-ng="' + i + '">' + ic(x.i || 'alert') + '<span class="grow">' + esc(x.t) + '</span>' + ic('next', 'muted') + '</button>'; }).join('') : '') +
-  '<div class="nh">' + ic('inbox') + '</div>' + (o.l.length ? o.l.map(function (x) { return '<div class="nit h ' + esc(x.k) + '">' + ic(x.k === 'bad' ? 'alert' : 'check') + '<span class="grow">' + esc(x.m) + '</span><small>' + when(x.t) + '</small></div>'; }).join('') + '<button type="button" class="btn line blk" id="nclr" style="margin-top:10px">' + ic('trash') + '</button>' : '<p class="muted" style="text-align:center;padding:14px 0">\u2013</p>') + '</div>';
- e.onclick = function (ev) { var g = ev.target.closest('[data-ng]'); if (g) { e.remove(); var it = td[+g.dataset.ng]; if (it && it.go) it.go(); return; } if (ev.target.closest('#nclr')) { nsave({ l: [], r: Date.now() }); e.remove(); bellPaint(); return; } if (ev.target === e || ev.target.closest('#nx')) e.remove(); };
+function bellPaint() { var b = document.getElementById('bell'); if (!b) return; var n = nTodo().length, d = b.querySelector('.bd'); if (!d) { d = document.createElement('i'); d.className = 'bd'; b.appendChild(d); } d.textContent = n > 9 ? '9+' : n; d.hidden = !n; }
+function openNotif() { /* ກະດິ່ງ: ສະແດງສະເພາະ "ລໍຖ້າອະນຸມັດ" */
+ var td = nTodo(), e = document.createElement('div'); e.className = 'nov';
+ e.innerHTML = '<div class="nsh" role="dialog" aria-label="\u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99"><div class="nhd"><span class="nbell">' + ic('bell') + '</span><h2 class="grow">\u0ec1\u0e88\u0ec9\u0e87\u0ec0\u0e95\u0eb7\u0ead\u0e99</h2><button type="button" class="nx" id="nx" aria-label="\u0e9b\u0eb4\u0e94">' + ic('x') + '</button></div>' +
+  (td.length ? td.map(function (x, i) { var m = String(x.t).match(/^(\d+)\s+(.+)$/); return '<button type="button" class="nit" data-ng="' + i + '">' + (m ? '<span class="nnum">' + m[1] + '</span>' : '<span class="nnum">' + ic(x.i || 'check') + '</span>') + '<span class="grow">' + esc(m ? m[2] : x.t) + '</span>' + ic('next', 'muted') + '</button>'; }).join('') : '<div class="nempty"><span>' + ic('check') + '</span></div>') + '</div>';
+ e.onclick = function (ev) { var g = ev.target.closest('[data-ng]'); if (g) { e.remove(); var it = td[+g.dataset.ng]; if (it && it.go) it.go(); return; } if (ev.target === e || ev.target.closest('#nx')) e.remove(); };
  document.body.appendChild(e);
 }
 document.addEventListener('click', function (ev) { if (ev.target.closest('#bell')) openNotif(); });
