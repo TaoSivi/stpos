@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Lao:wght@400;500;600;700;800&display=swap");
 /* ສີຕີມ + ຮູບແບບ ຄືກັບແອັບ HR (teal, ມຸມມົນ 24px, ເງົາບາງ, animation ເຂົ້າ-ອອກ) */
 :root{--ink:#0f2a29;--muted:#46605f;--bg:#f3f7f7;--card:#fff;--line:#e6eeee;--line-2:#d9e5e5;--primary:#0a7e7a;--primary-600:#086b68;--accent:#0abab5;--mint:#5fd9d2;--dark:#0b2f2d;--dark-2:#0f3f3c;--warn-bg:#fff4d6;--warn:#8a5d00;--bad-bg:#fff0ec;--bad:#b4371f;--ok-bg:#e4f5f3;--ok:#0a7e7a;--r:24px;--sh-1:0 1px 2px rgba(15,42,41,.05),0 6px 20px rgba(15,42,41,.05);--sh-2:0 2px 6px rgba(15,42,41,.08),0 16px 40px rgba(15,42,41,.12);
  font-family:"Plus Jakarta Sans","Noto Sans Lao","Phetsarath OT","Saysettha OT",system-ui,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}

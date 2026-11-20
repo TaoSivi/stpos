@@ -190,7 +190,14 @@ function apiRaw(action, body) {
  body = body || {}; var tk = ls('fuel_tk');
  var fin = function (r) { if (!r.ok && r.error === 'auth' && action === 'init') { ls('fuel_tk', null); location.href = '/'; } if (!r.ok && action !== 'login' && !(r.error === 'net' && READS[action])) toast((ERR[r.error] || 'ບໍ່ສຳເລັດ: ' + r.error) + (r.have != null ? ' (ແທ່ງເຫຼືອ ' + Math.round(r.have) + ' L)' : '') + (r.max != null ? ' (ເຕີມໄດ້ສູງສຸດ ' + Math.round(r.max) + ' L)' : ''), 'bad'); syncBar(); return r; };
  if (READS[action]) {
-  return getQ().then(function (q) { return q.length ? Promise.race([flush(), tmo(3000)]) : 0; }).then(function () { return post(action, body, tk); }).then(function (r) {
+  return Promise.all([getQ(), kv.get(rkey(action, body))]).then(function (c) { var f = c[0].length ? flush() : 0; return c[1] !== undefined ? c[1] : (f ? Promise.race([f, tmo(3000)]).then(function () { return kv.get(rkey(action, body)); }) : undefined); }).then(function (cached) {
+   var net = post(action, body, tk); if (cached === undefined) return net;
+   return Promise.race([net, tmo(500).then(function () { return null; })]).then(function (r) {
+    if (r) return r; /* ເນັດໄວພໍ → ຂໍ້ມູນສົດ */
+    net.then(function (n) { if (n && n.ok) { kv.set(rkey(action, body), n.data); if (JSON.stringify(n.data) !== JSON.stringify(cached)) document.dispatchEvent(new CustomEvent('synced')); } }); /* ເນັດຊ້າ: ສະແດງຂອງໃນເຄື່ອງກ່ອນ ແລ້ວແຕ້ມໃໝ່ເມື່ອຂໍ້ມູນສົດມາ ແລະ ຕ່າງ */
+    return { ok: true, data: cached, cached: true, stale: true };
+   });
+  }).then(function (r) {
    if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { if (action === 'init') setTimeout(warm, 800); if (action === 'me' && r.data && r.data.renew) { ls('fuel_tk', r.data.renew); kv.get('cred').then(function (c) { if (c) { c.token = r.data.renew; return kv.set('cred', c); } }); } return r; });
    if (r.error !== 'net') return r;
    return kv.get(rkey(action, body)).then(function (d) { if (d !== undefined) return { ok: true, data: d, cached: true }; if (action !== 'sop.open' || body.id) return r;

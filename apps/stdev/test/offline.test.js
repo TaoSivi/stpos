@@ -23,6 +23,7 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
         if (mode === 'down') return Promise.reject(new TypeError('offline'));
         const sig = opt && opt.signal, never = function (rej) { return new Promise(function (res, rj) { if (sig) sig.addEventListener('abort', function () { rj(new Error('aborted')); }); }); };
         if (mode === 'hang') return never();
+        if (mode === 'slow') return new Promise(function (res) { setTimeout(function () { res(fetch(H + url, { method: 'POST', body: opt.body })); }, 1200); });
         const real = fetch(H + url, { method: 'POST', body: opt.body }); /* ຂໍຖືກສົ່ງຖືງ server ແລ້ວ */
         return mode === 'lost' ? real.then(function () { return never(); }) : real;
       },
@@ -106,6 +107,8 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
     mode = 'up'; const lgb = await api('login', { phone: '02055550005', pin: '9753' }); assert.ok(lgb.ok);
     const acc = require('../accounts.js').create(DATA), real = Date.now; assert.strictEqual(acc.renew(lg.token), null, 'fresh token is not renewed'); Date.now = function () { return real() + 10 * 864e5; };
     const rn = acc.renew(lg.token); Date.now = real; assert.ok(rn && rn !== lg.token && acc.userOf(rn), 'token with < 25 days left is renewed'); ok('offline login (PIN hash kept on device, lockout) + sliding token');
+    /* ----- ເນັດຊ້າ (ຕອບຊ້າ ~1.2 ວິ): ມີຂໍ້ມູນໃນເຄື່ອງ → ສະແດງທັນທີ (<0.9 ວິ) ແລ້ວຂໍ້ມູນສົດເກັບເບື້ອງຫຼັງ ----- */
+    store.fuel_tk = hd; mode = 'up'; await api('sheet', T); mode = 'slow'; const ts = Date.now(), fast = await api('sheet', T); assert.ok(fast.ok && fast.stale && Date.now() - ts < 900, 'slow net: saved copy shown at once: ' + (Date.now() - ts) + 'ms'); await wait(1500); mode = 'up'; ok('slow network: saved copy shown in <0.9s, fresh copy fetched behind');
     console.log('offline: ' + n + ' passed');
   } catch (e) { console.error(e); process.exitCode = 1; } finally { if (proc) proc.kill(); fs.rmSync(DATA, { recursive: true, force: true }); setTimeout(function () { process.exit(process.exitCode || 0); }, 100); }
 })();

@@ -1,6 +1,6 @@
 /* ===== ໜ້າປົກ (splash): ຮູບປົກສະແດງກ່ອນເຂົ້າແອັບ ເທື່ອດຽວຕໍ່ການເປີດແອັບ (ຕໍ່ໄດ້ເຖິງແມ່ນຈະປ່ຽນໜ້າ/ເດັ້ງເຂົ້າໜ້າຫຼັກ) ===== */
 (function () {
- var T = 1600, now = Date.now(), t0;
+ var T = 900, now = Date.now(), t0; /* ໜ້າປົກສັ້ນລົງ 1.6 → 0.9 ວິ (ແຕະເພື່ອຂ້າມໄດ້) */
  try { t0 = +sessionStorage.getItem('ltg_sp0'); if (!t0) { t0 = now; sessionStorage.setItem('ltg_sp0', String(t0)); } } catch (e) { return; }
  var left = T - (now - t0); if (left < 120 || !document.body) return;
  var s = document.createElement('div'); s.id = 'splash'; s.setAttribute('role', 'presentation'); s.innerHTML = '<img src="cover.webp" alt="LTG Track" width="340" height="340"><div class="sp-dots" aria-hidden="true"><i></i><i></i><i></i></div>';
@@ -8,6 +8,8 @@
  var end = function () { if (!s.parentNode) return; s.classList.add('off'); setTimeout(function () { if (s.parentNode) s.remove(); }, 450); };
  s.onclick = end; setTimeout(end, left);
 })();
+/* ຟອນ Google: ໂຫຼດຫຼັງໜ້າປາກົດແລ້ວ (ບໍ່ບລັອກ) — ຄັ້ງທຳອິດຈາກເນັດ ຕໍ່ໄປ service worker ເກັບໄວ້ ເປີດທັນທີ; ຖ້າຍັງບໍ່ມາ ໃຊ້ຟອນໃນເຄື່ອງກ່ອນ (display=swap) */
+setTimeout(function () { try { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Lao:wght@400;500;600;700;800&display=swap'; document.head.appendChild(l); } catch (e) { } }, 0);
 /* ຕົວຊ່ວຍຮ່ວມ ຂອງທຸກໜ້າ: icon, api, toast, ໂມດອນ, ຮູບ, ສົ່ງອອກ PDF / Excel */
 'use strict';
 var $ = function (i) { return document.getElementById(i); };
