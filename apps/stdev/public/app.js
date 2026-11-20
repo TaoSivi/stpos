@@ -14,6 +14,7 @@ var $ = function (i) { return document.getElementById(i); };
 function esc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } return ''; }
 var ICONS = {
+ home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
  bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
  pump: '<path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h13M7 7h6v4H7zM15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3"/>',
@@ -72,7 +73,7 @@ function openNotif() { /* ກະດິ່ງ: ສະແດງສະເພາະ 
  e.onclick = function (ev) { var g = ev.target.closest('[data-ng]'); if (g) { e.remove(); var it = td[+g.dataset.ng]; if (it && it.go) it.go(); return; } if (ev.target === e || ev.target.closest('#nx')) e.remove(); };
  document.body.appendChild(e);
 }
-document.addEventListener('click', function (ev) { if (ev.target.closest('#bell')) openNotif(); });
+document.addEventListener('click', function (ev) { if (ev.target.closest('#bell')) openNotif(); else if (ev.target.closest('#hm')) location.href = 'home.html'; });
 setInterval(bellPaint, 4000); document.addEventListener('DOMContentLoaded', function () { setTimeout(bellPaint, 600); });
 /* ໂມດອນ: ຄືນ element; ປິດດ້ວຍ close() ຫຼື ກົດພື້ນຫຼັງ */
 function modal(html) { var m = document.createElement('div'); m.className = 'mask'; m.innerHTML = '<div class="sheet" role="dialog" aria-modal="true">' + html + '</div>'; m.onclick = function (e) { if (e.target === m) m.remove(); }; document.body.appendChild(m); return m; }
@@ -117,7 +118,7 @@ function header(title, sub, right) { /* ໜ້າຫຼັກ: ໂລໂກ້ +
  var pg = location.pathname.split('/').pop(), logo = ({ 'sop.html': 'sheet', 'hrreport.html': 'xls', 'admin.html': 'key', 'home.html': 'grid' })[pg] || 'pump';
  window.__hdr = { title: title, sub: sub || '', logo: logo };
  if (pg === 'home.html') return '<div class="top"><div class="in"><div class="logo float">' + ic(logo) + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>';
- return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
+ return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="hm" aria-label="ໜ້າຫຼັກ" title="ໜ້າຫຼັກ">' + ic('home') + '</button><button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
 }
 
 /* ===== ແອັບໃນມືຖື (PWA): ລົງທະບຽນ service worker + ຊ່ວຍຕິດຕັ້ງ ===== */
