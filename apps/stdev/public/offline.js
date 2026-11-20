@@ -86,7 +86,7 @@ function apiRaw(action, body) {
  return post(action, body, tk).then(function (r) { if (r.ok && action === 'login') return clearCache().then(function () { return r; }); return r; }).then(fin);
 }
 
-var SAVES = /^(row|tank|photo|ack|approve|assign|cfgSave|userSave|pin|rq(New|Decide|DecideMany|Cancel|Start|Urgent|Ahead)|subDriver|sop\.(assignSet|submit|approve|reopen|new|tplSave|tplReset))$/;
+var SAVES = /^(row|tank|ack|approve|cfgSave|userSave|pin|rq(New|Decide|DecideMany|Cancel|Start|Urgent)|subDriver|sop\.(assignSet|submit|approve|reopen|new|tplSave|tplReset))$/;
 function api(action, body) { /* ຫຸ້ມ apiRaw: ປອບອັບ "ກຳລັງໂຫຼດ/ບັນທຶກ…" + "ບັນທຶກແລ້ວ ✓" (ຖ້າຍັງບໍ່ມີປອບອັບອື່ນ) */
  var w = SAVES.test(action), n0 = TOASTN; bzy(1, w ? 'ກຳລັງບັນທຶກ…' : 'ກຳລັງໂຫຼດ…');
  return apiRaw(action, body).then(function (r) { bzy(-1); if (w && r && r.ok) setTimeout(function () { if (TOASTN === n0) toast(r.queued ? 'ບັນທຶກໃນເຄື່ອງແລ້ວ — ຈະສົ່ງເມື່ອມີເນັດ' : 'ບັນທຶກແລ້ວ', 'ok'); }, 200); return r; }, function (e) { bzy(-1); throw e; });

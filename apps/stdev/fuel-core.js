@@ -126,6 +126,18 @@ function handle(store, user, o) {
   }
   const lim = !boss && !ownOnly && !['view', 'issue', 'tank', 'assign', 'approve'].some(has); /* ວິຊາການ: ຂໍນ້ຳມັນຢ່າງດຽວ — ບໍ່ເຫັນຍອດແທ່ງ / ໃບເບີກ */
   if (a === 'ledger') return ownOnly || lim ? err('auth') : ok(ledger());
+  if (a === 'dash') { /* ສະຫຼຸບຊ່ວງວັນ (ຕໍ່ສະໜາມ): ຄຳຂໍ / ເຕີມ / ຮັບຮູ້ / ແທ່ງ ຕໍ່ວັນ — Dashboard */
+    if (ownOnly || lim) return err('auth'); if (!DATE.test(o.from) || !DATE.test(o.to) || o.from > o.to) return err('date'); if ((Date.parse(o.to) - Date.parse(o.from)) / 864e5 > 92) return err('range');
+    const LG = ledger(), pre = LG.filter(function (x) { return x.date < o.from; }).pop(), upto = LG.filter(function (x) { return x.date <= o.to; }).pop(), ds = {};
+    store.list('d_' + site.id + '_').concat(store.list('q_' + site.id + '_')).forEach(function (n) { const d = n.slice(-10); if (d >= o.from && d <= o.to) ds[d] = 1; });
+    const days = Object.keys(ds).sort().map(function (d) {
+      const s2 = sheetOf(d), q = store.read('q_' + site.id + '_' + d) || { list: [] }, rq = { n: 0, pend: 0, wait: 0, rej: 0, litReq: 0, litOk: 0 }, fl = { n: 0, lit: 0, tank: 0, shop: 0, jug: 0, ack: 0, rej: 0 };
+      (q.list || []).forEach(function (x) { if (x.st === 'cancel') return; if (x.st === 'rejected') { rq.rej++; return; } rq.n++; rq.litReq += x.lit || 0; if (x.st === 'pending') rq.pend++; else if (x.st === 'approved') { rq.litOk += (x.ok && x.ok.lit) || 0; if (!x.row) rq.wait++; } });
+      carsOf(s2).forEach(function (v) { const r = s2.rows[v.id] || {}, c2 = calc(v, r); if (c2.add != null && c2.add > 0) { fl.n++; fl.lit += c2.add; fl[r.src === 'shop' ? 'shop' : r.src === 'jug' ? 'jug' : 'tank'] += c2.add; if (r.ack) fl.ack++; } if (r.rej) fl.rej++; });
+      return { date: d, rq: rq, fl: fl, recv: (s2.tank || {}).recv || 0, out: issued(s2), approved: !!s2.approved };
+    });
+    return ok({ site: site.id, name: site.name, from: o.from, to: o.to, open: pre ? pre.bal : 0, close: upto ? upto.bal : (pre ? pre.bal : 0), days: days });
+  }
 
   if (!DATE.test(o.date)) return err('date');
   const key = 'd_' + site.id + '_' + o.date, pkey = 'p_' + site.id + '_' + o.date, sh = sheetOf(o.date);

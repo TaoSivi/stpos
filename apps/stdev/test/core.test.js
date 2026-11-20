@@ -454,3 +454,16 @@ console.log('fuel: all passed');
   const c = call('boss', { action: 'init' }).data.cfg.sites; assert.deepStrictEqual([c[0].rq, c[1].rq], [true, false]);
   console.log('fuel: legacy site without rq defaults to the request workflow');
 })();
+
+(function () { /* Dashboard ຊ່ວງວັນ: ສະຫຼຸບຕໍ່ວັນ, ຕ້ອງມີສິດເບິ່ງ, ຈຳກັດຊ່ວງ */
+  store.write('cfg', { company: '', sites: [{ id: 'z1', name: 'ສະໜາມ Z', tank: { t: 'lpc', k: 5 }, rq: false }], vehicles: [{ id: 'zv1', name: 'ລົດ Z', site: 'z1', driver: 'u4', tank: { t: 'lpc', k: 5 } }] });
+  const Z = { site: 'z1' }, d1 = '2026-11-18', d2 = '2026-11-19';
+  call('boss', Object.assign({ action: 'tank', date: d1, add: { lit: 500 } }, Z));
+  call('boss', Object.assign({ action: 'row', date: d1, v: 'zv1', cm0: 10, cm1: 30, src: 'tank' }, Z));
+  const r = call('boss', Object.assign({ action: 'dash', from: d1, to: d2 }, Z)).data;
+  assert.deepStrictEqual([r.days.length, r.days[0].date, r.days[0].recv, r.days[0].fl.n, r.days[0].fl.lit, r.days[0].out, r.close], [1, d1, 500, 1, 100, 100, 400]);
+  assert.strictEqual(call('boss', Object.assign({ action: 'dash', from: d2, to: d1 }, Z)).error, 'date');
+  assert.strictEqual(call('boss', Object.assign({ action: 'dash', from: '2026-01-01', to: d2 }, Z)).error, 'range');
+  assert.strictEqual(call('drv', Object.assign({ action: 'dash', from: d1, to: d2 }, Z)).error, 'auth', 'drivers have no dashboard');
+  console.log('fuel: dashboard range summary');
+})();

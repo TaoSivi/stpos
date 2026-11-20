@@ -223,3 +223,62 @@ nav.tabs button[aria-current=true],nav.tabs.steps button[aria-current=true]{back
 nav.tabs button[aria-current=true] .sl,nav.tabs.steps button[aria-current=true] .sl{color:#fff}
 nav.tabs.steps button[aria-current=true] .sd{border-color:#0f8f8a}
 .stp .sn svg{width:20px;height:20px}
+
+/* ສະຖານະນ້ຳມັນ (ໜ້າພາບລວມ) */
+.fs h2{margin:0 0 12px}.fs-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.fs-c{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border:1px solid var(--line);border-radius:18px;background:#fff;font:inherit;color:var(--ink);text-align:center;cursor:pointer;min-width:0}
+.fs-c:active{transform:scale(.97)}.fs-i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ok-bg);color:var(--primary)}
+.fs-c small{color:var(--muted);font-size:12.5px;line-height:1.2}.fs-c b{font-size:24px;line-height:1.1}.fs-l{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.fs-c.warn{border-color:#f1dfae;background:linear-gradient(180deg,var(--warn-bg),#fff)}.fs-c.warn .fs-i{background:#f5b800;color:#3a2900}
+.fs-c.ok .fs-i{background:#2fae7b;color:#fff}
+.fs-t{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:#fbfdfd}
+.fs-th{display:flex;align-items:center;gap:8px;margin-bottom:8px}.fs-th .i{color:var(--primary)}
+.fs-n{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px;margin-top:10px}.fs-n span{display:flex;flex-direction:column}.fs-n small{color:var(--muted);font-size:12.5px}.fs-n b{font-size:17px}.fs-n .warn b{color:#9a6513}
+.fs-s{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;color:var(--muted)}
+@media(max-width:420px){.fs-g{gap:5px}.fs-c{padding:8px 2px}.fs-c b{font-size:21px}.fs-l{font-size:11.5px}}
+
+/* Dashboard ຊ່ວງວັນ */
+.drange{padding:12px 14px}.drange .iseg button{min-height:42px;font-weight:600}.drange input[type=date]{flex:1 1 130px;min-height:44px;padding:0 10px;border:1.5px solid var(--line-2);border-radius:14px;font:inherit;background:#fff}
+.drange .btn[aria-pressed=true]{background:var(--ok-bg);border-color:var(--primary);color:var(--primary)}
+.dchart{display:flex;align-items:flex-end;gap:6px;height:150px;overflow-x:auto;padding:6px 2px 0}
+.dcol{flex:1 0 26px;min-width:26px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.dcol i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#18a8a0,#0b7e7a)}.dcol b{font-size:11px;color:var(--muted);font-weight:600}.dcol small{font-size:12px;color:var(--muted)}
+
+/* ໄອຄອນປະຕິທິນເລືອກວັນທີ (ໜ້າຂໍນ້ຳມັນ) */
+#rqday{align-items:center}.cal{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1.5px solid var(--line-2);border-radius:22px;background:#fff;color:var(--primary);cursor:pointer;flex:0 0 auto}
+.cal.on{background:var(--ok-bg);border-color:var(--primary)}.cal small{font-weight:600}
+.cal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+
+/* ===== ລຳດັບຄວາມສຳຄັນຂອງສາຍຕາ: ສິ່ງສຳຄັນເດັ່ນ · ສິ່ງຮອງຈາງລົງ ===== */
+/* ຫົວຂໍ້ + ໄອຄອນໃນວົງສີ */
+.card>h2:first-child,.card>.row>h2:first-child{display:flex;align-items:center;gap:10px}
+.card>h2:first-child>svg.i:first-child,.card>.row>h2:first-child>svg.i:first-child{box-sizing:content-box;padding:7px;width:20px;height:20px;border-radius:12px;background:var(--ok-bg);color:var(--primary)}
+main>h1,#v>h1{font-size:24px}
+/* ປຸ່ມຫຼັກ: ໃຫຍ່ ເຂັ້ມ ມີເງົາສີ — ປຸ່ມຮອງ: ເສັ້ນຂອບເບົາ */
+.btn.ok,.btn:not(.line):not(.bad):not(.ibtn){background:linear-gradient(135deg,#18a8a0,#0b7e7a);box-shadow:0 8px 18px rgba(10,126,122,.28);min-height:52px;font-size:17px;border-radius:16px}
+.btn.line{background:#fff;color:var(--primary);border:1.5px solid var(--line-2);box-shadow:none;font-weight:600}
+.btn.bad{box-shadow:0 8px 18px rgba(180,55,31,.22)}
+.btn:disabled{box-shadow:none;filter:saturate(.4);opacity:.55}
+/* ສະຖານະ: ເຂັ້ມ ອ່ານງ່າຍ */
+.chip{font-weight:700;padding:4px 12px;border:1px solid transparent}
+.chip.warn{background:#fff1c9;color:#7a4f00;border-color:#f3d98a}.chip.ok{background:#d9f3e6;color:#0c6b44;border-color:#b5e3cb}.chip.bad{background:#fde1db;color:#a5301a;border-color:#f5b9ac}
+/* ຫນ້າຂໍນ້ຳມັນ: ລິດ = ຕົວເອກ */
+.carlist{display:grid;gap:10px}
+.rql{min-height:72px;padding:10px 12px 10px 16px;border:1.5px solid var(--line-2);border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(15,42,41,.04);transition:border-color .2s,box-shadow .2s,background .2s}
+.rql b{font-size:17px;font-weight:700}.rql small{font-size:13.5px;color:var(--muted)}
+.rql input[data-rql]{flex:0 0 120px;width:120px;min-height:56px;font-size:24px;font-weight:700;text-align:center;border:2px solid var(--line-2);border-radius:16px;background:#f7fafa;color:var(--ink)}
+.rql input[data-rql]::placeholder{font-size:16px;font-weight:600;color:#a3b4b4}
+.rql input[data-rql]:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(10,126,122,.15)}
+.rql:has(input[data-rql]:not(:placeholder-shown)){border-color:var(--primary);background:linear-gradient(135deg,#eaf8f6,#fff);box-shadow:0 6px 16px rgba(10,126,122,.16)}
+.rql:has(input[data-rql]:not(:placeholder-shown)) input[data-rql]{border-color:var(--primary);background:#fff;color:var(--primary)}
+.rql.nodrv{min-height:56px;opacity:.55;border-style:dashed;background:#f6f8f8;box-shadow:none}.rql.nodrv b{font-size:15px;font-weight:600}.rql.nodrv input{display:none}
+#rqsum{font-size:16px;font-weight:700;color:var(--primary);min-height:24px;margin:12px 2px 0}
+#rqsend{position:sticky;bottom:calc(92px + env(safe-area-inset-bottom));z-index:4;width:100%}
+/* ໜ້າພາບລວມ: ຕ້ອງເຮັດ = ເດັ່ນສຸດ; ຕົວເລກໃຫຍ່ */
+.card.now{border:2px solid #f0c24b;background:linear-gradient(180deg,#fffbed,#fff);box-shadow:0 10px 26px rgba(231,164,12,.2)}
+.todo{border-radius:18px}.todo.warn,.todo.bad{border-color:#f0c24b;background:#fffdf4}.todo.bad{border-color:#f0a99a;background:#fff8f6}.todo b{font-size:16px}
+.fs-c b{font-size:30px;font-weight:800}.fs-c.warn b{color:#8a5a00}.fs-c.ok b{color:#0c6b44}
+.stp{border-radius:20px}.stp b{font-size:16px}.stp.warn{box-shadow:0 6px 16px rgba(231,164,12,.2)}
+.kpi b{font-size:30px;font-weight:800}
+/* ບັດລົດ: ຊື່ລົດເດັ່ນ */
+.vc-n{font-size:17px;font-weight:700}.vcard{border-radius:20px}
