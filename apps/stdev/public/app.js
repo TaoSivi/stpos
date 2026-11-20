@@ -118,11 +118,20 @@ function header(title, sub, right) { /* ໜ້າຫຼັກ: ໂລໂກ້ +
  var pg = location.pathname.split('/').pop(), logo = ({ 'sop.html': 'sheet', 'hrreport.html': 'xls', 'admin.html': 'key', 'home.html': 'grid' })[pg] || 'pump';
  window.__hdr = { title: title, sub: sub || '', logo: logo };
  if (pg === 'home.html') return '<div class="top"><div class="in"><div class="logo float">' + ic(logo) + '</div><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button><button class="ic" id="lo" aria-label="ອອກຈາກລະບົບ">' + ic('out') + '</button></div></div>';
- return '<div class="top"><div class="in"><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button>' + (pg === 'office.html' ? '' : '<button class="ic" id="hm" aria-label="ໜ້າຫຼັກ" title="ໜ້າຫຼັກ">' + ic('home') + '</button>') + '<button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button id="lo" hidden aria-hidden="true"></button></div></div>';
+ return '<div class="top"><div class="in"><button class="ic" id="hb" aria-label="ກັບຄືນ" title="ກັບຄືນ">' + ic('back') + '</button><button class="ic" id="mb" aria-label="ເມນູ" title="ເມນູ" style="border-radius:50%">' + ic('menu') + '</button><div class="grow"><h1>' + esc(title) + '</h1><small>' + esc(sub || '') + '</small></div>' + (right || '') + '<button class="ic" id="bell" aria-label="ແຈ້ງເຕືອນ" title="ແຈ້ງເຕືອນ">' + ic('bell') + '</button>' + (pg === 'office.html' ? '' : '<button class="ic" id="hm" aria-label="ໜ້າຫຼັກ" title="ໜ້າຫຼັກ">' + ic('home') + '</button>') + '<button id="lo" hidden aria-hidden="true"></button></div></div>';
 }
 
 /* ===== ແອັບໃນມືຖື (PWA): ລົງທະບຽນ service worker + ຊ່ວຍຕິດຕັ້ງ ===== */
-if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+/* ອັບເດດລະບົບງຽບໆ: ມີເວີຊັນໃໝ່ → ເຂົ້າແອັບແລ້ວໂຫຼດຕົວໃໝ່ເອງ ບໍ່ສະແດງຂໍ້ຄວາມຫຍັງ. ບໍ່ໂຫຼດຊ້ຳກາງຄັນຕອນກຳລັງພິມ (ລໍຈົນອອກຈາກແອັບ/ກັບເຂົ້າ); ຂໍ້ມູນຄ້າງສົ່ງຢູ່ໃນຄິວ ບໍ່ຫາຍ */
+if ('serviceWorker' in navigator) (function () {
+ var reg = null, t0 = Date.now(), had = !!navigator.serviceWorker.controller, pend = false;
+ var typing = function () { var e = document.activeElement; return !!(e && /^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName)) || !!document.querySelector('.modal'); };
+ var go = function () { if (!pend) return; if (!(Date.now() - t0 < 15000 || document.hidden || !typing())) return; var k = 'ltg_rl', last = 0; try { last = +sessionStorage.getItem(k) || 0; sessionStorage.setItem(k, Date.now()); } catch (e) { } if (Date.now() - last < 60000) return; /* ກັນໂຫຼດວົນ */ location.reload(); };
+ navigator.serviceWorker.addEventListener('controllerchange', function () { if (!had) { had = true; return; } pend = true; go(); });
+ window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').then(function (r) { reg = r; r.update().catch(function () { }); }).catch(function () { }); });
+ document.addEventListener('visibilitychange', function () { if (document.hidden) go(); else if (reg) reg.update().catch(function () { }); });
+ setInterval(function () { if (reg && !document.hidden) reg.update().catch(function () { }); go(); }, 10 * 60000);
+})();
 var DEFER = null;
 window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); DEFER = e; var b = document.getElementById('instbtn'); if (b) b.classList.remove('hide'); });
 function installHint(id) { /* Android/Chrome: ປຸ່ມຕິດຕັ້ງ · iPhone/iPad (Safari): ບອກວິທີ "ເພີ່ມໃສ່ໜ້າຈໍຫຼັກ" · ເປີດຈາກໄອຄອນແລ້ວ: ບໍ່ສະແດງ */
