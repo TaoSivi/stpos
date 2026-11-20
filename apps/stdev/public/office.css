@@ -282,3 +282,59 @@ main>h1,#v>h1{font-size:24px}
 .kpi b{font-size:30px;font-weight:800}
 /* ບັດລົດ: ຊື່ລົດເດັ່ນ */
 .vc-n{font-size:17px;font-weight:700}.vcard{border-radius:20px}
+
+/* ===== ໜ້າພາບລວມແບບ Dashboard (ເຄົ້າໂຄງຄືຕົວຢ່າງ · ຕີມ/ສີຄືເກົ່າ) ===== */
+.dh{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:2px 0 14px}.dh h1{font-size:28px;font-weight:800;color:var(--primary-600);letter-spacing:-.4px}
+.dk{display:flex;align-items:stretch}.dk-i{padding:0 18px;border-left:1.5px solid var(--line-2)}.dk-i:first-child{border-left:0;padding-left:0}.dk-i small{display:block;color:var(--muted);font-size:13px}.dk-i b{display:block;font-size:28px;line-height:1.15;font-weight:700}
+.drange{padding:10px 12px;margin:0 0 14px}
+.dg{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}.dg>.card{margin:0}
+.dc{display:flex;flex-direction:column;gap:10px;min-width:0}.dc-h{display:flex;align-items:center;justify-content:space-between;gap:8px}.dc-h h2{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+.dc.dw2{grid-column:span 2}
+.dl{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}.dl:last-of-type{border-bottom:0}.dl b{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis}.dl span{white-space:nowrap}
+.dcar{justify-content:flex-start}.dcar b{flex:1}.dcar .chip{flex:0 0 auto}
+.dc-e{display:grid;place-items:center;padding:18px 0;color:var(--muted)}.dc-e .i{width:30px;height:30px;color:var(--primary)}
+.dbig{font-size:44px;font-weight:800;line-height:1.1;color:var(--primary-600)}
+.dhl{background:linear-gradient(145deg,#18a8a0,#0b6f6b);color:#fff;border:0;box-shadow:0 14px 30px rgba(10,126,122,.28);position:relative;overflow:hidden}
+.dhl::after{content:"";position:absolute;right:-40px;bottom:-50px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.1)}
+.dhl h2{color:#fff;font-size:18px;margin:0}.dhl p{margin:0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.92)}.dhl .chip{background:rgba(255,255,255,.2);color:#fff;border-color:transparent}
+.dhl-i{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.18)}
+.dhl .btn.dhl-b{align-self:flex-start;background:#fff;color:var(--primary-600);box-shadow:none;min-height:44px;width:44px;padding:0;border-radius:50%;margin-top:auto;position:relative;z-index:1}
+.dpct{display:flex;align-items:center;gap:10px}.dpct b{font-size:38px;font-weight:800;line-height:1}
+.spark{width:100%;height:56px}
+.dp-t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}.dp{margin:0 0 6px}
+.dt{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dt small{display:block;color:var(--muted);font-size:13px}.dt b{font-size:18px}
+@media(max-width:1000px){.dg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dg{grid-template-columns:1fr 1fr;gap:10px}.dc.dw2{grid-column:1/-1}.dh h1{font-size:24px}.dk-i{padding:0 12px}.dk-i b{font-size:22px}.dbig{font-size:36px}.dpct b{font-size:32px}.dc{padding:14px}.dc-h h2{font-size:15px}.dh{align-items:flex-start}}
+
+.dc.dw3{grid-column:span 3}.dc.dw4{grid-column:1/-1}
+.dcl{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0 28px}
+@media(max-width:1000px){.dc.dw3{grid-column:1/-1}}
+@media(max-width:560px){.dcl{grid-template-columns:1fr}}
+
+/* ===== ປັບຕາມຕົວຢ່າງ: ຕົວອັກສອນບາງລົງ, ເຄົ້າໂຄງໂປ່ງ, ກ່ອງຂາວບໍ່ມີຂອບ ===== */
+.dh{align-items:flex-end;margin:0 0 16px}.dh .muted{font-size:13px;font-weight:400}
+.dh h1{font-size:26px;font-weight:600;letter-spacing:0;color:var(--primary-600);line-height:1.25}
+.dk-i{padding:0 22px}.dk-i small{font-size:12.5px;font-weight:400;color:var(--muted)}.dk-i b{font-size:24px;font-weight:600;letter-spacing:0}
+/* ແຖວຕົວກອງ = ປຸ່ມເມັດນ້ອຍ ຊິດຊ້າຍ */
+.drange{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 16px!important;animation:none}
+.dflt{display:flex;flex-wrap:wrap;gap:8px}
+.dflt button{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 16px;border:1px solid var(--line-2);border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.dflt button .i{width:16px;height:16px;color:var(--primary)}
+.dflt button[aria-pressed=true]{background:var(--ok-bg);border-color:var(--primary);color:var(--primary-600);font-weight:600}
+.drange input[type=date]{min-height:40px;border-radius:12px;font-size:14px}
+/* ກ່ອງ: ຂາວ ບໍ່ມີຂອບ ເງົາເບົາ */
+.dg>.card,.dg>.dc{border:0;border-radius:20px;box-shadow:0 1px 3px rgba(15,42,41,.05),0 8px 24px rgba(15,42,41,.05);padding:18px 18px 16px;gap:12px}
+.dc-h h2{font-size:15px;font-weight:600;color:var(--ink)}.dc-h h2 .i{width:18px;height:18px;color:var(--primary)}
+.dc-h .chip{font-size:12.5px;font-weight:500;padding:3px 10px}
+.dl{padding:9px 0;border-bottom:1px solid #eef3f3}.dl b{font-size:14.5px;font-weight:500}.dl span{font-size:14px;font-weight:400;color:var(--muted)}
+.dcar .chip{font-size:12.5px;font-weight:500}
+.dbig{font-size:38px;font-weight:600}
+.dpct b{font-size:34px;font-weight:600}.dpct .chip{font-size:12.5px;font-weight:500}
+.dp-t{font-size:13.5px;font-weight:400;color:var(--muted)}.dp-t b{font-size:14px;font-weight:600;color:var(--ink)}
+.dp .bar{height:5px;background:#eaf1f1}
+.dt small{font-size:12.5px;font-weight:400}.dt b{font-size:17px;font-weight:600}
+.dhl h2{font-size:16px;font-weight:600}.dhl p{font-size:14px;font-weight:400}.dhl .chip{font-weight:500}
+.dcol b{font-weight:500}.dcol small{font-weight:400}
+.dg .btn.line{min-height:42px;font-size:14px;font-weight:500;border-radius:14px}
+.dg .fs-s .chip{font-weight:500}
+@media(max-width:560px){.dh h1{font-size:22px}.dk-i{padding:0 14px}.dk-i b{font-size:20px}.dbig{font-size:32px}.dpct b{font-size:28px}.dflt button{min-height:36px;padding:0 13px;font-size:13.5px}}
