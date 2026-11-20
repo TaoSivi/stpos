@@ -16,16 +16,16 @@ var kv = (function () {
 })();
 /* ===== ເຂົ້າລະບົບຕອນບໍ່ມີເນັດ: ຫຼັງ login ສຳເລັດ ເກັບ hash ຂອງ PIN (PBKDF2 + salt) + token ໄວ້ໃນເຄື່ອງ — ເບີດຽວກັນໃສ່ PIN ຖືກ ເຂົ້າໄດ້ເລີຍ ບໍ່ຕ້ອງລໍເນັດ ===== */
 var dg = function (p) { return String(p || '').replace(/\D/g, '').slice(-8); };
-function pinHash(pin, salt) { var enc = new TextEncoder(); return crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']).then(function (k) { return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: salt, iterations: 120000, hash: 'SHA-256' }, k, 256); }).then(function (b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }); }
+function pinHash(pin, salt, it) { var enc = new TextEncoder(); return crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']).then(function (k) { return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: salt, iterations: it || 120000, hash: 'SHA-256' }, k, 256); }).then(function (b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }); }
 function credSave(phone, pin, r) {
  if (!window.crypto || !crypto.subtle || !window.TextEncoder) return Promise.resolve();
- var salt = crypto.getRandomValues(new Uint8Array(16)); return pinHash(pin, salt).then(function (h) { return kv.set('cred', { p: dg(phone), s: Array.prototype.slice.call(salt), h: h, token: r.token, name: r.name, napps: r.napps, ts: Date.now() }); }).catch(function () { });
+ var salt = crypto.getRandomValues(new Uint8Array(16)); return pinHash(pin, salt, 20000).then(function (h) { return kv.set('cred', { p: dg(phone), it: 20000, s: Array.prototype.slice.call(salt), h: h, token: r.token, name: r.name, napps: r.napps, ts: Date.now() }); }).catch(function () { });
 }
 function credLogin(phone, pin) { /* ຄືນ {ok:true,...} / {ok:false,error:'login'} / null (ບໍ່ມີ cred ຂອງເບີນີ້) */
  return kv.get('cred').then(function (c) {
   if (!c || c.p !== dg(phone) || !window.crypto || !crypto.subtle) return null;
   return kv.get('credfail').then(function (f) { f = f || { n: 0, until: 0 }; if (f.n >= 5 && f.until > Date.now()) return { ok: false, error: 'locked', min: Math.ceil((f.until - Date.now()) / 60000) };
-   return pinHash(String(pin), new Uint8Array(c.s)).then(function (h) {
+   return pinHash(String(pin), new Uint8Array(c.s), c.it).then(function (h) {
     if (h === c.h) return kv.del('credfail').then(function () { return { ok: true, token: c.token, name: c.name, napps: c.napps, offline: true }; });
     f.n = f.until < Date.now() ? 1 : f.n + 1; f.until = Date.now() + 15 * 60000; return kv.set('credfail', f).then(function () { return { ok: false, error: 'login', left: Math.max(0, 5 - f.n) }; }); }); });
  }).catch(function () { return null; });
@@ -126,11 +126,11 @@ function getQ() { return kv.get('q').then(function (q) { return q || []; }); }
 /* ===== ໂຫຼດຂໍ້ມູນເກັບໄວ້ລ່ວງໜ້າ: ຫຼັງເຂົ້າລະບົບຄັ້ງດຽວ ໜ້າທີ່ຍັງບໍ່ເຄີຍເປີດກໍໃຊ້ໄດ້ຕອນບໍ່ມີເນັດ (ອ່ານຢ່າງດຽວ ບໍ່ສ້າງຂໍ້ມູນໃນ server) ===== */
 var WARMED = 0;
 function warm() {
- var tk = ls('fuel_tk'); if (!tk || OFF || navigator.onLine === false || Date.now() - WARMED < 15 * 60e3) return; WARMED = Date.now();
+ var tk = ls('fuel_tk'); if (!tk || OFF || navigator.onLine === false || Date.now() - WARMED < 6 * 36e5) return; WARMED = Date.now();
  kv.get('init').then(function (init) {
   var sites = init && init.cfg && init.cfg.sites ? init.cfg.sites : [], day = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
   var jobs = [['drivers', {}], ['sop.me', {}], ['sop.hdr', {}]].concat(sites.slice(0, 6).map(function (s) { return ['sheet', { site: s.id, date: day }]; }));
-  return jobs.reduce(function (p, j) { return p.then(function () { return OFF ? 0 : post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }); }, Promise.resolve());
+  return jobs.reduce(function (p, j) { return p.then(function () { return OFF ? 0 : kv.get(rkey(j[0], j[1])).then(function (have) { if (have !== undefined) return; /* ມີແລ້ວ = ບໍ່ໂຫຼດຊ້ຳ (ການໃຊ້ງານປົກກະຕິອັບເດດເອງ) */ return post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }); }); }, Promise.resolve());
  }).catch(function () { });
 }
 /* ===== ຄິດໄລ່ໃນເຄື່ອງ (ໃຫ້ຜົນຄືກັບ server ເພາະໃຊ້ Tank.liters ໄຟລ໌ດຽວກັນ) ===== */
@@ -192,13 +192,13 @@ function apiRaw(action, body) {
  if (READS[action]) {
   return Promise.all([getQ(), kv.get(rkey(action, body))]).then(function (c) { var f = c[0].length ? flush() : 0; return c[1] !== undefined ? c[1] : (f ? Promise.race([f, tmo(3000)]).then(function () { return kv.get(rkey(action, body)); }) : undefined); }).then(function (cached) {
    var net = post(action, body, tk); if (cached === undefined) return net;
-   return Promise.race([net, tmo(500).then(function () { return null; })]).then(function (r) {
+   return Promise.race([net, tmo(120).then(function () { return null; })]).then(function (r) {
     if (r) return r; /* ເນັດໄວພໍ → ຂໍ້ມູນສົດ */
     net.then(function (n) { if (n && n.ok) { kv.set(rkey(action, body), n.data); if (JSON.stringify(n.data) !== JSON.stringify(cached)) document.dispatchEvent(new CustomEvent('synced')); } }); /* ເນັດຊ້າ: ສະແດງຂອງໃນເຄື່ອງກ່ອນ ແລ້ວແຕ້ມໃໝ່ເມື່ອຂໍ້ມູນສົດມາ ແລະ ຕ່າງ */
     return { ok: true, data: cached, cached: true, stale: true };
    });
   }).then(function (r) {
-   if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { if (action === 'init') setTimeout(warm, 800); if (action === 'me' && r.data && r.data.renew) { ls('fuel_tk', r.data.renew); kv.get('cred').then(function (c) { if (c) { c.token = r.data.renew; return kv.set('cred', c); } }); } return r; });
+   if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { if (action === 'init') setTimeout(warm, 8000); if (action === 'me' && r.data && r.data.renew) { ls('fuel_tk', r.data.renew); kv.get('cred').then(function (c) { if (c) { c.token = r.data.renew; return kv.set('cred', c); } }); } return r; });
    if (r.error !== 'net') return r;
    return kv.get(rkey(action, body)).then(function (d) { if (d !== undefined) return { ok: true, data: d, cached: true }; if (action !== 'sop.open' || body.id) return r;
     return sopBuild(body, false).then(function (run) { if (!run) return r; return kv.set(rkey(action, body), run).then(function () { return sopMeSync(run); }).then(function () { return getQ(); }).then(function (q) { q.push({ action: 'sop.open', body: Object.assign({ lid: run.id }, body), token: tk, ts: Date.now() }); return kv.set('q', q); }).then(function () { setTimeout(flush, 0); return { ok: true, data: run, cached: true, queued: true }; }); }); }); /* ບໍ່ເຄີຍໂຫຼດມາກ່ອນ ແລະ ບໍ່ມີເນັດ */

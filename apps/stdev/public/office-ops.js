@@ -121,9 +121,10 @@ function rangeDash() {
 }
 function dashView() {
  if (DASH.p !== 'day' || DASH.all) return rangeDash();
- var mine = MOD;
+ var mine = MOD, dSite = $('site').value, dDate = $('date').value;
+ var pLed = api('ledger', { site: dSite }), pDash = api('dash', { site: dSite, from: addDays(dDate, -6), to: dDate }); /* ຂໍພ້ອມກັນ ບໍ່ລໍກັນເປັນແຖວ (ເຊີບເວີ ~0.4 ວິ/ຄັ້ງ) */
  withSheet(false, function () {
-  api('ledger', { site: $('site').value }).then(function (r) {
+  pLed.then(function (r) {
    if (MOD !== mine) return; LEDGER = r.ok ? r.data : [];
    var n = S.rows.length, filled = S.rows.filter(function (x) { return x.add != null; }), acked = filled.filter(function (x) { return x.ack; }).length, pct = filled.length ? Math.round(acked * 100 / filled.length) : 0, t = totals(), tk = S.tank;
    var todo = [], todoD = [], add = function (tone, icn, title, sub, go) { todoD.push({ t: title, go: go, tone: tone }); todo.push('<button class="todo ' + tone + '" data-go="' + go + '"><span class="ti">' + ic(icn) + '</span><span><b>' + title + '</b>' + (tone === 'bad' ? '<small>' + sub + '</small>' : '') + '</span><span class="go">' + ic('next') + '</span></button>'); };
@@ -151,7 +152,7 @@ function dashView() {
     open = tk ? (tk.bal || 0) - (tk.recv || 0) + (tk.out || 0) : 0, res = sm(apprL.filter(function (x) { return x.ok && x.ok.src === 'tank'; }), function (x) { return x.ok.lit; });
    var srcL = [['ແທ່ງ', 'tank'], ['ປໍ້າ', 'shop'], ['ຕຸກ', 'jug']].map(function (k) { return [k[0], sm(filled.filter(function (x) { return (x.src || 'tank') === k[1]; }), function (x) { return x.add; })]; }).filter(function (k) { return k[1] > 0; });
    var from7 = addDays(S.date, -6);
-   api('dash', { site: $('site').value, from: from7, to: S.date }).then(function (dr) {
+   pDash.then(function (dr) {
     if (MOD !== mine) return; var byD = {}; (dr.ok ? dr.data.days : []).forEach(function (d) { byD[d.date] = d; }); var bars = []; for (var k = -6; k <= 0; k++) { var dd = addDays(S.date, k); bars.push({ d: dd, v: byD[dd] ? byD[dd].fl.lit : 0 }); }
     var ackPc = filled.length ? Math.round(acked * 100 / filled.length) : 0;
     $('v').innerHTML = dashLayout({ title: 'ສະບາຍດີ ' + esc((I.me.name || '').split(' ')[0]), sub: 'ພາບລວມ · ' + esc(siteObj().name) + ' · ' + dmy(S.date),

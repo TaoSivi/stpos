@@ -85,7 +85,7 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
     assert.ok((await call('sop.assignSet', { token: sa, tpl: 'f03w', users: ['02055550005'] })).ok); assert.ok((await call('sop.assignSet', { token: sa, tpl: 'f01', users: ['02055550005'] })).ok);
     const today = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), T = { site: 's1', date: today };
     await vm.runInContext('clearCache()', ctx); await vm.runInContext("kv.del('q')", ctx); ctx.WARMED_RESET = 1; vm.runInContext('WARMED = 0', ctx);
-    mode = 'up'; assert.ok((await api('init')).ok); await wait(2500); /* warm() ໂຫຼດ sheet / sop.me ມາເກັບ ໂດຍຜູ້ໃຊ້ບໍ່ໄດ້ເປີດໜ້ານັ້ນ */
+    mode = 'up'; assert.ok((await api('init')).ok); vm.runInContext('WARMED = 0; warm()', ctx); await wait(2500); /* warm() ໂຫຼດ sheet / sop.me ມາເກັບ ໂດຍຜູ້ໃຊ້ບໍ່ໄດ້ເປີດໜ້ານັ້ນ */
     assert.ok(await vm.runInContext("kv.get('sop.me|{}')", ctx), 'sop.me prefetched'); assert.ok(await vm.runInContext("kv.get('sheet|s1|" + today + "')", ctx), 'today sheet prefetched');
     mode = 'down';
     const w1 = await api('sop.open', { tpl: 'f03w' }); assert.ok(w1.ok && w1.data.items.length > 0 && w1.data.status === 'open', 'never-opened weekly checklist opens offline: ' + JSON.stringify(w1).slice(0, 120));
