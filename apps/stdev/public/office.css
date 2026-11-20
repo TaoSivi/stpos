@@ -451,3 +451,15 @@ button.pendi{cursor:pointer;transition:transform .15s,box-shadow .2s}button.pend
 .rtabs button .i{width:18px;height:18px}
 .rtabs button[aria-selected=true]{background:linear-gradient(135deg,#18a8a0,#0b7e7a);border-color:transparent;color:#fff;box-shadow:0 6px 14px rgba(10,126,122,.28)}
 @media print{.rtabs{display:none!important}}
+
+/* ໜ້າອະນຸມັດ: ບັດຄຳຂໍທີ່ມີຊ່ອງກອກ + ປຸ່ມ ຕ້ອງເປັນແນວຕັ້ງ (ບໍ່ແມ່ນຕາຕະລາງ 3 ຖັນຂອງລາຍການຄຳຂໍ) */
+.rqsheet .cr.act{display:block;padding:12px 14px}
+.rqsheet .cr.act>.row.wrap:first-child{display:flex;flex-wrap:nowrap;align-items:center;gap:10px;margin:0 0 6px}
+.rqsheet .cr.act>.row.wrap:first-child b{font-size:16px}
+.rqsheet .cr.act>.row.wrap:first-child .muted{font-size:18px;font-weight:700;color:var(--ink)}
+.rqsheet .cr.act>div:nth-child(2){margin:0 0 8px}
+.rqsheet .cr.act>.g2{margin-top:6px!important}
+.rqsheet .cr.act>.row.wrap:last-child{display:flex;flex-wrap:nowrap;gap:10px;margin:12px 0 0!important}
+.rqsheet .cr.act>.row.wrap:last-child .btn.ok{flex:1 1 auto;min-height:46px;font-size:16px;font-weight:700}
+.rqsheet .cr.act>.row.wrap:last-child .btn.line{flex:0 0 auto;min-height:46px;padding:0 18px;color:var(--bad,#b3261e);border-color:#e7b4ae}
+.rqsheet>.allbox{grid-column:1/-1}
