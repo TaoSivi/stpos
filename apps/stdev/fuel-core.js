@@ -17,7 +17,7 @@ const RIGHTS = [
   { k: 'request', label: 'ຂໍນ້ຳມັນ (ວິຊາການ)' }, { k: 'reqOk', label: 'ອະນຸມັດຄຳຂໍນ້ຳມັນ (ເລືອກແຫຼ່ງ: ແທ່ງ / ຊື້ປໍ້າ)' }, { k: 'urgent', label: 'ເຕີມດ່ວນ ບໍ່ມີຄຳຂໍ' }
 ];
 const KEYS = RIGHTS.map(function (r) { return r.k; });
-const PRESET = { head: ['view', 'issue', 'tank', 'assign', 'approve', 'fixAck', 'request', 'reqOk', 'urgent'], admin: ['view', 'issue', 'tank', 'request', 'reqOk'], office: ['view'], driver: ['ack'], tech: ['request'] };
+const PRESET = { head: ['view', 'issue', 'assign', 'approve', 'fixAck', 'request', 'reqOk', 'urgent'], admin: ['view', 'issue', 'tank', 'request', 'reqOk'], office: ['view'], driver: ['ack'], tech: ['request'] };
 const OPS = ['view', 'issue', 'tank', 'assign', 'approve', 'request', 'reqOk']; /* ສິດທີ່ໃຊ້ໜ້າບໍລິຫານ (ບໍ່ແມ່ນສະເພາະຮັບຮູ້) */
 /* ສິດຕົວຈິງຂອງ user = {role, rights?, approver?}: owner ໄດ້ທັງໝົດ · ມີ rights ໃຊ້ rights · ບໍ່ມີ ໃຊ້ແມ່ແບບ · approver:true ເພີ່ມ approve (ຂໍ້ມູນເກົ່າ) */
 function rightsFor(user) {

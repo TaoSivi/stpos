@@ -213,7 +213,7 @@ console.log('fuel: all passed');
   const body = { init: {}, cfgSave: { cfg: { company: 'x', sites: [{ id: 's1', name: 'a', tank: { t: 'lpc', k: 5 } }], vehicles: [{ id: 'v1', name: 'a', site: 's1', driver: 'u4', tank: { t: 'lpc', k: 5 } }] } }, sheet: { site: 's1', date: D1 }, photos: { site: 's1', date: D1 }, ledger: { site: 's1' },
     row: { site: 's1', date: D1, v: 'v1', note: 'n' }, tank: { site: 's1', date: D1, recv: 5 }, photo: { site: 's1', date: D1, key: 'tank', data: 'data:image/jpeg;base64,AAAA' }, ack: { site: 's1', date: D1, v: 'v1', yes: 1 }, approve: { site: 's1', date: D2, yes: 1 }, assign: { site: 's1', v: 'v1', driver: 'u4' } };
   /* ບັນດາສະໜາມ s1 ມີຢູ່ກ່ອນ cfgSave ນີ້ — cfgSave ຂອງຕາຕະລາງກັບໄປໃຊ້ຄ່າເກົ່າ (v1→u4) ແຕ່ຕັດ s2/v2/v3 ອອກ */
-  const expect = { init: 'YYYYYY', cfgSave: 'Y.....', sheet: 'YYYYY.', photos: 'YYYYY.', ledger: 'YYYY..', row: 'YYY...', tank: 'YYY...', photo: 'YYY...', ack: '....Y.', approve: 'YY....', assign: 'YY....' };
+  const expect = { init: 'YYYYYY', cfgSave: 'Y.....', sheet: 'YYYYY.', photos: 'YYYYY.', ledger: 'YYYY..', row: 'YYY...', tank: 'Y.Y...', photo: 'Y.Y...', ack: '....Y.', approve: 'YY....', assign: 'YY....' };
   const order = ['init', 'sheet', 'photos', 'ledger', 'row', 'tank', 'photo', 'ack', 'approve', 'assign', 'cfgSave'];
   order.forEach(function (a) {
     who.forEach(function (w, i) {
