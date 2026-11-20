@@ -467,3 +467,17 @@ console.log('fuel: all passed');
   assert.strictEqual(call('drv', Object.assign({ action: 'dash', from: d1, to: d2 }, Z)).error, 'auth', 'drivers have no dashboard');
   console.log('fuel: dashboard range summary');
 })();
+
+(function () { /* ສົ່ງຊ້ຳຫຼັງເນັດຫຼຸດ/ຊ້າ (ຄິວອອບລາຍ): ຄຳຂໍ + ຮັບເຂົ້າແທ່ງ ບໍ່ຊ້ຳ, id ຄົງທີ່ */
+  store.write('cfg', { company: '', sites: [{ id: 'y1', name: 'ສະໜາມ Y', tank: { t: 'lpc', k: 5 }, rq: true }], vehicles: [{ id: 'yv1', name: 'ລົດ Y', site: 'y1', driver: 'u4', tank: { t: 'lpc', k: 5 } }] });
+  const Y = { site: 'y1', date: '2026-11-19' }, rq = Object.assign({ action: 'rqNew', cid: 'b1abc2def', lines: [{ v: 'yv1', lit: 80 }] }, Y);
+  const a = call('boss', rq), b = call('boss', rq);
+  assert.ok(a.ok && b.ok, 'both calls succeed');
+  assert.strictEqual(b.data.reqs.length, 1, 'resending the same cid does not duplicate');
+  assert.strictEqual(b.data.reqs[0].id, 'r1abc2def0', 'id is derived from cid so offline ops can reference it');
+  const t1 = Object.assign({ action: 'tank', add: { id: 'rzz123', lit: 300 } }, Y); call('boss', t1); const t2 = call('boss', t1);
+  assert.strictEqual(t2.data.tank.recv, 300, 'resent receive is not counted twice');
+  const u = Object.assign({ action: 'rqUrgent', cid: 'b9urg9', v: 'yv1', src: 'tank' }, Y); call('boss', u); const u2 = call('boss', u);
+  if (u2.ok) assert.strictEqual(u2.data.reqs.filter(function (r) { return r.urgent; }).length, 1, 'urgent resend is not duplicated');
+  console.log('fuel: idempotent resend (offline queue)');
+})();

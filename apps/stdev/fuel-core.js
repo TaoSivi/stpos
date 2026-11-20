@@ -191,8 +191,9 @@ function handle(store, user, o) {
       const lines = Array.isArray(o.lines) ? o.lines : [{ v: o.v, lit: o.lit }]; /* ໃບຂໍ 1 ໃບ = ຫຼາຍຄັນ (ເກົ່າ: ຄັນດຽວ) */
       if (!lines.length || lines.length > 60) return err('lit'); const seen = {}, ready = [];
       for (let i = 0; i < lines.length; i++) { const c = cars.filter(function (v) { return v.id === (lines[i] || {}).v; })[0]; if (!c) return err('vehicle'); if (!c.driver) return err('nodriver'); if (seen[c.id]) return err('dup'); /* ບໍ່ມີຄົນຂັບມື້ນີ້ = ບໍ່ເຕີມ ຈອດໄວ້ */ seen[c.id] = 1; const lit = num(lines[i].lit); if (!(lit > 0) || lit > 100000) return err('lit'); ready.push({ c: c, lit: lit }); }
-      const bid = 'b' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36), bno = q.list.reduce(function (m, x) { return Math.max(m, x.bno || 0); }, 0) + 1;
-      ready.forEach(function (z, i) { let nid; do { nid = 'r' + nowMs.toString(36) + i.toString(36) + Math.floor(Math.random() * 1296).toString(36); } while (q.list.some(function (y) { return y.id === nid; })); /* id ບໍ່ຊ້ຳ */ q.list.push({ id: nid, bid: bid, bno: bno, v: z.c.id, lit: z.lit, note: str(o.note, 200), by: user.id, name: user.name, at: nowMs, st: 'pending' }); });
+      const cid = /^b[a-z0-9]{4,24}$/.test(String(o.cid || '')) ? o.cid : null; if (cid && q.list.some(function (y) { return y.bid === cid; })) return view(); /* ສົ່ງຊ້ຳ (ເນັດຊ້າ/ຫຼຸດ) = ບໍ່ສ້າງຊ້ຳ */
+      const bid = cid || 'b' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36), bno = q.list.reduce(function (m, x) { return Math.max(m, x.bno || 0); }, 0) + 1;
+      ready.forEach(function (z, i) { let nid = cid ? 'r' + cid.slice(1) + i.toString(36) : null; if (!nid) do { nid = 'r' + nowMs.toString(36) + i.toString(36) + Math.floor(Math.random() * 1296).toString(36); } while (q.list.some(function (y) { return y.id === nid; })); /* id ບໍ່ຊ້ຳ */ q.list.push({ id: nid, bid: bid, bno: bno, v: z.c.id, lit: z.lit, note: str(o.note, 200), by: user.id, name: user.name, at: nowMs, st: 'pending' }); });
       return done();
     }
     if (a === 'rqDecide') {
@@ -220,7 +221,8 @@ function handle(store, user, o) {
     }
     if (a === 'rqUrgent') { /* ເຕີມດ່ວນ ບໍ່ມີຄຳຂໍ (ສິດ urgent) — ບັນທຶກເປັນຄຳຂໍ "ດ່ວນ" ທີ່ອະນຸມັດໂດຍຜູ້ເຮັດ */
       if (!can('urgent') || !can('issue')) return err('auth'); const c = cars.filter(function (v) { return v.id === o.v; })[0]; if (!c) return err('vehicle'); if (!c.driver) return err('nodriver');
-      let uid; do { uid = 'r' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36); } while (q.list.some(function (y) { return y.id === uid; }));
+      const ucid = /^b[a-z0-9]{4,24}$/.test(String(o.cid || '')) ? o.cid : null; let uid = ucid ? 'r' + ucid.slice(1) + 'u' : null; if (uid && q.list.some(function (y) { return y.id === uid; })) return view(); /* ສົ່ງຊ້ຳ = ບໍ່ສ້າງຊ້ຳ */
+      if (!uid) do { uid = 'r' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36); } while (q.list.some(function (y) { return y.id === uid; }));
       const x = { id: uid, v: c.id, lit: null, note: str(o.note, 200), by: user.id, name: user.name, at: nowMs, st: 'approved', urgent: true, ok: { by: user.id, name: user.name, at: nowMs, lit: null, src: srcN(o.src), shop: str(o.shop, 60) } };
       q.list.push(x); if (!open(x)) { q.list.pop(); return err('rounds'); } return done();
     }
@@ -285,7 +287,7 @@ function handle(store, user, o) {
     if (o.add || o.del || o.edit) { /* ຮັບເຂົ້າຫຼາຍຄັ້ງຕໍ່ມື້: ລາຍການ recvs, recv = ຜົນລວມ (ສ່ວນອື່ນຂອງລະບົບຍັງໃຊ້ recv ຄືເກົ່າ) */
       if (!Array.isArray(t.recvs)) t.recvs = t.recv > 0 ? [{ id: 'r0', lit: t.recv, from: '', note: '', by: user.id, at: nowMs }] : [];
       if (o.add) { const lit = num(o.add.lit); if (!(lit > 0) || lit > 1000000) return err('lit'); if (t.recvs.length >= 30) return err('rounds');
-        t.recvs.push({ id: 'r' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36), lit: lit, from: str(o.add.from, 60), note: str(o.add.note, 200), by: user.id, at: nowMs }); }
+        if (!(/^r[a-z0-9]{3,24}$/.test(String(o.add.id || '')) && t.recvs.some(function (x) { return x.id === o.add.id; }))) t.recvs.push({ id: /^r[a-z0-9]{3,24}$/.test(String(o.add.id || '')) ? o.add.id : 'r' + nowMs.toString(36) + Math.floor(Math.random() * 1296).toString(36), lit: lit, from: str(o.add.from, 60), note: str(o.add.note, 200), by: user.id, at: nowMs }); }
       if (o.del || o.edit) { /* ແກ້ / ຍົກເລີກການຮັບເຂົ້າ: Admin ຂຶ້ນໄປ + ເຫດຜົນ + ບັນທຶກ log (ລາຍງານການປັບປຸງ) */
         if (!boss) return err('auth'); const reason = str(o.reason, 200); if (!reason) return err('reason');
         const rid = o.del || (o.edit || {}).id, x = t.recvs.filter(function (r) { return r.id === rid; })[0]; if (!x) return err('rq');
