@@ -4,7 +4,7 @@
 //  - /assets/ and /models/ never change under the same name: saved copy first
 //  - everything else on this site: network first, saved copy when the network fails
 // Other sites (map tiles, fonts) are left alone.
-const CACHE = 'sthr-v2';
+const CACHE = 'sthr-v3';
 const SCOPE = self.registration.scope; // e.g. https://host/st-hr/
 const MODELS = [
   'tiny_face_detector_model-weights_manifest.json', 'tiny_face_detector_model.bin',
