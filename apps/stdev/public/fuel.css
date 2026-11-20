@@ -221,3 +221,20 @@ button.nit{cursor:pointer;border-color:var(--line-2)}.nit .i{color:var(--primary
 .nnum{display:grid;place-items:center;flex:0 0 auto;min-width:40px;height:40px;padding:0 8px;border-radius:14px;background:#e7a40c;color:#fff;font-size:18px;font-weight:700}.nnum .i{width:20px;height:20px;stroke-width:2.4}
 .nempty{display:grid;place-items:center;padding:26px 0}.nempty span{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--ok-bg);color:var(--primary)}.nempty .i{width:28px;height:28px;stroke-width:2.6}
 body.sop .nsh .nit{border-color:#efd9b8;background:linear-gradient(135deg,#fbf1e3,#fffdf9)}body.sop .nnum{background:#c98a2b}
+
+/* ===== ໃຫ້ເຫັນຊັດວ່າ "ກົດໄດ້": ປຸ່ມມີພື້ນ + ຂອບສີ + ເງົາ, ແຕະແລ້ວມີປະຕິກິລິຍາ ===== */
+button,[role=button],label.cal{cursor:pointer;-webkit-tap-highlight-color:rgba(10,126,122,.14)}
+button:not(:disabled):active{transform:scale(.97)}
+.btn.line{background:var(--ok-bg);border:1.5px solid #86c7c1;color:var(--primary-600);font-weight:700;box-shadow:0 2px 0 rgba(10,126,122,.14)}
+.btn.line:hover{background:#d3eeea}
+.btn.line .i{color:var(--primary)}
+.seg button,#rqday button,.dflt button:not([aria-pressed=true]),.iseg button{border:1.5px solid #9fd0cb;box-shadow:0 1px 0 rgba(10,126,122,.12)}
+.seg button:not([aria-pressed=true]):not([aria-selected=true]),#rqday button:not([aria-pressed=true]){background:#fff;color:var(--primary-600);font-weight:600}
+.seg button[aria-pressed=true],#rqday button[aria-pressed=true],.dflt button[aria-pressed=true]{box-shadow:0 4px 10px rgba(10,126,122,.2)}
+label.cal{border:1.5px solid #9fd0cb;box-shadow:0 1px 0 rgba(10,126,122,.12)}
+.back{background:#fff!important;border:1.5px solid #9fd0cb!important;border-radius:999px;padding:6px 16px 6px 12px!important;box-shadow:0 1px 0 rgba(10,126,122,.12)}
+.hubtile,.todo,.stp,.fn,.cl{border:1.5px solid #cfe5e2;box-shadow:0 2px 8px rgba(15,42,41,.06)}
+.hubtile:hover,.todo:hover,.stp:hover{border-color:#86c7c1;box-shadow:0 6px 16px rgba(10,126,122,.14)}
+.ibtn{border:1.5px solid #9fd0cb;background:#fff;color:var(--primary)}
+/* ລູກສອນ › ຂອງລາຍການທີ່ກົດເຂົ້າໄປໄດ້ ໃຫ້ເປັນສີຂຽວເດັ່ນ */
+.hubtile svg.i.muted,.stp svg.i.muted,.todo .go,.todo .go svg{color:var(--primary)!important}
