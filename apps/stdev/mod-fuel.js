@@ -20,6 +20,11 @@ function create(DATA, accounts) {
       if (user.fuel !== 'owner' && ['assign', 'request'].every(function (k) { return core.rightsFor(fuelUser(user)).indexOf(k) < 0; })) return { ok: false, error: 'auth' }; const all = accounts.users(); /* ຜູ້ມອບລົດ ແລະ ວິຊາການ (ເລືອກຄົນຂັບແທນ) */
       return { ok: true, data: Object.keys(all).filter(function (k) { return all[k].level === 'user' && all[k].active && !!all[k].fuel; }).map(function (k) { return { phone: k, name: all[k].name }; }) };
     }
+    if (action === 'approvers') { /* ໃຜອະນຸມັດຄຳຂໍນ້ຳມັນຂອງສະໜາມນີ້ໄດ້ — ໃຫ້ຜູ້ຂໍຮູ້ວ່າລໍໃຜ */
+      const mine = core.rightsFor(fuelUser(user)); if (user.fuel !== 'owner' && ['view', 'issue', 'request', 'reqOk'].every(function (k) { return mine.indexOf(k) < 0; })) return { ok: false, error: 'auth' };
+      const all = accounts.users(), site = String(o.site || '');
+      return { ok: true, data: Object.keys(all).filter(function (k) { const u = all[k]; if (!u.active) return false; if (u.level !== 'user') return true; if (!u.fuel) return false; return core.rightsFor({ id: k, name: u.name, role: u.fuel, sites: u.sites, rights: u.fuelRights, approver: u.approver }).indexOf('reqOk') >= 0 && (u.sites || []).indexOf(site) >= 0; }).map(function (k) { return { phone: k, name: all[k].name, me: k === user.id }; }) };
+    }
     if (action === 'pending') { /* ຕົວເລກເທິງໄອຄອນແອັບ: ລາຍການລໍຂ້ອຍຮັບຮູ້ (ຄົນຂັບ) + ຖືກປະຕິເສດ (ຜູ້ບໍລິຫານ) ຂອງວັນນີ້ ແລະ ມື້ວານ */
       const me = fuelUser(user), init = core.handle(store, me, { action: 'init' }); if (!init.ok) return init;
       const day = function (back) { return new Date(Date.now() + 7 * 36e5 - back * 864e5).toISOString().slice(0, 10); }; /* ເວລາລາວ UTC+7 */

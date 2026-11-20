@@ -22,12 +22,12 @@ function drawReport() {
  var rows = S.rows.map(function (r, i) {
   return '<tr><td>' + (i + 1) + '</td><td class="l">' + esc(r.name) + (r.h && r.h.length ? ' <small class="pm bad" title="' + esc(r.h.map(function (x) { return when(x.at) + ' ' + x.k + ' ' + x.from + '→' + x.to; }).join(' | ')) + '">ແກ້ ' + r.h.length + ' ຄັ້ງ</small>' : '') + '</td><td>' + L(r.L0) + '</td><td>' + pic(r.v + '_b') + '</td><td>' + (r.cm0 == null ? '' : r.cm0 + ' cm') + '</td><td><b>' + L(r.add) + '</b><br><small>' + (r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : 'ແທ່ງ') + '</small></td><td>' + (r.cm1 == null ? '' : r.cm1 + ' cm') + '</td><td>' + pic(r.v + '_a') + '</td><td>' + L(r.L1) + '</td><td>' + pic(r.v + '_e') + '</td><td>' + (r.cm2 == null ? '' : r.cm2 + ' cm') + '</td><td>' + L(r.L2) + '</td><td><b>' + L(r.used) + '</b></td><td>' + (r.ack ? '✓ ' + esc(r.ack.name) : r.rej ? '✗ ' + esc(r.rej.name) : '') + '</td><td class="l">' + rqParts(r).map(esc).join('<br>') + '</td><td class="l">' + esc(r.note) + '</td></tr>';
  }).join('');
- $('v').innerHTML = '<section class="card a4l"><div class="rh">' + letterhead() + '<h2>ໃບຕິດຕາມ ຮັບ ແລະ ເບີກຈ່າຍນ້ຳມັນ ປະຈຳວັນ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ປະຈຳວັນທີ: <b>' + d + '</b></div></div>' +
+ $('v').innerHTML = repTabs() + '<section class="card a4l"><div class="rh">' + letterhead() + '<h2>ໃບຕິດຕາມ ຮັບ ແລະ ເບີກຈ່າຍນ້ຳມັນ ປະຈຳວັນ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ປະຈຳວັນທີ: <b>' + d + '</b></div></div>' +
   '<div class="tw"><table><thead><tr><th rowspan="2">ລ/ດ</th><th rowspan="2">ປະເພດລົດ</th><th colspan="3">ຕອນເຊົ້າ (ກ່ອນໃສ່ນ້ຳມັນ)</th><th colspan="3">ເບີກນ້ຳມັນໃສ່ລົດ</th><th rowspan="2">ລວມ<br>ໃນລົດ</th><th colspan="3">ຕອນແລງ (ຫຼັງເລີກວຽກ)</th><th rowspan="2">ຍອດນຳໃຊ້<br>ຕົວຈິງ</th><th rowspan="2">ຄົນຂັບ<br>ຮັບຮູ້</th><th rowspan="2">ຄຳຂໍ → ອະນຸມັດ<br>ແລະ ຂໍ້ສັງເກດ</th><th rowspan="2">ໝາຍເຫດ</th></tr>' +
   '<tr><th>ຈ/ນ ກ່ອນໃສ່</th><th>ຮູບ</th><th>ແທກ</th><th>ຈຳນວນໃສ່</th><th>ແທກ</th><th>ຮູບ</th><th>ຮູບ</th><th>ແທກ</th><th>ຄ້າງຖັງ</th></tr></thead><tbody>' + (rows || '<tr><td colspan="16">ບໍ່ມີລົດ</td></tr>') + '</tbody>' +
   '<tfoot><tr><td colspan="5">ລວມຍອດຈ່າຍອອກມື້ນີ້ທັງໝົດ</td><td>' + L(t[0]) + '</td><td colspan="6">ລວມຍອດນຳໃຊ້ຕົວຈິງ</td><td>' + L(t[1]) + '</td><td colspan="3"></td></tr></tfoot></table></div>' +
   (S.tank ? '<p>ແທ່ງນ້ຳມັນ: ຮັບເຂົ້າ ' + L(S.tank.recv || 0) + ' · ຍອດເຫຼືອຕາມບັນຊີ ' + L(S.tank.bal) + ' · ແທກໄດ້ ' + L(S.tank.measured) + (S.tank.cm != null ? ' (' + S.tank.cm + ' cm)' : '') + '</p>' : '') +
-  '<div class="sign"><div>ບໍລິຫານສະໜາມ<br><br><br>(..............................)</div><div>ຜູ້ອະນຸມັດ<br><br>' + (S.approved ? '✓ ອະນຸມັດ ' + when(S.approved.at) + '<br>( ' + esc(S.approved.name) + ' )' : '<span class="chip warn">ຍັງບໍ່ອະນຸມັດ</span><br>(..............................)') + '</div></div>' + exportBar('l') + '</section>';
+  '<div class="sign"><div>ຜູ້ຂໍ<br><br><br>' + signBox(uniq((S.reqs || []).map(function (x) { return x.name; }))) + '</div><div>ຜູ້ອະນຸມັດຄຳຂໍ<br><br><br>' + signBox(rqSigners({ items: S.reqs || [] }), lastAt(S.reqs || [])) + '</div><div>ຜູ້ອະນຸມັດໃບປະຈຳວັນ<br><br>' + (S.approved ? '✓ ' + when(S.approved.at) + '<br>( ' + esc(S.approved.name) + ' )' : '<span class="chip warn">ຍັງບໍ່ອະນຸມັດ</span><br>(..............................)') + '</div></div>' + exportBar('l') + '</section>';
 }
 function xlsReport() {
  var t = totals(), src = function (r) { return r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ'; };
@@ -36,7 +36,7 @@ function xlsReport() {
  S.rows.forEach(function (r, i) { rows.push([i + 1, r.name, r.L0, r.cm0, r.add, src(r), r.cm1, r.L1, r.cm2, r.L2, r.used, r.ack ? r.ack.name : r.rej ? 'ບໍ່ຍອມຮັບ: ' + r.rej.why : '', r.ack ? when(r.ack.at) : '', rqParts(r).join(' | '), r.note || '']); });
  rows.push(['', 'ລວມຍອດຈ່າຍອອກມື້ນີ້', '', '', t[0], '', '', '', '', '', t[1]]);
  if (S.tank) rows.push([], ['ແທ່ງນ້ຳມັນ', 'ຮັບເຂົ້າ (L)', S.tank.recv || 0, 'ຍອດເຫຼືອຕາມບັນຊີ (L)', S.tank.bal, 'ແທກໄດ້ (L)', S.tank.measured]);
- rows.push([], ['ອະນຸມັດ', S.approved ? S.approved.name + ' · ' + when(S.approved.at) : 'ຍັງບໍ່ອະນຸມັດ']);
+ rows.push([], ['ຜູ້ຂໍ', uniq((S.reqs || []).map(function (x) { return x.name; })).join(', ') || '..............'], ['ຜູ້ອະນຸມັດຄຳຂໍ', rqSigners({ items: S.reqs || [] }).join(', ') || '..............'], ['ຜູ້ອະນຸມັດໃບປະຈຳວັນ', S.approved ? S.approved.name + ' · ' + when(S.approved.at) : 'ຍັງບໍ່ອະນຸມັດ']);
  exportXlsx('ໃບຕິດຕາມ ' + siteObj().name + ' ' + S.date, rows, [6, 20, 12, 12, 10, 10, 12, 14, 12, 12, 14, 22, 14, 40, 24], [{ s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }, { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } }]);
 }
 function rqRepView() { withSheet(false, function () { drawRqRep(); }); }
@@ -46,16 +46,19 @@ function rqLine(x, i) { /* ແຖວຂອງແບບຟອມໃບຂໍ: ໃ
  var o = x.ok || {}, l = S.left && S.left[x.v], st = STm[x.state] || x.state;
  return [i + 1, x.car, l && l.L != null ? Math.round(l.L) : '', x.urgent ? 'ດ່ວນ' : x.lit, o.lit != null ? o.lit : '', (SNm[o.src] || '') + (o.shop ? ' ' + o.shop : ''), x.fill != null ? x.fill : '', st + (x.why ? ': ' + x.why : ''), x.note || ''];
 }
+function signBox(names, at) { return (names && names.length ? '( ' + esc(names.join(', ')) + ' )' : '(..............................)') + (names && names.length && at ? '<br><small>' + when(at) + '</small>' : ''); }
+function uniq(l) { var a = {}; l.forEach(function (x) { if (x) a[x] = 1; }); return Object.keys(a); }
+function lastAt(items) { return items.reduce(function (m, x) { return Math.max(m, x.ok && x.ok.at || 0); }, 0); }
 function rqSigners(g) { var a = {}; g.items.forEach(function (x) { if (x.ok && x.ok.name) a[x.ok.name] = 1; }); return Object.keys(a); }
 function rqRepView() { withSheet(false, function () { drawRqRep(); }); }
 function drawRqRep() {
- if (!rqSite()) { $('v').innerHTML = '<div class="card empty">ສະໜາມນີ້ຍັງບໍ່ເປີດໃຊ້ລະບົບຄຳຂໍນ້ຳມັນ (ຕັ້ງຄ່າ → ສະໜາມ)</div>'; return; }
+ if (!rqSite()) { $('v').innerHTML = repTabs() + '<div class="card empty">ສະໜາມນີ້ຍັງບໍ່ເປີດໃຊ້ລະບົບຄຳຂໍນ້ຳມັນ (ຕັ້ງຄ່າ → ສະໜາມ)</div>'; return; }
  var gs = rqGroups(S.reqs || []);
- $('v').innerHTML = '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ແບບຟອມໃບຂໍເບີກນ້ຳມັນ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ວັນທີ: <b>' + dmy(S.date) + '</b></div></div>' +
+ $('v').innerHTML = repTabs() + '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ແບບຟອມໃບຂໍເບີກນ້ຳມັນ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ວັນທີ: <b>' + dmy(S.date) + '</b></div></div>' +
   (gs.length ? gs.map(function (g, gi) { var ap = rqSigners(g), sa = 0, sf = 0; g.items.forEach(function (x) { if (x.ok && x.ok.lit != null) sa += x.ok.lit; if (x.fill != null) sf += x.fill; });
    return '<div class="rqsheet"><h3 style="margin:14px 0 6px">' + (g.no ? 'ໃບຂໍເບີກ ເລກທີ ' + g.no : 'ຄຳຂໍ') + ' · ຜູ້ຂໍ: ' + esc(g.by) + ' · ' + when(g.at) + '</h3>' + (g.note ? '<p class="muted sm" style="margin:0 0 6px">ໃຊ້ເຮັດ: ' + esc(g.note) + '</p>' : '') +
     '<div class="tw"><table><thead><tr>' + RQH.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' + g.items.map(function (x, i) { return '<tr>' + rqLine(x, i).map(function (c, k) { return '<td' + (k === 1 || k === 5 || k === 7 || k === 8 ? ' class="l"' : '') + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody><tfoot><tr><td colspan="3">ລວມ ' + g.items.length + ' ຄັນ</td><td>' + L(g.items.reduce(function (t, x) { return t + (x.lit || 0); }, 0)) + '</td><td>' + L(sa) + '</td><td></td><td>' + L(sf) + '</td><td colspan="2"></td></tr></tfoot></table></div>' +
-    '<div class="sign"><div>ວິຊາການ / ຜູ້ຂໍ<br><br><br>( ' + esc(g.by) + ' )</div><div>ຜູ້ອະນຸມັດ<br><br><br>' + (ap.length ? '( ' + esc(ap.join(', ')) + ' )' : '(..............................)') + '</div><div>ຄົນຂັບ<br><br><br>(..............................)</div></div></div>';
+    '<div class="sign"><div>ວິຊາການ / ຜູ້ຂໍ<br><br><br>' + signBox([g.by], g.at) + '</div><div>ຜູ້ອະນຸມັດ<br><br><br>' + signBox(ap, lastAt(g.items)) + '</div><div>ຄົນຂັບ<br><br><br>' + signBox(uniq(g.items.map(function (x) { return S.drv && S.drv[x.v] ? drvName(S.drv[x.v].d) : ''; }))) + '</div></div></div>';
   }).join('') : '<div class="empty" style="padding:14px">ບໍ່ມີໃບຂໍມື້ນີ້</div>') + exportBar('p') + '</section>';
 }
 function xlsRqRep() {
@@ -63,7 +66,7 @@ function xlsRqRep() {
  rqGroups(S.reqs || []).forEach(function (g) {
   rows.push([], [(g.no ? 'ໃບຂໍເບີກ ເລກທີ ' + g.no : 'ຄຳຂໍ') + ' · ຜູ້ຂໍ: ' + g.by + ' · ' + when(g.at) + (g.note ? ' · ໃຊ້ເຮັດ: ' + g.note : '')], RQH);
   g.items.forEach(function (x, i) { rows.push(rqLine(x, i)); });
-  rows.push(['', 'ລວມ ' + g.items.length + ' ຄັນ', '', g.items.reduce(function (t, x) { return t + (x.lit || 0); }, 0), g.items.reduce(function (t, x) { return t + (x.ok && x.ok.lit != null ? x.ok.lit : 0); }, 0), '', g.items.reduce(function (t, x) { return t + (x.fill || 0); }, 0)], ['ຜູ້ຂໍ: ' + g.by, '', 'ຜູ້ອະນຸມັດ: ' + (rqSigners(g).join(', ') || '..............'), '', 'ຄົນຂັບ: ..............']);
+  rows.push(['', 'ລວມ ' + g.items.length + ' ຄັນ', '', g.items.reduce(function (t, x) { return t + (x.lit || 0); }, 0), g.items.reduce(function (t, x) { return t + (x.ok && x.ok.lit != null ? x.ok.lit : 0); }, 0), '', g.items.reduce(function (t, x) { return t + (x.fill || 0); }, 0)], ['ຜູ້ຂໍ: ' + g.by, '', 'ຜູ້ອະນຸມັດ: ' + (rqSigners(g).join(', ') || '..............'), '', 'ຄົນຂັບ: ' + (uniq(g.items.map(function (x) { return S.drv && S.drv[x.v] ? drvName(S.drv[x.v].d) : ''; })).join(', ') || '..............')]);
  });
  exportXlsx('ໃບຂໍນ້ຳມັນ ' + siteObj().name + ' ' + S.date, rows, [6, 22, 14, 10, 12, 18, 12, 24, 24], merges);
 }
@@ -73,14 +76,14 @@ function adjRow(x) { var f = function (v) { return !v ? '–' : v.txt != null ? 
 function adjLoad() { var mine = MOD; api('adjlog', { site: $('site').value }).then(function (r) { if (r.ok && MOD === mine) adjView(r.data); }); }
 function adjView(list) {
  ADJ = list;
- $('v').innerHTML = '<section class="card a4l"><div class="rh">' + letterhead() + '<h2>ລາຍງານການປັບປຸງ (ແກ້ໄຂຍອດຮັບເຂົ້າແທ່ງ)</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ສຳລັບ Admin / ເຈົ້າຂອງ</div></div><div class="tw"><table><thead><tr>' + ADJH.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+ $('v').innerHTML = repTabs() + '<section class="card a4l"><div class="rh">' + letterhead() + '<h2>ລາຍງານການປັບປຸງ (ແກ້ໄຂຍອດຮັບເຂົ້າແທ່ງ)</h2><div>ໂຄງການ: ' + esc(siteObj().name) + ' · ສຳລັບ Admin / ເຈົ້າຂອງ</div></div><div class="tw"><table><thead><tr>' + ADJH.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
   (list.length ? list.map(function (x) { return '<tr>' + adjRow(x).map(function (c, i) { return '<td' + (i === 2 || i === 4 || i === 5 || i === 6 ? ' class="l"' : '') + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="7">ຍັງບໍ່ມີການແກ້ໄຂ</td></tr>') + '</tbody></table></div>' + exportBar('l') + '</section>';
 }
 function xlsAdj() { exportXlsx('ການປັບປຸງ ' + siteObj().name, [[coName()], ['ລາຍງານການປັບປຸງ (ແກ້ໄຂຍອດຮັບເຂົ້າແທ່ງ)'], ['ໂຄງການ: ' + siteObj().name], [], ADJH].concat(ADJ.map(adjRow)), [20, 14, 22, 16, 30, 30, 36], [0, 1, 2].map(function (r) { return { s: { r: r, c: 0 }, e: { r: r, c: 6 } }; })); }
 function ledgerLoad() { var mine = MOD; api('ledger', { site: $('site').value }).then(function (r) { if (r.ok && MOD === mine) ledgerView(r.data); }); }
 function ledgerView(rows) {
  LEDGER = rows; var tr = 0, to = 0;
- $('v').innerHTML = '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ຕິດຕາມນ້ຳມັນລົງສະໜາມ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + '</div></div><div class="tw"><table><thead><tr><th>ລ/ດ</th><th>ວັນທີ</th><th>ຍອດຮັບ</th><th>ຍອດເບີກຈ່າຍ</th><th>ຍອດເຫຼືອ</th><th>ແທກແທ່ງໄດ້</th><th>ຕ່າງ</th><th>ສະຖານະ</th></tr></thead><tbody>' +
+ $('v').innerHTML = repTabs() + '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ຕິດຕາມນ້ຳມັນລົງສະໜາມ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + '</div></div><div class="tw"><table><thead><tr><th>ລ/ດ</th><th>ວັນທີ</th><th>ຍອດຮັບ</th><th>ຍອດເບີກຈ່າຍ</th><th>ຍອດເຫຼືອ</th><th>ແທກແທ່ງໄດ້</th><th>ຕ່າງ</th><th>ສະຖານະ</th></tr></thead><tbody>' +
   rows.map(function (x, i) { tr += x.recv; to += x.out; var d = x.diff != null ? x.diff : null; return '<tr><td>' + (i + 1) + '</td><td>' + dmy(x.date) + '</td><td>' + (x.recv ? L(x.recv) : '') + '</td><td>' + (x.out ? L(x.out) : '') + '</td><td><b>' + L(x.bal) + '</b></td><td>' + (x.measured != null ? L(x.measured) : '') + '</td><td>' + (d != null ? (d > 0 ? '+' : '') + Math.round(d) + ' L' : '') + '</td><td>' + (x.approved ? '✓ ອະນຸມັດ' : x.idle ? '–' : 'ລໍຖ້າ') + '</td></tr>'; }).join('') +
   '</tbody><tfoot><tr><td colspan="2">ລວມຍອດ</td><td>' + L(tr) + '</td><td>' + L(to) + '</td><td>' + L(tr - to) + '</td><td colspan="3"></td></tr></tfoot></table></div>' + exportBar('p') + '</section>';
 }

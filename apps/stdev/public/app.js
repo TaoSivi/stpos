@@ -52,7 +52,7 @@ var _t;
 var TOASTN = 0;
 function toast(msg, kind) { /* ປອບອັບກາງຈໍ: ✓ ສຳເລັດ / ! ຜິດພາດ — ແຕະເພື່ອປິດ */
  TOASTN++; var o = document.querySelector('.toast'); if (o) o.remove(); var t = document.createElement('div'); t.className = 'toast ' + (kind || ''); t.setAttribute('role', 'status');
- t.innerHTML = '<span class="tic">' + (kind === 'bad' ? ic('alert') : kind === 'ok' ? ic('check') : ic('bell')) + '</span><span class="tmsg"></span>'; t.querySelector('.tmsg').textContent = msg; t.onclick = function () { t.remove(); }; document.body.appendChild(t);
+ t.innerHTML = '<span class="tic">' + (kind === 'bad' ? ic('alert') : kind === 'ok' ? ic('check') : ic('bell')) + '</span><span class="tmsg"></span>'; t.querySelector('.tmsg').textContent = msg; t.onclick = function () { t.remove(); }; document.body.appendChild(t); if (kind === 'ok' && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { var cl = ['#18a8a0', '#f5b800', '#2fae7b', '#0b7e7a', '#e0a100']; for (var q = 0; q < 14; q++) { var cf = document.createElement('i'), an = Math.random() * 6.283, dd = 60 + Math.random() * 70; cf.className = 'cf'; cf.style.cssText = '--dx:' + Math.round(Math.cos(an) * dd) + 'px;--dy:' + Math.round(Math.sin(an) * dd - 40) + 'px;--r:' + Math.round(Math.random() * 540) + 'deg;background:' + cl[q % 5]; t.appendChild(cf); } }
  clearTimeout(_t); _t = setTimeout(function () { t.remove(); }, kind === 'bad' ? 4500 : 2200); }
 var _bz = 0, _bzT = 0, _bzL = '';
 function bzy(d, label) { /* ປອບອັບ "ກຳລັງໂຫຼດ / ກຳລັງບັນທຶກ…" ເມື່ອໃຊ້ເວລາເກີນ ~0.5 ວິ */

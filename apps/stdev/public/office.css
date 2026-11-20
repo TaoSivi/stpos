@@ -113,7 +113,7 @@ ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .rql{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 8px 6px 12px;border:1.5px solid var(--line-2);border-radius:16px;background:#fff;margin-bottom:8px}
 .rql.hide{display:none}.rql b{display:block;font-size:16px}.rql small{display:block;color:var(--muted);font-size:13.5px}
 .rql input{width:96px;min-height:44px;text-align:right;font-size:18px;font-weight:700}
-.sum{margin:6px 0 0;font-size:15px}.sheet{border-top:2px solid var(--line-2);padding-top:10px;margin-top:12px}.sheet:first-of-type{border-top:0;margin-top:0;padding-top:0}.sheet-h b{font-size:16px}
+.sum{margin:6px 0 0;font-size:15px}.rqsheet{border-top:2px solid var(--line-2);padding-top:10px;margin-top:12px}.rqsheet:first-of-type{border-top:0;margin-top:0;padding-top:0}.sheet-h b{font-size:16px}
 .allbox{background:var(--ok-bg);border-radius:14px;padding:10px;margin:8px 0}
 @media print{.rqsheet{break-after:page}.rqsheet:last-of-type{break-after:auto}}
 
@@ -416,3 +416,38 @@ main>h1,#v>h1{font-size:24px}
 .dc-h h2{font-size:15px;gap:6px}.dic{width:26px;height:26px;border-radius:9px}
 .dpct{flex-direction:column;align-items:stretch;gap:6px}.ringw{align-self:center}.dpt{flex:none}.dc .spark{min-height:48px;height:48px;width:100%}
 }
+
+/* ລູກເລັ່ນໜ້າອື່ນໆ: ປຸ່ມຖ່າຍຮູບ, ກ່ອງສະຫຼຸບ, ບັດລາຍການ */
+.ph button:not(.has){border:2px dashed #86c7c1;background:#f2faf9;color:var(--primary-600);font-weight:600}
+.ph button:not(.has) svg{color:var(--primary)}
+.ph button:not(.has):hover{background:#e3f4f2;border-color:var(--primary)}
+.ph button.has{box-shadow:0 6px 14px rgba(10,126,122,.18)}
+.calc{background:linear-gradient(135deg,#e5f5f3,#f7fcfb);border:1px solid #cde8e5;border-radius:18px}
+.card .cr{border-left:4px solid #18a8a0;border-radius:16px}
+.card .cr:hover{border-left-color:#0b7e7a}
+
+/* ໃບຂໍ: ແຖວດຽວ — ຊື່ລົດ + ລິດ ຊ້າຍ · ສະຖານະ + ປຸ່ມຍົກເລີກ ຂວາ; ຈໍກວ້າງ = ຫຼາຍຖັນ */
+.rqsheet{width:100%;max-width:none}
+.rqsheet .cr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px 12px;padding:10px 12px;margin:0 0 8px;border:1px solid var(--line);border-left:4px solid #18a8a0;border-radius:16px;background:#fff}
+.rqsheet .cr>.row.wrap:first-child{flex-wrap:nowrap;gap:10px}.rqsheet .cr>.row.wrap:first-child b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rqsheet .cr>.row.wrap:last-child{margin:0!important}.rqsheet .cr .btn.ibtn{min-height:40px;width:40px;padding:0;box-shadow:none}
+.rqsheet .sheet-h{margin:0 0 8px}
+@media(min-width:900px){.rqsheet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.rqsheet>.sheet-h,.rqsheet>small{grid-column:1/-1}}
+@media(max-width:560px){.rqsheet .cr{grid-template-columns:minmax(0,1fr) auto;padding:10px}.rqsheet .cr>.row.wrap:last-child{grid-column:2;grid-row:1}.rqsheet .cr>div:nth-child(2){grid-column:1/-1}}
+
+/* ຜູ້ອະນຸມັດ + ລາຍການຄ້າງ */
+.apprl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;color:var(--muted);font-size:14px}.apprl>.i{color:var(--primary)}
+.pendl{display:grid;gap:8px;margin:0 0 12px}
+.pendi{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border:1.5px solid #f1dfae;border-radius:16px;background:linear-gradient(135deg,#fffaf0,#fff);font:inherit;color:var(--ink);text-align:left}
+button.pendi{cursor:pointer;transition:transform .15s,box-shadow .2s}button.pendi:hover{box-shadow:0 6px 16px rgba(231,164,12,.2)}
+.pendi b{display:block;font-size:15px;font-weight:600}.pendi small{display:block;color:var(--muted);font-size:13px}
+@media(min-width:900px){.pendl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rqsheet .cr>p.chip{grid-column:1/-1;margin:0!important;justify-self:start;white-space:normal;line-height:1.35}
+.rqsheet .cr>.row.wrap:first-child{min-width:0}.rqsheet .cr>.row.wrap:first-child b{flex:1 1 auto;min-width:60px}
+
+/* ລາຍງານທັງໝົດໃນບ່ອນດຽວ: ແຖບສະຫຼັບຊະນິດລາຍງານ */
+.rtabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:0 0 6px;scrollbar-width:none}.rtabs::-webkit-scrollbar{display:none}
+.rtabs button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border:1.5px solid #9fd0cb;border-radius:999px;background:#fff;color:var(--primary-600);font:inherit;font-size:14.5px;font-weight:600;box-shadow:0 1px 0 rgba(10,126,122,.12);cursor:pointer;white-space:nowrap}
+.rtabs button .i{width:18px;height:18px}
+.rtabs button[aria-selected=true]{background:linear-gradient(135deg,#18a8a0,#0b7e7a);border-color:transparent;color:#fff;box-shadow:0 6px 14px rgba(10,126,122,.28)}
+@media print{.rtabs{display:none!important}}
