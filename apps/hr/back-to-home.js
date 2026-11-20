@@ -17,7 +17,7 @@
   function sync() {
     var bar = document.querySelector('.bottomnav, .tabbar'), t = document.getElementById('st-home-tab'), p = document.getElementById('st-home');
     if (bar) { if (p) p.remove(); if (!t || t.parentNode !== bar) bar.appendChild(tab()); }
-    else { if (t) t.remove(); if (!p) document.body.appendChild(pill()); }
+    else { if (t) t.remove(); var mgr = document.querySelector('.mgr'); if (mgr && !p) document.body.appendChild(pill()); else if (!mgr && p) p.remove(); } /* ປຸ່ມລອຍສະເພາະໜ້າຈໍກວ້າງຂອງຜູ້ຈັດການ (ບໍ່ສະແດງຕອນກຳລັງໂຫຼດ) */
   }
   function start() { sync(); new MutationObserver(sync).observe(document.body, { childList: true, subtree: true }); }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
