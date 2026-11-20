@@ -61,9 +61,9 @@ function create(DATA, accounts, opts) {
       const mine = assigns().filter(function (a) { return a.user === user.id; }), runs = allRuns(3).filter(function (r) { return r.user === user.id; });
       return ok({ admin: admin, id: user.id, name: user.name, mine: mine.map(function (a) { return tplOf(a.tpl); }).filter(Boolean).map(function (t) {
         const key = periodKey(t);
-        if (t.per) return { tpl: brief(t), veh: vehiclesFor(t, user.id).map(function (v) { const k = key + '@' + v.id, cur = runs.filter(function (r) { return r.tpl === t.id && r.key === k; })[0]; return { id: v.id, name: v.name, site: v.site, key: k, run: cur ? sum(cur) : null }; }) };
+        if (t.per) return { tpl: brief(t), snap: snap(t), veh: vehiclesFor(t, user.id).map(function (v) { const k = key + '@' + v.id, cur = runs.filter(function (r) { return r.tpl === t.id && r.key === k; })[0]; return { id: v.id, name: v.name, site: v.site, key: k, run: cur ? sum(cur) : null }; }) };
         const cur = key ? runs.filter(function (r) { return r.tpl === t.id && r.key === key; })[0] : null;
-        return { tpl: brief(t), key: key, run: cur ? sum(cur) : null, runs: key ? [] : runs.filter(function (r) { return r.tpl === t.id; }).slice(0, 8).map(sum) };
+        return { tpl: brief(t), snap: snap(t), key: key, run: cur ? sum(cur) : null, runs: key ? [] : runs.filter(function (r) { return r.tpl === t.id; }).slice(0, 8).map(sum) };
       }) });
     }
     if (action === 'open') { /* ເປີດໃບເຊັກ: daily/weekly/monthly ສ້າງເອງຖ້າຍັງບໍ່ມີ; ໃບຕໍ່ລົດຕ້ອງບອກລົດ (veh); event ຕ້ອງໃຊ້ id */
@@ -77,7 +77,8 @@ function create(DATA, accounts, opts) {
     if (action === 'new') { /* ເລີ່ມເຊັກລິດແບບຄັ້ງ (ໂຄງການ / ການຮັບນ້ຳມັນ) */
       const t = tplOf(String(o.tpl)); if (!t || t.freq !== 'event') return err('tpl'); if (!assigned(t.id, user.id) && !admin) return err('auth');
       const label = str(o.label, 60); if (!label) return err('label');
-      const r = newRun(t, user, 'e' + nowMs().toString(36), label); putRun(r); return ok(r);
+      const ek = /^e[a-z0-9]{5,12}$/.test(String(o.key || '')) ? o.key : 'e' + nowMs().toString(36), old = ek === o.key ? getRun(mkId(t.id, user.id, ek)) : null; if (old) return ok(old); /* ສົ່ງຊ້ຳຈາກຄິວອອບລາຍ = ໃບເກົ່າ */
+      const r = newRun(t, user, ek, label); putRun(r); return ok(r);
     }
     if (action === 'mark') {
       const r = getRun(String(o.id)); if (!canTouch(user, r)) return err(r ? 'auth' : 'run'); if (r.status !== 'open') return err('locked');

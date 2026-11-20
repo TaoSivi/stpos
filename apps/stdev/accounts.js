@@ -70,6 +70,10 @@ function create(DATA) {
     const u = o && o.e > Date.now() && users()[o.u]; if (!u || !u.active || u.pinH.slice(-8) !== o.p) return null;
     return view(o.u, u);
   }
+  function renew(tk) { /* ຕໍ່ອາຍຸ token ອັດຕະໂນມັດ: ໃຊ້ແອັບເລື້ອຍໆ = ບໍ່ຕ້ອງ login ໃໝ່ (ເຫຼືອ < 25 ວັນ → ອອກໃໝ່ 30 ວັນ) */
+    const parts = String(tk || '').split('.'); let o; try { o = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8')); } catch (e) { return null; }
+    const u = o && users()[o.u]; return u && o.e - Date.now() < 25 * 864e5 && userOf(tk) ? tokenFor(o.u, u) : null;
+  }
   const fails = new Map(); /* ກັນເດົາ PIN: ຜິດ 5 ເທື່ອ/ເບີ ຫຼື 30 ເທື່ອ/IP → ລັອກ 15 ນາທີ */
   const lockLeft = function (k, max) { const f = fails.get(k); return f && f.n >= max && f.until > Date.now() ? Math.ceil((f.until - Date.now()) / 60000) : 0; };
   const failAdd = function (k) { const f = fails.get(k), now = Date.now(); fails.set(k, !f || f.until < now ? { n: 1, until: now + 15 * 60000 } : { n: f.n + 1, until: now + 15 * 60000 }); };
@@ -81,6 +85,6 @@ function create(DATA) {
     fails.delete(kp); return Object.assign({ ok: true, token: tokenFor(ph, u) }, view(ph, u));
   }
   const get = function (ph) { const u = users()[ph]; return u ? view(ph, u) : null; };
-  return { users: users, get: get, save: save, list: list, changePin: changePin, login: login, userOf: userOf, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
+  return { users: users, get: get, save: save, list: list, changePin: changePin, login: login, userOf: userOf, renew: renew, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
 }
 module.exports = { create: create };

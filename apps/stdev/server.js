@@ -34,7 +34,7 @@ function api(action, o, ip) {
   if (action === 'login') { const r = accounts.login(o, ip); if (r.ok) { r.hr = r.hr && hr.ready(); r.napps = appsFor(r).length; } return r; }
   const u = accounts.userOf(o.token); if (!u) return { ok: false, error: 'auth' };
   switch (action) {
-    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), cats: CATS, catalog: u.level === 'user' ? [] : catalog() } };
+    case 'me': return { ok: true, data: { id: u.id, name: u.name, level: u.level, fuel: u.fuel, hr: u.hr && hr.ready(), apps: appsFor(u), cats: CATS, catalog: u.level === 'user' ? [] : catalog(), renew: accounts.renew(o.token) } };
     case 'pin': return accounts.changePin(u.id, o.old, o.pin);
     case 'userList': return u.level === 'user' ? { ok: false, error: 'auth' } : { ok: true, data: accounts.list(u) };
     case 'userSave': { const r = accounts.save(o.user || {}, u); if (!r.ok) return r; const v = accounts.get(r.phone); return { ok: true, data: { phone: r.phone, hr: v && v.hr ? hr.provision(v) : 'skip' } }; } /* ບັນທຶກຄັ້ງດຽວ → ສ້າງ/ອັບເດດພະນັກງານໃນ HR ໃຫ້ເອງ */

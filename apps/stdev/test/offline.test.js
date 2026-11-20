@@ -26,7 +26,7 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
         const real = fetch(H + url, { method: 'POST', body: opt.body }); /* ຂໍຖືກສົ່ງຖືງ server ແລ້ວ */
         return mode === 'lost' ? real.then(function () { return never(); }) : real;
       },
-      AbortController: AbortController, CustomEvent: function () { }, ls: function (k, v) { if (v === undefined) return store[k]; if (v === null) delete store[k]; else store[k] = v; }, toast: function (m) { box.toasts.push(m); }, ERR: {}, TOASTN: 0,
+      AbortController: AbortController, crypto: require('crypto').webcrypto, TextEncoder: TextEncoder, Uint8Array: Uint8Array, CustomEvent: function () { }, ls: function (k, v) { if (v === undefined) return store[k]; if (v === null) delete store[k]; else store[k] = v; }, toast: function (m) { box.toasts.push(m); }, ERR: {}, TOASTN: 0,
       bzy: function () { }, modal: function () { return { querySelector: function () { return {}; } }; }, esc: String, Tank: require('../public/tank.js'), navigator: { onLine: true }, location: {}, console: console,
       document: { createElement: function () { return { setAttribute: function () { }, remove: function () { } }; }, addEventListener: function () { }, getElementById: function () { return null; }, dispatchEvent: function () { }, hidden: false, body: { appendChild: function () { } } },
       setInterval: function () { }, setTimeout: function (f, ms) { return setTimeout(f, ms >= 10000 ? 150 : ms); }, clearTimeout: clearTimeout, Promise: Promise, JSON: JSON, Date: Date, Math: Math, Object: Object, Array: Array, String: String, Number: Number, isFinite: isFinite
@@ -80,6 +80,32 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
     const sb = await api('sop.submit', { id: run.id }); assert.ok(sb.ok && sb.data.status === 'done', 'submit offline: ' + JSON.stringify(sb));
     mode = 'lost'; await ctx.flush(); await wait(500); mode = 'up'; await ctx.flush(); assert.strictEqual((await q()).length, 0); assert.ok(!(await failed()) || !(await failed()).length, 'nothing failed');
     const srvRun = (await call('sop.open', { token: hd, tpl: 'f03' })).data; assert.strictEqual(srvRun.status, 'done'); assert.strictEqual(srvRun.a[ids[0]].v, 0); ok('SOP: mark / mark-all / submit offline, replay after lost reply, server complete');
+    /* ----- ບໍ່ເຄີຍເປີດມາກ່ອນ: ໂຫຼດລ່ວງໜ້າຫຼັງເຂົ້າລະບົບ, ແລ້ວ SOP (ລາຍອາທິດ + ແບບຄັ້ງ) ແລະ ມອບລົດແທນ ໃຊ້ໄດ້ຕອນບໍ່ມີເນັດ ----- */
+    assert.ok((await call('sop.assignSet', { token: sa, tpl: 'f03w', users: ['02055550005'] })).ok); assert.ok((await call('sop.assignSet', { token: sa, tpl: 'f01', users: ['02055550005'] })).ok);
+    const today = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), T = { site: 's1', date: today };
+    await vm.runInContext('clearCache()', ctx); await vm.runInContext("kv.del('q')", ctx); ctx.WARMED_RESET = 1; vm.runInContext('WARMED = 0', ctx);
+    mode = 'up'; assert.ok((await api('init')).ok); await wait(2500); /* warm() ໂຫຼດ sheet / sop.me ມາເກັບ ໂດຍຜູ້ໃຊ້ບໍ່ໄດ້ເປີດໜ້ານັ້ນ */
+    assert.ok(await vm.runInContext("kv.get('sop.me|{}')", ctx), 'sop.me prefetched'); assert.ok(await vm.runInContext("kv.get('sheet|s1|" + today + "')", ctx), 'today sheet prefetched');
+    mode = 'down';
+    const w1 = await api('sop.open', { tpl: 'f03w' }); assert.ok(w1.ok && w1.data.items.length > 0 && w1.data.status === 'open', 'never-opened weekly checklist opens offline: ' + JSON.stringify(w1).slice(0, 120));
+    const wids = w1.data.items.map(function (i) { return i.id; }); assert.ok((await api('sop.markMany', { id: w1.data.id, items: wids })).ok); const ws = await api('sop.submit', { id: w1.data.id }); assert.ok(ws.ok && ws.data.status === 'done', 'complete + submit offline: ' + JSON.stringify(ws).slice(0, 100));
+    const mine = (await api('sop.me')).data.mine.filter(function (e) { return e.tpl.id === 'f03w'; })[0]; assert.strictEqual(mine.run.status, 'done', 'my list shows progress offline');
+    const ev = await api('sop.new', { tpl: 'f01', label: 'ໂຄງການທົດສອບ' }); assert.ok(ev.ok && ev.data.label === 'ໂຄງການທົດສອບ', 'event checklist created offline: ' + JSON.stringify(ev).slice(0, 100));
+    assert.ok((await api('sop.mark', { id: ev.data.id, item: ev.data.items[0].id, v: 1 })).ok);
+    const sd = await api('subDriver', Object.assign({ v: 'v1', driver: '02055550005' }, T)); assert.ok(sd.ok && sd.data.drv.v1.d === '02055550005' && sd.data.drv.v1.sub, 'substitute driver offline: ' + JSON.stringify(sd).slice(0, 100));
+    assert.strictEqual((await api('sheet', T)).data.drv.v1.d, '02055550005', 'sheet shows the substitute');
+    await wait(300); mode = 'up'; await ctx.flush(); assert.strictEqual((await q()).length, 0, 'queue drained'); assert.ok(!(await failed()) || !(await failed()).length, 'nothing failed: ' + JSON.stringify(await failed()));
+    const sw = (await call('sop.open', { token: hd, tpl: 'f03w' })).data; assert.strictEqual(sw.status, 'done'); assert.strictEqual(sw.items.filter(function (i) { return sw.a[i.id] && sw.a[i.id].v === 1; }).length, sw.items.length, 'weekly run complete on server');
+    assert.strictEqual((await call('sop.open', { token: hd, id: ev.data.id })).data.a[ev.data.items[0].id].v, 1, 'event run exists on server with the offline mark');
+    assert.strictEqual((await call('sheet', Object.assign({ token: hd }, T))).data.drv.v1.d, '02055550005', 'substitute stored on server'); ok('never-opened: prefetch, weekly + event SOP, substitute driver all work offline and sync');
+    /* ----- ເຂົ້າລະບົບຕອນບໍ່ມີເນັດ (ເຄີຍ login ເຄື່ອງນີ້ແລ້ວ) + token ຕໍ່ອາຍຸເອງ ----- */
+    mode = 'up'; const lg = await api('login', { phone: '020 5555 0005', pin: '9753' }); assert.ok(lg.ok && lg.token, 'online login'); store.fuel_tk = null;
+    mode = 'down'; const o1 = await api('login', { phone: '02055550005', pin: '9753' }); assert.ok(o1.ok && o1.offline && o1.token === lg.token, 'offline login with the right PIN: ' + JSON.stringify(o1));
+    const o2 = await api('login', { phone: '02055550005', pin: '0000' }); assert.strictEqual(o2.error, 'login', 'wrong PIN refused offline'); assert.strictEqual((await api('login', { phone: '02055550077', pin: '9753' })).error, 'net', 'a phone never used on this device needs the network');
+    for (let i = 0; i < 5; i++) await api('login', { phone: '02055550005', pin: '1111' }); assert.strictEqual((await api('login', { phone: '02055550005', pin: '9753' })).error, 'locked', 'offline guesses are limited'); await vm.runInContext("kv.del('credfail')", ctx);
+    mode = 'up'; const lgb = await api('login', { phone: '02055550005', pin: '9753' }); assert.ok(lgb.ok);
+    const acc = require('../accounts.js').create(DATA), real = Date.now; assert.strictEqual(acc.renew(lg.token), null, 'fresh token is not renewed'); Date.now = function () { return real() + 10 * 864e5; };
+    const rn = acc.renew(lg.token); Date.now = real; assert.ok(rn && rn !== lg.token && acc.userOf(rn), 'token with < 25 days left is renewed'); ok('offline login (PIN hash kept on device, lockout) + sliding token');
     console.log('offline: ' + n + ' passed');
   } catch (e) { console.error(e); process.exitCode = 1; } finally { if (proc) proc.kill(); fs.rmSync(DATA, { recursive: true, force: true }); setTimeout(function () { process.exit(process.exitCode || 0); }, 100); }
 })();
