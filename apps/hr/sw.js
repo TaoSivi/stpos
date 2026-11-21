@@ -30,7 +30,7 @@ async function precache() {
   const home = await save(SCOPE);
   const html = home ? await home.clone().text() : '';
   const queue = [SCOPE + 'manifest.webmanifest', ...MODELS.map(m => SCOPE + 'models/' + m)];
-  for (const m of html.matchAll(/(?:src|href)="(\.\/[^"]+)"/g)) queue.push(new URL(m[1], SCOPE).href);
+  for (const m of html.matchAll(/(?:src|href|data-main)="(\.\/[^"]+)"/g)) queue.push(new URL(m[1], SCOPE).href);
   const seen = new Set([SCOPE]);
   while (queue.length) {
     const url = queue.shift();

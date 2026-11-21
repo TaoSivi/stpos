@@ -11,7 +11,9 @@
   var set = function (k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { } };
   var go = function (u) { location.replace(u); };
   var boot = function () {
-    var s = document.createElement('script'); s.type = 'module'; s.crossOrigin = 'anonymous'; s.src = MAIN; document.head.appendChild(s);
+    var s = document.createElement('script'); s.type = 'module'; s.crossOrigin = 'anonymous'; s.src = MAIN;
+    s.onerror = function () { /* ໂຫຼດໂຄ້ດ HR ບໍ່ໄດ້ (ບໍ່ມີເນັດ + ຍັງບໍ່ເຄີຍເກັບໄວ້) — ບອກແທນຈໍຂາວ */ document.body.innerHTML = '<div style="font:18px/1.7 system-ui,sans-serif;padding:32px;text-align:center;color:#0f2e2c"><p><b>ເປີດ ST HR ບໍ່ໄດ້</b></p><p>ຍັງບໍ່ໄດ້ໂຫຼດ HR ມາເກັບໄວ້ໃນເຄື່ອງນີ້. ຕ້ອງເຂົ້າໜ້າຫຼັກຕອນມີເນັດ ແລະ ລໍ 1-2 ນາທີ ຈົນຂຶ້ນ "ST HR ✓".</p><p><a href="/home.html" style="display:inline-block;margin-top:12px;padding:12px 22px;border-radius:12px;background:#0a7e7a;color:#fff;text-decoration:none">ກັບໜ້າຫຼັກ</a></p></div>'; };
+    document.head.appendChild(s);
     setInterval(function () { if (!get('sthr-sheets-token')) { set('sthr-gate-at', null); go('/home.html'); } }, 1500); /* session HR ຫາຍ → ກັບໜ້າຫຼັກ */
   };
   var central = get('fuel_tk'), hrTok = get('sthr-sheets-token'), at = +get('sthr-gate-at') || 0;
