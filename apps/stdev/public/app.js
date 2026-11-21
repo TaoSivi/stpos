@@ -146,15 +146,17 @@ function installHint(id) { /* Android/Chrome: ປຸ່ມຕິດຕັ້ງ 
 }
 
 /* ===== ເຂົ້າ HR ດ້ວຍບັນຊີດຽວ: server ອອກ session HR ໃຫ້ → ຕັ້ງຄ່າໃນເຄື່ອງ → ເປີດ /hr/ (ຮູບແບບດຽວກັບທີ່ແອັບ HR ໃຊ້ຕອນຕໍ່ server) ===== */
+function hrStore(h) { /* ເກັບ session HR ໃນເຄື່ອງ (ຮູບແບບດຽວກັບທີ່ແອັບ HR ໃຊ້) — ໃຊ້ທັງຕອນກົດເຂົ້າ HR ແລະ ຕອນກຽມລ່ວງໜ້າ */
+ var url = location.origin + '/api/hr'; ls('sthr-sheets-info', null); ls('sthr-sheets-logins', null);
+ ls('sthr-server', JSON.stringify({ kind: 'sheets', url: url, key: '' })); ls('sthr-sheets-token', h.token);
+ ls('sthr-sheets-me', JSON.stringify({ member: h.member, company: h.company })); ls('sthr-online', h.member.companyId); ls('sthr-gate-at', String(Date.now())); return url;
+}
 function openHr() {
  var have = ls('sthr-sheets-token') && ls('sthr-sheets-me'); /* ເຄີຍເຂົ້າ HR ແລ້ວ = ມີ session ໃນເຄື່ອງ → ເປີດໄດ້ເລີຍ ເຖິງບໍ່ມີເນັດ */
  if (have && (navigator.onLine === false || (typeof OFF !== 'undefined' && OFF))) { location.href = '/hr/'; return; }
  toast('ກຳລັງເຂົ້າ ST HR…');
  api('hrlogin').then(function (r) {
-  if (!r.ok) { if (have) location.href = '/hr/'; else toast('ເຂົ້າ HR ຄັ້ງທຳອິດຕ້ອງມີເນັດ 1 ເທື່ອ', 'bad'); return; } var h = r.data.hr, url = location.origin + '/api/hr';
-  ls('sthr-sheets-info', null); ls('sthr-sheets-logins', null);
-  ls('sthr-server', JSON.stringify({ kind: 'sheets', url: url, key: '' })); ls('sthr-sheets-token', h.token);
-  ls('sthr-sheets-me', JSON.stringify({ member: h.member, company: h.company })); ls('sthr-online', h.member.companyId); ls('sthr-gate-at', String(Date.now()));
+  if (!r.ok) { if (have) location.href = '/hr/'; else toast('ເຂົ້າ HR ຄັ້ງທຳອິດຕ້ອງມີເນັດ 1 ເທື່ອ', 'bad'); return; } var url = hrStore(r.data.hr);
   location.href = '/hr/?server=' + encodeURIComponent(url);
  });
 }
