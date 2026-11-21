@@ -14,7 +14,7 @@ api('me').then(function (r) {
  $('v').innerHTML = h || '<div class="card empty"><div class="logo" style="background:#eaf0f0;color:var(--muted)">' + ic('lock') + '</div>ບັນຊີນີ້ຍັງບໍ່ໄດ້ເປີດໃຊ້ແອັບໃດ — ຕິດຕໍ່ຜູ້ດູແລລະບົບ</div>';
  if ($('q')) $('q').oninput = function () { var t = this.value.trim().toLowerCase(); document.querySelectorAll('.tile').forEach(function (b) { b.style.display = !t || b.textContent.toLowerCase().indexOf(t) >= 0 ? '' : 'none'; }); document.querySelectorAll('.cat').forEach(function (s) { s.style.display = [].some.call(s.querySelectorAll('.tile'), function (b) { return b.style.display !== 'none'; }) ? '' : 'none'; }); };
  api('pending').then(function (p) { if (!p.ok || !p.data.n) return; var t = document.querySelector('[data-app="fuel"]'); if (t) { var b = document.createElement('span'); b.className = 'tbadge'; b.textContent = p.data.n; b.title = (p.data.wait ? p.data.wait + ' ລໍຮັບຮູ້ ' : '') + (p.data.rej ? p.data.rej + ' ຖືກປະຕິເສດ' : ''); t.appendChild(b); } try { navigator.setAppBadge && navigator.setAppBadge(p.data.n); } catch (e) {} });
- readyChip();
+ readyChip(); hrWarm(apps);
  $('v').onclick = function (e) {
   var b = e.target.closest('[data-app]'); if (!b) return; var a = apps.filter(function (x) { return x.id === b.dataset.app; })[0]; if (!a) return;
   if (a.action === 'hr') openHr(); else if (a.href) location.href = a.href;
@@ -26,4 +26,11 @@ function readyChip() {
  var el = document.createElement('p'); el.id = 'rdy'; el.style.cssText = 'text-align:center;font-size:13px;margin:16px 0 0;color:var(--muted)'; $('v').appendChild(el);
  var n = 0, chk = function () { kv.get('warmts').then(function (t) { el.innerHTML = (t ? '<span style="color:#0a7e7a;font-weight:700">✓ ພ້ອມໃຊ້ຕອນບໍ່ມີເນັດ</span>' : '<span style="color:#b26b00">… ກຳລັງກຽມຂໍ້ມູນສຳລັບຕອນບໍ່ມີເນັດ (ຢ່າເພິ່ງປິດເນັດ)</span>') + ' · v' + esc(APPV); if (!t && ++n < 40) setTimeout(chk, 3000); }); };
  chk();
+}
+
+/* ກຽມ HR ໃຫ້ໃຊ້ຕອນບໍ່ມີເນັດ: ເປີດ /hr/ ໃນກອບທີ່ເບິ່ງບໍ່ເຫັນ ເພື່ອໃຫ້ HR ຕິດຕັ້ງໄຟລ໌ຂອງມັນ + ຂໍ session (ຕອນມີເນັດ) — ເຮັດເທື່ອລະ ~20 ຊົ່ວໂມງ */
+function hrWarm(apps) {
+ if (!apps.some(function (a) { return a.action === 'hr'; }) || navigator.onLine === false || (typeof OFF !== 'undefined' && OFF)) return;
+ var last = +ls('ltg_hrwarm') || 0; if (Date.now() - last < 20 * 36e5 && ls('sthr-sheets-token')) return; ls('ltg_hrwarm', String(Date.now()));
+ setTimeout(function () { var f = document.createElement('iframe'); f.src = '/hr/'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1; f.style.cssText = 'position:absolute;width:1px;height:1px;border:0;opacity:0;pointer-events:none;left:-9999px'; document.body.appendChild(f); setTimeout(function () { if (f.parentNode) f.remove(); }, 45000); }, 12000);
 }

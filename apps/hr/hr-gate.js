@@ -15,7 +15,7 @@
     setInterval(function () { if (!get('sthr-sheets-token')) { set('sthr-gate-at', null); go('/home.html'); } }, 1500); /* session HR ຫາຍ → ກັບໜ້າຫຼັກ */
   };
   var central = get('fuel_tk'), hrTok = get('sthr-sheets-token'), at = +get('sthr-gate-at') || 0;
-  if (hrTok && get('sthr-sheets-me') && Date.now() - at < FRESH) return boot();
+  if (hrTok && get('sthr-sheets-me') && (Date.now() - at < FRESH || navigator.onLine === false)) return boot(); /* ບໍ່ມີເນັດ = ໃຊ້ session ໃນເຄື່ອງເລີຍ ບໍ່ລໍ 4 ວິ */
   if (!central) return hrTok ? boot() : go('/');
   var ac = window.AbortController ? new AbortController() : null, timer = setTimeout(function () { if (ac) ac.abort(); }, 4000);
   fetch('/api/hrlogin', { method: 'POST', body: JSON.stringify({ token: central }), signal: ac ? ac.signal : undefined }).then(function (r) { return r.json(); }).then(function (r) {
