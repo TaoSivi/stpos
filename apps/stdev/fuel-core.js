@@ -67,7 +67,7 @@ function handle(store, user, o) {
     const rs = {}; sites.forEach(function (s) { rs[s.id] = boss ? KEYS.slice() : carOnly(s.id) ? (has('ack') ? ['ack'] : []) : R; });
     return ok({ me: { id: user.id, name: user.name, boss: boss, roles: sites.reduce(function (m, s) { m[s.id] = roleAt(s.id); return m; }, {}), rights: rs }, company: cfg.company || '', cfg: boss ? cfg : { sites: sites, vehicles: cfg.vehicles.filter(function (v) { return opsAt(v.site); }) } }); /* ມີຂະໜາດຖັງ: ມືຖືຕ້ອງຄິດລິດເອງຕອນບໍ່ມີເນັດ */
   }
-  if (a === 'cfgSave') { if (!boss) return err('auth'); const c = cleanCfg(o.cfg); store.write('cfg', c); return ok(c); }
+  if (a === 'cfgSave') { if (!boss) return err('auth'); const c = cleanCfg(o.cfg), old = store.read('cfg'); if (old && Array.isArray(old.sites) && old.sites.length && !c.sites.length) return err('empty'); /* ກັນລຶບສະໜາມ/ລົດທັງໝົດໂດຍບໍ່ຕັ້ງໃຈ (ຂໍ້ມູນຜິດ/ແອັບຜິດ) */ if (old) store.write('cfg_bak', old); /* ເກັບສຳເນົາຕັ້ງຄ່າກ່ອນໜ້າ */ store.write('cfg', c); return ok(c); }
 
   const site = cfg.sites.filter(function (s) { return s.id === o.site; })[0], role = site && roleAt(site.id);
   if (!site || !role) return err('auth');

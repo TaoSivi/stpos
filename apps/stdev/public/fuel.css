@@ -14,14 +14,15 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 
 /* ໂຄງໜ້າ */
 .top{background:linear-gradient(135deg,var(--dark-2),var(--dark));color:#fff;padding:calc(14px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 18px calc(18px + env(safe-area-inset-left));border-radius:0 0 var(--r) var(--r);box-shadow:var(--sh-2);position:relative;z-index:2}
-.top .in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px}
+:root{--pw:880px}@media(min-width:1100px){:root{--pw:1120px}}@media(min-width:1700px){:root{--pw:1280px}}
+.top .in{max-width:var(--pw);margin:0 auto;display:flex;align-items:center;gap:12px}
 .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--primary));display:grid;place-items:center;box-shadow:0 6px 16px rgba(10,186,181,.35)}
 .logo svg{width:24px;height:24px;stroke:#fff}
 .top h1{font-size:18px}.top small{opacity:.8;display:block;font-size:14px}
 .grow{flex:1 1 auto;min-width:0}
 .top .ic{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:14px;width:42px;height:42px;display:grid;place-items:center;transition:background .2s,transform .15s}
 .top .ic:hover{background:rgba(255,255,255,.22)}.top .ic:active{transform:scale(.94)}
-main{max-width:880px;margin:0 auto;padding:16px 16px calc(110px + env(safe-area-inset-bottom))}
+main{max-width:var(--pw);margin:0 auto;padding:16px 16px calc(110px + env(safe-area-inset-bottom))}
 .card{background:var(--card);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh-1);margin:0 0 14px;animation:riseIn .45s cubic-bezier(.2,.8,.2,1) both}
 .card h2{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .card h2 svg{color:var(--primary)}

@@ -58,7 +58,7 @@ details.sec .irs{border-top-left-radius:0;border-top-right-radius:0;margin:0}
 .fq.w{background:#e3f0ff;color:#1f5fa8}.fq.v{background:#fde9f1;color:#a3306a}
 
 /* ໜ້າຈໍກວ້າງ (ຄອມ/ແທັບເລັດ): ໃຊ້ພື້ນທີ່ກວ້າງຂຶ້ນ ແລະ ລາຍການເປັນ 2 ຖັນ */
-@media(min-width:1000px){main{max-width:1000px!important}#v{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}#v>*:not(.cl){grid-column:1/-1}}
+@media(min-width:1000px){#v{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}#v>*:not(.cl){grid-column:1/-1}}
 
 /* ===== ໜ້າຕາໃໝ່: ກະເບື້ອງ + ວົງຄວາມຄືບໜ້າ + ໄອຄອນ (ຂໍ້ຄວາມໜ້ອຍ) ===== */
 .stabs{gap:6px;padding:4px 2px 8px}

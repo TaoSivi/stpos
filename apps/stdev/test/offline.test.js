@@ -27,7 +27,7 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
         const real = fetch(H + url, { method: 'POST', body: opt.body }); /* ຂໍຖືກສົ່ງຖືງ server ແລ້ວ */
         return mode === 'lost' ? real.then(function () { return never(); }) : real;
       },
-      AbortController: AbortController, crypto: require('crypto').webcrypto, TextEncoder: TextEncoder, Uint8Array: Uint8Array, CustomEvent: function () { }, ls: function (k, v) { if (v === undefined) return store[k]; if (v === null) delete store[k]; else store[k] = v; }, toast: function (m) { box.toasts.push(m); }, ERR: {}, TOASTN: 0,
+      atob: function (x) { return Buffer.from(x, 'base64').toString('binary'); }, AbortController: AbortController, crypto: require('crypto').webcrypto, TextEncoder: TextEncoder, Uint8Array: Uint8Array, CustomEvent: function () { }, ls: function (k, v) { if (v === undefined) return store[k]; if (v === null) delete store[k]; else store[k] = v; }, toast: function (m) { box.toasts.push(m); }, ERR: {}, TOASTN: 0,
       bzy: function () { }, modal: function () { return { querySelector: function () { return {}; } }; }, esc: String, Tank: require('../public/tank.js'), navigator: { onLine: true }, location: {}, console: console,
       document: { createElement: function () { return { setAttribute: function () { }, remove: function () { } }; }, addEventListener: function () { }, getElementById: function () { return null; }, dispatchEvent: function () { }, hidden: false, body: { appendChild: function () { } } },
       setInterval: function () { }, setTimeout: function (f, ms) { return setTimeout(f, ms >= 10000 ? 150 : ms); }, clearTimeout: clearTimeout, Promise: Promise, JSON: JSON, Date: Date, Math: Math, Object: Object, Array: Array, String: String, Number: Number, isFinite: isFinite
@@ -126,6 +126,12 @@ const D = '2026-11-19'; let proc, n = 0; const ok = function (m) { n++; console.
     fake.q = [ent]; await vm.runInContext('flushSW()', swc); assert.strictEqual(fake.q.length, 0, 'SW flush drained the queue'); const bs = (await call('sheet', { token: hd, site: 's1', date: bd })).data; assert.strictEqual(bs.reqs.length, 1);
     fake.q = [Object.assign({}, ent, { maybe: true })]; await vm.runInContext('flushSW()', swc); assert.strictEqual((await call('sheet', { token: hd, site: 's1', date: bd })).data.reqs.length, 1, 'SW resend is deduplicated'); assert.strictEqual((fake.failed || []).length, 0);
     ok('service worker: background warm + background flush (no duplicates)');
+    /* ----- ຄິວບໍ່ຕິດຄ້າງ: token ເກົ່າໝົດອາຍຸ (ໃຊ້ token ໃໝ່ຂອງຄົນດຽວກັນ) + ຂໍ້ມູນໃຫຍ່ເກີນ ----- */
+    store.fuel_tk = hd; mode = 'up'; const fd2 = new Date(Date.now() + 7 * 36e5 + 5 * 864e5).toISOString().slice(0, 10);
+    await vm.runInContext('kv.set("q", ' + JSON.stringify([{ action: 'rqNew', body: { site: 's1', date: fd2, cid: 'btokold01', lines: [{ v: 'v1', lit: 3 }] }, token: hd.slice(0, -3) + 'AAA', ts: Date.now() }]) + ')', ctx);
+    await ctx.flush(); assert.strictEqual((await q()).length, 0, 'entry with an old/expired token is sent with the new token of the same user'); assert.strictEqual((await call('sheet', { token: hd, site: 's1', date: fd2 })).data.reqs.length, 1);
+    const huge = await api('rqNew', Object.assign({ lines: [{ v: 'v1', lit: 1 }], note: 'x'.repeat(1.6e6) }, { site: 's1', date: fd2 })); assert.ok(!huge.ok && huge.error === 'toolarge', 'oversized request is refused at once'); assert.strictEqual((await q()).length, 0, 'and does not block the queue');
+    ok('queue never sticks: expired token replaced by the same user new one; oversized data refused');
     console.log('offline: ' + n + ' passed');
   } catch (e) { console.error(e); process.exitCode = 1; } finally { if (proc) proc.kill(); fs.rmSync(DATA, { recursive: true, force: true }); setTimeout(function () { process.exit(process.exitCode || 0); }, 100); }
 })();

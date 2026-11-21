@@ -18,7 +18,7 @@
  body.has-side .side{display:flex;flex-direction:column;position:fixed;left:16px;top:16px;bottom:16px;width:272px;background:linear-gradient(160deg,#0f3f3c,#0b2f2d);border-radius:var(--r);padding:16px 12px;color:#fff;box-shadow:var(--sh-2);overflow:auto;z-index:4;animation:fadeIn .4s both}
  body.has-side .content{margin-left:304px}
  body.has-side .top,body.has-side nav.tabs{display:none}
- body.has-side main{max-width:1120px;margin:0 auto;padding:22px 24px 40px}
+ body.has-side main{max-width:var(--pw);margin:0 auto;padding:22px 24px 40px}
 }
 @media(max-width:999px){body.has-side .pagehead h1{font-size:22px}body.has-side .pagehead small{display:none}}
 nav.tabs button{position:relative;min-width:64px}

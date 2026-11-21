@@ -55,7 +55,8 @@ const HEAD = { 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', '
 const send = function (res, code, body, type) { res.writeHead(code, Object.assign({ 'Content-Type': (type || 'text/plain') + '; charset=utf-8', 'Cache-Control': 'no-store' }, HEAD)); res.end(body); };
 function readBody(req, res, max, cb) { const ch = []; let size = 0, dead = false; req.on('data', function (c) { size += c.length; if (size > max) { dead = true; send(res, 413, 'too large'); req.destroy(); } else ch.push(c); }); req.on('end', function () { if (!dead) cb(Buffer.concat(ch).toString('utf8')); }); }
 function handler(req, res) {
-  const url = new URL(req.url, 'http://x'), ip = String(req.socket.remoteAddress || '');
+  let url; try { url = new URL(req.url, 'http://x'); } catch (e) { return send(res, 400, 'bad url'); } /* '//' ແລະ URL ແປກໆ ເຄີຍເຮັດໃຫ້ server ລົ້ມ */
+  const ip = String(req.socket.remoteAddress || '');
   if (url.pathname === '/api/hr') { /* ໂປຣໂຕຄໍ Apps Script ຂອງ HR: POST {action,...} → {ok,data|error}. HR ກວດ session ຂອງຕົນເອງ */
     if (!hr.ready()) return send(res, 200, JSON.stringify({ ok: false, error: 'ຍັງບໍ່ໄດ້ສ້າງ HR ໃນ server ນີ້' }), 'application/json');
     if (req.method === 'GET') return send(res, 200, JSON.stringify({ ok: true, data: hr.ping() }), 'application/json');
@@ -76,8 +77,8 @@ function handler(req, res) {
     });
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'method');
-  let f = decodeURIComponent(url.pathname); if (f === '/') f = '/index.html';
-  f = path.join(PUB, path.normalize(f)); if (f.indexOf(PUB + path.sep) !== 0) return send(res, 403, 'denied');
+  let f; try { f = decodeURIComponent(url.pathname); } catch (e) { return send(res, 400, 'bad url'); } if (f === '/') f = '/index.html'; /* URL ເປີ້ເຂົ້າລະຫັດຜິດ (%E0%A4%A) ເຄີຍເຮັດໃຫ້ server ລົ້ມ */
+  if (f.indexOf(' ') >= 0) return send(res, 400, 'bad url'); /* ໂຕ NUL ເຄີຍເຮັດໃຫ້ server ລົ້ມ */ f = path.join(PUB, path.normalize(f)); if (f.indexOf(PUB + path.sep) !== 0) return send(res, 403, 'denied');
   fs.readFile(f, function (e, d) { if (e) return send(res, 404, 'not found'); const ty = TYPES[path.extname(f)] || 'application/octet-stream'; res.writeHead(200, Object.assign({ 'Content-Type': /^(text|application\/(manifest))|svg|javascript/.test(ty) ? ty + '; charset=utf-8' : ty, 'Cache-Control': 'no-store' }, HEAD)); res.end(req.method === 'HEAD' ? undefined : d); });
 }
 

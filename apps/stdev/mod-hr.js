@@ -63,7 +63,7 @@ function create(DATA) {
     },
     /* ໄຟລ໌ໜ້າ HR ຢູ່ /hr/… ຄືນ {code, type, body, cache} ຫຼື null */
     file: function (pathname) {
-      if (!avail()) return null; let f = decodeURIComponent(pathname.slice(3)); if (f === '/') f = '/index.html'; f = path.join(WEB, path.normalize(f));
+      if (!avail()) return null; let f; try { f = decodeURIComponent(pathname.slice(3)); } catch (e) { return { code: 400 }; } if (f === '/') f = '/index.html'; f = path.join(WEB, path.normalize(f));
       if (f.indexOf(WEB + path.sep) !== 0) return { code: 403 }; let d; try { d = fs.readFileSync(f); } catch (e) { return { code: 404 }; }
       const ty = MIME[path.extname(f)] || 'application/octet-stream';
       return { code: 200, body: d, type: /^(text|application\/(json|manifest))|svg|javascript/.test(ty) ? ty + '; charset=utf-8' : ty, cache: /sw\.js$|index\.html$/.test(f) ? 'no-store' : 'public, max-age=3600' };

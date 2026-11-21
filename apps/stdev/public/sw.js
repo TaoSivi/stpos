@@ -2,7 +2,7 @@
  * /api/ ບໍ່ຖືກເກັບທີ່ນີ້ — ຂໍ້ມູນນ້ຳມັນ + ຄິວບັນທຶກຕອນອອບລາຍ ຢູ່ IndexedDB ໃນ offline.js.
  * ປ່ຽນ VER ທຸກຄັ້ງທີ່ແກ້ໄຟລ໌ໜ້າ ເພື່ອໃຫ້ມືຖືໂຫຼດຕົວໃໝ່ */
 'use strict';
-const VER = 'stdev-v123', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
+const VER = 'stdev-v125', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
 self.addEventListener('install', function (e) { e.waitUntil(caches.open(VER).then(function (c) { return Promise.all(SHELL.map(function (u) { return fetch(new Request(u, { cache: 'reload' })).then(function (r) { if (r.ok) return c.put(u, r); }).catch(function () {}); })); /* cache:'reload' = ບໍ່ເອົາສຳເນົາເກົ່າຈາກ HTTP cache (LiteSpeed ໃຫ້ເກັບ 7 ວັນ) */ }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener('activate', function (e) { /* ເວີຊັນໃໝ່ມາແທນເກົ່າ → ໂຫຼດທຸກໜ້າທີ່ເປີດຢູ່ໃໝ່ເອງ (ໜ້າເກົ່າບໍ່ຕ້ອງມີໂຄ້ດຮັບຮູ້) — ຜູ້ໃຊ້ບໍ່ຕ້ອງເຮັດຫຍັງ; ຄິວອອບລາຍເກັບໃນ IndexedDB ບໍ່ຫາຍ */
   let upgraded = false;
@@ -35,8 +35,9 @@ const GEN = { dash: 1, approvers: 1, pending: 1, rqAhead: 1, userList: 1, catalo
 function rkey(a, b) { b = b || {}; if (GEN[a]) return a + '|' + JSON.stringify(b); return a === 'init' || a === 'drivers' || a === 'me' ? a : a + '|' + (b.site || '') + '|' + (b.date || ''); } /* ຕ້ອງຄືກັບ rkey ໃນ offline.js */
 function apiPost(action, body, token, ms) {
   const ctl = new AbortController(); let slow = false; const t = setTimeout(function () { slow = true; ctl.abort(); }, ms || 15000);
-  return fetch('/api/' + action, { method: 'POST', body: JSON.stringify(Object.assign({ token: token }, body || {})), signal: ctl.signal }).then(function (r) { return r.json(); }).then(function (r) { clearTimeout(t); return r; }, function () { clearTimeout(t); return { ok: false, error: 'net', slow: slow }; });
+  return fetch('/api/' + action, { method: 'POST', body: JSON.stringify(Object.assign({ token: token }, body || {})), signal: ctl.signal }).then(function (r) { return r.status === 413 ? { ok: false, error: 'toolarge' } : r.json(); }).then(function (r) { clearTimeout(t); return r; }, function () { clearTimeout(t); return { ok: false, error: 'net', slow: slow }; });
 }
+function tokUser(t) { try { return JSON.parse(atob(String(t).split('.')[0].replace(/-/g, '+').replace(/_/g, '/'))).u || ''; } catch (e) { return ''; } }
 const nap = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 let WARMING = false;
 async function warmSW() {
@@ -64,8 +65,8 @@ async function flushSW() { /* ສົ່ງຄິວຕາມລຳດັບ (ຕ
   const run = async function () {
     let sent = 0;
     for (;;) {
-      const q = (await kvGet('q')) || []; if (!q.length) break; const e = q[0];
-      const r = await apiPost(e.action, e.body, e.token, 25000);
+      const q = (await kvGet('q')) || []; if (!q.length) break; const e = q[0], cur = await kvGet('tk'), tkn = cur && cur !== e.token && tokUser(cur) && tokUser(cur) === tokUser(e.token) ? cur : e.token; /* token ໃໝ່ຂອງຄົນດຽວກັນ */
+      const r = await apiPost(e.action, e.body, tkn, 25000);
       if (r.error === 'net' || (r.error === 'auth' && !r.ok)) { if (r.slow && !e.maybe) { q[0].maybe = true; await kvSet('q', q); } break; }
       let rr = r; if (!rr.ok && e.maybe && (rr.error === 'rqstate' || rr.error === 'dup' || (rr.error === 'locked' && e.action === 'sop.submit'))) rr = { ok: true };
       const q2 = (await kvGet('q')) || []; q2.shift();

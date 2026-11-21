@@ -45,6 +45,6 @@
 
 /* ໜ້າຈໍກວ້າງ (iPad ແນວນອນ / ຄອມ): ສູນຈັດການ 2 ຖັນ */
 .hubtile{border:1px solid var(--line)}
-@media(min-width:900px){main{max-width:1040px}.hub{grid-template-columns:1fr 1fr}.top .in{max-width:1040px}}
+@media(min-width:900px){.hub{grid-template-columns:1fr 1fr}}@media(min-width:1300px){.hub{grid-template-columns:repeat(3,1fr)}}
 #wz .steps{display:none}
 .hubtile{border:1.5px solid #cfe5e2}
