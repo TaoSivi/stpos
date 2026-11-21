@@ -4,7 +4,8 @@
 //  - /assets/ and /models/ never change under the same name: saved copy first
 //  - everything else on this site: network first, saved copy when the network fails
 // Other sites (map tiles, fonts) are left alone.
-const CACHE = 'sthr-v3';
+const CACHE = 'sthr-v4';
+const FONTS = 'stdev-fonts'; /* ຟອນ Google ໃຊ້ບ່ອນເກັບດຽວກັບແອັບນ້ຳມັນ — ຕອນບໍ່ມີເນັດ ຟອນບໍ່ປ່ຽນ */
 const SCOPE = self.registration.scope; // e.g. https://host/st-hr/
 const MODELS = [
   'tiny_face_detector_model-weights_manifest.json', 'tiny_face_detector_model.bin',
@@ -49,7 +50,7 @@ self.addEventListener('install', e => { e.waitUntil(precache().then(() => self.s
 
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+    for (const k of await caches.keys()) if (/^sthr-/.test(k) && k !== CACHE) await caches.delete(k); /* ລຶບສະເພາະຂອງ HR — ບໍ່ລຶບແຄດຂອງແອັບນ້ຳມັນ (ບ່ອນເກັບໃຊ້ຮ່ວມກັນ) */
     await self.clients.claim();
   })());
 });
@@ -79,7 +80,11 @@ async function asset(req) {
 }
 
 self.addEventListener('fetch', e => {
-  const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const req = e.request, u = new URL(req.url);
+  if (req.method === 'GET' && (u.hostname === 'fonts.googleapis.com' || u.hostname === 'fonts.gstatic.com')) { /* ຟອນ: ໃຊ້ແຄດດຽວກັບແອັບນ້ຳມັນ ຕອນບໍ່ມີເນັດຟອນບໍ່ປ່ຽນ */
+    e.respondWith(caches.open(FONTS).then(async c => { const hit = await c.match(req); if (hit) return hit; try { const res = await fetch(req); c.put(req, res.clone()); return res; } catch { return Response.error(); } }));
+    return;
+  }
+  if (req.method !== 'GET' || u.origin !== location.origin) return;
   e.respondWith(req.mode === 'navigate' ? page(req) : asset(req));
 });

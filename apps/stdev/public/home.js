@@ -31,7 +31,7 @@ function readyChip() {
 /* ກຽມ HR ໃຫ້ໃຊ້ຕອນບໍ່ມີເນັດ (ຄືແອັບນ້ຳມັນ): 1) ຂໍ session HR ມາເກັບໄວ້ເອງ 2) ເປີດ /hr/ ໃນກອບທີ່ເບິ່ງບໍ່ເຫັນ ໃຫ້ HR ຕິດຕັ້ງໄຟລ໌ຂອງມັນ (ໂຄ້ດ + ໂມເດວໃບໜ້າ) — ເຮັດຕອນມີເນັດ ເມື່ອຍັງບໍ່ພ້ອມ */
 function hrReady() { /* session ໃນເຄື່ອງ + ໄຟລ໌ HR ເກັບແລ້ວ */
  var sess = !!(ls('sthr-sheets-token') && ls('sthr-sheets-me')); if (!sess || !window.caches) return Promise.resolve(false);
- return caches.has('sthr-v3').then(function (h) { return h ? caches.open('sthr-v3').then(function (c) { return c.keys().then(function (k) { return k.some(function (r) { return /open3\.js/.test(r.url); }) && k.length > 8; }); }) : false; }).catch(function () { return false; });
+ return caches.has('sthr-v4').then(function (h) { return h ? caches.open('sthr-v4').then(function (c) { return c.keys().then(function (k) { return k.some(function (r) { return /open4\.js/.test(r.url); }) && k.length > 8; }); }) : false; }).catch(function () { return false; });
 }
 function hrWarm(apps) {
  if (!apps.some(function (a) { return a.action === 'hr'; }) || navigator.onLine === false || (typeof OFF !== 'undefined' && OFF)) return;
