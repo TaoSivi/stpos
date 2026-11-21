@@ -21,7 +21,7 @@ const CATS = [{ id: 'work', name: 'ວຽກປະຈຳວັນ', hint: 'ແ�
 const APPS = [
   { id: 'fuel', cat: 'work', name: 'ຕິດຕາມນ້ຳມັນ', desc: function (u) { return fuel.ops(u) ? 'ໃບເບີກ · ລາຍງານ · ຍອດແທ່ງ' : 'ຮັບຮູ້ການເຕີມນ້ຳມັນຂອງລົດຕົນ'; }, icon: 'pump', href: function (u) { return fuel.ops(u) ? 'office.html' : 'driver.html'; }, access: function (u) { return !!u.fuel; } },
   { id: 'people', cat: 'admin', name: 'ຈັດການລະບົບ', desc: function () { return 'ຄົນ & ສິດ · ສະໜາມ & ລົດ · ມອບລົດ — ບ່ອນດຽວ'; }, icon: 'key', href: function () { return 'admin.html'; }, access: function (u) { return u.level !== 'user'; } },
-  { id: 'hr', cat: 'work', name: 'ST HR', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } },
+  { id: 'hr', cat: 'work', name: 'ສະແກນເຂົ້າ - ອອກວຽກ', desc: function () { return 'ລົງເວລາ · ລາ · ເງິນເດືອນ'; }, icon: 'users', action: 'hr', access: function (u) { return u.hr && hr.ready(); } },
   { id: 'hrreport', cat: 'report', inHr: true, name: 'ລາຍງານ HR (Excel)', desc: function () { return 'ການເຂົ້າວຽກ · ມາຊ້າ · ລາ · OT ຕໍ່ວັນ ແລະ ສະຫຼຸບຕໍ່ຄົນ'; }, icon: 'xls', href: function () { return 'hrreport.html'; }, access: function (u) { return hr.ready() && (u.level !== 'user' || (u.hr && ['accountant', 'owner', 'auditor'].indexOf(u.hrRole) >= 0)); } },
   { id: 'sop', cat: 'docs', name: 'SOP ເຊັກລິດ', desc: function (u) { return u.level !== 'user' ? 'ມອບໝາຍເຊັກລິດ · ຕິດຕາມ · ແກ້ລາຍການ' : 'ເຊັກລິດວຽກທີ່ໄດ້ຮັບມອບໝາຍ'; }, icon: 'sheet', href: function () { return 'sop.html'; }, generic: true, access: function (u) { return has(u, 'sop'); } }
 ];

@@ -24,7 +24,7 @@ api('me').then(function (r) {
 /* ບອກວ່າເຄື່ອງພ້ອມໃຊ້ຕອນບໍ່ມີເນັດແລ້ວບໍ (ໂຫຼດຂໍ້ມູນທຸກໜ້າມາເກັບຄົບ) + ເລກເວີຊັນ — ເຫັນແລ້ວຮູ້ວ່າປິດເນັດໄດ້ */
 function readyChip() {
  var el = document.createElement('p'); el.id = 'rdy'; el.style.cssText = 'text-align:center;font-size:13px;margin:16px 0 0;color:var(--muted)'; $('v').appendChild(el);
- var n = 0, chk = function () { kv.get('warmts').then(function (t) { hrReady().then(function (hk) { var hasHr = (window.APPS_HR === true); el.innerHTML = (t ? '<span style="color:#0a7e7a;font-weight:700">✓ ພ້ອມໃຊ້ຕອນບໍ່ມີເນັດ</span>' : '<span style="color:#b26b00">… ກຳລັງກຽມຂໍ້ມູນສຳລັບຕອນບໍ່ມີເນັດ (ຢ່າເພິ່ງປິດເນັດ)</span>') + (hasHr ? (hk ? ' · <span style="color:#0a7e7a;font-weight:700">ST HR ✓</span>' : ' · <span style="color:#b26b00">ST HR …</span>') : '') + ' · v' + esc(APPV); if ((!t || (hasHr && !hk)) && ++n < 60) setTimeout(chk, 3000); }); }); };
+ var n = 0, chk = function () { kv.get('warmts').then(function (t) { hrReady().then(function (hk) { var hasHr = (window.APPS_HR === true); el.innerHTML = (t ? '<span style="color:#0a7e7a;font-weight:700">✓ ພ້ອມໃຊ້ຕອນບໍ່ມີເນັດ</span>' : '<span style="color:#b26b00">… ກຳລັງກຽມຂໍ້ມູນສຳລັບຕອນບໍ່ມີເນັດ (ຢ່າເພິ່ງປິດເນັດ)</span>') + (hasHr ? (hk ? ' · <span style="color:#0a7e7a;font-weight:700">ສະແກນເຂົ້າ-ອອກ ✓</span>' : ' · <span style="color:#b26b00">ສະແກນເຂົ້າ-ອອກ …</span>') : '') + ' · v' + esc(APPV); if ((!t || (hasHr && !hk)) && ++n < 60) setTimeout(chk, 3000); }); }); };
  chk();
 }
 

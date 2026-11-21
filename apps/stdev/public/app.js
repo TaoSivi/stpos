@@ -154,9 +154,9 @@ function hrStore(h) { /* ເກັບ session HR ໃນເຄື່ອງ (ຮ�
 function openHr() {
  var have = ls('sthr-sheets-token') && ls('sthr-sheets-me'); /* ເຄີຍເຂົ້າ HR ແລ້ວ = ມີ session ໃນເຄື່ອງ → ເປີດໄດ້ເລີຍ ເຖິງບໍ່ມີເນັດ */
  if (have && (navigator.onLine === false || (typeof OFF !== 'undefined' && OFF))) { location.href = '/hr/'; return; }
- toast('ກຳລັງເຂົ້າ ST HR…');
+ toast('ກຳລັງເຂົ້າ ສະແກນເຂົ້າ - ອອກວຽກ…');
  api('hrlogin').then(function (r) {
-  if (!r.ok) { if (have) location.href = '/hr/'; else toast('ເຂົ້າ HR ຄັ້ງທຳອິດຕ້ອງມີເນັດ 1 ເທື່ອ', 'bad'); return; } var url = hrStore(r.data.hr);
+  if (!r.ok) { if (have) location.href = '/hr/'; else toast('ເຂົ້າ ສະແກນເຂົ້າ - ອອກວຽກ ຄັ້ງທຳອິດຕ້ອງມີເນັດ 1 ເທື່ອ', 'bad'); return; } var url = hrStore(r.data.hr);
   location.href = '/hr/?server=' + encodeURIComponent(url);
  });
 }
@@ -183,7 +183,7 @@ document.addEventListener('click', function (e) { if (e.target.closest('#hb')) g
 function openMenu() {
  var H = window.__hdr || {}, items = window.menuItems ? window.menuItems() : [], d = document.createElement('div'), h = '<aside class="drawer" aria-label="ເມນູ"><div class="dr-head"><span class="logo">' + ic(H.logo || 'pump') + '</span><div><b>' + esc(H.title || '') + '</b><small>' + esc(H.sub || '') + '</small></div></div>';
  items.forEach(function (g, gi) { h += (g.g ? '<div class="dr-grp">' + esc(g.g) + '</div>' : '') + g.items.map(function (it, ii) { return '<button class="dr-item" data-gi="' + gi + '" data-ii="' + ii + '" aria-current="' + !!it.cur + '">' + ic(it.ic || 'grid') + '<span>' + esc(it.t) + '</span></button>'; }).join(''); });
- h += '<div class="dr-foot"><a class="dr-item" href="home.html">' + ic('home') + '<span>ໜ້າຫຼັກ</span></a>' + (window.MENU_HR ? '<button class="dr-item" id="dhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="dr-item" id="dlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div></aside>';
+ h += '<div class="dr-foot"><a class="dr-item" href="home.html">' + ic('home') + '<span>ໜ້າຫຼັກ</span></a>' + (window.MENU_HR ? '<button class="dr-item" id="dhr">' + ic('users') + '<span>ສະແກນເຂົ້າ - ອອກວຽກ</span></button>' : '') + '<button class="dr-item" id="dlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div></aside>';
  d.className = 'drawer-back'; d.innerHTML = h; document.body.appendChild(d); setTimeout(function () { d.classList.add('on'); }, 20);
  d.onclick = function (e) {
   if (e.target === d) { d.remove(); return; } var b = e.target.closest('button'); if (!b) return;

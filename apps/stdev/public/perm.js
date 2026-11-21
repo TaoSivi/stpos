@@ -15,7 +15,7 @@ function permList(level, fuel, hr, appr, hrRole) {
   if (fuel === 'office') out.push('ນ້ຳມັນ: ເບິ່ງລາຍງານ ແລະ ຍອດແທ່ງ (ທຸກສະໜາມ) — ແກ້ບໍ່ໄດ້');
   if (fuel === 'driver') out.push('ນ້ຳມັນ: ເຫັນ ແລະ ຮັບຮູ້ສະເພາະລົດທີ່ມອບໃຫ້ຕົນ');
   if (appr && (fuel === 'admin' || fuel === 'office')) out.push('ນ້ຳມັນ: ອະນຸມັດໃບປະຈຳວັນ (ຜູ້ອະນຸມັດທີ່ເຈົ້າຂອງຕັ້ງ)');
-  if (hr) out.push('HR: ເຂົ້າ ST HR ໃນໜ້າທີ່ "' + (HRN[hrRole] || HRN.employee) + '" (ຂໍ້ມູນອື່ນ ເຊັ່ນ ພະແນກ/ເງິນເດືອນ HR ຕື່ມໃນ HR)');
+  if (hr) out.push('HR: ເຂົ້າ HR ໃນໜ້າທີ່ "' + (HRN[hrRole] || HRN.employee) + '" (ຂໍ້ມູນອື່ນ ເຊັ່ນ ພະແນກ/ເງິນເດືອນ HR ຕື່ມໃນ HR)');
  }
  return out;
 }
