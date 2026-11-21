@@ -2,7 +2,7 @@
  * /api/ ບໍ່ຖືກເກັບທີ່ນີ້ — ຂໍ້ມູນນ້ຳມັນ + ຄິວບັນທຶກຕອນອອບລາຍ ຢູ່ IndexedDB ໃນ offline.js.
  * ປ່ຽນ VER ທຸກຄັ້ງທີ່ແກ້ໄຟລ໌ໜ້າ ເພື່ອໃຫ້ມືຖືໂຫຼດຕົວໃໝ່ */
 'use strict';
-const VER = 'stdev-v119', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
+const VER = 'stdev-v120', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
 self.addEventListener('install', function (e) { e.waitUntil(caches.open(VER).then(function (c) { return Promise.all(SHELL.map(function (u) { return fetch(new Request(u, { cache: 'reload' })).then(function (r) { if (r.ok) return c.put(u, r); }).catch(function () {}); })); /* cache:'reload' = ບໍ່ເອົາສຳເນົາເກົ່າຈາກ HTTP cache (LiteSpeed ໃຫ້ເກັບ 7 ວັນ) */ }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener('activate', function (e) { /* ເວີຊັນໃໝ່ມາແທນເກົ່າ → ໂຫຼດທຸກໜ້າທີ່ເປີດຢູ່ໃໝ່ເອງ (ໜ້າເກົ່າບໍ່ຕ້ອງມີໂຄ້ດຮັບຮູ້) — ຜູ້ໃຊ້ບໍ່ຕ້ອງເຮັດຫຍັງ; ຄິວອອບລາຍເກັບໃນ IndexedDB ບໍ່ຫາຍ */
   let upgraded = false;
@@ -43,7 +43,10 @@ async function warmSW() {
   if (WARMING) return; WARMING = true;
   try {
     const tk = await kvGet('tk'); if (!tk) return;
-    const force = Date.now() - ((await kvGet('warmts')) || 0) >= 3 * 36e5, init = await kvGet('init'), me = await kvGet('me'), cfg = init && init.cfg; if (!cfg) return;
+    const force = Date.now() - ((await kvGet('warmts')) || 0) >= 3 * 36e5; let init = await kvGet('init'), me = await kvGet('me');
+    if (!init) { const ri = await apiPost('init', {}, tk); if (ri.ok) { init = ri.data; await kvSet('init', init); } } /* ເຄື່ອງທີ່ບໍ່ເຄີຍເປີດໜ້າສະໜາມ ກໍໂຫຼດ init ເອງ */
+    if (!me) { const rm = await apiPost('me', {}, tk); if (rm.ok) { me = rm.data; await kvSet('me', me); } }
+    const cfg = init && init.cfg; if (!cfg) { if (init) await kvSet('warmts', Date.now()); return; }
     const day = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), d6 = new Date(Date.now() + 7 * 36e5 - 6 * 864e5).toISOString().slice(0, 10);
     const jobs = [['drivers', {}], ['pending', {}], ['sop.me', {}], ['sop.hdr', {}]];
     (cfg.sites || []).slice(0, 6).forEach(function (st) { const s = st.id; jobs.push(['sheet', { site: s, date: day }], ['photos', { site: s, date: day }], ['photometa', { site: s, date: day }], ['ledger', { site: s }], ['approvers', { site: s }], ['rqAhead', { site: s, date: day }], ['dash', { site: s, from: d6, to: day }], ['adjlog', { site: s }]); });

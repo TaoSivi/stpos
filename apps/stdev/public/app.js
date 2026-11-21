@@ -13,6 +13,7 @@ setTimeout(function () { try { var l = document.createElement('link'); l.rel = '
 /* ຕົວຊ່ວຍຮ່ວມ ຂອງທຸກໜ້າ: icon, api, toast, ໂມດອນ, ຮູບ, ສົ່ງອອກ PDF / Excel */
 'use strict';
 var $ = function (i) { return document.getElementById(i); };
+var APPV = (/[?&]v=(\d+)/.exec((document.currentScript || {}).src || '') || [])[1] || ''; /* ເວີຊັນຂອງໂຄ້ດທີ່ໂຫຼດຢູ່ (ຈາກ ?v=NNN) */
 function esc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } return ''; }
 var ICONS = {
