@@ -90,7 +90,7 @@ function buildNav() {
  list.forEach(function (m) { if (!seen[m.g]) { seen[m.g] = 1; groups.push(m.g); } });
  side += '<div class="side-head"><div class="avatar">' + ic('pump') + '</div><div><b>LTG Track</b><small>' + esc(I.me.name) + ' · ' + esc(RN[I.me.role] || '') + '</small></div></div>';
  groups.forEach(function (g) { side += '<div class="side-grp">' + esc(g) + '</div>' + list.filter(function (m) { return m.g === g; }).map(function (m) { return navBtn(m, 'nav-item'); }).join(''); });
- side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
+ side += '<div class="side-foot"><a class="nav-item" href="home.html" style="text-decoration:none">' + ic('home') + '<span>ໜ້າຫຼັກ</span></a>' + '<button class="nav-item" id="sidelo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div>';
  $('side').innerHTML = side;
  stepBar();
  $('hd').innerHTML = header('ນ້ຳມັນສະໜາມ', I.me.name + ' · ' + (RN[I.me.role] || ''), '');

@@ -183,7 +183,7 @@ document.addEventListener('click', function (e) { if (e.target.closest('#hb')) g
 function openMenu() {
  var H = window.__hdr || {}, items = window.menuItems ? window.menuItems() : [], d = document.createElement('div'), h = '<aside class="drawer" aria-label="ເມນູ"><div class="dr-head"><span class="logo">' + ic(H.logo || 'pump') + '</span><div><b>' + esc(H.title || '') + '</b><small>' + esc(H.sub || '') + '</small></div></div>';
  items.forEach(function (g, gi) { h += (g.g ? '<div class="dr-grp">' + esc(g.g) + '</div>' : '') + g.items.map(function (it, ii) { return '<button class="dr-item" data-gi="' + gi + '" data-ii="' + ii + '" aria-current="' + !!it.cur + '">' + ic(it.ic || 'grid') + '<span>' + esc(it.t) + '</span></button>'; }).join(''); });
- h += '<div class="dr-foot"><a class="dr-item" href="home.html">' + ic('grid') + '<span>ໜ້າຫຼັກ · ເລືອກແອັບ</span></a>' + (window.MENU_HR ? '<button class="dr-item" id="dhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="dr-item" id="dlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div></aside>';
+ h += '<div class="dr-foot"><a class="dr-item" href="home.html">' + ic('home') + '<span>ໜ້າຫຼັກ</span></a>' + (window.MENU_HR ? '<button class="dr-item" id="dhr">' + ic('users') + '<span>ເປີດ ST HR</span></button>' : '') + '<button class="dr-item" id="dlo">' + ic('out') + '<span>ອອກຈາກລະບົບ</span></button></div></aside>';
  d.className = 'drawer-back'; d.innerHTML = h; document.body.appendChild(d); setTimeout(function () { d.classList.add('on'); }, 20);
  d.onclick = function (e) {
   if (e.target === d) { d.remove(); return; } var b = e.target.closest('button'); if (!b) return;
