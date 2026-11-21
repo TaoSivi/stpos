@@ -64,6 +64,21 @@ function sopBuild(body, isNew) { /* ສ້າງໃບເຊັກລິດໃ�
   var run = { id: sopMonth(key) + '~' + t.id + '~' + me.id + '~' + key, veh: veh ? { id: veh.id, name: veh.name } : null, tpl: t.id, code: t.code, title: t.title, sop: t.sop, freq: t.freq, warn: t.warn || '', user: me.id, name: me.name, key: key, label: String(body.label || '').replace(/[<>]/g, '').slice(0, 60), items: e.snap, a: {}, created: Date.now(), status: 'open', doneAt: 0, appr: null };
   return run; });
 }
+function blankSheet(body) { /* ວັນໃໝ່ທີ່ບໍ່ເຄີຍໂຫຼດ ແລະ ບໍ່ມີເນັດ: ສ້າງແຜ່ນເປົ່າຈາກລາຍການລົດ/ຄົນຂັບທີ່ເກັບໄວ້ + ຍອດແທ່ງ/ເລກເມື່ອວານຈາກແຜ່ນເກົ່າ — ຂໍ, ເບີກ, ເຕີມ ໄດ້ຕາມປົກກະຕິ ແລ້ວສົ່ງເມື່ອມີເນັດ */
+ return Promise.all([kv.get('init'), kv.keys()]).then(function (c) {
+  var init = c[0], cfg = init && init.cfg, me = init && init.me; if (!cfg || !me || !body.site || !/^\d{4}-\d{2}-\d{2}$/.test(String(body.date || ''))) return null;
+  var site = (cfg.sites || []).filter(function (x) { return x.id === body.site; })[0]; if (!site) return null;
+  var pre = 'sheet|' + body.site + '|', ds = c[1].filter(function (k) { return String(k).indexOf(pre) === 0 && String(k).slice(pre.length) < body.date; }).sort();
+  return (ds.length ? kv.get(ds[ds.length - 1]) : Promise.resolve(null)).then(function (old) {
+   old = old || {}; var otk = old.tank || {}, orow = {}; (old.rows || []).forEach(function (r) { if (r.L2 != null && !orow[r.v]) orow[r.v] = r.L2; });
+   var cars = (cfg.vehicles || []).filter(function (v) { return v.site === body.site; }), drv = {}, left = {};
+   var rows = cars.map(function (v) { drv[v.id] = { d: v.driver || '', sub: false, reg: '' }; left[v.id] = null; return { v: v.id, name: v.name, driver: v.driver || '', sub: false, regular: '', mine: v.driver === me.id, base: null, round: 1, rqi: null, L0: null, L1: null, L2: null, add: null, used: null, prev: orow[v.id] != null ? { L2: orow[v.id] } : null, gap: null }; });
+   var bal = otk.bal != null ? otk.bal : 0, tank = old.tank === null ? null : { mprev: otk.mtr != null ? otk.mtr : null, mbase: null, mused: null, mdiff: null, has: otk.has !== false, meter: !!otk.meter, measured: null, bal: bal, out: 0, exp: null, diff: null };
+   return { site: body.site, date: body.date, role: old.role || me.role || '', approved: null, reqs: [], rqOn: !!site.rq, left: site.rq ? left : null, stock: { have: bal, pend: 0 }, drv: site.rq ? drv : null, rows: rows, tank: tank, offlineBlank: true };
+  });
+ });
+}
+function bgSync() { try { if (navigator.serviceWorker) navigator.serviceWorker.ready.then(function (r) { if (r.sync) r.sync.register('stdev-flush').catch(function () { }); }); } catch (e) { } }
 function sopStore(run, edit) { /* ເກັບໃບເຊັກລິດ SOP ທີ່ເປີດແລ້ວໃນເຄື່ອງ (ທຸກ key ທີ່ເປັນໃບດຽວກັນ); edit(run) ປ່ຽນແລ້ວຄືນ error ຫຼື null */
  return kv.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return String(k).indexOf('sop.open|') === 0; }).map(function (k) { return kv.get(k).then(function (r) { return [k, r]; }); })); }).then(function (l) {
   var id = run ? run.id : null, hit = l.filter(function (x) { return x[1] && x[1].id === (id || edit.id); }); if (!hit.length && !run) return { ok: false, error: 'net' };
@@ -124,14 +139,23 @@ function rqApply(action, b, sh, me, cfg) { /* ຄຳຂໍນ້ຳມັນໃ�
 function getQ() { return kv.get('q').then(function (q) { return q || []; }); }
 
 /* ===== ໂຫຼດຂໍ້ມູນເກັບໄວ້ລ່ວງໜ້າ: ຫຼັງເຂົ້າລະບົບຄັ້ງດຽວ ໜ້າທີ່ຍັງບໍ່ເຄີຍເປີດກໍໃຊ້ໄດ້ຕອນບໍ່ມີເນັດ (ອ່ານຢ່າງດຽວ ບໍ່ສ້າງຂໍ້ມູນໃນ server) ===== */
-var WARMED = 0;
-function warm() {
- var tk = ls('fuel_tk'); if (!tk || OFF || navigator.onLine === false || Date.now() - WARMED < 6 * 36e5) return; WARMED = Date.now();
- kv.get('init').then(function (init) {
-  var sites = init && init.cfg && init.cfg.sites ? init.cfg.sites : [], day = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10);
-  var jobs = [['drivers', {}], ['sop.me', {}], ['sop.hdr', {}]].concat(sites.slice(0, 6).map(function (s) { return ['sheet', { site: s.id, date: day }]; }));
-  return jobs.reduce(function (p, j) { return p.then(function () { return OFF ? 0 : kv.get(rkey(j[0], j[1])).then(function (have) { if (have !== undefined) return; /* ມີແລ້ວ = ບໍ່ໂຫຼດຊ້ຳ (ການໃຊ້ງານປົກກະຕິອັບເດດເອງ) */ return post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }); }); }, Promise.resolve());
- }).catch(function () { });
+var WARMING = false;
+function warm() { /* ມອບໃຫ້ service worker ເຮັດເບື້ອງຫຼັງ (ເຮັດຕໍ່ເຖິງແມ່ນໄປໃຊ້ແອັບອື່ນ) — ບໍ່ມີ service worker ຈຶ່ງເຮັດເອງໃນໜ້າ */
+ var tk = ls('fuel_tk'); if (!tk || OFF || navigator.onLine === false) return; kv.set('tk', tk);
+ if (navigator.serviceWorker && navigator.serviceWorker.controller) { navigator.serviceWorker.controller.postMessage({ t: 'warm' }); return; }
+ warmLocal(tk);
+}
+function warmLocal(tk) { /* ເຂົ້າແອັບຕອນມີເນັດ → ໂຫຼດຂໍ້ມູນຂອງ "ທຸກໜ້າ" ມາເກັບໄວ້ເອງ ເທື່ອລະຄຳຂໍ ຕອນຫວ່າງ (ບໍ່ແຍ່ງກັບສິ່ງທີ່ກຳລັງກົດ); ຕອນບໍ່ມີເນັດ ໜ້າທີ່ບໍ່ເຄີຍເປີດກໍເຫັນຂໍ້ມູນ */
+ if (WARMING) return; WARMING = true;
+ Promise.all([kv.get('init'), kv.get('me'), kv.get('warmts')]).then(function (c) {
+  var init = c[0], me = c[1], force = Date.now() - (c[2] || 0) >= 3 * 36e5, cfg = init && init.cfg; if (!cfg) return; /* ຄົບ 3 ຊົ່ວໂມງ = ໂຫຼດໃໝ່ທັງໝົດ; ຍັງບໍ່ຄົບ = ເຕີມສະເພາະທີ່ຂາດ */
+  var day = new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10), d6 = new Date(Date.now() + 7 * 36e5 - 6 * 864e5).toISOString().slice(0, 10);
+  var jobs = [['drivers', {}], ['pending', {}], ['sop.me', {}], ['sop.hdr', {}]];
+  (cfg.sites || []).slice(0, 6).forEach(function (st) { var s = st.id; jobs.push(['sheet', { site: s, date: day }], ['photos', { site: s, date: day }], ['photometa', { site: s, date: day }], ['ledger', { site: s }], ['approvers', { site: s }], ['rqAhead', { site: s, date: day }], ['dash', { site: s, from: d6, to: day }], ['adjlog', { site: s }]); });
+  if (me && (me.level === 'superadmin' || me.level === 'admin')) jobs.push(['userList', {}], ['catalog', {}], ['schema', {}], ['sop.board', {}], ['sop.tpls', {}]);
+  var idle = function () { return new Promise(function (res) { var n = 0, t = function () { if (typeof _bz === 'undefined' || !_bz || ++n > 20) res(); else setTimeout(t, 500); }; t(); }); }; /* ລໍຈົນບໍ່ມີຄຳຂໍຂອງຜູ້ໃຊ້ (ສູງສຸດ 10 ວິ) */
+  return jobs.reduce(function (p, j) { return p.then(function () { if (OFF) return; return kv.get(rkey(j[0], j[1])).then(function (have) { if (have !== undefined && !force) return; return idle().then(function () { return post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }).then(function () { return tmo(150); }); }); }); }, Promise.resolve()).then(function () { if (force && !OFF) return kv.set('warmts', Date.now()); });
+ }).catch(function () { }).then(function () { WARMING = false; });
 }
 /* ===== ຄິດໄລ່ໃນເຄື່ອງ (ໃຫ້ຜົນຄືກັບ server ເພາະໃຊ້ Tank.liters ໄຟລ໌ດຽວກັນ) ===== */
 var num = function (x) { var n = Number(x); return x === '' || x == null || !isFinite(n) || n < 0 || n > 1e6 ? null : n; };
@@ -198,17 +222,20 @@ function apiRaw(action, body) {
     return { ok: true, data: cached, cached: true, stale: true };
    });
   }).then(function (r) {
-   if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { if (action === 'init') setTimeout(warm, 8000); if (action === 'me' && r.data && r.data.renew) { ls('fuel_tk', r.data.renew); kv.get('cred').then(function (c) { if (c) { c.token = r.data.renew; return kv.set('cred', c); } }); } return r; });
+   if (r.ok) return kv.set(rkey(action, body), r.data).then(function () { if (action === 'init') setTimeout(warm, 5000); if (action === 'me' && r.data && r.data.renew) { ls('fuel_tk', r.data.renew); kv.set('tk', r.data.renew); kv.get('cred').then(function (c) { if (c) { c.token = r.data.renew; return kv.set('cred', c); } }); } return r; });
    if (r.error !== 'net') return r;
-   return kv.get(rkey(action, body)).then(function (d) { if (d !== undefined) return { ok: true, data: d, cached: true }; if (action !== 'sop.open' || body.id) return r;
-    return sopBuild(body, false).then(function (run) { if (!run) return r; return kv.set(rkey(action, body), run).then(function () { return sopMeSync(run); }).then(function () { return getQ(); }).then(function (q) { q.push({ action: 'sop.open', body: Object.assign({ lid: run.id }, body), token: tk, ts: Date.now() }); return kv.set('q', q); }).then(function () { setTimeout(flush, 0); return { ok: true, data: run, cached: true, queued: true }; }); }); }); /* ບໍ່ເຄີຍໂຫຼດມາກ່ອນ ແລະ ບໍ່ມີເນັດ */
+   return kv.get(rkey(action, body)).then(function (d) { if (d !== undefined) return { ok: true, data: d, cached: true };
+    if (action === 'photos' || action === 'photometa') return { ok: true, data: {}, cached: true }; if (action === 'rqAhead') return { ok: true, data: [], cached: true };
+    if (action === 'sheet') return blankSheet(body).then(function (sh) { if (!sh) return r; return kv.set(rkey('sheet', body), sh).then(function () { return { ok: true, data: sh, cached: true, blank: true }; }); });
+    if (action !== 'sop.open' || body.id) return r;
+    return sopBuild(body, false).then(function (run) { if (!run) return r; return kv.set(rkey(action, body), run).then(function () { return sopMeSync(run); }).then(function () { return getQ(); }).then(function (q) { q.push({ action: 'sop.open', body: Object.assign({ lid: run.id }, body), token: tk, ts: Date.now() }); return kv.set('q', q); }).then(function () { setTimeout(flush, 0); bgSync(); return { ok: true, data: run, cached: true, queued: true }; }); }); }); /* ບໍ່ເຄີຍໂຫຼດມາກ່ອນ ແລະ ບໍ່ມີເນັດ */
   }).then(function (r) { if (!r.ok && r.error === 'net') toast(ERR.net + ' (ຍັງບໍ່ມີຂໍ້ມູນໃນເຄື່ອງ)', 'bad'); var sk = document.getElementById('v'); if (!r.ok && r.error === 'net' && sk && sk.querySelector && sk.querySelector('.skel')) sk.innerHTML = '<div class="card empty">ບໍ່ມີເນັດ ແລະ ຍັງບໍ່ມີຂໍ້ມູນໃນເຄື່ອງ — ລອງໃໝ່ເມື່ອມີເນັດ<br><button type="button" class="btn line" onclick="location.reload()">ລອງໃໝ່</button></div>'; return fin(r); });
  }
  if (WRITES[action]) {
   var rnd = function () { return Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36); };
   if ((action === 'rqNew' || action === 'rqUrgent') && !body.cid) body.cid = 'b' + rnd(); if (action === 'tank' && body.add && !body.add.id) body.add.id = 'r' + rnd(); if (action === 'sop.new' && !body.key) body.key = 'e' + rnd();
   var entry = { action: action, body: body, token: tk, ts: Date.now() }, slow = false;
-  var queue = function () { entry.maybe = slow; return localApply(action, body).then(function (r) { if (!r.ok) return r; return getQ().then(function (q) { q.push(entry); return kv.set('q', q); }).then(function () { setTimeout(flush, 0); return r; }); }); };
+  var queue = function () { entry.maybe = slow; return localApply(action, body).then(function (r) { if (!r.ok) return r; return getQ().then(function (q) { q.push(entry); return kv.set('q', q); }).then(function () { setTimeout(flush, 0); bgSync(); return r; }); }); };
   return getQ().then(function (q) { if (q.length) return queue(); return post(action, body, tk).then(function (r) { if (r.ok) { if (r.data && r.data.rows) return kv.set(rkey('sheet', body), r.data).then(function () { return r; }); if (/^sop\./.test(action) && r.data && r.data.id) return sopStore(r.data).then(function () { return r; }); return r; } if (r.error === 'net') { slow = !!r.slow; return queue(); } return r; }); }).then(fin);
  }
  if (action === 'login') return post(action, body, tk).then(function (r) {
@@ -227,7 +254,7 @@ function api(action, body) { /* ຫຸ້ມ apiRaw: ປອບອັບ "ກຳ�
 
 /* ===== ສົ່ງຄິວເຂົ້າ server ===== */
 var FLUSHP = Promise.resolve();
-function flush() { return SYNCING ? FLUSHP : (FLUSHP = flushRun()); } /* ເອີ້ນຊ້ອນ = ລໍອັນທີ່ກຳລັງສົ່ງຢູ່ */
+function flush() { return SYNCING ? FLUSHP : (FLUSHP = (navigator.locks ? navigator.locks.request('stdev-q', flushRun) : flushRun())); } /* ເອີ້ນຊ້ອນ = ລໍອັນທີ່ກຳລັງສົ່ງຢູ່ */
 function flushRun() {
  SYNCING = true; syncBar(); var sent = 0;
  function step() {
@@ -247,7 +274,8 @@ function flushRun() {
  return step().catch(function () {}).then(function () { SYNCING = false; return getQ(); }).then(function (q) { if (sent && !q.length) { DONE = true; setTimeout(function () { DONE = false; syncBar(); }, 3000); } syncBar(); if (sent) document.dispatchEvent(new CustomEvent('synced')); });
 }
 var AUTHFAIL = false;
-window.addEventListener('online', function () { flush().then(function () { WARMED = 0; warm(); }); });
+if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', function (e) { if (e.data && e.data.t === 'synced') { syncBar(); document.dispatchEvent(new CustomEvent('synced')); } });
+window.addEventListener('online', function () { flush().then(function () { warm(); }); });
 window.addEventListener('offline', function () { OFF = true; syncBar(); });
 document.addEventListener('visibilitychange', function () { if (!document.hidden) flush(); });
 setInterval(function () { getQ().then(function (q) { if (q.length) flush(); }); }, 20000);
@@ -278,7 +306,7 @@ function showFailed() {
 /* ===== ອອກຈາກລະບົບ: ມີຂອງຄ້າງຄິວ = ເຕືອນກ່ອນ (ອອກແລ້ວຈະເສຍ) ===== */
 function logout() {
  getQ().then(function (q) { return q.length ? flush().then(getQ) : q; }).then(function (q) {
-  var out = function () { ls('fuel_tk', null); Promise.all([kv.del('q'), kv.del('failed')]).then(function () { location.href = '/'; }); };
+  var out = function () { ls('fuel_tk', null); Promise.all([kv.del('q'), kv.del('failed'), kv.del('tk')]).then(function () { location.href = '/'; }); };
   if (!q.length) return out();
   var m = modal('<h2>ຍັງມີ ' + q.length + ' ລາຍການທີ່ຍັງບໍ່ໄດ້ສົ່ງ</h2><p class="muted">ຖ້າອອກຈາກລະບົບດຽວນີ້ ຂໍ້ມູນນັ້ນຈະຫາຍ. ລໍມີເນັດກ່ອນຈຶ່ງອອກ.</p><div class="row"><button class="btn line grow" id="lno">ຍັງບໍ່ອອກ</button><button class="btn bad grow" id="lyes">ອອກ ແລະ ຖິ້ມ</button></div>');
   m.querySelector('#lno').onclick = function () { m.remove(); }; m.querySelector('#lyes').onclick = out;

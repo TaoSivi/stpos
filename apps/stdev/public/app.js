@@ -130,7 +130,7 @@ if ('serviceWorker' in navigator) (function () {
  var typing = function () { var e = document.activeElement; return !!(e && /^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName)) || !!document.querySelector('.modal'); };
  var go = function () { if (!pend) return; if (!(Date.now() - t0 < 15000 || document.hidden || !typing())) return; var k = 'ltg_rl', last = 0; try { last = +sessionStorage.getItem(k) || 0; sessionStorage.setItem(k, Date.now()); } catch (e) { } if (Date.now() - last < 60000) return; /* ກັນໂຫຼດວົນ */ location.reload(); };
  navigator.serviceWorker.addEventListener('controllerchange', function () { if (!had) { had = true; return; } pend = true; go(); });
- window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').then(function (r) { reg = r; r.update().catch(function () { }); }).catch(function () { }); });
+ window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').then(function (r) { reg = r; r.update().catch(function () { }); try { if (r.periodicSync) r.periodicSync.register('stdev-warm', { minInterval: 3 * 36e5 }).catch(function () { }); } catch (e) { } }).catch(function () { }); });
  document.addEventListener('visibilitychange', function () { if (document.hidden) go(); else if (reg) reg.update().catch(function () { }); });
  setInterval(function () { if (reg && !document.hidden) reg.update().catch(function () { }); go(); }, 10 * 60000);
 })();
