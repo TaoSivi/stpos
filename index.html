@@ -1664,6 +1664,12 @@ html[data-biz="mart"] #langBtn,html[data-biz="hotel"] #langBtn{display:inline-fl
 .kp-guide h3{margin:0 0 6px}.kp-gs{color:var(--muted);font-size:13.5px;line-height:1.5;margin:6px 0}.kp-steps{list-style:none;counter-reset:ks;margin:10px 0;padding:0;display:grid;gap:10px}.kp-steps li{counter-increment:ks;position:relative;background:#f2f9f8;border-radius:16px;padding:12px 14px 12px 52px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}.kp-steps li::before{content:counter(ks);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:#0a7e7a;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}.kp-steps li span{color:var(--muted);font-size:13px;line-height:1.45}.kp-steps li .btn-sm,.kp-steps li .btn-ok{margin-top:6px;padding:9px 16px;border-radius:12px}
 .kp-locbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7e6;border:1px solid #f6d58a;color:#7a5a00;border-radius:14px;padding:8px 12px;margin:0 0 12px;font-size:13.5px}.kp-locbar .btn-sm{margin-left:auto}.kp-els,.os-els{font-size:12.5px;color:#9a3412;background:#fff1e6;border-radius:10px;padding:5px 9px;margin-top:4px}
 .ibt{width:44px;min-width:44px;height:44px;padding:0!important;display:inline-flex;align-items:center;justify-content:center}.ibt .ico{width:18px;height:18px}
+/* ===== responsive polish: iPad / ໂທລະສັບ / ຄອມ ===== */
+@media(min-width:701px) and (max-width:1320px){.userchip small{display:none}.userchip>span{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+@media(min-width:600px) and (max-width:900px){.products,html:not([data-theme="glass"]) body #app:not(.cust) .products{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:700px){.cbf-ar{display:none}.cb-filters,.cbf-row{gap:8px}}
+@media(max-width:900px){.hc-leg em{display:none}}
+.totrow[style*="column"] b{text-align:left;align-self:flex-start;max-width:100%}
 .pgnote .pgx{border:0;background:none;color:var(--muted,#6b8784);font-size:13px;cursor:pointer;margin-left:8px;padding:2px 6px;border-radius:8px;vertical-align:middle;opacity:.7}.pgnote .pgx:hover{background:#eef6f5;opacity:1}.sp-none{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#f2f9f8;color:#0a5a57;font-weight:700}
 .pgnote{margin:2px 18px 12px;color:var(--muted,#4d7471);font-size:14px;line-height:1.55;max-width:900px}.pad>.pgnote{margin-left:0;margin-right:0}
 .gd .gd-q{width:100%;height:54px;border-radius:16px;border:2px solid #cfe7e4;padding:0 16px;font:inherit;font-size:18px;background:#fff;margin:6px 0 10px}.gd .gd-q:focus{outline:none;border-color:#0ABAB5;box-shadow:0 0 0 4px rgba(10,186,181,.15)}
@@ -2270,6 +2276,7 @@ body.cc-lock{overflow:hidden}
 /* ຂອບຊ້າຍ-ຂວາໃຫ້ເທົ່າກັນທຸກໜ້າ: ບາງໜ້າ (ຈັດຊື້/ເບີກ/ນັບສາງ) ໃສ່ padding 18px ຊ້ອນກັບ .pad */
 .pad>[style*="padding:0 18px"]{padding-left:0!important;padding-right:0!important}
 .cards.dashcards{grid-template-columns:repeat(auto-fit,minmax(176px,1fr))}
+@media(min-width:901px){.cards.dashcards{grid-template-columns:repeat(4,minmax(0,1fr))}} /* 8 ບັດ = 2 ແຖວ × 4 ສົມມາດ */
 /* ກ່ອງວິເຄາະເມນູ: ຕີມດຽວກັບແອັບ (ກ່ອງຂາວ ມຸມມົນ ເງົາອ່ອນ) */
 .me-quad{gap:14px}.me-q{background:#fff;border-radius:20px;padding:16px 18px;box-shadow:var(--sh-1);border:1px solid #e3efed;gap:6px;position:relative;transition:transform .15s,box-shadow .15s}.me-q:hover{transform:translateY(-2px);box-shadow:var(--sh-2)}
 .me-q::before{content:'';width:34px;height:5px;border-radius:5px;background:var(--qc);margin-bottom:4px}.me-q.on{background:color-mix(in srgb,var(--qc) 7%,#fff);box-shadow:0 0 0 2px var(--qc),var(--sh-1)}
@@ -2814,6 +2821,7 @@ html[data-theme="glass"] .dy-doc h3{background:rgba(255,255,255,.08);color:var(-
 @media(max-width:1500px) and (min-width:901px){#demoBar:not(.min){position:fixed!important;top:72px!important;bottom:auto!important;right:16px!important;left:auto!important;margin:0!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important;padding:6px 8px 6px 12px!important}}
 #demoBar.min{padding:4px 8px!important;opacity:.85}#demoBar.min>:not(b){display:none!important}
 @media(max-width:700px){#demoBar button{display:none}#demoBar button.dbk{display:inline-block}#demoBar select{max-width:110px}}
+@media(max-width:900px){#demoBar{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:78px!important;transform:translateX(-50%)!important;margin:0!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important;max-width:96vw!important;padding:6px 8px 6px 12px!important}}
 .rx-dose{width:100%;margin-top:6px;padding:9px 12px;border:1.5px dashed #0a7e7a;border-radius:12px;background:#f4fbfa;font:inherit}.rx-dose:focus{outline:none;border-style:solid;background:#fff}
 .rx-yn{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}.rx-yn>span{font-weight:700;margin-right:4px}.rx-yn label{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:2px solid var(--line);border-radius:999px;background:#fff;color:#111;font-weight:700;cursor:pointer}.rx-yn label input{width:auto;margin:0;accent-color:#0a7e7a}.rx-yn label:has(input:checked){border-color:#0a7e7a;background:#e6f4f2;color:#064e4b}.rx-yn label:has(input[value="yes"]:checked){border-color:#dc2626;background:#fee2e2;color:#991b1b}
 .rx-in{max-width:none!important;width:100%}.rx-in .rx-chips{gap:10px}
