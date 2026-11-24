@@ -101,6 +101,7 @@ function setBadge(n) { document.querySelectorAll('[data-m=appr] .nb').forEach(fu
 function pendingOf(s) { return s ? s.rows.filter(function (r) { return r.add != null && !r.ack && !r.rej; }).length : 0; }
 
 function go(id) {
+ if (id === 'issue' && !window.KEEPCAR && typeof CARSEL !== 'undefined') CARSEL = ''; window.KEEPCAR = 0;
  var m = modOf(id); if (!m || !m.show()) m = modOf(hasSites() ? 'dash' : 'me'); MOD = m.id;
  document.querySelectorAll('[data-m]').forEach(function (b) { b.setAttribute('aria-current', b.dataset.m === MOD || (b.dataset.m === 'report' && REPS.indexOf(MOD) >= 0)); });
  $('pht').textContent = m.t; $('phd').textContent = longDate($('date').value || today());

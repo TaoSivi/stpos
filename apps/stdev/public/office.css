@@ -471,3 +471,6 @@ button.pendi{cursor:pointer;transition:transform .15s,box-shadow .2s}button.pend
 .rowfill{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:2px 4px;border:0;border-bottom:1.5px dashed var(--primary);background:transparent;color:var(--primary-600);font:inherit;font-weight:600;text-align:left;cursor:pointer}
 .rowfill i{display:inline-grid;place-items:center}.rowfill .i{width:14px;height:14px}
 @media print{.entbar{display:none!important}.rowfill{border:0;color:inherit;font-weight:inherit;padding:0}.rowfill i{display:none}}
+/* ລໍເຕີມ: ບັດລົດມີຊ່ອງວ່າງດ້ານໃນ (ບໍ່ຕິດຂອບ) */
+.card>.cr{padding:12px 14px;margin:10px 0 0;border:1px solid var(--line);border-left:4px solid #18a8a0;border-radius:16px;background:#fff}
+.card>.cr .btn.ok{min-height:48px}
