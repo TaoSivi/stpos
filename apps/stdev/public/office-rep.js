@@ -17,7 +17,7 @@ function rqParts(r) { /* ຄຳຂໍ → ອະນຸມັດ + ຂໍ້ສ�
  if (r.rej) p.push('ຄົນຂັບບໍ່ຍອມຮັບ: ' + (r.rej.why || '-'));
  return p;
 }
-var ENT = { report: ['issue', 'tank', 'rq'], rqrep: ['rq', 'rqok'], ledger: ['tank'] }, ENTN = { report: 'ກອກຂໍ້ມູນໃບນີ້', rqrep: 'ກອກຂໍ້ມູນໃບຂໍ', ledger: 'ກອກຍອດແທ່ງ' };
+var ENT = { rqrep: ['rq', 'rqok'], ledger: ['tank'] }, ENTN = { report: 'ກອກຂໍ້ມູນໃບນີ້', rqrep: 'ກອກຂໍ້ມູນໃບຂໍ', ledger: 'ກອກຍອດແທ່ງ' };
 function entryBar() { /* ລາຍງານ 3 ໃບ: ປຸ່ມໄປກອກຂໍ້ມູນທັນທີ (ບໍ່ຕ້ອງຫາໃນເມນູ) */
  var ids = ENT[MOD]; if (!ids) return ''; var l = ids.map(modOf).filter(function (m) { return m && m.show(); }); if (!l.length) return '';
  return '<div class="entbar noprint"><b>' + ic('edit') + esc(ENTN[MOD]) + '</b>' + l.map(function (m) { return '<button type="button" class="btn ok" data-go="' + m.id + '">' + ic(m.ic) + esc(m.t) + '</button>'; }).join('') + '</div>';
