@@ -256,7 +256,7 @@ function drawIssue() {
  if (rqm) h += rqIssueTop(ed && hasRight('issue'));
  if (!S.rows.length) h += noCars(); else if (rqm && !rows.length) h += '<p class="hint">ຍັງບໍ່ມີການເຕີມ — ເມື່ອມີຄຳຂໍທີ່ອະນຸມັດແລ້ວ ກົດ "ເລີ່ມເຕີມ" ຢູ່ດ້ານເທິງ.</p>';
  var bases = rows.filter(function (x) { return !x.base; });
- var many = bases.length > 2; if (!many) CARSEL = ''; if (CARSEL && !bases.some(function (x) { return x.v === CARSEL; })) CARSEL = '';
+ var many = bases.length > 0; if (!many) CARSEL = ''; if (CARSEL && !bases.some(function (x) { return x.v === CARSEL; })) CARSEL = '';
  if (many && !CARSEL) h += '<section class="card"><h2>' + ic('truck') + 'ເລືອກລົດ (' + bases.length + ' ຄັນ)</h2><p class="hint">ແຕະລົດຄັນທີ່ຈະກອກ cm / ເຕີມ</p>' + carList(bases, 'data-pickcar') + '</section>';
  if (many && CARSEL) { var bi = bases.map(function (x) { return x.v; }).indexOf(CARSEL); h += '<div class="row noprint" style="margin-bottom:10px"><button type="button" class="btn line" data-pickcar="">‹ ທຸກຄັນ</button><span class="grow"></span>' + (bi > 0 ? '<button type="button" class="btn line" data-pickcar="' + esc(bases[bi - 1].v) + '">‹ ກ່ອນໜ້າ</button>' : '') + (bi < bases.length - 1 ? '<button type="button" class="btn line" data-pickcar="' + esc(bases[bi + 1].v) + '">ຄັນຕໍ່ໄປ ›</button>' : '') + '</div>'; }
  (many && !CARSEL ? [] : CARSEL ? rows.filter(function (x) { return x.v === CARSEL || x.base === CARSEL; }) : rows).forEach(function (r) {
