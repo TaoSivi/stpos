@@ -93,9 +93,9 @@ function xlsAdj() { exportXlsx('ການປັບປຸງ ' + siteObj().name, 
 function ledgerLoad() { var mine = MOD; api('ledger', { site: $('site').value }).then(function (r) { if (r.ok && MOD === mine) ledgerView(r.data); }); }
 function ledgerView(rows) {
  LEDGER = rows; var tr = 0, to = 0;
- $('v').innerHTML = repTabs() + '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ຕິດຕາມນ້ຳມັນລົງສະໜາມ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + '</div></div><div class="tw"><table><thead><tr><th>ລ/ດ</th><th>ວັນທີ</th><th>ຍອດຮັບ</th><th>ຍອດເບີກຈ່າຍ</th><th>ຍອດເຫຼືອ</th><th>ແທກແທ່ງໄດ້</th><th>ຕ່າງ</th><th>ສະຖານະ</th></tr></thead><tbody>' +
-  rows.map(function (x, i) { tr += x.recv; to += x.out; var d = x.diff != null ? x.diff : null; return '<tr><td>' + (i + 1) + '</td><td>' + dmy(x.date) + '</td><td>' + (x.recv ? L(x.recv) : '') + '</td><td>' + (x.out ? L(x.out) : '') + '</td><td><b>' + L(x.bal) + '</b></td><td>' + (x.measured != null ? L(x.measured) : '') + '</td><td>' + (d != null ? (d > 0 ? '+' : '') + Math.round(d) + ' L' : '') + '</td><td>' + (x.approved ? '✓ ອະນຸມັດ' : x.idle ? '–' : 'ລໍຖ້າ') + '</td></tr>'; }).join('') +
-  '</tbody><tfoot><tr><td colspan="2">ລວມຍອດ</td><td>' + L(tr) + '</td><td>' + L(to) + '</td><td>' + L(tr - to) + '</td><td colspan="3"></td></tr></tfoot></table></div>' + exportBar('p') + '</section>';
+ $('v').innerHTML = repTabs() + '<section class="card a4p"><div class="rh">' + letterhead() + '<h2>ຕິດຕາມນ້ຳມັນລົງສະໜາມ</h2><div>ໂຄງການ: ' + esc(siteObj().name) + '</div></div><div class="tw"><table><thead><tr><th>ລ/ດ</th><th>ວັນທີ</th><th>ຍອດຮັບ</th><th>ຍອດເບີກຈ່າຍ</th><th>ຍອດເຫຼືອ</th></tr></thead><tbody>' +
+  rows.filter(function (x) { return x.recv || x.out; }).map(function (x, i) { tr += x.recv; to += x.out; return '<tr><td>' + (i + 1) + '</td><td>' + dmy(x.date) + '</td><td>' + (x.recv ? L(x.recv) : '') + '</td><td>' + (x.out ? L(x.out) : '') + '</td><td><b>' + L(x.bal) + '</b></td></tr>'; }).join('') +
+  '</tbody><tfoot><tr><td colspan="2">ລວມຍອດ</td><td>' + L(tr) + '</td><td>' + L(to) + '</td><td>' + L(tr - to) + '</td></tr></tfoot></table></div>' + exportBar('p') + '</section>';
 }
 function xlsLedger() { /* ແບບຟອມ "ຕິດຕາມນ້ຳມັນລົງສະໜາມ": ລຳດັບ · ວັນທີ · ລາຍການ · ຫົວໜ່ວຍ · ຍອດຍົກມາ · ຮັບ · ເບີກຈ່າຍ · ເຫຼືອ · ໝາຍເຫດ */
  var pump = !siteObj().tank && !siteObj().meter, yrs = LEDGER.length ? LEDGER[0].date.slice(0, 4) + (LEDGER[LEDGER.length - 1].date.slice(0, 4) !== LEDGER[0].date.slice(0, 4) ? '-' + LEDGER[LEDGER.length - 1].date.slice(0, 4) : '') : '',
