@@ -72,7 +72,7 @@ function vis() { return MODS.filter(function (m) { return m.show(); }); }
 function navVis() { return vis().filter(function (m) { return !m.hid; }); }
 var REPS = ['report', 'rqrep', 'ledger', 'adjrep'];
 function repTabs() { /* ລາຍງານທັງໝົດຢູ່ບ່ອນດຽວ: ປຸ່ມສະຫຼັບຊະນິດລາຍງານ */
- var l = REPS.map(modOf).filter(function (m) { return m && m.show(); }); if (l.length < 2) return ''; return '<div class="rtabs noprint" role="tablist">' + l.map(function (m) { return '<button type="button" role="tab" data-go="' + m.id + '" aria-selected="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.replace(' (Admin)', '')) + '</span></button>'; }).join('') + '</div>'; }
+ var l = REPS.map(modOf).filter(function (m) { return m && m.show(); }), bar = typeof entryBar === 'function' ? entryBar() : ''; if (l.length < 2) return bar; return '<div class="rtabs noprint" role="tablist">' + l.map(function (m) { return '<button type="button" role="tab" data-go="' + m.id + '" aria-selected="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.replace(' (Admin)', '')) + '</span></button>'; }).join('') + '</div>' + bar; }
 function modOf(id) { return MODS.filter(function (m) { return m.id === id; })[0]; }
 
 function start() {

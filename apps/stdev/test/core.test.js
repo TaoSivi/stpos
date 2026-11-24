@@ -74,6 +74,9 @@ const img = 'data:image/jpeg;base64,AAAA';
 assert.strictEqual(call('adm', Object.assign({ action: 'photo', key: 'v1_b', data: 'data:text/html;base64,AAAA' }, S)).error, 'image');
 assert.strictEqual(call('adm', Object.assign({ action: 'photo', key: 'v3_b', data: img }, S)).error, 'key');
 assert.strictEqual(call('drv', Object.assign({ action: 'photo', key: 'v1_b', data: img }, S)).error, 'auth');
+assert.ok(['v1_bg', 'v1_ag', 'v1_eg'].every(function (k) { return call('adm', Object.assign({ action: 'photo', key: k, data: img }, S)).ok; }), 'fuel-gauge (needle) photos accepted for before / after / evening');
+assert.strictEqual(call('adm', Object.assign({ action: 'photo', key: 'v1_xg', data: img }, S)).error, 'key', 'unknown photo key refused');
+['v1_bg', 'v1_ag', 'v1_eg'].forEach(function (k) { call('head', Object.assign({ action: 'photo', key: k }, S)); }); /* ລຶບຄືນ ໃຫ້ການທົດສອບຖັດໄປຄືເກົ່າ */
 ['v1_b', 'v2_e', 'tank'].forEach(function (k) { assert.ok(call('adm', Object.assign({ action: 'photo', key: k, data: img }, S)).ok); });
 assert.deepStrictEqual(Object.keys(call('drv', Object.assign({ action: 'photos' }, S)).data), ['v1_b']);
 assert.strictEqual(Object.keys(call('off', Object.assign({ action: 'photos' }, S)).data).length, 3);

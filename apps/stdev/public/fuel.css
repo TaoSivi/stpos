@@ -273,3 +273,10 @@ nav.tabs button[aria-current=true] svg{animation:navPop .45s cubic-bezier(.3,1.6
 .tile[data-cat=docs]::before{background:linear-gradient(180deg,#f5c542,#e0a100)}.tile[data-cat=report]::before{background:linear-gradient(180deg,#3dbb86,#1f8a57)}.tile[data-cat=admin]::before{background:linear-gradient(180deg,#8aa3a1,#5b7775)}
 .hello{position:relative;overflow:hidden}.hello::after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08);animation:floaty 5s ease-in-out infinite}
 .hello b{letter-spacing:.2px}
+
+/* ຮູບ 2 ແບບຕໍ່ຂັ້ນ: ແທກນ້ຳມັນ (ຊ້າຍ) + ເຂັມນ້ຳມັນ (ຂວາ) */
+.ph.ph2{grid-template-columns:repeat(2,1fr)}
+/* ໃບຕິດຕາມປະຈຳວັນ ຕາມແບບຟອມບໍລິສັດ */
+table.fsheet th.gm{background:#2e75b6}table.fsheet th.gf{background:#548235}table.fsheet th.ge{background:#c55a11}table.fsheet th.gu{background:#bf9000}
+table.fsheet td.used{background:#fff2cc;color:#c00000;font-size:1.05em}
+table.fsheet td img{width:64px;height:64px}

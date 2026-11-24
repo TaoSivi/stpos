@@ -463,3 +463,11 @@ button.pendi{cursor:pointer;transition:transform .15s,box-shadow .2s}button.pend
 .rqsheet .cr.act>.row.wrap:last-child .btn.ok{flex:1 1 auto;min-height:46px;font-size:16px;font-weight:700}
 .rqsheet .cr.act>.row.wrap:last-child .btn.line{flex:0 0 auto;min-height:46px;padding:0 18px;color:var(--bad,#b3261e);border-color:#e7b4ae}
 .rqsheet>.allbox{grid-column:1/-1}
+
+/* ລາຍງານ 3 ໃບ: ແຖບ "ກອກຂໍ້ມູນ" + ຊື່ລົດໃນໃບຕິດຕາມກົດໄດ້ */
+.entbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 12px;padding:10px 12px;border:1.5px solid #bfe3df;border-radius:16px;background:linear-gradient(135deg,#f1fbf9,#fff)}
+.entbar>b{display:inline-flex;align-items:center;gap:8px;margin-right:4px;font-size:15px;color:var(--primary-600)}
+.entbar .btn{min-height:42px;padding:0 16px;font-size:14.5px}
+.rowfill{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:2px 4px;border:0;border-bottom:1.5px dashed var(--primary);background:transparent;color:var(--primary-600);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.rowfill i{display:inline-grid;place-items:center}.rowfill .i{width:14px;height:14px}
+@media print{.entbar{display:none!important}.rowfill{border:0;color:inherit;font-weight:inherit;padding:0}.rowfill i{display:none}}

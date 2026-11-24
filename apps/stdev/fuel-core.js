@@ -300,8 +300,8 @@ function handle(store, user, o) {
     }
     store.write(key, sh); return view();
   }
-  if (a === 'photo') { /* key = <ລົດ>_b|a|e ຫຼື tank · data = data:image/jpeg ທີ່ແອັບຫຍໍ້ແລ້ວ */
-    const m = /^([a-z0-9]{1,16}(?:_r[2-9])?)_(b|a|e|p[1-6])$/.exec(String(o.key || ''));
+  if (a === 'photo') { /* key = <ລົດ>_b|a|e (ແທກ) · _bg|ag|eg (ເຂັມນ້ຳມັນ) ຫຼື tank · data = data:image/jpeg ທີ່ແອັບຫຍໍ້ແລ້ວ */
+    const m = /^([a-z0-9]{1,16}(?:_r[2-9])?)_(b|a|e|bg|ag|eg|p[1-6])$/.exec(String(o.key || ''));
     if (o.key !== 'tank' && o.key !== 'mtr' && !/^tank_r[a-z0-9]{1,14}$/.test(String(o.key || '')) && !(m && carsOf(sh).some(function (v) { return v.id === m[1]; }))) return err('key');
     const p = store.read(pkey) || {}, mk = 'pm_' + site.id + '_' + o.date, pm = store.read(mk) || {};
     if (/^tank/.test(String(o.key)) && p[o.key] && !boss) return err('auth'); /* ຮູບບິນທີ່ບັນທຶກແລ້ວ ປ່ຽນ/ລຶບໄດ້ສະເພາະ Admin */
