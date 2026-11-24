@@ -232,14 +232,12 @@ function drawRqok() {
      '<div class="row wrap" style="margin-top:10px"><button type="button" class="btn ok grow" data-rqapprove="' + esc(x.id) + '">' + ic('check') + 'ອະນຸມັດ</button><button type="button" class="btn line" data-rqreject="' + esc(x.id) + '">ຕີກັບ</button></div>', true);
    }).join('') + '</div>';
  }).join('') || '<div class="empty" style="padding:14px">ບໍ່ມີຄຳຂໍທີ່ລໍ</div>') + '</section>';
- if (wait.length) h += '<section class="card"><h2>' + ic('pump') + 'ລໍເຕີມ (' + wait.length + ')</h2>' + wait.map(function (x) { return rqItem(x, '<div class="row wrap" style="margin-top:6px"><button type="button" class="btn line ibtn" data-rqcancel="' + esc(x.id) + '" aria-label="ຍົກເລີກ" title="ຍົກເລີກ">' + ic('x') + '</button></div>', true); }).join('') + '</section>';
- if (rest.length) h += '<section class="card"><h2>' + ic('ledger') + 'ສຳເລັດ (' + rest.length + ')</h2>' + rest.map(function (x) { return rqItem(x, '', true); }).join('') + '</section>';
  if (reqs.length) h += '<div class="row wrap noprint" style="margin:0 0 14px"><button type="button" class="btn line" data-go="rqrep" aria-label="ແບບຟອມ PDF / Excel">' + ic('pdf') + 'ແບບຟອມ</button></div>';
  $('v').innerHTML = h; aheadFill($('ahead'), 'rqok');
 }
 function rqIssueTop(ed) {
  var w = (S.reqs || []).filter(function (x) { return x.state === 'approved'; }), h = '';
- if (w.length) h += '<section class="card"><h2>' + ic('check') + 'ລໍເຕີມ (' + w.length + ')</h2>' + w.map(function (x) { var o = x.ok || {}; return rqItem(x, ed ? '<div class="row wrap" style="margin-top:8px"><button type="button" class="btn ok grow" data-rqstart="' + esc(x.id) + '">' + ic('pump') + 'ເລີ່ມເຕີມ ' + (o.lit != null ? L(o.lit) : '') + '</button></div>' : '', true); }).join('') + '</section>';
+ if (w.length) h += '<section class="card"><h2>' + ic('check') + 'ລໍເຕີມ (' + w.length + ')</h2>' + w.map(function (x) { var o = x.ok || {}; return rqItem(x, ed ? '<div class="row wrap" style="margin-top:8px"><button type="button" class="btn ok grow" data-rqstart="' + esc(x.id) + '">' + ic('pump') + 'ເລີ່ມເຕີມ ' + (o.lit != null ? L(o.lit) : '') + '</button><button type="button" class="btn line ibtn" data-rqcancel="' + esc(x.id) + '" aria-label="ຍົກເລີກ" title="ຍົກເລີກ">' + ic('x') + '</button></div>' : '', true); }).join('') + '</section>';
  if (ed && hasRight('urgent')) h += '<details class="card noprint"><summary><b>ເຕີມດ່ວນ</b></summary><p class="hint">ໃຊ້ໃນກໍລະນີຮີບ — ລະບົບບັນທຶກເປັນ "ເຕີມດ່ວນ" ຕິດຊື່ຜູ້ເຮັດ</p><label class="f">ລົດ<select id="uqcar">' + carOpts() + '</select></label><div class="g2" style="margin-top:8px"><label class="f">ແຫຼ່ງ<select id="uqsrc">' + srcOpts('tank') + '</select></label><label class="f">ຊື່ຮ້ານ / ປໍ້າ<input type="text" id="uqshop" maxlength="60"></label></div><button type="button" class="btn ok blk" id="rqurgent" style="margin-top:10px">' + ic('pump') + 'ເລີ່ມເຕີມດ່ວນ</button></details>';
  return h;
 }
@@ -253,7 +251,7 @@ function carList(bases, attr) { /* ລາຍການລົດໃຫ້ແຕະ
 function drawIssue() {
  var ed = canEdit(), h = approvedBanner(), n = 0, rqm = rqSite();
  var rows = rqm ? S.rows.filter(function (x) { return x.rqi || x.cm0 != null || x.cm1 != null || x.ack || x.rej; }) : S.rows; /* ສະໜາມທີ່ໃຊ້ຄຳຂໍ: ສະແດງສະເພາະລົດທີ່ມີການເຕີມ */
- if (rqm) h += rqIssueTop(ed && hasRight('issue'));
+ if (rqm && !CARSEL) h += rqIssueTop(ed && hasRight('issue')); /* ເປີດລົດຈາກລາຍງານ: ບໍ່ສະແດງ ລໍເຕີມ/ເຕີມດ່ວນ */
  if (!S.rows.length) h += noCars(); else if (rqm && !rows.length) h += '<p class="hint">ຍັງບໍ່ມີການເຕີມ — ເມື່ອມີຄຳຂໍທີ່ອະນຸມັດແລ້ວ ກົດ "ເລີ່ມເຕີມ" ຢູ່ດ້ານເທິງ.</p>';
  var bases = S.rows.filter(function (x) { return !x.base; }); /* ເລືອກຈາກໜ້າລາຍງານ: ລົດທຸກຄັນກອກໄດ້ ແມ່ນແຕ່ຍັງບໍ່ມີຄຳຂໍ */
  var many = bases.length > 0; if (!many) CARSEL = ''; if (CARSEL && !bases.some(function (x) { return x.v === CARSEL; })) CARSEL = '';
