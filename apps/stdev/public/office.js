@@ -60,7 +60,7 @@ function stepBar() { /* ແຖບລຸ່ມ = ຂັ້ນຕອນ 1–6 (ວ
  var old = $('steps'); if (old) { old.innerHTML = ''; old.hidden = true; }
  if (!I) return; var l = stepList();
  if (!l.length) { var prim = ['rqok', 'rq', 'tank', 'issue', 'appr', 'dash'].map(modOf).filter(function (m) { return m && m.show(); }).slice(0, 4); $('nav').className = 'tabs'; $('nav').innerHTML = prim.map(function (m) { return '<button data-m="' + m.id + '" aria-current="' + (m.id === MOD) + '">' + ic(m.ic) + '<span>' + esc(m.t.split(' ')[0]) + '</span></button>'; }).join('') + '<button type="button" class="homeb" data-home aria-label="ໜ້າຫຼັກ">' + ic('home') + '<span>ໜ້າຫຼັກ</span></button>'; return; }
- var nav = $('nav'); nav.className = 'tabs steps'; nav.innerHTML = l.map(function (s, i) { var st = stepState(s[0]), cur = s[0] === MOD || (s[0] === 'report' && REPS.indexOf(MOD) >= 0), bd = s[0] === 'appr' && S ? pendingOf(S) : 0; return '<button type="button" data-m="' + s[0] + '" class="' + st[0] + '" aria-current="' + cur + '" aria-label="' + esc(s[1]) + '"><span class="si">' + ic(STEPIC[s[0]] || 'grid') + (st[0] ? '<i class="sd ' + st[0] + '"></i>' : '') + '</span><span class="sl">' + esc(STEPSHORT[s[0]] || s[1]) + '</span>' + (bd ? '<i class="nb">' + bd + '</i>' : '') + '</button>'; }).join('') + '<button type="button" class="homeb" data-home aria-label="ໜ້າຫຼັກ"><span class="si">' + ic('home') + '</span><span class="sl">ໜ້າຫຼັກ</span></button>';
+ var nav = $('nav'); nav.className = 'tabs steps'; nav.innerHTML = l.map(function (s, i) { var st = stepState(s[0]), fromRep = MOD === 'issue' && !!CARSEL, cur = (s[0] === MOD && !fromRep) || (s[0] === 'report' && (REPS.indexOf(MOD) >= 0 || fromRep)), bd = s[0] === 'appr' && S ? pendingOf(S) : 0; return '<button type="button" data-m="' + s[0] + '" class="' + st[0] + '" aria-current="' + cur + '" aria-label="' + esc(s[1]) + '"><span class="si">' + ic(STEPIC[s[0]] || 'grid') + (st[0] ? '<i class="sd ' + st[0] + '"></i>' : '') + '</span><span class="sl">' + esc(STEPSHORT[s[0]] || s[1]) + '</span>' + (bd ? '<i class="nb">' + bd + '</i>' : '') + '</button>'; }).join('') + '<button type="button" class="homeb" data-home aria-label="ໜ້າຫຼັກ"><span class="si">' + ic('home') + '</span><span class="sl">ໜ້າຫຼັກ</span></button>';
  var c = nav.querySelector('[aria-current=true]'); if (c) nav.scrollLeft = c.offsetLeft - (nav.clientWidth - c.offsetWidth) / 2;
 }
 function stepsCard() { /* ໜ້າພາບລວມ: ລາຍການຂັ້ນຕອນເປັນເລກ ແຕະເພື່ອໄປຂັ້ນນັ້ນ */
@@ -103,8 +103,9 @@ function pendingOf(s) { return s ? s.rows.filter(function (r) { return r.add != 
 function go(id) {
  if (id === 'issue' && !window.KEEPCAR && typeof CARSEL !== 'undefined') CARSEL = ''; window.KEEPCAR = 0;
  var m = modOf(id); if (!m || !m.show()) m = modOf(hasSites() ? 'dash' : 'me'); MOD = m.id;
- document.querySelectorAll('[data-m]').forEach(function (b) { b.setAttribute('aria-current', b.dataset.m === MOD || (b.dataset.m === 'report' && REPS.indexOf(MOD) >= 0)); });
- $('pht').textContent = m.t; $('phd').textContent = longDate($('date').value || today());
+ var fr = MOD === 'issue' && !!CARSEL; /* ເປີດຈາກໜ້າລາຍງານ: ຍັງຢູ່ໃນ ລາຍງານ */
+ document.querySelectorAll('[data-m]').forEach(function (b) { b.setAttribute('aria-current', (b.dataset.m === MOD && !fr) || (b.dataset.m === 'report' && (REPS.indexOf(MOD) >= 0 || fr))); });
+ $('pht').textContent = fr ? 'ກອກຂໍ້ມູນລົດ' : m.t; $('phd').textContent = longDate($('date').value || today());
  $('pick').classList.toggle('hide', m.pick === 'none' || !hasSites()); $('date').classList.toggle('hide', m.pick !== 'both');
  $('v').innerHTML = '<div class="skel"></div><div class="skel"></div>'; window.scrollTo(0, 0);
  m.run();
