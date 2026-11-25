@@ -54,7 +54,7 @@ function chips(u) {
 }
 function ulist() {
  var q = UQ.trim().toLowerCase(), rows = USERS.filter(function (u) { return !q || (u.name + ' ' + u.phone).toLowerCase().indexOf(q) >= 0; });
- return rows.map(function (u, i) { return '<button class="urow' + (u.active ? '' : ' off') + '" data-u="' + esc(u.phone) + '" style="animation-delay:' + Math.min(i, 12) * 30 + 'ms"><span class="avatar">' + initial(u.name) + '</span><span class="grow"><b>' + esc(u.name) + '</b><small>' + esc(u.phone) + '</small><span class="chips">' + chips(u) + '</span></span><span class="muted">' + ic(u.editable ? 'edit' : 'lock') + '</span></button>'; }).join('') || '<div class="empty">ບໍ່ພົບໃຜ</div>';
+ return rows.map(function (u, i) { return '<button class="urow' + (u.active ? '' : ' off') + '" data-u="' + esc(u.phone) + '" style="animation-delay:' + Math.min(i, 5) * 30 + 'ms"><span class="avatar">' + initial(u.name) + '</span><span class="grow"><b>' + esc(u.name) + '</b><small>' + esc(u.phone) + '</small><span class="chips">' + chips(u) + '</span></span><span class="muted">' + ic(u.editable ? 'edit' : 'lock') + '</span></button>'; }).join('') || '<div class="empty">ບໍ່ພົບໃຜ</div>';
 }
 function people() {
  $('v').innerHTML = BACKB + '<h1 style="margin:0 0 10px">ຄົນ & ສິດ</h1><section class="card"><button class="btn ok bigbtn" id="uadd">' + ic('plus') + 'ເພີ່ມຄົນໃໝ່</button><label class="field" style="margin-top:14px">ຄົ້ນຫາ<input type="text" id="usearch" value="' + esc(UQ) + '" placeholder="ພິມຊື່ ຫຼື ເບີ…" autocomplete="off"></label><div id="ulist">' + ulist() + '</div></section>' +

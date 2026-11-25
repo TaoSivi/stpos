@@ -1,3 +1,5 @@
+/* ມືຖືສະເປັກຕ່ຳ → ໂໝດເບົາ (ປິດແອນິເມຊັນ/ເງົາ/blur) ອັດຕະໂນມັດ; ບັງຄັບດ້ວຍ ?lite=1 ຫຼື ປິດດ້ວຍ ?lite=0 */
+try { var lq = /[?&]lite=([01])/.exec(location.search), lf = lq ? lq[1] : localStorage.getItem('lite'); if (lq) localStorage.setItem('lite', lq[1]); var nv = navigator, lo = lf === '1' || (lf !== '0' && ((nv.deviceMemory && nv.deviceMemory <= 3) || (nv.hardwareConcurrency && nv.hardwareConcurrency <= 4) || (nv.connection && nv.connection.saveData) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches))); if (lo) document.documentElement.classList.add('lite'); } catch (e) { }
 /* ໃຊ້ໄດ້ຕອນບໍ່ມີເນັດ: ອ່ານ = ໃຊ້ຂໍ້ມູນລ່າສຸດທີ່ເກັບໃນເຄື່ອງ · ບັນທຶກ = ເກັບໃນຄິວ + ຄິດໄລ່ລິດໃນເຄື່ອງ ແລ້ວສົ່ງເຂົ້າ server ເອງເມື່ອມີເນັດ
  * ຄິວ/ແຄັດ ຢູ່ IndexedDB (ຖ້າບໍ່ໄດ້ ໃຊ້ໃນໜ່ວຍຄວາມຈຳ — ປິດແອັບແລ້ວຫາຍ). ລຳດັບການສົ່ງ = ລຳດັບທີ່ກອກ; ແຕ່ລະລາຍການເປັນຄ່າສົມບູນ (ສົ່ງຊ້ຳບໍ່ເປັນຫຍັງ).
  * ສົ່ງບໍ່ຜ່ານເພາະ server ປະຕິເສດ (ເຊັ່ນ ອະນຸມັດແລ້ວ) → ເຂົ້າລາຍການ "ສົ່ງບໍ່ໄດ້" ໃຫ້ຜູ້ໃຊ້ເຫັນ, ບໍ່ຫາຍງຽບໆ. ໝົດສິດເຂົ້າລະບົບ → ຄິວຄ້າງໄວ້ ລໍເຂົ້າລະບົບໃໝ່.
@@ -37,11 +39,11 @@ var READS = { me: 1, init: 1, sheet: 1, photos: 1, photometa: 1, ledger: 1, driv
 Object.keys(GEN).forEach(function (k) { READS[k] = 1; });
 var OFF = false, SYNCING = false, DONE = false;
 var rkey = function (a, b) { if (GEN[a]) return a + '|' + JSON.stringify(b || {}); return a === 'init' || a === 'drivers' || a === 'me' ? a : a + '|' + (b.site || '') + '|' + (b.date || ''); };
-function post(action, body, token) { /* ເນັດຊ້າ = ຖືວ່າບໍ່ມີເນັດ (ໝົດເວລາ) ບໍ່ໃຫ້ໜ້າຄ້າງ; slow = ອາດສົ່ງຂຶ້ນ server ແລ້ວແຕ່ຍັງບໍ່ຮູ້ຜົນ */
- var ctl = window.AbortController ? new AbortController() : null, slow = false, ms = action === 'photo' ? 60000 : (WRITES[action] ? 45000 : 30000), t = ctl && setTimeout(function () { slow = true; ctl.abort(); }, ms);
+function post(action, body, token, msMax) { /* ເນັດຊ້າ = ຖືວ່າບໍ່ມີເນັດ (ໝົດເວລາ) ບໍ່ໃຫ້ໜ້າຄ້າງ; slow = ອາດສົ່ງຂຶ້ນ server ແລ້ວແຕ່ຍັງບໍ່ຮູ້ຜົນ */
+ var ctl = window.AbortController ? new AbortController() : null, slow = false, ms = msMax || (action === 'photo' ? 60000 : (WRITES[action] ? 45000 : 30000)), t = ctl && setTimeout(function () { slow = true; ctl.abort(); }, ms);
  return fetch('/api/' + action, { method: 'POST', body: JSON.stringify(Object.assign({ token: token }, body || {})), signal: ctl ? ctl.signal : undefined }).then(function (r) { if (r.status === 413) return { ok: false, error: 'toolarge' }; return r.json(); }).then(function (r) { clearTimeout(t); OFF = false; return r; }, function () { clearTimeout(t); OFF = true; LASTNET = slow ? 'ໝົດເວລາ ' + Math.round(ms / 1000) + ' ວິ' : 'ຕໍ່ເຊີບເວີບໍ່ໄດ້'; return { ok: false, error: 'net', slow: slow }; });
 }
-var LASTNET = '';
+var LASTNET = '', PROBE = 0;
 function postRetry(action, body, token, n) { /* ບໍ່ມີຂໍ້ມູນໃນເຄື່ອງ + ເນັດສະດຸດ: ລອງໃໝ່ເອງ ກ່ອນບອກວ່າເຊື່ອມຕໍ່ບໍ່ໄດ້ */
  return post(action, body, token).then(function (r) { if (r.error === 'net' && n > 0 && navigator.onLine !== false) return tmo(2500).then(function () { return postRetry(action, body, token, n - 1); }); return r; });
 }
@@ -146,6 +148,7 @@ function getQ() { return kv.get('q').then(function (q) { return q || []; }); }
 
 /* ===== ໂຫຼດຂໍ້ມູນເກັບໄວ້ລ່ວງໜ້າ: ຫຼັງເຂົ້າລະບົບຄັ້ງດຽວ ໜ້າທີ່ຍັງບໍ່ເຄີຍເປີດກໍໃຊ້ໄດ້ຕອນບໍ່ມີເນັດ (ອ່ານຢ່າງດຽວ ບໍ່ສ້າງຂໍ້ມູນໃນ server) ===== */
 var WARMING = false;
+function sopRunIds(me) { /* ໃບ SOP ທີ່ມີຢູ່ແລ້ວຂອງຜູ້ໃຊ້ (ທຸກຮູບແບບ) — ເກັບເນື້ອໃນໄວ້ເປີດຕອນບໍ່ມີເນັດ */ var ids = [], add = function (r) { if (r && r.id && ids.indexOf(r.id) < 0) ids.push(r.id); }; ((me && me.mine) || []).forEach(function (e) { add(e.run); (e.veh || []).forEach(function (v) { add(v.run); }); (e.runs || []).forEach(add); }); return ids.slice(0, 40); }
 function warm() { /* ມອບໃຫ້ service worker ເຮັດເບື້ອງຫຼັງ (ເຮັດຕໍ່ເຖິງແມ່ນໄປໃຊ້ແອັບອື່ນ) — ບໍ່ມີ service worker ຈຶ່ງເຮັດເອງໃນໜ້າ */
  var tk = ls('fuel_tk'); if (!tk || OFF || navigator.onLine === false) return; kv.set('tk', tk);
  if (navigator.serviceWorker && navigator.serviceWorker.controller) { navigator.serviceWorker.controller.postMessage({ t: 'warm' }); return; }
@@ -162,7 +165,7 @@ function warmLocal(tk) { /* ເຂົ້າແອັບຕອນມີເນັ�
   (cfg.sites || []).slice(0, 6).forEach(function (st) { var s = st.id; jobs.push(['sheet', { site: s, date: day }], ['photos', { site: s, date: day }], ['photometa', { site: s, date: day }], ['ledger', { site: s }], ['approvers', { site: s }], ['rqAhead', { site: s, date: day }], ['dash', { site: s, from: d6, to: day }], ['adjlog', { site: s }]); });
   if (me && (me.level === 'superadmin' || me.level === 'admin')) jobs.push(['userList', {}], ['catalog', {}], ['schema', {}], ['sop.board', {}], ['sop.tpls', {}]);
   var idle = function () { return new Promise(function (res) { var n = 0, t = function () { if (typeof _bz === 'undefined' || !_bz || ++n > 20) res(); else setTimeout(t, 500); }; t(); }); }; /* ລໍຈົນບໍ່ມີຄຳຂໍຂອງຜູ້ໃຊ້ (ສູງສຸດ 10 ວິ) */
-  return jobs.reduce(function (p, j) { return p.then(function () { if (OFF) return; return kv.get(rkey(j[0], j[1])).then(function (have) { if (have !== undefined && !force) return; return idle().then(function () { return post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }).then(function () { return tmo(150); }); }); }); }, Promise.resolve()).then(function () { if (force && !OFF) return kv.set('warmts', Date.now()); });
+  return jobs.reduce(function (p, j) { return p.then(function () { if (OFF) return; return kv.get(rkey(j[0], j[1])).then(function (have) { if (have !== undefined && !force) return; return idle().then(function () { return post(j[0], j[1], tk).then(function (r) { if (r.ok) return kv.set(rkey(j[0], j[1]), r.data); }); }).then(function () { return tmo(150); }); }); }); }, Promise.resolve()).then(function () { if (OFF) return; return kv.get(rkey('sop.me', {})).then(function (sm) { return sopRunIds(sm).reduce(function (p, id) { return p.then(function () { if (OFF) return; var k = rkey('sop.open', { id: id }); return kv.get(k).then(function (have) { if (have !== undefined && !force) return; return post('sop.open', { id: id }, tk).then(function (r) { if (r.ok) return kv.set(k, r.data); }).then(function () { return tmo(150); }); }); }); }, Promise.resolve()); }); }).then(function () { if (force && !OFF) return kv.set('warmts', Date.now()); });
   });
  }).catch(function () { }).then(function () { WARMING = false; });
 }
@@ -224,10 +227,12 @@ function apiRaw(action, body) {
  var fin = function (r) { if (!r.ok && r.error === 'auth' && action === 'init') { ls('fuel_tk', null); location.href = '/'; } if (!r.ok && action !== 'login' && !(r.error === 'net' && READS[action])) toast((ERR[r.error] || 'ບໍ່ສຳເລັດ: ' + r.error) + (r.have != null ? ' (ແທ່ງເຫຼືອ ' + Math.round(r.have) + ' L)' : '') + (r.max != null ? ' (ເຕີມໄດ້ສູງສຸດ ' + Math.round(r.max) + ' L)' : ''), 'bad'); syncBar(); return r; };
  if (READS[action]) {
   return Promise.all([getQ(), kv.get(rkey(action, body))]).then(function (c) { var f = c[0].length ? flush() : 0; return c[1] !== undefined ? c[1] : (f ? Promise.race([f, tmo(3000)]).then(function () { return kv.get(rkey(action, body)); }) : undefined); }).then(function (cached) {
-   var net = post(action, body, tk); if (cached === undefined) return postRetry(action, body, tk, 2);
+   var quick = cached !== undefined && (OFF || navigator.onLine === false), net = quick && Date.now() - PROBE < 3000 ? null : post(action, body, tk, cached !== undefined ? 10000 : 0); if (net) PROBE = Date.now(); if (cached === undefined) return postRetry(action, body, tk, 2);
+   var refresh = function () { if (net) net.then(function (n) { if (n && n.ok) { kv.set(rkey(action, body), n.data); if (JSON.stringify(n.data) !== JSON.stringify(cached)) document.dispatchEvent(new CustomEvent('synced')); } }); };
+   if (quick) { refresh(); return { ok: true, data: cached, cached: true, stale: true }; } /* ຮູ້ແລ້ວວ່າບໍ່ມີເນັດ: ເອົາຂອງໃນເຄື່ອງສະແດງທັນທີ */
    return Promise.race([net, tmo(120).then(function () { return null; })]).then(function (r) {
     if (r) return r; /* ເນັດໄວພໍ → ຂໍ້ມູນສົດ */
-    net.then(function (n) { if (n && n.ok) { kv.set(rkey(action, body), n.data); if (JSON.stringify(n.data) !== JSON.stringify(cached)) document.dispatchEvent(new CustomEvent('synced')); } }); /* ເນັດຊ້າ: ສະແດງຂອງໃນເຄື່ອງກ່ອນ ແລ້ວແຕ້ມໃໝ່ເມື່ອຂໍ້ມູນສົດມາ ແລະ ຕ່າງ */
+    refresh(); /* ເນັດຊ້າ: ສະແດງຂອງໃນເຄື່ອງກ່ອນ ແລ້ວແຕ້ມໃໝ່ເມື່ອຂໍ້ມູນສົດມາ ແລະ ຕ່າງ */
     return { ok: true, data: cached, cached: true, stale: true };
    });
   }).then(function (r) {

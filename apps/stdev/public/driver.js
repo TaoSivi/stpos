@@ -21,7 +21,7 @@ function draw() {
  DATA.forEach(function (d) {
   d.sh.data.rows.forEach(function (r) {
    n++; var locked = !!d.sh.data.approved, ph = ['b', 'a', 'e'].map(function (k, i) { var s = d.ph.ok && d.ph.data[r.v + '_' + k]; return s ? '<button class="has" data-img="' + r.v + '_' + k + '" data-s="' + d.site + '">' + '<img alt="" src="' + s + '">' + ['ກ່ອນເຕີມ', 'ຫຼັງເຕີມ', 'ຕອນແລງ'][i] + '</button>' : ''; }).join('');
-   h += '<section class="card" style="animation-delay:' + n * 70 + 'ms"><div class="row"><div class="logo" style="width:38px;height:38px;border-radius:12px">' + ic('truck') + '</div><div class="grow"><h2 style="margin:0">' + esc(r.name) + '</h2><small class="muted">' + esc(siteName(d.site)) + '</small></div></div>';
+   h += '<section class="card" style="animation-delay:' + Math.min(n, 5) * 40 + 'ms"><div class="row"><div class="logo" style="width:38px;height:38px;border-radius:12px">' + ic('truck') + '</div><div class="grow"><h2 style="margin:0">' + esc(r.name) + '</h2><small class="muted">' + esc(siteName(d.site)) + '</small></div></div>';
    if (r.add == null) h += '<p class="muted" style="text-align:center;padding:18px 0">ມື້ນີ້ຍັງບໍ່ມີການເຕີມນ້ຳມັນ</p>';
    else {
     h += '<div style="text-align:center;margin:12px 0 4px"><small class="muted">ເຕີມນ້ຳມັນ ຈາກ' + (r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ') + (r.rqi && r.rqi.ok != null ? ' · ອະນຸມັດ ' + L(r.rqi.ok) : '') + (r.rqi && r.rqi.urgent ? ' · ເຕີມດ່ວນ' : '') + '</small><div class="big">' + L(r.add) + '</div></div>' +

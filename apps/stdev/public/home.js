@@ -5,7 +5,7 @@ function today() { var d = new Date(), p = function (n) { return ('0' + n).slice
 api('me').then(function (r) {
  if (!r.ok) { if (r.error === 'net') { $('hd').innerHTML = header('LTG Track', ''); $('v').innerHTML = '<div class="card empty">ບໍ່ມີເນັດ ແລະ ຍັງບໍ່ມີຂໍ້ມູນໃນເຄື່ອງ — ເປີດໃໝ່ເມື່ອມີເນັດ 1 ເທື່ອ</div>'; return; } ls('fuel_tk', null); location.href = '/'; return; } var m = r.data, apps = m.apps || [], cats = m.cats && m.cats.length ? m.cats : [{ id: 'work', name: 'ແອັບ' }];
  $('hd').innerHTML = header('LTG Track', m.name); $('lo').onclick = logout; installHint('inst');
- var tile = function (a, i) { return '<button class="tile" data-app="' + esc(a.id) + '" data-cat="' + esc(a.cat || 'work') + '" style="animation-delay:' + i * 70 + 'ms"><div class="logo">' + ic(a.icon) + '</div><div class="grow"><b>' + esc(a.name) + '</b><span class="muted">' + esc(a.desc) + '</span></div>' + ic('next', 'muted') + '</button>'; };
+ var tile = function (a, i) { return '<button class="tile" data-app="' + esc(a.id) + '" data-cat="' + esc(a.cat || 'work') + '" style="animation-delay:' + Math.min(i, 5) * 40 + 'ms"><div class="logo">' + ic(a.icon) + '</div><div class="grow"><b>' + esc(a.name) + '</b><span class="muted">' + esc(a.desc) + '</span></div>' + ic('next', 'muted') + '</button>'; };
  var known = {}; cats.forEach(function (c) { known[c.id] = 1; });
  var sections = cats.map(function (c) { return { c: c, list: apps.filter(function (a) { return (known[a.cat] ? a.cat : cats[0].id) === c.id; }) }; }).filter(function (s) { return s.list.length; }), n = 0;
  var h = '<section class="hello"><div><small>' + greet() + '</small><b>' + esc(m.name) + '</b></div><span class="chip">' + today() + '</span></section>';

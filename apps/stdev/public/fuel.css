@@ -280,3 +280,8 @@ nav.tabs button[aria-current=true] svg{animation:navPop .45s cubic-bezier(.3,1.6
 table.fsheet th.gm{background:#2e75b6}table.fsheet th.gf{background:#548235}table.fsheet th.ge{background:#c55a11}table.fsheet th.gu{background:#bf9000}
 table.fsheet td.used{background:#fff2cc;color:#c00000;font-size:1.05em}
 table.fsheet td img{width:64px;height:64px}
+
+/* ໂໝດເບົາ (ມືຖືສະເປັກຕ່ຳ): ບໍ່ມີແອນິເມຊັນ / blur / ເງົາ → ລື່ນກວ່າ ແລະ ກິນແບັດໜ້ອຍກວ່າ */
+html.lite *,html.lite *::before,html.lite *::after{animation:none!important;transition:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;text-shadow:none!important;scroll-behavior:auto!important}
+html.lite .card,html.lite .hubtile,html.lite .carrow{border:1px solid var(--line)}
+html.lite .mask{background:rgba(8,42,40,.7)}

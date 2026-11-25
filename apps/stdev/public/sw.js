@@ -2,7 +2,7 @@
  * /api/ ບໍ່ຖືກເກັບທີ່ນີ້ — ຂໍ້ມູນນ້ຳມັນ + ຄິວບັນທຶກຕອນອອບລາຍ ຢູ່ IndexedDB ໃນ offline.js.
  * ປ່ຽນ VER ທຸກຄັ້ງທີ່ແກ້ໄຟລ໌ໜ້າ ເພື່ອໃຫ້ມືຖືໂຫຼດຕົວໃໝ່ */
 'use strict';
-const VER = 'stdev-v144', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
+const VER = 'stdev-v148', SHELL = ['/', 'index.html', 'home.html', 'home.js', 'admin.html', 'admin.js', 'admin.css', 'sop.html', 'sop.js', 'sop.css', 'hrreport.html', 'hrreport.js', 'people.html', 'perm.js', 'office.html', 'office.css', 'office-ops.js', 'office-rep.js', 'office-admin.js', 'driver.html', 'fuel.css', 'tank.js', 'app.js', 'offline.js', 'login.js', 'office.js', 'driver.js', 'manifest.webmanifest', 'icon-192.png', 'apple-touch-icon.png', 'cover.webp'];
 self.addEventListener('install', function (e) { e.waitUntil(caches.open(VER).then(function (c) { return Promise.all(SHELL.map(function (u) { return fetch(new Request(u, { cache: 'reload' })).then(function (r) { if (r.ok) return c.put(u, r); }).catch(function () {}); })); /* cache:'reload' = ບໍ່ເອົາສຳເນົາເກົ່າຈາກ HTTP cache (LiteSpeed ໃຫ້ເກັບ 7 ວັນ) */ }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener('activate', function (e) { /* ເວີຊັນໃໝ່ມາແທນເກົ່າ → ໂຫຼດທຸກໜ້າທີ່ເປີດຢູ່ໃໝ່ເອງ (ໜ້າເກົ່າບໍ່ຕ້ອງມີໂຄ້ດຮັບຮູ້) — ຜູ້ໃຊ້ບໍ່ຕ້ອງເຮັດຫຍັງ; ຄິວອອບລາຍເກັບໃນ IndexedDB ບໍ່ຫາຍ */
   let upgraded = false;
@@ -40,6 +40,7 @@ function apiPost(action, body, token, ms) {
 function tokUser(t) { try { return JSON.parse(atob(String(t).split('.')[0].replace(/-/g, '+').replace(/_/g, '/'))).u || ''; } catch (e) { return ''; } }
 const nap = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 let WARMING = false;
+function sopRunIds(me) { /* ໃບ SOP ທີ່ມີຢູ່ແລ້ວຂອງຜູ້ໃຊ້ (ທຸກຮູບແບບ) — ເກັບເນື້ອໃນໄວ້ເປີດຕອນບໍ່ມີເນັດ */ var ids = [], add = function (r) { if (r && r.id && ids.indexOf(r.id) < 0) ids.push(r.id); }; ((me && me.mine) || []).forEach(function (e) { add(e.run); (e.veh || []).forEach(function (v) { add(v.run); }); (e.runs || []).forEach(add); }); return ids.slice(0, 40); }
 async function warmSW() {
   if (WARMING) return; WARMING = true;
   try {
@@ -58,6 +59,7 @@ async function warmSW() {
       const r = await apiPost(j[0], j[1], tk); if (r.error === 'net' || (r.error === 'auth' && j === jobs[0])) { done = false; break; } /* auth ຂອງຄຳຂໍທຳອິດ = token ເສຍ; ຄຳຂໍອື່ນ auth = ບໍ່ມີສິດຂໍ້ມູນນັ້ນ ຂ້າມ */
       if (r.ok) await kvSet(k, r.data); await nap(150);
     }
+    if (done) { const sm = await kvGet(rkey('sop.me', {})); for (const id of sopRunIds(sm)) { const k = rkey('sop.open', { id: id }); if (!force && (await kvGet(k)) !== undefined) continue; const r = await apiPost('sop.open', { id: id }, tk); if (r.error === 'net') { done = false; break; } if (r.ok) await kvSet(k, r.data); await nap(150); } }
     if (force && done) await kvSet('warmts', Date.now());
   } catch (e) { } finally { WARMING = false; }
 }
