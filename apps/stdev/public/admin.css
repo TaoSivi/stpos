@@ -48,3 +48,9 @@
 @media(min-width:900px){.hub{grid-template-columns:1fr 1fr}}@media(min-width:1300px){.hub{grid-template-columns:repeat(3,1fr)}}
 #wz .steps{display:none}
 .hubtile{border:1.5px solid #cfe5e2}
+/* ສູນຈັດການແບບກະທັດຮັດ: ເຫັນທຸກໝວດໃນໜ້າດຽວ */
+.hubtile{min-height:68px;padding:10px 14px;gap:12px}
+.hubtile .logo{width:46px;height:46px;flex:0 0 46px;border-radius:16px}.hubtile .logo svg{width:24px;height:24px}
+.hubtile b{font-size:17px}.hubtile span.sub{font-size:13px}
+.hub{gap:8px}.hgrp .sect{margin:12px 0 6px}
+@media(min-width:700px){.hub{grid-template-columns:1fr 1fr}}
