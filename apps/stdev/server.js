@@ -31,6 +31,7 @@ const catalog = function () { return APPS.filter(function (a) { return a.generic
 
 /* ===== API: ກວດສິດຊັ້ນບັນຊີກາງກ່ອນ ແລ້ວສົ່ງຕໍ່ໂມດູນ ===== */
 function api(action, o, ip) {
+  if (action === 'pinlen') return { ok: true, n: accounts.pinLen(o.phone) };
   if (action === 'login') { const r = accounts.login(o, ip); if (r.ok) { r.hr = r.hr && hr.ready(); r.napps = appsFor(r).length; } return r; }
   const u = accounts.userOf(o.token); if (!u) return { ok: false, error: 'auth' };
   switch (action) {

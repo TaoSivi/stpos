@@ -1,3 +1,4 @@
+function diffTxt(r) { /* ສ່ວນຕ່າງ: cm ທີ່ແທກໄດ້ − ເຕີມຈິງ (ສະແດງຢ່າງດຽວ ບໍ່ເຂົ້າລາຍງານ/ບັນຊີ) */ if (r.diff == null) return ''; var d = Math.round(r.diff * 10) / 10; return 'ແທກ cm ໄດ້ ' + L(r.dip) + ' · ສ່ວນຕ່າງ ' + (d > 0 ? '+' : '') + d + ' L'; }
 /* ໜ້າຄົນຂັບ: ເຫັນສະເພາະລົດຂອງຕົນ — ກົດຮັບຮູ້ ຈຳນວນ cm / ລິດ ທີ່ບໍລິຫານກອກໃຫ້ */
 'use strict';
 var ME = null, CFG = null, DATE = today(), DATA = [];
@@ -24,7 +25,7 @@ function draw() {
    h += '<section class="card" style="animation-delay:' + Math.min(n, 5) * 40 + 'ms"><div class="row"><div class="logo" style="width:38px;height:38px;border-radius:12px">' + ic('truck') + '</div><div class="grow"><h2 style="margin:0">' + esc(r.name) + '</h2><small class="muted">' + esc(siteName(d.site)) + '</small></div></div>';
    if (r.add == null) h += '<p class="muted" style="text-align:center;padding:18px 0">ມື້ນີ້ຍັງບໍ່ມີການເຕີມນ້ຳມັນ</p>';
    else {
-    h += '<div style="text-align:center;margin:12px 0 4px"><small class="muted">ເຕີມນ້ຳມັນ ຈາກ' + (r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ') + (r.rqi && r.rqi.ok != null ? ' · ອະນຸມັດ ' + L(r.rqi.ok) : '') + (r.rqi && r.rqi.urgent ? ' · ເຕີມດ່ວນ' : '') + '</small><div class="big">' + L(r.add) + '</div></div>' +
+    h += '<div style="text-align:center;margin:12px 0 4px"><b style="font-size:18px">ເຕີມຈິງ</b><div class="big">' + L(r.add) + '</div><small class="muted">ຈາກ' + (r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ') + (r.rqi && r.rqi.ok != null ? ' · ອະນຸມັດ ' + L(r.rqi.ok) : '') + (r.rqi && r.rqi.urgent ? ' · ເຕີມດ່ວນ' : '') + '</small>' + (r.diff != null ? '<div class="chip warn" style="margin:6px auto 0">' + diffTxt(r) + '</div>' : '') + '</div>' +
      '<div class="stat"><div><small>ກ່ອນເຕີມ</small><b>' + r.cm0 + ' cm</b> · ' + L(r.L0) + '</div><div><small>ຫຼັງເຕີມ</small><b>' + r.cm1 + ' cm</b> · ' + L(r.L1) + '</div></div>' +
      (r.cm2 != null ? '<div class="stat"><div><small>ຫຼັງເລີກວຽກ</small><b>' + r.cm2 + ' cm</b> · ' + L(r.L2) + '</div><div><small>ໃຊ້ຕົວຈິງ</small><b>' + L(r.used) + '</b></div></div>' : '') +
      (ph ? '<div class="ph">' + ph + '</div>' : '') + '<div style="margin:12px 0 0">' + chip(r) + '</div>';

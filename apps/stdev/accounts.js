@@ -50,7 +50,7 @@ function create(DATA) {
     if (HR_ROLES.indexOf(hrRole) < 0) return { ok: false, error: 'role' };
     const apps = (o.apps == null ? (cur && cur.apps) || [] : Array.isArray(o.apps) ? o.apps : []).map(String).filter(function (id, i, a) { return /^[a-z0-9_-]{2,24}$/.test(id) && id !== 'fuel' && id !== 'hr' && a.indexOf(id) === i; });
     if (level === 'user' && !fuel && !hr && !apps.length) return { ok: false, error: 'nomodule' }; /* ບັນຊີ user ຕ້ອງເປີດຢ່າງໜ້ອຍ 1 ໂມດູນ */
-    all[ph] = { name: name, level: level, fuel: level === 'user' ? fuel : '', hr: level === 'user' ? hr : false, approver: level === 'user' ? approver : false, hrRole: level === 'user' && hr ? hrRole : '', fuelRights: level === 'user' && fuel ? fuelRights : null, hrRights: level === 'user' && hr ? hrRights : null, apps: level === 'user' ? apps : [], sites: (Array.isArray(o.sites) ? o.sites : (cur && cur.sites) || []).map(String).filter(function (s) { return /^[a-z0-9]{1,16}$/.test(s); }), active: o.active !== false, pinH: o.pin ? pinHash(o.pin) : cur.pinH };
+    all[ph] = { name: name, level: level, fuel: level === 'user' ? fuel : '', hr: level === 'user' ? hr : false, approver: level === 'user' ? approver : false, hrRole: level === 'user' && hr ? hrRole : '', fuelRights: level === 'user' && fuel ? fuelRights : null, hrRights: level === 'user' && hr ? hrRights : null, apps: level === 'user' ? apps : [], sites: (Array.isArray(o.sites) ? o.sites : (cur && cur.sites) || []).map(String).filter(function (s) { return /^[a-z0-9]{1,16}$/.test(s); }), active: o.active !== false, pinH: o.pin ? pinHash(o.pin) : cur.pinH, pl: o.pin ? String(o.pin).length : (cur && cur.pl) || 0 }; /* pl = ຄວາມຍາວ PIN (ໃຫ້ໜ້າ login ສະແດງຈຸດພໍດີ ແລະ ເຂົ້າອັດຕະໂນມັດ) */
     if (!Object.keys(all).some(function (k) { return all[k].level === 'superadmin' && all[k].active; })) return { ok: false, error: 'lastsuper' };
     writeAtomic(USERS, JSON.stringify(all)); return { ok: true, phone: ph };
   }
@@ -82,9 +82,12 @@ function create(DATA) {
     if (left) return { ok: false, error: 'locked', min: left };
     const u = ph && users()[ph], good = !!u && u.active && pinOk(o.pin) && pinCheck(o.pin, u.pinH);
     if (!good) { if (!u) pinCheck('0000', pinHash('0000')); failAdd(kp); failAdd(ki); return { ok: false, error: 'login', left: Math.max(0, 5 - fails.get(kp).n) }; } /* ຂໍ້ຄວາມດຽວກັນທັງ "ບໍ່ມີເບີ" ແລະ "PIN ຜິດ" */
-    fails.delete(kp); return Object.assign({ ok: true, token: tokenFor(ph, u) }, view(ph, u));
+    fails.delete(kp);
+    if (u.pl !== String(o.pin).length) { try { const all = users(); if (all[ph]) { all[ph].pl = String(o.pin).length; writeAtomic(USERS, JSON.stringify(all)); } } catch (e) { } } /* ບັນຊີເກົ່າ: ຮຽນຮູ້ຄວາມຍາວ PIN ຕອນ login ສຳເລັດ */
+    return Object.assign({ ok: true, token: tokenFor(ph, u) }, view(ph, u));
   }
+  const pinLen = function (phone) { const u = users()[phoneOf(phone)]; return u && u.active && u.pl >= 4 && u.pl <= 8 ? u.pl : 0; };
   const get = function (ph) { const u = users()[ph]; return u ? view(ph, u) : null; };
-  return { users: users, get: get, save: save, list: list, changePin: changePin, login: login, userOf: userOf, renew: renew, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
+  return { pinLen: pinLen, users: users, get: get, save: save, list: list, changePin: changePin, login: login, userOf: userOf, renew: renew, phoneOf: phoneOf, pinOk: pinOk, LEVELS: LEVELS, FUEL_ROLES: FUEL_ROLES };
 }
 module.exports = { create: create };

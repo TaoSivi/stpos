@@ -79,12 +79,14 @@ function handle(store, user, o) {
   const rname = function (v, n) { return v.name + ' · ເຕີມຄັ້ງທີ ' + n; };
   const carsOf = function (sh) { const out = []; cars.forEach(function (v) { out.push(v); for (let n = 2; n < 10 && sh.rows[v.id + '_r' + n]; n++) out.push(Object.assign({}, v, { id: v.id + '_r' + n, base: v.id, round: n, name: rname(v, n) })); }); return out; };
   const vcar = function (vid, sh, create) { const m = /^(.+)_r([2-9])$/.exec(String(vid || '')); if (!m) return cars.filter(function (v) { return v.id === vid; })[0]; const b = cars.filter(function (v) { return v.id === m[1]; })[0], n = +m[2]; if (!b) return null; if (!sh.rows[vid] && !(create && (n === 2 || sh.rows[m[1] + '_r' + (n - 1)]))) return null; return Object.assign({}, b, { id: vid, base: b.id, round: n, name: rname(b, n) }); };
-  const chainUsed = function (v, sh) { const ids = [v.id]; for (let n = 2; n < 10 && sh.rows[v.id + '_r' + n]; n++) ids.push(v.id + '_r' + n); if (ids.length < 2) return null; let u = 0; for (let i = 0; i < ids.length; i++) { const L1 = liters(v.tank, (sh.rows[ids[i]] || {}).cm1); if (L1 == null) return null; const nx = i < ids.length - 1 ? liters(v.tank, (sh.rows[ids[i + 1]] || {}).cm0) : liters(v.tank, sh.rows[v.id].cm2); if (nx == null) return null; u += L1 - nx; } return u; };
+  const chainUsed = function (v, sh) { const ids = [v.id]; for (let n = 2; n < 10 && sh.rows[v.id + '_r' + n]; n++) ids.push(v.id + '_r' + n); if (ids.length < 2) return null; let u = 0; for (let i = 0; i < ids.length; i++) { const L1 = calc(v, sh.rows[ids[i]] || {}).L1c; if (L1 == null) return null; const nx = i < ids.length - 1 ? liters(v.tank, (sh.rows[ids[i + 1]] || {}).cm0) : liters(v.tank, sh.rows[v.id].cm2); if (nx == null) return null; u += L1 - nx; } return u; };
   const sheetOf = function (d) { return store.read('d_' + site.id + '_' + d) || { rows: {}, tank: {} }; };
   /* ຄ່າລິດຂອງ 1 ຄັນ ຈາກ cm ທີ່ກອກ */
   const calc = function (v, r) {
     const L0 = liters(v.tank, r.cm0), L1 = liters(v.tank, r.cm1), L2 = liters(v.tank, r.cm2);
-    return { L0: L0, L1: L1, L2: L2, add: L0 != null && L1 != null ? L1 - L0 : null, used: L1 != null && L2 != null ? L1 - L2 : null };
+    /* ແຖວທີ່ມາຈາກຄຳຂໍ: "ເຕີມຈິງ" = ຈຳນວນທີ່ອະນຸມັດ (r.okl) ເຂົ້າບັນຊີ/ລາຍງານ; ການແທກ cm ເປັນພຽງ "ສ່ວນຕ່າງ" (dip − ເຕີມຈິງ) ບໍ່ເຂົ້າບັນຊີ. ແຖວເກົ່າ/ເຕີມດ່ວນ ບໍ່ມີ okl → ຄິດຈາກ cm ຄືເກົ່າ */
+    const dip = L0 != null && L1 != null ? L1 - L0 : null, act = dip != null && r.okl > 0 ? r.okl : null, L1c = act != null ? L0 + act : L1;
+    return { L0: L0, L1: L1, L1c: L1c, L2: L2, add: act != null ? act : dip, dip: dip, diff: act != null ? dip - act : null, used: L1c != null && L2 != null ? L1c - L2 : null };
   };
   /* cm ຫຼັງເລີກວຽກ (cm2) ຂອງລົດຄັນນີ້ ໃນມື້ກ່ອນໜ້າທີ່ເຄີຍບັນທຶກ (ຍ້ອນຫຼັງບໍ່ເກີນ 14 ໄຟລ໌) — ໃຊ້ທຽບກັບ "ກ່ອນເຕີມ" ມື້ນີ້ */
   const prevOf = function (v, date) {
@@ -184,7 +186,7 @@ function handle(store, user, o) {
     const q = qdoc(), by = function (id) { return q.list.filter(function (x) { return x.id === id; })[0]; }, done = function () { store.write(qkey, q); return view(); };
     const rowFor = function (cid) { let id = cid, n = 1; while (sh.rows[id]) { n++; id = cid + '_r' + n; if (n > 9) return null; } return id; }; /* ແຖວຖັດໄປຂອງລົດ: v · v_r2 · v_r3 */
     const open = function (x) { /* ເລີ່ມເຕີມຕາມຄຳຂໍ: ສ້າງແຖວ (ຮອບ) ແລະ ຜູກກັບຄຳຂໍ */
-      const rid = rowFor(x.v); if (!rid) return false; sh.rows[rid] = { rq: x.id, src: x.ok.src, shop: x.ok.shop || '', by: user.id, at: nowMs }; x.row = rid; store.write(key, sh); return true;
+      const rid = rowFor(x.v); if (!rid) return false; sh.rows[rid] = { rq: x.id, src: x.ok.src, shop: x.ok.shop || '', by: user.id, at: nowMs }; if (x.ok.lit > 0) sh.rows[rid].okl = x.ok.lit; x.row = rid; store.write(key, sh); return true;
     };
     if (a === 'rqNew') {
       if (!can('request')) return err('auth');
@@ -271,7 +273,7 @@ function handle(store, user, o) {
     const before = Object.assign({}, r), nr = Object.assign({}, r);
     ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in o) { const n = num(o[k]); if (n == null) delete nr[k]; else nr[k] = n; } });
     const bad = Tank.check(car.tank, nr); if (bad) return err(bad);
-    if (r.rq) { const rx = qdoc().list.filter(function (x) { return x.id === r.rq; })[0]; if (rx && rx.ok && rx.ok.lit != null) { const c2 = calc(car, nr), mx = maxFill(car, nr, rx.ok.lit); if (c2.add != null && c2.add > mx + 0.05) return { ok: false, error: 'overcap', max: Math.round(mx * 10) / 10 }; } } /* ເຕີມເກີນທີ່ອະນຸມັດ + ຄ່າເຜື່ອ ບໍ່ໄດ້ — ຕ້ອງຂໍເພີ່ມ ແລະອະນຸມັດໃໝ່ */
+    if (r.rq) { const rx = qdoc().list.filter(function (x) { return x.id === r.rq; })[0]; if (rx && rx.ok && rx.ok.lit != null) { const c2 = calc(car, nr), mx = maxFill(car, nr, rx.ok.lit); if (c2.dip != null && c2.dip > mx + 0.05) return { ok: false, error: 'overcap', max: Math.round(mx * 10) / 10 }; } } /* ເຕີມເກີນທີ່ອະນຸມັດ + ຄ່າເຜື່ອ ບໍ່ໄດ້ — ຕ້ອງຂໍເພີ່ມ ແລະອະນຸມັດໃໝ່ */
     const LBL = { cm0: 'ກ່ອນເຕີມ', cm1: 'ຫຼັງເຕີມ', cm2: 'ຫຼັງເລີກວຽກ' }, edited = ['cm0', 'cm1', 'cm2'].filter(function (k) { return k in o && before[k] != null && nr[k] !== before[k]; }), why = str(o.reason, 200);
     if (edited.length && !why) return err('reason'); /* ແກ້ຄ່າທີ່ເຄີຍກອກແລ້ວ ຕ້ອງໃສ່ເຫດຜົນ */
     ['cm0', 'cm1', 'cm2'].forEach(function (k) { if (k in o) { if (nr[k] == null) delete r[k]; else r[k] = nr[k]; if (before[k] != null && before[k] !== nr[k]) { r.h = (r.h || []).concat({ at: nowMs, by: user.id, name: user.name, k: k, from: before[k], to: nr[k] == null ? null : nr[k], why: why }).slice(-30); } } }); /* ປະຫວັດແກ້ຄ່າທີ່ເຄີຍກອກແລ້ວ */

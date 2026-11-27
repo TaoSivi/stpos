@@ -110,7 +110,7 @@ function rqApply(action, b, sh, me, cfg) { /* ຄຳຂໍນ້ຳມັນໃ�
  var open = function (x) { var n = 1, id = x.v, r = rows.filter(function (y) { return y.v === id; })[0];
   if (!(r && !r.rq && r.cm0 == null && r.cm1 == null && r.cm2 == null)) { do { n++; id = x.v + '_r' + n; } while (n <= 9 && rows.some(function (y) { return y.v === id; })); if (n > 9) return false; r = null; }
   var c = car(x.v) || {}, d = drvOf(x.v);
-  if (r) { r.rq = x.id; r.src = x.ok.src; r.shop = x.ok.shop || ''; } else rows.push({ v: id, name: (c.name || x.v) + ' · ເຕີມຄັ້ງທີ ' + n, driver: d, mine: d === me.id, base: x.v, round: n, rq: x.id, src: x.ok.src, shop: x.ok.shop || '' });
+  var okl = x.ok.lit > 0 ? x.ok.lit : undefined; if (r) { r.rq = x.id; r.src = x.ok.src; r.shop = x.ok.shop || ''; r.okl = okl; } else rows.push({ okl: okl, v: id, name: (c.name || x.v) + ' · ເຕີມຄັ້ງທີ ' + n, driver: d, mine: d === me.id, base: x.v, round: n, rq: x.id, src: x.ok.src, shop: x.ok.shop || '' });
   x.row = id; x.state = 'filling'; return true; };
  if (action === 'rqNew') {
   var lines = Array.isArray(b.lines) ? b.lines : [{ v: b.v, lit: b.lit }], seen = {}, ready = [], i;
@@ -172,7 +172,7 @@ function warmLocal(tk) { /* ເຂົ້າແອັບຕອນມີເນັ�
 /* ===== ຄິດໄລ່ໃນເຄື່ອງ (ໃຫ້ຜົນຄືກັບ server ເພາະໃຊ້ Tank.liters ໄຟລ໌ດຽວກັນ) ===== */
 var num = function (x) { var n = Number(x); return x === '' || x == null || !isFinite(n) || n < 0 || n > 1e6 ? null : n; };
 function mcalc(t) { if (!t.meter) return; t.mused = t.mtr != null && t.mprev != null ? t.mtr - t.mprev : null; t.mdiff = t.mused != null ? t.mused - ((t.mbase || 0) + t.out) : null; }
-function calcRow(car, r) { var L0 = Tank.liters(car.tank, r.cm0), L1 = Tank.liters(car.tank, r.cm1), L2 = Tank.liters(car.tank, r.cm2); r.L0 = L0; r.L1 = L1; r.L2 = L2; r.gap = r.prev && L0 != null && r.prev.L2 != null ? L0 - r.prev.L2 : null; r.add = L0 != null && L1 != null ? L1 - L0 : null; r.used = L1 != null && L2 != null ? L1 - L2 : null; }
+function calcRow(car, r) { var L0 = Tank.liters(car.tank, r.cm0), L1 = Tank.liters(car.tank, r.cm1), L2 = Tank.liters(car.tank, r.cm2); r.L0 = L0; r.L1 = L1; r.L2 = L2; r.gap = r.prev && L0 != null && r.prev.L2 != null ? L0 - r.prev.L2 : null; var dip = L0 != null && L1 != null ? L1 - L0 : null, act = dip != null && r.okl > 0 ? r.okl : null, L1c = act != null ? L0 + act : L1; r.dip = dip; r.diff = act != null ? dip - act : null; r.L1c = L1c; r.add = act != null ? act : dip; r.used = L1c != null && L2 != null ? L1c - L2 : null; }
 function localApply(action, b) { /* ຄືນ {ok, data} ຫຼື {ok:false,error} — ແລະ ບັນທຶກແຄັດ */
  if (action === 'sop.new') return sopBuild(b, true).then(function (run) { if (!run) return { ok: false, error: 'net' }; b.lid = run.id; return kv.set(rkey('sop.open', { id: run.id }), run).then(function () { return sopMeSync(run); }).then(function () { return { ok: true, data: run, queued: true }; }); });
  if (/^sop\./.test(action)) return sopApply(action, b);

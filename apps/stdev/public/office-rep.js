@@ -27,8 +27,8 @@ function drawReport() {
  var rows = S.rows.map(function (r, i) {
   return '<tr><td>' + (i + 1) + '</td><td class="l">' + (modOf('issue') && modOf('issue').show() ? '<button type="button" class="rowfill" data-fillcar="' + esc(r.base || r.v) + '" title="ກອກຂໍ້ມູນລົດຄັນນີ້">' + esc(r.name) + '<i class="noprint">' + ic('edit') + '</i></button>' : esc(r.name)) + (r.h && r.h.length ? ' <small class="pm bad" title="' + esc(r.h.map(function (x) { return when(x.at) + ' ' + x.k + ' ' + x.from + '→' + x.to; }).join(' | ')) + '">ແກ້ ' + r.h.length + ' ຄັ້ງ</small>' : '') + '</td>' +
    '<td><b>' + L(r.L0) + '</b></td><td>' + pic(r.v + '_b') + '</td><td>' + pic(r.v + '_bg') + '</td><td>' + (r.cm0 == null ? '' : r.cm0) + '</td>' +
-   '<td><b>' + L(r.add) + '</b><br><small>' + (r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ປໍ້າ' : 'ແທ່ງ') + '</small></td><td>' + pic(r.v + '_a') + '</td><td>' + pic(r.v + '_ag') + '</td><td>' + (r.cm1 == null ? '' : r.cm1) + '</td>' +
-   '<td><b>' + L(r.L1) + '</b></td>' +
+   '<td><b>' + L(r.add) + '</b><br><small>' + (r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ປໍ້າ' : 'ແທ່ງ') + '</small>' + (r.diff != null ? '<br><small class="muted">ແທກ ' + L(r.dip) + ' (ຕ່າງ ' + (r.diff > 0 ? '+' : '') + Math.round(r.diff * 10) / 10 + ')</small>' : '') + '</td><td>' + pic(r.v + '_a') + '</td><td>' + pic(r.v + '_ag') + '</td><td>' + (r.cm1 == null ? '' : r.cm1) + '</td>' +
+   '<td><b>' + L(r.L1c != null ? r.L1c : r.L1) + '</b></td>' +
    '<td>' + pic(r.v + '_e') + '</td><td>' + pic(r.v + '_eg') + '</td><td>' + (r.cm2 == null ? '' : r.cm2) + '</td><td><b>' + L(r.L2) + '</b></td>' +
    '<td class="used"><b>' + L(r.used) + '</b></td><td>' + (r.ack ? '✓ ' + esc(r.ack.name) : r.rej ? '✗ ' + esc(r.rej.name) : '') + '</td><td class="l">' + rqParts(r).map(esc).join('<br>') + (r.note ? (rqParts(r).length ? '<br>' : '') + esc(r.note) : '') + '</td></tr>';
  }).join('');
@@ -44,7 +44,7 @@ function xlsReport() {
  var t = totals(), src = function (r) { return r.add == null ? '' : r.src === 'jug' ? 'ຕຸກ' : r.src === 'shop' ? 'ຮ້ານ' + (r.shop ? ' ' + r.shop : '') : 'ແທ່ງ'; };
  var rows = [[coName()], ['ໃບຕິດຕາມ ຮັບ ແລະ ເບີກຈ່າຍນ້ຳມັນ ປະຈຳວັນ'], ['ໂຄງການ: ' + siteObj().name + ' · ປະຈຳວັນທີ: ' + dmy(S.date)], [],
   ['ລ/ດ', 'ປະເພດລົດ', 'ກ່ອນເຕີມ (L)', 'ກ່ອນເຕີມ (cm)', 'ເຕີມ (L)', 'ເຕີມຈາກ', 'ຫຼັງເຕີມ (cm)', 'ລວມໃນລົດ (L)', 'ຕອນແລງ (cm)', 'ຄ້າງຖັງ (L)', 'ໃຊ້ຕົວຈິງ (L)', 'ຄົນຂັບຮັບຮູ້', 'ເວລາຮັບຮູ້', 'ຄຳຂໍ → ອະນຸມັດ ແລະ ຂໍ້ສັງເກດ', 'ໝາຍເຫດ']];
- S.rows.forEach(function (r, i) { rows.push([i + 1, r.name, r.L0, r.cm0, r.add, src(r), r.cm1, r.L1, r.cm2, r.L2, r.used, r.ack ? r.ack.name : r.rej ? 'ບໍ່ຍອມຮັບ: ' + r.rej.why : '', r.ack ? when(r.ack.at) : '', rqParts(r).join(' | '), r.note || '']); });
+ S.rows.forEach(function (r, i) { rows.push([i + 1, r.name, r.L0, r.cm0, r.add, src(r), r.cm1, r.L1c != null ? r.L1c : r.L1, r.cm2, r.L2, r.used, r.ack ? r.ack.name : r.rej ? 'ບໍ່ຍອມຮັບ: ' + r.rej.why : '', r.ack ? when(r.ack.at) : '', rqParts(r).join(' | '), r.note || '']); });
  rows.push(['', 'ລວມຍອດຈ່າຍອອກມື້ນີ້', '', '', t[0], '', '', '', '', '', t[1]]);
  if (S.tank) rows.push([], ['ແທ່ງນ້ຳມັນ', 'ຮັບເຂົ້າ (L)', S.tank.recv || 0, 'ຍອດເຫຼືອຕາມບັນຊີ (L)', S.tank.bal, 'ແທກໄດ້ (L)', S.tank.measured]);
  rows.push([], ['ຜູ້ຂໍ', uniq((S.reqs || []).map(function (x) { return x.name; })).join(', ') || '..............'], ['ຜູ້ອະນຸມັດຄຳຂໍ', rqSigners({ items: S.reqs || [] }).join(', ') || '..............'], ['ຜູ້ອະນຸມັດໃບປະຈຳວັນ', S.approved ? S.approved.name + ' · ' + when(S.approved.at) : 'ຍັງບໍ່ອະນຸມັດ']);
